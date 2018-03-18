@@ -322,11 +322,11 @@ void MainWindow::on_actionLoad_Translation_2_triggered()
 
 void MainWindow::on_actionReset_PAL_triggered()
 {
-    this->pal->load( ":/town.pal" );
-    this->trn1->refreshResultingPalette();
-    this->trn2->refreshResultingPalette();
+    this->palView->refreshPalettesPathsAndNames();
 
+    this->palView->displayPal();
     this->palView->displayTrn();
+
     if( this->celView )
         this->celView->displayFrame();
     if( this->levelCelView )

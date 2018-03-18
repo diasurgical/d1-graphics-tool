@@ -21,7 +21,7 @@
 #include "levelcelview.h"
 #include "exportdialog.h"
 
-#define D1_GRAPHICS_TOOL_VERSION "0.3.1"
+#define D1_GRAPHICS_TOOL_VERSION "0.3.2"
 
 namespace Ui
 {
