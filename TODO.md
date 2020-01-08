@@ -2,6 +2,7 @@
 - Write a PowerShell release script which takes a Qt build folder as parameter
 - Add preferences dialog (with JSON config file?)
     - Default work folder
+    - Background color? (grey, green, magenta, cyan?)
     - Default zoom level (depending on CEL/CL2 type?)
 - Rework PAL and TRN support
     - Fix palette view crop and increase size.
