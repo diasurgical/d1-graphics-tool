@@ -15,8 +15,9 @@
 
 ### Change
 - Rework PAL and TRN support
-    - Fix palette view crop and increase size.
-    - Add a palette hits view based on PalView.
+    - Add 2x3 additional PalView.
+        - For frame palette hits
+        - For global palette hits
     - Build default.pal with first 128 bytes with a specific color.
     - Include cel/cl2 to trn mapping in the program, especially for monsters.
 - Rewrite level CEL frame type detection to leverage associated MIN file when available.
