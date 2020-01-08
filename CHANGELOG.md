@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.3.2 - 2020-01-07
 ### Changed
-- Start using Qt Framework 5.12 LTS.
+- Start using Qt Framework 5.12.6 LTS.
 - Rewrite changelog.
+
+### Fixed
+- Fix palette display bug (unexpected crop).
 
 ## 0.3.1 - 2018-03-09
 ### Changed
