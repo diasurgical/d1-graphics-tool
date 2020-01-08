@@ -74,7 +74,7 @@ void PalView::displayPal()
         }
 
         QBrush brush( this->pal->getColor(i) );
-        QPen pen( Qt::black );
+        QPen pen( Qt::white );
         this->palScene->addRect(x,y,w,w,pen,brush);
 
         x += dx;
@@ -114,7 +114,7 @@ void PalView::displayTrn()
 
     // Displaying palette colors
     QBrush brush;
-    QPen pen( Qt::black );
+    QPen pen( Qt::white );
     for( int i = 0; i < D1PAL_COLORS; i++ )
     {
         if( i%16 == 0 && i != 0 )

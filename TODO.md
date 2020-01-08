@@ -4,6 +4,7 @@
     - Default work folder
     - Background color? (grey, green, magenta, cyan?)
     - Default zoom level (depending on CEL/CL2 type?)
+        - By default: x2
 - Rework PAL and TRN support
     - Fix palette view crop and increase size.
     - Add a palette hits view based on PalView.
