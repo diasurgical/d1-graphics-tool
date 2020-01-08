@@ -93,13 +93,13 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>260</width>
+          <width>194</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>260</width>
+          <width>194</width>
           <height>16777215</height>
          </size>
         </property>
@@ -115,14 +115,14 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>260</width>
-          <height>260</height>
+          <width>194</width>
+          <height>194</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>260</width>
-          <height>260</height>
+          <width>194</width>
+          <height>194</height>
          </size>
         </property>
        </widget>
@@ -170,13 +170,13 @@
        <widget class="QComboBox" name="trn1ComboBox">
         <property name="minimumSize">
          <size>
-          <width>260</width>
+          <width>194</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>260</width>
+          <width>194</width>
           <height>16777215</height>
          </size>
         </property>
@@ -192,14 +192,14 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>260</width>
-          <height>260</height>
+          <width>194</width>
+          <height>194</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>260</width>
-          <height>260</height>
+          <width>194</width>
+          <height>194</height>
          </size>
         </property>
        </widget>
@@ -247,13 +247,13 @@
        <widget class="QComboBox" name="trn2ComboBox">
         <property name="minimumSize">
          <size>
-          <width>260</width>
+          <width>194</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>260</width>
+          <width>194</width>
           <height>16777215</height>
          </size>
         </property>
@@ -263,14 +263,14 @@
        <widget class="QGraphicsView" name="trn2GraphicsView">
         <property name="minimumSize">
          <size>
-          <width>260</width>
-          <height>260</height>
+          <width>194</width>
+          <height>194</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>260</width>
-          <height>260</height>
+          <width>194</width>
+          <height>194</height>
          </size>
         </property>
        </widget>

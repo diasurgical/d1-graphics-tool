@@ -12,7 +12,7 @@
 #include "d1pal.h"
 #include "d1trn.h"
 
-#define PALETTE_DEFAULT_WIDTH 256
+#define PALETTE_DEFAULT_WIDTH 192
 
 namespace Ui {
 class PalView;
