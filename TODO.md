@@ -15,9 +15,7 @@
 
 ### Change
 - Rework PAL and TRN support
-    - Add 2x3 additional PalView.
-        - 3 for for frame pal/trn hits
-        - 3 for global pal/trn hits
+    - Add 3 additional PalView with selector to choose for frame, sub-tiles, tiles or whole cel/cl2 file.
     - Build default.pal with first 128 bytes with a specific color.
     - Build additional palettes
         - Last color with specific color to identify transparent zones
