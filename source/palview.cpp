@@ -223,15 +223,16 @@ void PalView::refreshPalettesPathsAndNames()
 void PalView::refreshTranslationsPathsAndNames()
 {
     this->translationsPaths.clear();
-    this->translationsPaths["Default null.trn"] = ":/null.trn";
+    this->translationsPaths["_null.trn"] = ":/null.trn";
 
-    if( this->trn1->getFilePath() != ":/null.trn" )
+
+    if( !this->trn1->getFilePath().startsWith(":/") )
     {
         QFileInfo trn1FileInfo( this->trn1->getFilePath() );
         this->translationsPaths[ trn1FileInfo.fileName() ] = this->trn1->getFilePath();
     }
 
-    if( this->trn2->getFilePath() != ":/null.trn" )
+    if( !this->trn2->getFilePath().startsWith(":/") )
     {
         QFileInfo trn2FileInfo( this->trn2->getFilePath() );
         this->translationsPaths[ trn2FileInfo.fileName() ] = this->trn2->getFilePath();
