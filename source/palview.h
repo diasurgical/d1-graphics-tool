@@ -14,8 +14,9 @@
 
 #define PALETTE_DEFAULT_WIDTH 192
 
-namespace Ui {
-class PalView;
+namespace Ui
+{
+    class PalView;
 }
 
 class PalView : public QWidget

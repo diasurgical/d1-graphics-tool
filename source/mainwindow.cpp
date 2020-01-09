@@ -97,9 +97,9 @@ void MainWindow::on_actionOpen_triggered()
         {
             this->on_actionClose_triggered();
 
-            // Loading default town.pal
+            // Loading default.pal
             this->pal = new D1Pal;
-            this->pal->load( ":/town.pal" );
+            this->pal->load( ":/default.pal" );
 
             // Loading default null.trn
             this->trn1 = new D1Trn;

@@ -156,10 +156,13 @@ void PalView::displayTrn()
 
 void PalView::refreshPalettesPathsAndNames()
 {
+    // Add builtin palettes from the resource file
     this->palettesPaths.clear();
-    this->palettesPaths["Default town.pal"] = ":/town.pal";
+    this->palettesPaths["_default.pal"] = ":/default.pal";
+    this->palettesPaths["_town.pal"] = ":/town.pal";
 
-    if( this->pal->getFilePath() != ":/town.pal" )
+    // If the selected palette is not a builtin palette get the palette file path
+    if( !this->pal->getFilePath().startsWith(":/") )
     {
         QFileInfo palFileInfo( this->pal->getFilePath() );
         this->palettesPaths[ palFileInfo.fileName() ] = this->pal->getFilePath();
