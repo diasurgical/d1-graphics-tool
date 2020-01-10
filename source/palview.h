@@ -33,6 +33,7 @@ public:
     void refreshPalettesPathsAndNames();
     void refreshTranslationsPathsAndNames();
     void displayPal();
+    void displayPalHits();
     void displayTrn();
 
 private slots:
@@ -46,6 +47,7 @@ private:
     CelView *celView;
     LevelCelView *levelCelView;
     QGraphicsScene *palScene;
+    QGraphicsScene *palHitsScene;
     QGraphicsScene *trn1Scene;
     QGraphicsScene *trn2Scene;
 
@@ -54,6 +56,7 @@ private:
     D1Trn *trn2;
 
     bool buildingPalComboBox;
+    bool buildingPalHitsComboBox;
     bool buildingTrnComboBox;
     QMap<QString,QString> palettesPaths;
     QMap<QString,QString> translationsPaths;

@@ -6,13 +6,16 @@ PalView::PalView(QWidget *parent) :
     ui( new Ui::PalView ),
     isCelLevel( false ),
     palScene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
+    palHitsScene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
     trn1Scene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
     trn2Scene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
     buildingPalComboBox( false ),
+    buildingPalHitsComboBox( false ),
     buildingTrnComboBox( false )
 {
     ui->setupUi(this);
     ui->palGraphicsView->setScene( this->palScene );
+    ui->palHitsGraphicsView->setScene( this->palHitsScene );
     ui->trn1GraphicsView->setScene( this->trn1Scene );
     ui->trn2GraphicsView->setScene( this->trn2Scene );
 }
@@ -89,6 +92,54 @@ void PalView::displayPal()
         ui->palComboBox->addItem( this->palettesPaths.keys().at(i) );
     ui->palComboBox->setCurrentText( this->palettesPaths.key(this->pal->getFilePath()) );
     this->buildingPalComboBox = false;
+}
+
+void PalView::displayPalHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Removing existing items
+    this->palHitsScene->clear();
+
+    // Setting background color
+    this->palHitsScene->setBackgroundBrush( Qt::white );
+
+    // Displaying palette colors
+    for( int i = 0; i < D1PAL_COLORS; i++ )
+    {
+        if( i%16 == 0 && i != 0 )
+        {
+            x = 0;
+            y += dy;
+        }
+
+        QBrush brush( this->pal->getColor(i) );
+        QPen pen( Qt::white );
+        this->palHitsScene->addRect(x,y,w,w,pen,brush);
+
+        x += dx;
+    }
+
+    // This boolean is used to avoid infinite loop when adding items to the combo box
+    // because adding items calls on_palComboBox_currentIndexChanged() which itself calls
+    // displayPal() which calls on_palComboBox_currentIndexChanged(), ...
+    this->buildingPalHitsComboBox = true;
+    ui->palHitsComboBox->clear();
+    /*
+    for( int i = 0; i < this->palettesPaths.keys().size(); i++ )
+        ui->palComboBox->addItem( this->palettesPaths.keys().at(i) );
+    ui->palComboBox->setCurrentText( this->palettesPaths.key(this->pal->getFilePath()) );
+    */
+    this->buildingPalHitsComboBox = false;
 }
 
 void PalView::displayTrn()
@@ -225,7 +276,6 @@ void PalView::refreshTranslationsPathsAndNames()
     this->translationsPaths.clear();
     this->translationsPaths["_null.trn"] = ":/null.trn";
 
-
     if( !this->trn1->getFilePath().startsWith(":/") )
     {
         QFileInfo trn1FileInfo( this->trn1->getFilePath() );
@@ -262,7 +312,7 @@ void PalView::refreshTranslationsPathsAndNames()
 
 void PalView::on_palComboBox_currentIndexChanged(const QString &arg1)
 {
-    if( this->palettesPaths.isEmpty() || this->buildingPalComboBox )
+    if( this->palettesPaths.isEmpty() || this->buildingPalComboBox || this->buildingPalHitsComboBox )
         return;
 
     QString palFilePath = this->palettesPaths[arg1];
@@ -279,6 +329,7 @@ void PalView::on_palComboBox_currentIndexChanged(const QString &arg1)
     this->trn2->refreshResultingPalette();
 
     this->displayPal();
+    this->displayPalHits();
     this->displayTrn();
 
     if( this->isCelLevel )

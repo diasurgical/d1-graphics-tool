@@ -183,6 +183,7 @@ void MainWindow::on_actionOpen_triggered()
             }
 
             this->palView->displayPal();
+            this->palView->displayPalHits();
             this->palView->displayTrn();
 
             // Adding the CelView to the main frame
@@ -259,6 +260,7 @@ void MainWindow::on_actionLoad_PAL_triggered()
 
     this->palView->refreshPalettesPathsAndNames();
     this->palView->displayPal();
+    this->palView->displayPalHits();
     this->palView->displayTrn();
 
     if( this->celView )
@@ -325,6 +327,7 @@ void MainWindow::on_actionReset_PAL_triggered()
     this->palView->refreshPalettesPathsAndNames();
 
     this->palView->displayPal();
+    this->palView->displayPalHits();
     this->palView->displayTrn();
 
     if( this->celView )
