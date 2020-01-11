@@ -167,6 +167,14 @@ quint32 D1CelBase::getFrameCount()
     return this->frameCount;
 }
 
+D1CelFrameBase* D1CelBase::getFrame( quint16 frameIndex )
+{
+    if( frameIndex < this->frameCount )
+        return this->frames[frameIndex];
+    else
+        return NULL;
+}
+
 quint16 D1CelBase::getFrameWidth( quint16 frameIndex )
 {
     if( frameIndex < this->frameCount )

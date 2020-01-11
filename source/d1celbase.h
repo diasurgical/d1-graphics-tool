@@ -75,6 +75,7 @@ public:
     quint16 getGroupCount();
     QPair<quint16,quint16> getGroupFrameIndices( quint16 );
     quint32 getFrameCount();
+    D1CelFrameBase* getFrame( quint16 );
     quint16 getFrameWidth( quint16 );
     quint16 getFrameHeight( quint16 );
 
