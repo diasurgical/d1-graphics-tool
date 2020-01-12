@@ -169,6 +169,8 @@ void MainWindow::on_actionOpen_triggered()
                 this->til->setMin( this->min );
 
                 this->levelCelView = new LevelCelView;
+                QObject::connect( this->levelCelView, &LevelCelView::frameChanged, this->palView, &PalView::displayPalHits );
+
                 this->levelCelView->initialize( this->cel, this->min, this->til );
                 this->palView->initialize( this->pal, this->trn1, this->trn2, this->levelCelView );
                 this->levelCelView->displayFrame();
@@ -177,6 +179,8 @@ void MainWindow::on_actionOpen_triggered()
             else
             {
                 this->celView = new CelView;
+                QObject::connect( this->celView, &CelView::frameChanged, this->palView, &PalView::displayPalHits );
+
                 this->celView->initialize( this->cel );
                 this->palView->initialize( this->pal, this->trn1, this->trn2, this->celView );
                 this->celView->displayFrame();

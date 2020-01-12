@@ -33,6 +33,9 @@ public:
     bool checkGroupNumber();
     void setGroupNumber();
 
+signals:
+    void frameChanged();
+
 private slots:
     void on_firstFrameButton_clicked();
     void on_previousFrameButton_clicked();

@@ -31,6 +31,11 @@ public:
 
     void displayFrame();
 
+signals:
+    void frameChanged();
+    void subtileChanges();
+    void tileChanged();
+
 private slots:
     void on_firstFrameButton_clicked();
     void on_previousFrameButton_clicked();

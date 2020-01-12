@@ -290,39 +290,6 @@ void PalView::displayPalHits()
 
 void PalView::displayAllFramesPalHits()
 {
-    // Positions
-    int x = 0, y = 0;
-
-    // X delta
-    int dx = PALETTE_DEFAULT_WIDTH/16;
-    // Y delta
-    int dy = PALETTE_DEFAULT_WIDTH/16;
-
-    // Color width (-1 is for QRect border)
-    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
-
-    // Removing existing items
-    this->palHitsScene->clear();
-
-    // Setting background color
-    this->palHitsScene->setBackgroundBrush( Qt::black );
-
-    // Displaying palette colors
-    for( int i = 0; i < D1PAL_COLORS; i++ )
-    {
-        if( i%16 == 0 && i != 0 )
-        {
-            x = 0;
-            y += dy;
-        }
-
-        //QBrush brush( this->pal->getColor(i) );
-        QBrush brush( Qt::red );
-        QPen pen( Qt::white );
-        this->palHitsScene->addRect(x,y,w,w,pen,brush);
-
-        x += dx;
-    }
 }
 
 void PalView::displayCurrentFramePalHits()
@@ -356,6 +323,7 @@ void PalView::displayCurrentFramePalHits()
     else
         frame = this->celView->getCel()->getFrame(this->celView->getCurrentFrameIndex());
 
+    // TODO: Precalculate the palette hits to optimize speed
     // Go through all pixels of the frame
     for( int i = 0; i < frame->getWidth(); i++ )
     {
