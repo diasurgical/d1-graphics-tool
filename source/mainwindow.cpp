@@ -97,6 +97,9 @@ void MainWindow::on_actionOpen_triggered()
         {
             this->on_actionClose_triggered();
 
+            this->ui->statusBar->showMessage("Loading...");
+            this->ui->statusBar->repaint();
+
             // Loading default.pal
             this->pal = new D1Pal;
             this->pal->load( ":/default.pal" );
@@ -199,8 +202,11 @@ void MainWindow::on_actionOpen_triggered()
 
             // Adding the PalView to the pal frame
             this->ui->palFrame->layout()->addWidget( this->palView );
-            ui->menuPalette->setEnabled( true );
-            ui->actionExport->setEnabled( true );
+            this->ui->menuPalette->setEnabled( true );
+            this->ui->actionExport->setEnabled( true );
+
+            // Clear loading message from status bar
+            this->ui->statusBar->clearMessage();
         }
     }
 
@@ -210,7 +216,6 @@ void MainWindow::on_actionOpen_triggered()
     //QTime timer = QTime();
     //timer.start();
     //QMessageBox::information( this, "time", QString::number(timer.elapsed()) );
-
 }
 
 void MainWindow::on_actionClose_triggered()
