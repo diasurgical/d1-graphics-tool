@@ -33,13 +33,19 @@ public:
     void refreshPalettesPathsAndNames();
     void refreshTranslationsPathsAndNames();
     void displayPal();
-    void displayPalHits();
     void displayTrn();
+
+    void refreshPaletteHitsNames();
+    void displayPalHits();
+    void displayAllFramesPalHits();
+    void displayCurrentFramePalHits();
 
 private slots:
     void on_palComboBox_currentIndexChanged(const QString &arg1);
     void on_trn1ComboBox_currentIndexChanged(const QString &arg1);
     void on_trn2ComboBox_currentIndexChanged(const QString &arg1);
+
+    void on_palHitsComboBox_currentIndexChanged(const QString &arg1);
 
 private:
     Ui::PalView *ui;
@@ -56,7 +62,6 @@ private:
     D1Trn *trn2;
 
     bool buildingPalComboBox;
-    bool buildingPalHitsComboBox;
     bool buildingTrnComboBox;
     QMap<QString,QString> palettesPaths;
     QMap<QString,QString> translationsPaths;

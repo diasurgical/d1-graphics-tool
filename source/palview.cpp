@@ -10,7 +10,6 @@ PalView::PalView(QWidget *parent) :
     trn1Scene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
     trn2Scene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
     buildingPalComboBox( false ),
-    buildingPalHitsComboBox( false ),
     buildingTrnComboBox( false )
 {
     ui->setupUi(this);
@@ -34,6 +33,8 @@ void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, CelView* c )
 
     this->refreshPalettesPathsAndNames();
     this->refreshTranslationsPathsAndNames();
+
+    this->refreshPaletteHitsNames();
 }
 
 void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, LevelCelView* lc )
@@ -46,6 +47,8 @@ void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, LevelCelView* lc )
 
     this->refreshPalettesPathsAndNames();
     this->refreshTranslationsPathsAndNames();
+
+    this->refreshPaletteHitsNames();
 }
 
 void PalView::displayPal()
@@ -92,54 +95,6 @@ void PalView::displayPal()
         ui->palComboBox->addItem( this->palettesPaths.keys().at(i) );
     ui->palComboBox->setCurrentText( this->palettesPaths.key(this->pal->getFilePath()) );
     this->buildingPalComboBox = false;
-}
-
-void PalView::displayPalHits()
-{
-    // Positions
-    int x = 0, y = 0;
-
-    // X delta
-    int dx = PALETTE_DEFAULT_WIDTH/16;
-    // Y delta
-    int dy = PALETTE_DEFAULT_WIDTH/16;
-
-    // Color width (-1 is for QRect border)
-    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
-
-    // Removing existing items
-    this->palHitsScene->clear();
-
-    // Setting background color
-    this->palHitsScene->setBackgroundBrush( Qt::white );
-
-    // Displaying palette colors
-    for( int i = 0; i < D1PAL_COLORS; i++ )
-    {
-        if( i%16 == 0 && i != 0 )
-        {
-            x = 0;
-            y += dy;
-        }
-
-        QBrush brush( this->pal->getColor(i) );
-        QPen pen( Qt::white );
-        this->palHitsScene->addRect(x,y,w,w,pen,brush);
-
-        x += dx;
-    }
-
-    // This boolean is used to avoid infinite loop when adding items to the combo box
-    // because adding items calls on_palComboBox_currentIndexChanged() which itself calls
-    // displayPal() which calls on_palComboBox_currentIndexChanged(), ...
-    this->buildingPalHitsComboBox = true;
-    ui->palHitsComboBox->clear();
-    /*
-    for( int i = 0; i < this->palettesPaths.keys().size(); i++ )
-        ui->palComboBox->addItem( this->palettesPaths.keys().at(i) );
-    ui->palComboBox->setCurrentText( this->palettesPaths.key(this->pal->getFilePath()) );
-    */
-    this->buildingPalHitsComboBox = false;
 }
 
 void PalView::displayTrn()
@@ -268,7 +223,22 @@ void PalView::refreshPalettesPathsAndNames()
             }
         }
     }
+}
 
+void PalView::refreshPaletteHitsNames()
+{
+    // Add items to the palette hits combo box
+    this->ui->palHitsComboBox->clear();
+    this->ui->palHitsComboBox->addItem("All frames");
+
+    if( this->isCelLevel )
+    {
+        this->ui->palHitsComboBox->addItem("Current tile");
+        this->ui->palHitsComboBox->addItem("Current sub-tile");
+    }
+
+    this->ui->palHitsComboBox->addItem("Current frame");
+    this->ui->palHitsComboBox->setCurrentText("All frames");
 }
 
 void PalView::refreshTranslationsPathsAndNames()
@@ -310,9 +280,55 @@ void PalView::refreshTranslationsPathsAndNames()
     }
 }
 
+void PalView::displayPalHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Removing existing items
+    this->palHitsScene->clear();
+
+    // Setting background color
+    this->palHitsScene->setBackgroundBrush( Qt::white );
+
+    // Displaying palette colors
+    for( int i = 0; i < D1PAL_COLORS; i++ )
+    {
+        if( i%16 == 0 && i != 0 )
+        {
+            x = 0;
+            y += dy;
+        }
+
+        QBrush brush( this->pal->getColor(i) );
+        QPen pen( Qt::white );
+        this->palHitsScene->addRect(x,y,w,w,pen,brush);
+
+        x += dx;
+    }
+
+    // This boolean is used to avoid infinite loop when adding items to the combo box
+    // because adding items calls on_palComboBox_currentIndexChanged() which itself calls
+    // displayPal() which calls on_palComboBox_currentIndexChanged(), ...
+    //this->buildingPalHitsComboBox = true;
+    //ui->palHitsComboBox->clear();
+    //ui->palHitsComboBox->addItem("All frames");
+    //ui->palHitsComboBox->addItem("Current frame");
+    //ui->palHitsComboBox->setCurrentText("All frames");
+    //this->buildingPalHitsComboBox = false;
+}
+
 void PalView::on_palComboBox_currentIndexChanged(const QString &arg1)
 {
-    if( this->palettesPaths.isEmpty() || this->buildingPalComboBox || this->buildingPalHitsComboBox )
+    if( this->palettesPaths.isEmpty() || this->buildingPalComboBox )
         return;
 
     QString palFilePath = this->palettesPaths[arg1];
@@ -329,8 +345,9 @@ void PalView::on_palComboBox_currentIndexChanged(const QString &arg1)
     this->trn2->refreshResultingPalette();
 
     this->displayPal();
-    this->displayPalHits();
     this->displayTrn();
+
+    this->displayPalHits();
 
     if( this->isCelLevel )
         this->levelCelView->displayFrame();
@@ -387,4 +404,27 @@ void PalView::on_trn2ComboBox_currentIndexChanged(const QString &arg1)
         this->levelCelView->displayFrame();
     else
         this->celView->displayFrame();
+}
+
+void PalView::on_palHitsComboBox_currentIndexChanged(const QString &arg1)
+{
+    if( arg1 == "All frames" )
+    {
+
+    }
+    else if( arg1 == "Current frame" )
+    {
+        this->palHitsScene->clear();
+
+        /*
+        this->palHitsScene->setBackgroundBrush( Qt::red );
+        QBrush brush( Qt::red );
+        QPen pen( Qt::white );
+
+        this->palHitsScene->addRect(10,10,30,30,pen,brush);
+        //this->palHitsScene->
+        */
+    }
+
+    //this->displayPalHits();
 }
