@@ -177,14 +177,15 @@ void MainWindow::on_actionOpen_triggered()
             else
             {
                 this->celView = new CelView;
-                this->celView->setCel( this->cel );
+                this->celView->initialize( this->cel );
                 this->palView->initialize( this->pal, this->trn1, this->trn2, this->celView );
                 this->celView->displayFrame();
             }
 
             this->palView->displayPal();
-            this->palView->displayPalHits();
             this->palView->displayTrn();
+
+            this->palView->displayPalHits();
 
             // Adding the CelView to the main frame
             if( this->celView )
@@ -260,8 +261,9 @@ void MainWindow::on_actionLoad_PAL_triggered()
 
     this->palView->refreshPalettesPathsAndNames();
     this->palView->displayPal();
-    this->palView->displayPalHits();
     this->palView->displayTrn();
+
+    this->palView->displayPalHits();
 
     if( this->celView )
         this->celView->displayFrame();
@@ -327,8 +329,9 @@ void MainWindow::on_actionReset_PAL_triggered()
     this->palView->refreshPalettesPathsAndNames();
 
     this->palView->displayPal();
-    this->palView->displayPalHits();
     this->palView->displayTrn();
+
+    this->palView->displayPalHits();
 
     if( this->celView )
         this->celView->displayFrame();

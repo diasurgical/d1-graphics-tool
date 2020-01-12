@@ -282,6 +282,14 @@ void PalView::refreshTranslationsPathsAndNames()
 
 void PalView::displayPalHits()
 {
+    if( this->ui->palHitsComboBox->currentText() == "All frames" )
+        this->displayAllFramesPalHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current frame" )
+        this->displayCurrentFramePalHits();
+}
+
+void PalView::displayAllFramesPalHits()
+{
     // Positions
     int x = 0, y = 0;
 
@@ -297,7 +305,7 @@ void PalView::displayPalHits()
     this->palHitsScene->clear();
 
     // Setting background color
-    this->palHitsScene->setBackgroundBrush( Qt::white );
+    this->palHitsScene->setBackgroundBrush( Qt::black );
 
     // Displaying palette colors
     for( int i = 0; i < D1PAL_COLORS; i++ )
@@ -308,22 +316,71 @@ void PalView::displayPalHits()
             y += dy;
         }
 
-        QBrush brush( this->pal->getColor(i) );
+        //QBrush brush( this->pal->getColor(i) );
+        QBrush brush( Qt::red );
         QPen pen( Qt::white );
         this->palHitsScene->addRect(x,y,w,w,pen,brush);
 
         x += dx;
     }
+}
 
-    // This boolean is used to avoid infinite loop when adding items to the combo box
-    // because adding items calls on_palComboBox_currentIndexChanged() which itself calls
-    // displayPal() which calls on_palComboBox_currentIndexChanged(), ...
-    //this->buildingPalHitsComboBox = true;
-    //ui->palHitsComboBox->clear();
-    //ui->palHitsComboBox->addItem("All frames");
-    //ui->palHitsComboBox->addItem("Current frame");
-    //ui->palHitsComboBox->setCurrentText("All frames");
-    //this->buildingPalHitsComboBox = false;
+void PalView::displayCurrentFramePalHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Cel frame
+    D1CelFrameBase* frame = NULL;
+
+    // Cel pixel color index
+    quint8 palIndex = 0;
+
+    // Removing existing items
+    this->palHitsScene->clear();
+
+    // Setting background color
+    this->palHitsScene->setBackgroundBrush( Qt::black );
+
+    // Retrieve the current frame
+    if( this->isCelLevel )
+        frame = this->levelCelView->getCel()->getFrame(this->levelCelView->getCurrentFrameIndex());
+    else
+        frame = this->celView->getCel()->getFrame(this->celView->getCurrentFrameIndex());
+
+    // Go through all pixels of the frame
+    for( int i = 0; i < frame->getWidth(); i++ )
+    {
+        for( int j = 0; j < frame->getHeight(); j++ )
+        {
+            // Get the palette index of the current pixel
+            palIndex = frame->getPixel(i,j).getPaletteIndex();
+
+            // Compute coordinates
+            if( palIndex == 0 )
+            {
+                x = 0;
+                y = 0;
+            }
+            else
+            {
+                x = (palIndex%16) * dx;
+                y = (palIndex/16) * dy;
+            }
+
+            QBrush brush( this->pal->getColor(palIndex) );
+            QPen pen( Qt::white );
+            this->palHitsScene->addRect(x,y,w,w,pen,brush);
+        }
+    }
 }
 
 void PalView::on_palComboBox_currentIndexChanged(const QString &arg1)
@@ -406,25 +463,8 @@ void PalView::on_trn2ComboBox_currentIndexChanged(const QString &arg1)
         this->celView->displayFrame();
 }
 
-void PalView::on_palHitsComboBox_currentIndexChanged(const QString &arg1)
+void PalView::on_palHitsComboBox_currentIndexChanged()
 {
-    if( arg1 == "All frames" )
-    {
-
-    }
-    else if( arg1 == "Current frame" )
-    {
-        this->palHitsScene->clear();
-
-        /*
-        this->palHitsScene->setBackgroundBrush( Qt::red );
-        QBrush brush( Qt::red );
-        QPen pen( Qt::white );
-
-        this->palHitsScene->addRect(10,10,30,30,pen,brush);
-        //this->palHitsScene->
-        */
-    }
-
-    //this->displayPalHits();
+    this->displayPalHits();
+    //this->displayTrnHits();
 }

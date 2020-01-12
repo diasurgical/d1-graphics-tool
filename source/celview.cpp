@@ -20,7 +20,7 @@ CelView::~CelView()
     delete ui;
 }
 
-void CelView::setCel( D1CelBase* c )
+void CelView::initialize( D1CelBase* c )
 {
     this->cel = c;
 
@@ -45,9 +45,19 @@ void CelView::setCel( D1CelBase* c )
         QString::number( this->cel->getFrameCount() ) );
 }
 
+D1CelBase* CelView::getCel()
+{
+    return this->cel;
+}
+
 QString CelView::getCelPath()
 {
     return this->cel->getFilePath();
+}
+
+quint32 CelView::getCurrentFrameIndex()
+{
+    return this->currentFrameIndex;
 }
 
 void CelView::displayFrame()

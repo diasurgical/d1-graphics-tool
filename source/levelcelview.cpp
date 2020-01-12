@@ -42,9 +42,19 @@ void LevelCelView::initialize( D1CelBase* c, D1Min* m, D1Til* t )
         QString::number( this->til->getTileCount() ) );
 }
 
+D1CelBase* LevelCelView::getCel()
+{
+    return this->cel;
+}
+
 QString LevelCelView::getCelPath()
 {
     return this->cel->getFilePath();
+}
+
+quint32 LevelCelView::getCurrentFrameIndex()
+{
+    return this->currentFrameIndex;
 }
 
 void LevelCelView::displayFrame()

@@ -25,7 +25,9 @@ public:
     ~LevelCelView();
 
     void initialize( D1CelBase*, D1Min*, D1Til* );
+    D1CelBase* getCel();
     QString getCelPath();
+    quint32 getCurrentFrameIndex();
 
     void displayFrame();
 

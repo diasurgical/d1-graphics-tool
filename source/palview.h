@@ -39,13 +39,14 @@ public:
     void displayPalHits();
     void displayAllFramesPalHits();
     void displayCurrentFramePalHits();
+    void displayTrnHits();
 
 private slots:
     void on_palComboBox_currentIndexChanged(const QString &arg1);
     void on_trn1ComboBox_currentIndexChanged(const QString &arg1);
     void on_trn2ComboBox_currentIndexChanged(const QString &arg1);
 
-    void on_palHitsComboBox_currentIndexChanged(const QString &arg1);
+    void on_palHitsComboBox_currentIndexChanged();
 
 private:
     Ui::PalView *ui;
