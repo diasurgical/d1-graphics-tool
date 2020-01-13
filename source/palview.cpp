@@ -351,13 +351,19 @@ void PalView::displayCurrentFramePalHits()
     quint8 paletteIndex = 0;
     QColor color;
 
+    // Frame hits map
+    QMap<quint8,QColor> currentFrameHits;
+
     // Removing existing items
     this->palHitsScene->clear();
     // Setting background color
     this->palHitsScene->setBackgroundBrush( Qt::black );
 
     // Get the current frame hits
-    QMap<quint8,QColor> currentFrameHits = this->framePalHits[this->celView->getCurrentFrameIndex()];
+    if( this->isCelLevel )
+        currentFrameHits = this->framePalHits[this->levelCelView->getCurrentFrameIndex()];
+    else
+        currentFrameHits = this->framePalHits[this->celView->getCurrentFrameIndex()];
 
     // Go through all hits of the current frame
     QMapIterator<quint8,QColor> it(currentFrameHits);
