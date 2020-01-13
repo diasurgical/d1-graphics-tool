@@ -34,6 +34,7 @@ void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, CelView* c )
     this->refreshPalettesPathsAndNames();
     this->refreshTranslationsPathsAndNames();
 
+    this->buildPalHits();
     this->refreshPaletteHitsNames();
 }
 
@@ -48,7 +49,48 @@ void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, LevelCelView* lc )
     this->refreshPalettesPathsAndNames();
     this->refreshTranslationsPathsAndNames();
 
+    this->buildPalHits();
     this->refreshPaletteHitsNames();
+}
+
+void PalView::buildPalHits()
+{
+    D1CelBase* cel = NULL;
+    D1CelFrameBase* frame = NULL;
+    quint8 paletteIndex = 0;
+    QColor color;
+
+    // Retrieve the CEL/CL2
+    if( this->isCelLevel )
+        cel = this->levelCelView->getCel();
+    else
+        cel = this->celView->getCel();
+
+    // Go through all frames
+    for( quint32 i = 0; i < cel->getFrameCount(); i++ )
+    {
+        QMap<quint8,QColor> frameHits;
+
+        // Get frame pointer
+        frame = cel->getFrame(i);
+
+        // Go through every pixels of the frame
+        for( int jx = 0; jx < frame->getWidth(); jx++ )
+        {
+            for( int jy = 0; jy < frame->getHeight(); jy++ )
+            {
+                // Retrieve the color of the pixel
+                paletteIndex = frame->getPixel(jx,jy).getPaletteIndex();
+                color = this->pal->getColor(paletteIndex);
+
+                // Add the color to the frameHits and allFramesPalHits
+                frameHits.insert(paletteIndex,color);
+                this->allFramesPalHits.insert(paletteIndex,color);
+            }
+        }
+
+        this->framePalHits[i] = frameHits;
+    }
 }
 
 void PalView::displayPal()
@@ -305,49 +347,42 @@ void PalView::displayCurrentFramePalHits()
     // Color width (-1 is for QRect border)
     int w = PALETTE_DEFAULT_WIDTH/16 - 1;
 
-    // Cel frame
-    D1CelFrameBase* frame = NULL;
-
-    // Cel pixel color index
-    quint8 palIndex = 0;
+    // Palette index and color
+    quint8 paletteIndex = 0;
+    QColor color;
 
     // Removing existing items
     this->palHitsScene->clear();
-
     // Setting background color
     this->palHitsScene->setBackgroundBrush( Qt::black );
 
-    // Retrieve the current frame
-    if( this->isCelLevel )
-        frame = this->levelCelView->getCel()->getFrame(this->levelCelView->getCurrentFrameIndex());
-    else
-        frame = this->celView->getCel()->getFrame(this->celView->getCurrentFrameIndex());
+    // Get the current frame hits
+    QMap<quint8,QColor> currentFrameHits = this->framePalHits[this->celView->getCurrentFrameIndex()];
 
-    // TODO: Precalculate the palette hits to optimize speed
-    // Go through all pixels of the frame
-    for( int i = 0; i < frame->getWidth(); i++ )
+    // Go through all hits of the current frame
+    QMapIterator<quint8,QColor> it(currentFrameHits);
+    while( it.hasNext() )
     {
-        for( int j = 0; j < frame->getHeight(); j++ )
+        it.next();
+
+        paletteIndex = it.key();
+        color = it.value();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
         {
-            // Get the palette index of the current pixel
-            palIndex = frame->getPixel(i,j).getPaletteIndex();
-
-            // Compute coordinates
-            if( palIndex == 0 )
-            {
-                x = 0;
-                y = 0;
-            }
-            else
-            {
-                x = (palIndex%16) * dx;
-                y = (palIndex/16) * dy;
-            }
-
-            QBrush brush( this->pal->getColor(palIndex) );
-            QPen pen( Qt::white );
-            this->palHitsScene->addRect(x,y,w,w,pen,brush);
+            x = 0;
+            y = 0;
         }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QBrush brush( color );
+        QPen pen( Qt::white );
+        this->palHitsScene->addRect(x,y,w,w,pen,brush);
     }
 }
 

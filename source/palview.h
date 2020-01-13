@@ -29,6 +29,7 @@ public:
 
     void initialize( D1Pal*, D1Trn*, D1Trn*, CelView* );
     void initialize( D1Pal*, D1Trn*, D1Trn*, LevelCelView* );
+    void buildPalHits();
 
     void refreshPalettesPathsAndNames();
     void refreshTranslationsPathsAndNames();
@@ -66,6 +67,11 @@ private:
     bool buildingTrnComboBox;
     QMap<QString,QString> palettesPaths;
     QMap<QString,QString> translationsPaths;
+
+    QMap<quint8,QColor> allFramesPalHits;
+    QMap<quint32,QMap<quint8,QColor>> framePalHits;
+    QMap<quint32,QMap<quint8,QColor>> tilePalHits;
+    QMap<quint32,QMap<quint8,QColor>> subtilePalHits;
 };
 
 #endif // PALVIEW_H
