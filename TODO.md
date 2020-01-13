@@ -22,6 +22,7 @@
         - Second half with specific color?
         - One for each hue in a specific color?
     - Include cel/cl2 to trn mapping in the program, especially for monsters.
+- Remove CelView and LevelCelView dependencies from PalView by leveraging signals/slots.
 - Rewrite level CEL frame type detection to leverage associated MIN file when available.
 
 ### Fix
