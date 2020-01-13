@@ -337,6 +337,49 @@ void PalView::displayPalHits()
 
 void PalView::displayAllFramesPalHits()
 {
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Removing existing items
+    this->palHitsScene->clear();
+    // Setting background color
+    this->palHitsScene->setBackgroundBrush( Qt::black );
+
+    // Go through all hits of the current frame
+    QMapIterator<quint8,quint32> it(this->allFramesPalHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QBrush brush( this->pal->getColor(paletteIndex) );
+        QPen pen( Qt::white );
+        this->palHitsScene->addRect(x,y,w,w,pen,brush);
+    }
 }
 
 void PalView::displayCurrentFramePalHits()
@@ -352,7 +395,7 @@ void PalView::displayCurrentFramePalHits()
     // Color width (-1 is for QRect border)
     int w = PALETTE_DEFAULT_WIDTH/16 - 1;
 
-    // Palette index and color
+    // Palette index
     quint8 paletteIndex = 0;
 
     // Frame hits map

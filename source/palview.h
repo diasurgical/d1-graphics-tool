@@ -68,6 +68,7 @@ private:
     QMap<QString,QString> palettesPaths;
     QMap<QString,QString> translationsPaths;
 
+    // Palette hits are stored with a palette index key and a hit count value
     QMap<quint8,quint32> allFramesPalHits;
     QMap<quint32,QMap<quint8,quint32>> framePalHits;
     QMap<quint32,QMap<quint8,quint32>> tilePalHits;
