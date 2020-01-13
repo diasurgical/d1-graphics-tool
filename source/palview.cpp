@@ -58,7 +58,6 @@ void PalView::buildPalHits()
     D1CelBase* cel = NULL;
     D1CelFrameBase* frame = NULL;
     quint8 paletteIndex = 0;
-    QColor color;
 
     // Retrieve the CEL/CL2
     if( this->isCelLevel )
@@ -69,7 +68,7 @@ void PalView::buildPalHits()
     // Go through all frames
     for( quint32 i = 0; i < cel->getFrameCount(); i++ )
     {
-        QMap<quint8,QColor> frameHits;
+        QMap<quint8,quint32> frameHits;
 
         // Get frame pointer
         frame = cel->getFrame(i);
@@ -81,11 +80,17 @@ void PalView::buildPalHits()
             {
                 // Retrieve the color of the pixel
                 paletteIndex = frame->getPixel(jx,jy).getPaletteIndex();
-                color = this->pal->getColor(paletteIndex);
 
-                // Add the color to the frameHits and allFramesPalHits
-                frameHits.insert(paletteIndex,color);
-                this->allFramesPalHits.insert(paletteIndex,color);
+                // Add one hit to the frameHits and allFramesPalHits maps
+                if( frameHits.contains(paletteIndex) )
+                    frameHits.insert(paletteIndex,frameHits.value(paletteIndex)+1);
+                else
+                    frameHits.insert(paletteIndex,1);
+
+                if( frameHits.contains(paletteIndex) )
+                    this->allFramesPalHits.insert(paletteIndex,frameHits.value(paletteIndex)+1);
+                else
+                    this->allFramesPalHits.insert(paletteIndex,1);
             }
         }
 
@@ -349,10 +354,9 @@ void PalView::displayCurrentFramePalHits()
 
     // Palette index and color
     quint8 paletteIndex = 0;
-    QColor color;
 
     // Frame hits map
-    QMap<quint8,QColor> currentFrameHits;
+    QMap<quint8,quint32> currentFrameHits;
 
     // Removing existing items
     this->palHitsScene->clear();
@@ -366,13 +370,12 @@ void PalView::displayCurrentFramePalHits()
         currentFrameHits = this->framePalHits[this->celView->getCurrentFrameIndex()];
 
     // Go through all hits of the current frame
-    QMapIterator<quint8,QColor> it(currentFrameHits);
+    QMapIterator<quint8,quint32> it(currentFrameHits);
     while( it.hasNext() )
     {
         it.next();
 
         paletteIndex = it.key();
-        color = it.value();
 
         // Compute coordinates
         if( paletteIndex == 0 )
@@ -386,7 +389,7 @@ void PalView::displayCurrentFramePalHits()
             y = (paletteIndex/16) * dy;
         }
 
-        QBrush brush( color );
+        QBrush brush( this->pal->getColor(paletteIndex) );
         QPen pen( Qt::white );
         this->palHitsScene->addRect(x,y,w,w,pen,brush);
     }

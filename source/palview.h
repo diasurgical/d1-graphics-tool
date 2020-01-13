@@ -68,10 +68,10 @@ private:
     QMap<QString,QString> palettesPaths;
     QMap<QString,QString> translationsPaths;
 
-    QMap<quint8,QColor> allFramesPalHits;
-    QMap<quint32,QMap<quint8,QColor>> framePalHits;
-    QMap<quint32,QMap<quint8,QColor>> tilePalHits;
-    QMap<quint32,QMap<quint8,QColor>> subtilePalHits;
+    QMap<quint8,quint32> allFramesPalHits;
+    QMap<quint32,QMap<quint8,quint32>> framePalHits;
+    QMap<quint32,QMap<quint8,quint32>> tilePalHits;
+    QMap<quint32,QMap<quint8,quint32>> subtilePalHits;
 };
 
 #endif // PALVIEW_H
