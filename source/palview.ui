@@ -180,14 +180,14 @@
       <item row="0" column="1">
        <widget class="QLabel" name="palTrnHitsLabel">
         <property name="text">
-         <string>Hits</string>
+         <string>Palette Hits</string>
         </property>
        </widget>
       </item>
       <item row="0" column="0">
        <widget class="QLabel" name="palTrnLabel">
         <property name="text">
-         <string>Palette/Translation Files</string>
+         <string>Palette</string>
         </property>
        </widget>
       </item>
