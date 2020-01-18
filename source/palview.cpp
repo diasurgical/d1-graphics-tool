@@ -505,7 +505,64 @@ void PalView::displayAllFramesTrnHits()
 
 void PalView::displayCurrentFrameTrnHits()
 {
+    // Positions
+    int x = 0, y = 0;
 
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Frame hits map
+    QMap<quint8,quint32> currentFrameHits;
+
+    // Removing existing items
+    this->trn1HitsScene->clear();
+    this->trn2HitsScene->clear();
+    // Setting background color
+    this->trn1HitsScene->setBackgroundBrush( Qt::black );
+    this->trn2HitsScene->setBackgroundBrush( Qt::black );
+
+    // Get the current frame hits
+    if( this->isCelLevel )
+        currentFrameHits = this->framePalHits[this->levelCelView->getCurrentFrameIndex()];
+    else
+        currentFrameHits = this->framePalHits[this->celView->getCurrentFrameIndex()];
+
+    // Go through all hits of the current frame
+    QMapIterator<quint8,quint32> it(currentFrameHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QPen pen( Qt::white );
+
+        QBrush brush1( this->trn1->getResultingPalette()->getColor(paletteIndex) );
+        this->trn1HitsScene->addRect(x,y,w,w,pen,brush1);
+
+        QBrush brush2( this->trn2->getResultingPalette()->getColor(paletteIndex) );
+        this->trn2HitsScene->addRect(x,y,w,w,pen,brush2);
+    }
 }
 
 void PalView::on_palComboBox_currentIndexChanged(const QString &arg1)
@@ -591,5 +648,5 @@ void PalView::on_trn2ComboBox_currentIndexChanged(const QString &arg1)
 void PalView::on_palHitsComboBox_currentIndexChanged()
 {
     this->displayPalHits();
-    //this->displayTrnHits();
+    this->displayTrnHits();
 }
