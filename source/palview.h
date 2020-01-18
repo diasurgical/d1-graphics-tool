@@ -40,7 +40,10 @@ public:
     void displayPalHits();
     void displayAllFramesPalHits();
     void displayCurrentFramePalHits();
+
     void displayTrnHits();
+    void displayAllFramesTrnHits();
+    void displayCurrentFrameTrnHits();
 
 private slots:
     void on_palComboBox_currentIndexChanged(const QString &arg1);
@@ -54,10 +57,14 @@ private:
     bool isCelLevel;
     CelView *celView;
     LevelCelView *levelCelView;
+
     QGraphicsScene *palScene;
     QGraphicsScene *palHitsScene;
+
     QGraphicsScene *trn1Scene;
     QGraphicsScene *trn2Scene;
+    QGraphicsScene *trn1HitsScene;
+    QGraphicsScene *trn2HitsScene;
 
     D1Pal *pal;
     D1Trn *trn1;
