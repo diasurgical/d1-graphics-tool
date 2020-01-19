@@ -27,7 +27,12 @@ public:
     void initialize( D1CelBase*, D1Min*, D1Til* );
     D1CelBase* getCel();
     QString getCelPath();
+    D1Min* getMin();
+    D1Til* getTil();
+
     quint32 getCurrentFrameIndex();
+    quint16 getCurrentSubtileIndex();
+    quint16 getCurrentTileIndex();
 
     void displayFrame();
 

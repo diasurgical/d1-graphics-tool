@@ -52,9 +52,29 @@ QString LevelCelView::getCelPath()
     return this->cel->getFilePath();
 }
 
+D1Min* LevelCelView::getMin()
+{
+    return this->min;
+}
+
+D1Til* LevelCelView::getTil()
+{
+    return this->til;
+}
+
 quint32 LevelCelView::getCurrentFrameIndex()
 {
     return this->currentFrameIndex;
+}
+
+quint16 LevelCelView::getCurrentSubtileIndex()
+{
+    return this->currentSubtileIndex;
+}
+
+quint16 LevelCelView::getCurrentTileIndex()
+{
+    return this->currentTileIndex;
 }
 
 void LevelCelView::displayFrame()
