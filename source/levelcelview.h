@@ -38,8 +38,6 @@ public:
 
 signals:
     void frameChanged();
-    void subtileChanges();
-    void tileChanged();
 
 private slots:
     void on_firstFrameButton_clicked();

@@ -30,6 +30,8 @@ public:
     void initialize( D1Pal*, D1Trn*, D1Trn*, CelView* );
     void initialize( D1Pal*, D1Trn*, D1Trn*, LevelCelView* );
     void buildPalHits();
+    void buildSubtilePalHits();
+    void buildTilePalHits();
 
     void refreshPalettesPathsAndNames();
     void refreshTranslationsPathsAndNames();
@@ -40,10 +42,14 @@ public:
     void displayPalHits();
     void displayAllFramesPalHits();
     void displayCurrentFramePalHits();
+    void displayCurrentSubtilePalHits();
+    void displayCurrentTilePalHits();
 
     void displayTrnHits();
     void displayAllFramesTrnHits();
     void displayCurrentFrameTrnHits();
+    void displayCurrentSubtileTrnHits();
+    void displayCurrentTileTrnHits();
 
 private slots:
     void on_palComboBox_currentIndexChanged(const QString &arg1);

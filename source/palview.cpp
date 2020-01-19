@@ -39,6 +39,7 @@ void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, CelView* c )
     this->refreshTranslationsPathsAndNames();
 
     this->buildPalHits();
+
     this->refreshPaletteHitsNames();
 }
 
@@ -54,6 +55,9 @@ void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, LevelCelView* lc )
     this->refreshTranslationsPathsAndNames();
 
     this->buildPalHits();
+    this->buildSubtilePalHits();
+    this->buildTilePalHits();
+
     this->refreshPaletteHitsNames();
 }
 
@@ -100,6 +104,23 @@ void PalView::buildPalHits()
 
         this->framePalHits[i] = frameHits;
     }
+}
+
+void PalView::buildSubtilePalHits()
+{
+
+    // for each subtile in LevelCelView MIN
+    for( int i = 0; i < this->levelCelView->getMin()->getSubtileCount(); i++ )
+    {
+        // for each CEL frame in the subtile
+    }
+
+}
+
+void PalView::buildTilePalHits()
+{
+
+
 }
 
 void PalView::displayPal()
@@ -284,8 +305,8 @@ void PalView::refreshPaletteHitsNames()
 
     if( this->isCelLevel )
     {
-        //this->ui->palHitsComboBox->addItem("Current tile");
-        //this->ui->palHitsComboBox->addItem("Current sub-tile");
+        this->ui->palHitsComboBox->addItem("Current tile");
+        this->ui->palHitsComboBox->addItem("Current sub-tile");
     }
 
     this->ui->palHitsComboBox->addItem("Current frame");
@@ -335,6 +356,10 @@ void PalView::displayPalHits()
 {
     if( this->ui->palHitsComboBox->currentText() == "All frames" )
         this->displayAllFramesPalHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current tile" )
+        this->displayCurrentTilePalHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current sub-tile" )
+        this->displayCurrentSubtilePalHits();
     else if( this->ui->palHitsComboBox->currentText() == "Current frame" )
         this->displayCurrentFramePalHits();
 }
@@ -384,6 +409,16 @@ void PalView::displayAllFramesPalHits()
         QPen pen( Qt::white );
         this->palHitsScene->addRect(x,y,w,w,pen,brush);
     }
+}
+
+void PalView::displayCurrentTilePalHits()
+{
+
+}
+
+void PalView::displayCurrentSubtilePalHits()
+{
+
 }
 
 void PalView::displayCurrentFramePalHits()
@@ -446,6 +481,10 @@ void PalView::displayTrnHits()
 {
     if( this->ui->palHitsComboBox->currentText() == "All frames" )
         this->displayAllFramesTrnHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current tile" )
+        this->displayCurrentTileTrnHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current sub-tile" )
+        this->displayCurrentSubtileTrnHits();
     else if( this->ui->palHitsComboBox->currentText() == "Current frame" )
         this->displayCurrentFrameTrnHits();
 }
@@ -501,6 +540,16 @@ void PalView::displayAllFramesTrnHits()
         QBrush brush2( this->trn2->getResultingPalette()->getColor(paletteIndex) );
         this->trn2HitsScene->addRect(x,y,w,w,pen,brush2);
     }
+}
+
+void PalView::displayCurrentTileTrnHits()
+{
+
+}
+
+void PalView::displayCurrentSubtileTrnHits()
+{
+
 }
 
 void PalView::displayCurrentFrameTrnHits()
