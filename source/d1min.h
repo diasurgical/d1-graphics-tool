@@ -35,6 +35,7 @@ public:
     quint16 getSubtileWidth();
     quint16 getSubtileHeight();
     quint16 getSubtileCount();
+    QList<quint16> getCelFrameIndices( quint16 );
 
 private:
     D1MIN_TYPE type;
