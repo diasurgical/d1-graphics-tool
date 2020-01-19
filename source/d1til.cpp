@@ -166,3 +166,11 @@ quint16 D1Til::getTilePixelHeight()
     return this->tilePixelHeight;
 }
 
+QList<quint16> D1Til::getSubtileIndices( quint16 tileIndex )
+{
+    if( tileIndex < this->tileCount )
+        return this->subtileIndices.at( tileIndex );
+    else
+        return QList<quint16>();
+}
+
