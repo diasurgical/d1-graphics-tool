@@ -6,6 +6,7 @@
 MainWindow::MainWindow( QWidget *parent ) :
     QMainWindow( parent ),
     ui( new Ui::MainWindow ),
+    settingsDialog( new SettingsDialog(this) ),
     exportDialog( new ExportDialog(this) ),
     pal( new D1Pal ),
     trn1( new D1Trn ),
@@ -38,45 +39,6 @@ MainWindow::~MainWindow()
 
     if( this->til )
         delete this->til;
-}
-
-void MainWindow::on_actionAbout_triggered()
-{
-    QString architecture;
-    QString operatingSystem;
-
-#ifdef Q_PROCESSOR_X86_64
-    architecture = "(64-bit)";
-#endif
-
-#ifdef Q_PROCESSOR_X86_32
-    architecture = "(32-bit)";
-#endif
-
-#ifdef Q_OS_WIN
-    operatingSystem = "Windows";
-#endif
-
-#ifdef Q_OS_MAC
-    operatingSystem = "Mac OS X";
-#endif
-
-#ifdef Q_OS_LINUX
-    operatingSystem = "Linux";
-#endif
-
-    QMessageBox::about( this, "About", "Diablo 1 Graphics Tool "
-        + QString( D1_GRAPHICS_TOOL_VERSION ) + " (" + operatingSystem + ") " + architecture );
-}
-
-void MainWindow::on_actionAbout_Qt_triggered()
-{
-    QMessageBox::aboutQt( this, "About Qt" );
-}
-
-void MainWindow::on_actionQuit_triggered()
-{
-    qApp->quit();
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -253,6 +215,30 @@ void MainWindow::on_actionClose_triggered()
     ui->actionExport->setEnabled( false );
 }
 
+void MainWindow::on_actionSettings_triggered()
+{
+    this->settingsDialog->show();
+}
+
+void MainWindow::on_actionExport_triggered()
+{
+    if( this->min )
+        this->exportDialog->setMin( this->min );
+
+    if( this->til )
+        this->exportDialog->setTil( this->til );
+
+    if( this->cel )
+        this->exportDialog->setCel( this->cel );
+
+    this->exportDialog->show();
+}
+
+void MainWindow::on_actionQuit_triggered()
+{
+    qApp->quit();
+}
+
 void MainWindow::on_actionLoad_PAL_triggered()
 {
     QString palFilePath = QFileDialog::getOpenFileName(
@@ -375,16 +361,36 @@ void MainWindow::on_actionReset_Translation_2_triggered()
         this->levelCelView->displayFrame();
 }
 
-void MainWindow::on_actionExport_triggered()
+void MainWindow::on_actionAbout_triggered()
 {
-    if( this->min )
-        this->exportDialog->setMin( this->min );
+    QString architecture;
+    QString operatingSystem;
 
-    if( this->til )
-        this->exportDialog->setTil( this->til );
+#ifdef Q_PROCESSOR_X86_64
+    architecture = "(64-bit)";
+#endif
 
-    if( this->cel )
-        this->exportDialog->setCel( this->cel );
+#ifdef Q_PROCESSOR_X86_32
+    architecture = "(32-bit)";
+#endif
 
-    this->exportDialog->show();
+#ifdef Q_OS_WIN
+    operatingSystem = "Windows";
+#endif
+
+#ifdef Q_OS_MAC
+    operatingSystem = "Mac OS X";
+#endif
+
+#ifdef Q_OS_LINUX
+    operatingSystem = "Linux";
+#endif
+
+    QMessageBox::about( this, "About", "Diablo 1 Graphics Tool "
+        + QString( D1_GRAPHICS_TOOL_VERSION ) + " (" + operatingSystem + ") " + architecture );
+}
+
+void MainWindow::on_actionAbout_Qt_triggered()
+{
+    QMessageBox::aboutQt( this, "About Qt" );
 }
