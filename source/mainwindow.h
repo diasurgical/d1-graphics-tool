@@ -40,7 +40,6 @@ public:
     ~MainWindow();
 
     void loadConfiguration();
-    void saveConfiguration();
 
 private slots:
     void on_actionOpen_triggered();
@@ -61,7 +60,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QJsonObject configuration;
+    QJsonObject *configuration;
 
     QPointer<CelView> celView;
     QPointer<LevelCelView> levelCelView;

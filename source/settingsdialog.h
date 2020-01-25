@@ -2,6 +2,9 @@
 #define SETTINGSDIALOG_H
 
 #include <QDialog>
+#include <QFileDialog>
+#include <QJsonObject>
+#include <QJsonDocument>
 
 namespace Ui {
 class SettingsDialog;
@@ -15,8 +18,24 @@ public:
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
+    void initialize( QJsonObject* );
+
+    void saveConfiguration();
+
+private slots:
+    void on_workingFolderBrowseButton_clicked();
+
+    void on_settingsOkButton_clicked();
+
+    void on_settingsCancelButton_clicked();
+
 private:
     Ui::SettingsDialog *ui;
+    QJsonObject *configuration;
+
+    bool configurationChanged;
+    QString workingFolder;
+
 };
 
 #endif // SETTINGSDIALOG_H

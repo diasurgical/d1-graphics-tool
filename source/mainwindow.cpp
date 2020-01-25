@@ -6,6 +6,7 @@
 MainWindow::MainWindow( QWidget *parent ) :
     QMainWindow( parent ),
     ui( new Ui::MainWindow ),
+    configuration( new QJsonObject ),
     settingsDialog( new SettingsDialog(this) ),
     exportDialog( new ExportDialog(this) ),
     pal( new D1Pal ),
@@ -53,25 +54,19 @@ void MainWindow::loadConfiguration()
         QFile loadJson(jsonFilePath);
         loadJson.open( QIODevice::ReadOnly );
         QJsonDocument loadJsonDoc = QJsonDocument::fromJson( loadJson.readAll() );
-        this->configuration = QJsonObject( loadJsonDoc.object() );
+        this->configuration = new QJsonObject( loadJsonDoc.object() );
         loadJson.close();
     }
     else
     {
-        this->configuration.insert("WorkingFolder",".");
-        this->saveConfiguration();
+        this->configuration->insert( "WorkingFolder",QCoreApplication::applicationDirPath() );
+
+        QFile saveJson( jsonFilePath );
+        saveJson.open( QIODevice::WriteOnly );
+        QJsonDocument saveDoc( *this->configuration );
+        saveJson.write( saveDoc.toJson() );
+        saveJson.close();
     }
-}
-
-void MainWindow::saveConfiguration()
-{
-    QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
-
-    QFile saveJson( jsonFilePath );
-    saveJson.open( QIODevice::WriteOnly );
-    QJsonDocument saveDoc( this->configuration );
-    saveJson.write( saveDoc.toJson() );
-    saveJson.close();
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -83,7 +78,8 @@ void MainWindow::on_actionOpen_triggered()
     QString minFilePath;
     QString tilFilePath;
     QString openFilePath = QFileDialog::getOpenFileName(
-        this, "Open Graphics", QString(), "CEL/CL2 Files (*.cel *.cl2);;PCX Files (*.pcx);;GIF Files (*.gif)" );
+        this, "Open Graphics", this->configuration->value("WorkingDirectory").toString(),
+        "CEL/CL2 Files (*.cel *.cl2);;PCX Files (*.pcx);;GIF Files (*.gif)" );
 
     if( !openFilePath.isEmpty() )
     {
@@ -250,6 +246,7 @@ void MainWindow::on_actionClose_triggered()
 
 void MainWindow::on_actionSettings_triggered()
 {
+    this->settingsDialog->initialize( this->configuration );
     this->settingsDialog->show();
 }
 
