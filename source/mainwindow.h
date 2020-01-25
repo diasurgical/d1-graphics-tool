@@ -8,6 +8,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "d1pal.h"
 #include "d1trn.h"
@@ -37,6 +39,9 @@ public:
     explicit MainWindow( QWidget *parent = 0 );
     ~MainWindow();
 
+    void loadConfiguration();
+    void saveConfiguration();
+
 private slots:
     void on_actionOpen_triggered();
     void on_actionClose_triggered();
@@ -56,6 +61,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QJsonObject configuration;
+
     QPointer<CelView> celView;
     QPointer<LevelCelView> levelCelView;
     QPointer<PalView> palView;

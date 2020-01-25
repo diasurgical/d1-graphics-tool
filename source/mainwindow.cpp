@@ -16,6 +16,8 @@ MainWindow::MainWindow( QWidget *parent ) :
     til( new D1Til )
 {
     ui->setupUi( this );
+
+    this->loadConfiguration();
 }
 
 MainWindow::~MainWindow()
@@ -39,6 +41,37 @@ MainWindow::~MainWindow()
 
     if( this->til )
         delete this->til;
+}
+
+void MainWindow::loadConfiguration()
+{
+    QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
+
+    // If configuration file exists load it otherwise create it
+    if( QFile::exists(jsonFilePath) )
+    {
+        QFile loadJson(jsonFilePath);
+        loadJson.open( QIODevice::ReadOnly );
+        QJsonDocument loadJsonDoc = QJsonDocument::fromJson( loadJson.readAll() );
+        this->configuration = QJsonObject( loadJsonDoc.object() );
+        loadJson.close();
+    }
+    else
+    {
+        this->configuration.insert("WorkingFolder",".");
+        this->saveConfiguration();
+    }
+}
+
+void MainWindow::saveConfiguration()
+{
+    QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
+
+    QFile saveJson( jsonFilePath );
+    saveJson.open( QIODevice::WriteOnly );
+    QJsonDocument saveDoc( this->configuration );
+    saveJson.write( saveDoc.toJson() );
+    saveJson.close();
 }
 
 void MainWindow::on_actionOpen_triggered()
