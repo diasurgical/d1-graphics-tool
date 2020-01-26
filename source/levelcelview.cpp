@@ -42,9 +42,39 @@ void LevelCelView::initialize( D1CelBase* c, D1Min* m, D1Til* t )
         QString::number( this->til->getTileCount() ) );
 }
 
+D1CelBase* LevelCelView::getCel()
+{
+    return this->cel;
+}
+
 QString LevelCelView::getCelPath()
 {
     return this->cel->getFilePath();
+}
+
+D1Min* LevelCelView::getMin()
+{
+    return this->min;
+}
+
+D1Til* LevelCelView::getTil()
+{
+    return this->til;
+}
+
+quint32 LevelCelView::getCurrentFrameIndex()
+{
+    return this->currentFrameIndex;
+}
+
+quint16 LevelCelView::getCurrentSubtileIndex()
+{
+    return this->currentSubtileIndex;
+}
+
+quint16 LevelCelView::getCurrentTileIndex()
+{
+    return this->currentTileIndex;
 }
 
 void LevelCelView::displayFrame()
@@ -121,6 +151,9 @@ void LevelCelView::displayFrame()
     // Set current tile text
     this->ui->tileIndexEdit->setText(
         QString::number( this->currentTileIndex + 1 ) );
+
+    // Notify PalView that the frame changed (used to refresh palette hits
+    emit frameChanged();
 }
 
 void LevelCelView::on_firstFrameButton_clicked()

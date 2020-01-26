@@ -191,3 +191,11 @@ quint16 D1Min::getSubtileCount()
 {
     return this->subtileCount;
 }
+
+QList<quint16> D1Min::getCelFrameIndices( quint16 subTileIndex )
+{
+    if( subTileIndex < this->subtileCount )
+        return this->celFrameIndices.at( subTileIndex );
+    else
+        return QList<quint16>();
+}

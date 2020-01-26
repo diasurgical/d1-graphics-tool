@@ -34,7 +34,8 @@ SOURCES += main.cpp \
     d1til.cpp \
     levelcelview.cpp \
     d1celbase.cpp \
-    exportdialog.cpp
+    exportdialog.cpp \
+    settingsdialog.cpp
 
 HEADERS  += mainwindow.h \
     d1cel.h \
@@ -47,13 +48,15 @@ HEADERS  += mainwindow.h \
     d1til.h \
     levelcelview.h \
     d1celbase.h \
-    exportdialog.h
+    exportdialog.h \
+    settingsdialog.h
 
 FORMS += mainwindow.ui \
     celview.ui \
     palview.ui \
     levelcelview.ui \
-    exportdialog.ui
+    exportdialog.ui \
+    settingsdialog.ui
 
 RESOURCES += \
     d1files.qrc

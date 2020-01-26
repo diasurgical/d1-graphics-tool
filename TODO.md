@@ -1,9 +1,26 @@
 ## TODO
-1. Rework PAL and TRN support
-    - Fix palette view crop and increase size.
-    - Add a palette hits view based on PalView.
-    - Build default.pal with first 128 bytes with a specific color.
+
+### Add
+- PowerShell release script which takes a Qt build folder as parameter
+- Add settings
+    - Background color? (grey, green, magenta, cyan?)
+    - Default zoom level (depending on CEL/CL2 type?)
+        - By default: x2
+        - Automatic dezoom when opening a bigger image?
+    - Default palette size? (192px, 256px)
+- Application icon
+- PCX support
+- GIF viewing support
+
+### Change
+- Rework PAL and TRN support
+    - Build additional palettes
+        - Last color with specific color to identify transparent zones
+        - Second half with specific color?
+        - One for each hue in a specific color?
     - Include cel/cl2 to trn mapping in the program, especially for monsters.
-2. Rewrite level CEL frame type detection to leverage associated MIN file when available.
-3. Add PCX support
-4. Add GIF viewing support
+- Remove CelView and LevelCelView dependencies from PalView by leveraging signals/slots.
+- Rewrite level CEL frame type detection to leverage associated MIN file when available.
+
+### Fix
+- Last color of pal/trn not displayed as transparent??

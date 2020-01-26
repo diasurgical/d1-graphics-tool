@@ -6,6 +6,8 @@
 MainWindow::MainWindow( QWidget *parent ) :
     QMainWindow( parent ),
     ui( new Ui::MainWindow ),
+    configuration( new QJsonObject ),
+    settingsDialog( new SettingsDialog(this) ),
     exportDialog( new ExportDialog(this) ),
     pal( new D1Pal ),
     trn1( new D1Trn ),
@@ -15,6 +17,8 @@ MainWindow::MainWindow( QWidget *parent ) :
     til( new D1Til )
 {
     ui->setupUi( this );
+
+    this->loadConfiguration();
 }
 
 MainWindow::~MainWindow()
@@ -40,43 +44,29 @@ MainWindow::~MainWindow()
         delete this->til;
 }
 
-void MainWindow::on_actionAbout_triggered()
+void MainWindow::loadConfiguration()
 {
-    QString architecture;
-    QString operatingSystem;
+    QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
 
-#ifdef Q_PROCESSOR_X86_64
-    architecture = "(64-bit)";
-#endif
+    // If configuration file exists load it otherwise create it
+    if( QFile::exists(jsonFilePath) )
+    {
+        QFile loadJson(jsonFilePath);
+        loadJson.open( QIODevice::ReadOnly );
+        QJsonDocument loadJsonDoc = QJsonDocument::fromJson( loadJson.readAll() );
+        this->configuration = new QJsonObject( loadJsonDoc.object() );
+        loadJson.close();
+    }
+    else
+    {
+        this->configuration->insert( "WorkingDirectory",QCoreApplication::applicationDirPath() );
 
-#ifdef Q_PROCESSOR_X86_32
-    architecture = "(32-bit)";
-#endif
-
-#ifdef Q_OS_WIN
-    operatingSystem = "Windows";
-#endif
-
-#ifdef Q_OS_MAC
-    operatingSystem = "Mac OS X";
-#endif
-
-#ifdef Q_OS_LINUX
-    operatingSystem = "Linux";
-#endif
-
-    QMessageBox::about( this, "About", "Diablo 1 Graphics Tool "
-        + QString( D1_GRAPHICS_TOOL_VERSION ) + " (" + operatingSystem + ") " + architecture );
-}
-
-void MainWindow::on_actionAbout_Qt_triggered()
-{
-    QMessageBox::aboutQt( this, "About Qt" );
-}
-
-void MainWindow::on_actionQuit_triggered()
-{
-    qApp->quit();
+        QFile saveJson( jsonFilePath );
+        saveJson.open( QIODevice::WriteOnly );
+        QJsonDocument saveDoc( *this->configuration );
+        saveJson.write( saveDoc.toJson() );
+        saveJson.close();
+    }
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -87,8 +77,10 @@ void MainWindow::on_actionOpen_triggered()
     QString celFileName;
     QString minFilePath;
     QString tilFilePath;
+
     QString openFilePath = QFileDialog::getOpenFileName(
-        this, "Open Graphics", QString(), "CEL/CL2 Files (*.cel *.cl2);;PCX Files (*.pcx);;GIF Files (*.gif)" );
+        this, "Open Graphics", this->configuration->value("WorkingDirectory").toString(),
+        "CEL/CL2 Files (*.cel *.cl2);;PCX Files (*.pcx);;GIF Files (*.gif)" );
 
     if( !openFilePath.isEmpty() )
     {
@@ -97,9 +89,12 @@ void MainWindow::on_actionOpen_triggered()
         {
             this->on_actionClose_triggered();
 
-            // Loading default town.pal
+            this->ui->statusBar->showMessage("Loading...");
+            this->ui->statusBar->repaint();
+
+            // Loading default.pal
             this->pal = new D1Pal;
-            this->pal->load( ":/town.pal" );
+            this->pal->load( ":/default.pal" );
 
             // Loading default null.trn
             this->trn1 = new D1Trn;
@@ -169,6 +164,9 @@ void MainWindow::on_actionOpen_triggered()
                 this->til->setMin( this->min );
 
                 this->levelCelView = new LevelCelView;
+                QObject::connect( this->levelCelView, &LevelCelView::frameChanged, this->palView, &PalView::displayPalHits );
+                QObject::connect( this->levelCelView, &LevelCelView::frameChanged, this->palView, &PalView::displayTrnHits );
+
                 this->levelCelView->initialize( this->cel, this->min, this->til );
                 this->palView->initialize( this->pal, this->trn1, this->trn2, this->levelCelView );
                 this->levelCelView->displayFrame();
@@ -177,13 +175,18 @@ void MainWindow::on_actionOpen_triggered()
             else
             {
                 this->celView = new CelView;
-                this->celView->setCel( this->cel );
+                QObject::connect( this->celView, &CelView::frameChanged, this->palView, &PalView::displayPalHits );
+                QObject::connect( this->celView, &CelView::frameChanged, this->palView, &PalView::displayTrnHits );
+
+                this->celView->initialize( this->cel );
                 this->palView->initialize( this->pal, this->trn1, this->trn2, this->celView );
                 this->celView->displayFrame();
             }
 
             this->palView->displayPal();
             this->palView->displayTrn();
+
+            this->palView->displayPalHits();
 
             // Adding the CelView to the main frame
             if( this->celView )
@@ -193,8 +196,11 @@ void MainWindow::on_actionOpen_triggered()
 
             // Adding the PalView to the pal frame
             this->ui->palFrame->layout()->addWidget( this->palView );
-            ui->menuPalette->setEnabled( true );
-            ui->actionExport->setEnabled( true );
+            this->ui->menuPalette->setEnabled( true );
+            this->ui->actionExport->setEnabled( true );
+
+            // Clear loading message from status bar
+            this->ui->statusBar->clearMessage();
         }
     }
 
@@ -204,7 +210,6 @@ void MainWindow::on_actionOpen_triggered()
     //QTime timer = QTime();
     //timer.start();
     //QMessageBox::information( this, "time", QString::number(timer.elapsed()) );
-
 }
 
 void MainWindow::on_actionClose_triggered()
@@ -240,6 +245,31 @@ void MainWindow::on_actionClose_triggered()
     ui->actionExport->setEnabled( false );
 }
 
+void MainWindow::on_actionSettings_triggered()
+{
+    this->settingsDialog->initialize( this->configuration );
+    this->settingsDialog->show();
+}
+
+void MainWindow::on_actionExport_triggered()
+{
+    if( this->min )
+        this->exportDialog->setMin( this->min );
+
+    if( this->til )
+        this->exportDialog->setTil( this->til );
+
+    if( this->cel )
+        this->exportDialog->setCel( this->cel );
+
+    this->exportDialog->show();
+}
+
+void MainWindow::on_actionQuit_triggered()
+{
+    qApp->quit();
+}
+
 void MainWindow::on_actionLoad_PAL_triggered()
 {
     QString palFilePath = QFileDialog::getOpenFileName(
@@ -260,6 +290,8 @@ void MainWindow::on_actionLoad_PAL_triggered()
     this->palView->refreshPalettesPathsAndNames();
     this->palView->displayPal();
     this->palView->displayTrn();
+
+    this->palView->displayPalHits();
 
     if( this->celView )
         this->celView->displayFrame();
@@ -327,6 +359,8 @@ void MainWindow::on_actionReset_PAL_triggered()
     this->palView->displayPal();
     this->palView->displayTrn();
 
+    this->palView->displayPalHits();
+
     if( this->celView )
         this->celView->displayFrame();
     if( this->levelCelView )
@@ -358,16 +392,36 @@ void MainWindow::on_actionReset_Translation_2_triggered()
         this->levelCelView->displayFrame();
 }
 
-void MainWindow::on_actionExport_triggered()
+void MainWindow::on_actionAbout_triggered()
 {
-    if( this->min )
-        this->exportDialog->setMin( this->min );
+    QString architecture;
+    QString operatingSystem;
 
-    if( this->til )
-        this->exportDialog->setTil( this->til );
+#ifdef Q_PROCESSOR_X86_64
+    architecture = "(64-bit)";
+#endif
 
-    if( this->cel )
-        this->exportDialog->setCel( this->cel );
+#ifdef Q_PROCESSOR_X86_32
+    architecture = "(32-bit)";
+#endif
 
-    this->exportDialog->show();
+#ifdef Q_OS_WIN
+    operatingSystem = "Windows";
+#endif
+
+#ifdef Q_OS_MAC
+    operatingSystem = "Mac OS X";
+#endif
+
+#ifdef Q_OS_LINUX
+    operatingSystem = "Linux";
+#endif
+
+    QMessageBox::about( this, "About", "Diablo 1 Graphics Tool "
+        + QString( D1_GRAPHICS_TOOL_VERSION ) + " (" + operatingSystem + ") " + architecture );
+}
+
+void MainWindow::on_actionAbout_Qt_triggered()
+{
+    QMessageBox::aboutQt( this, "About Qt" );
 }

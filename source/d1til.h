@@ -37,6 +37,7 @@ public:
     quint16 getTileHeight();
     quint16 getTilePixelWidth();
     quint16 getTilePixelHeight();
+    QList<quint16> getSubtileIndices( quint16 );
 
 private:
     D1TIL_TYPE type;

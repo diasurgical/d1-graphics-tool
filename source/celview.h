@@ -24,12 +24,17 @@ public:
     explicit CelView( QWidget *parent = 0 );
     ~CelView();
 
-    void setCel( D1CelBase* );
+    void initialize( D1CelBase* );
+    D1CelBase* getCel();
     QString getCelPath();
+    quint32 getCurrentFrameIndex();
 
     void displayFrame();
     bool checkGroupNumber();
     void setGroupNumber();
+
+signals:
+    void frameChanged();
 
 private slots:
     void on_firstFrameButton_clicked();

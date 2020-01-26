@@ -6,15 +6,21 @@ PalView::PalView(QWidget *parent) :
     ui( new Ui::PalView ),
     isCelLevel( false ),
     palScene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
+    palHitsScene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
     trn1Scene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
     trn2Scene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
+    trn1HitsScene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
+    trn2HitsScene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
     buildingPalComboBox( false ),
     buildingTrnComboBox( false )
 {
     ui->setupUi(this);
     ui->palGraphicsView->setScene( this->palScene );
+    ui->palHitsGraphicsView->setScene( this->palHitsScene );
     ui->trn1GraphicsView->setScene( this->trn1Scene );
     ui->trn2GraphicsView->setScene( this->trn2Scene );
+    ui->trn1HitsGraphicsView->setScene( this->trn1HitsScene );
+    ui->trn2HitsGraphicsView->setScene( this->trn2HitsScene );
 }
 
 PalView::~PalView()
@@ -31,6 +37,10 @@ void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, CelView* c )
 
     this->refreshPalettesPathsAndNames();
     this->refreshTranslationsPathsAndNames();
+
+    this->buildPalHits();
+
+    this->refreshPaletteHitsNames();
 }
 
 void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, LevelCelView* lc )
@@ -43,6 +53,123 @@ void PalView::initialize( D1Pal* p, D1Trn* t1, D1Trn* t2, LevelCelView* lc )
 
     this->refreshPalettesPathsAndNames();
     this->refreshTranslationsPathsAndNames();
+
+    this->buildPalHits();
+    this->buildSubtilePalHits();
+    this->buildTilePalHits();
+
+    this->refreshPaletteHitsNames();
+}
+
+void PalView::buildPalHits()
+{
+    D1CelBase* cel = NULL;
+    D1CelFrameBase* frame = NULL;
+    quint8 paletteIndex = 0;
+
+    // Retrieve the CEL/CL2
+    if( this->isCelLevel )
+        cel = this->levelCelView->getCel();
+    else
+        cel = this->celView->getCel();
+
+    // Go through all frames
+    for( quint32 i = 0; i < cel->getFrameCount(); i++ )
+    {
+        QMap<quint8,quint32> frameHits;
+
+        // Get frame pointer
+        frame = cel->getFrame(i);
+
+        // Go through every pixels of the frame
+        for( int jx = 0; jx < frame->getWidth(); jx++ )
+        {
+            for( int jy = 0; jy < frame->getHeight(); jy++ )
+            {
+                // Retrieve the color of the pixel
+                paletteIndex = frame->getPixel(jx,jy).getPaletteIndex();
+
+                // Add one hit to the frameHits and allFramesPalHits maps
+                if( frameHits.contains(paletteIndex) )
+                    frameHits.insert(paletteIndex,frameHits.value(paletteIndex)+1);
+                else
+                    frameHits.insert(paletteIndex,1);
+
+                if( frameHits.contains(paletteIndex) )
+                    this->allFramesPalHits.insert(paletteIndex,frameHits.value(paletteIndex)+1);
+                else
+                    this->allFramesPalHits.insert(paletteIndex,1);
+            }
+        }
+
+        this->framePalHits[i] = frameHits;
+    }
+}
+
+void PalView::buildSubtilePalHits()
+{
+    D1Min* min = this->levelCelView->getMin();
+    QList<quint16> celFrameIndices;
+    quint16 frameIndex;
+
+    // Go through all sub-tiles
+    for( int i = 0; i < min->getSubtileCount(); i++ )
+    {
+        QMap<quint8,quint32> subtileHits;
+
+        // Retrieve the CEL frame indices of the current sub-tile
+        celFrameIndices = min->getCelFrameIndices( i );
+
+        // Go through the CEL frames
+        QListIterator<quint16> it1( celFrameIndices );
+        while( it1.hasNext() )
+        {
+            frameIndex = it1.next() - 1;
+
+            // Go through the hits of the CEL frame and add them to the subtile hits
+            QMapIterator<quint8,quint32> it2( this->framePalHits.value(frameIndex) );
+            while( it2.hasNext() )
+            {
+                it2.next();
+                subtileHits.insert( it2.key(), it2.value() );
+            }
+        }
+
+        this->subtilePalHits[i] = subtileHits;
+    }
+}
+
+void PalView::buildTilePalHits()
+{
+    D1Til* til = this->levelCelView->getTil();
+    QList<quint16> subtileIndices;
+    quint16 subtileIndex;
+
+    // Go through all tiles
+    for( int i = 0; i < til->getTileCount(); i++ )
+    {
+        QMap<quint8,quint32> tileHits;
+
+        // Retrieve the sub-tile indices of the current tile
+        subtileIndices = til->getSubtileIndices( i );
+
+        // Go through the sub-tiles
+        QListIterator<quint16> it1( subtileIndices );
+        while( it1.hasNext() )
+        {
+            subtileIndex = it1.next();
+
+            // Go through the hits of the sub-tile and add them to the tile hits
+            QMapIterator<quint8,quint32> it2( this->subtilePalHits.value(subtileIndex) );
+            while( it2.hasNext() )
+            {
+                it2.next();
+                tileHits.insert( it2.key(), it2.value() );
+            }
+        }
+
+        this->tilePalHits[i] = tileHits;
+    }
 }
 
 void PalView::displayPal()
@@ -74,7 +201,7 @@ void PalView::displayPal()
         }
 
         QBrush brush( this->pal->getColor(i) );
-        QPen pen( Qt::black );
+        QPen pen( Qt::white );
         this->palScene->addRect(x,y,w,w,pen,brush);
 
         x += dx;
@@ -114,7 +241,7 @@ void PalView::displayTrn()
 
     // Displaying palette colors
     QBrush brush;
-    QPen pen( Qt::black );
+    QPen pen( Qt::white );
     for( int i = 0; i < D1PAL_COLORS; i++ )
     {
         if( i%16 == 0 && i != 0 )
@@ -156,10 +283,13 @@ void PalView::displayTrn()
 
 void PalView::refreshPalettesPathsAndNames()
 {
+    // Add builtin palettes from the resource file
     this->palettesPaths.clear();
-    this->palettesPaths["Default town.pal"] = ":/town.pal";
+    this->palettesPaths["_default.pal"] = ":/default.pal";
+    this->palettesPaths["_town.pal"] = ":/town.pal";
 
-    if( this->pal->getFilePath() != ":/town.pal" )
+    // If the selected palette is not a builtin palette get the palette file path
+    if( !this->pal->getFilePath().startsWith(":/") )
     {
         QFileInfo palFileInfo( this->pal->getFilePath() );
         this->palettesPaths[ palFileInfo.fileName() ] = this->pal->getFilePath();
@@ -214,21 +344,36 @@ void PalView::refreshPalettesPathsAndNames()
             }
         }
     }
+}
 
+void PalView::refreshPaletteHitsNames()
+{
+    // Add items to the palette hits combo box
+    this->ui->palHitsComboBox->clear();
+    this->ui->palHitsComboBox->addItem("All frames");
+
+    if( this->isCelLevel )
+    {
+        this->ui->palHitsComboBox->addItem("Current tile");
+        this->ui->palHitsComboBox->addItem("Current sub-tile");
+    }
+
+    this->ui->palHitsComboBox->addItem("Current frame");
+    this->ui->palHitsComboBox->setCurrentText("All frames");
 }
 
 void PalView::refreshTranslationsPathsAndNames()
 {
     this->translationsPaths.clear();
-    this->translationsPaths["Default null.trn"] = ":/null.trn";
+    this->translationsPaths["_null.trn"] = ":/null.trn";
 
-    if( this->trn1->getFilePath() != ":/null.trn" )
+    if( !this->trn1->getFilePath().startsWith(":/") )
     {
         QFileInfo trn1FileInfo( this->trn1->getFilePath() );
         this->translationsPaths[ trn1FileInfo.fileName() ] = this->trn1->getFilePath();
     }
 
-    if( this->trn2->getFilePath() != ":/null.trn" )
+    if( !this->trn2->getFilePath().startsWith(":/") )
     {
         QFileInfo trn2FileInfo( this->trn2->getFilePath() );
         this->translationsPaths[ trn2FileInfo.fileName() ] = this->trn2->getFilePath();
@@ -256,6 +401,472 @@ void PalView::refreshTranslationsPathsAndNames()
     }
 }
 
+void PalView::displayPalHits()
+{
+    if( this->ui->palHitsComboBox->currentText() == "All frames" )
+        this->displayAllFramesPalHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current tile" )
+        this->displayCurrentTilePalHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current sub-tile" )
+        this->displayCurrentSubtilePalHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current frame" )
+        this->displayCurrentFramePalHits();
+}
+
+void PalView::displayAllFramesPalHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Removing existing items
+    this->palHitsScene->clear();
+    // Setting background color
+    this->palHitsScene->setBackgroundBrush( Qt::black );
+
+    // Go through all hits of the current frame
+    QMapIterator<quint8,quint32> it(this->allFramesPalHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QBrush brush( this->pal->getColor(paletteIndex) );
+        QPen pen( Qt::white );
+        this->palHitsScene->addRect(x,y,w,w,pen,brush);
+    }
+}
+
+void PalView::displayCurrentTilePalHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Tile hits map
+    QMap<quint8,quint32> currentTileHits;
+
+    // Removing existing items
+    this->palHitsScene->clear();
+    // Setting background color
+    this->palHitsScene->setBackgroundBrush( Qt::black );
+
+    // Get the current tile hits
+    currentTileHits = this->tilePalHits[this->levelCelView->getCurrentTileIndex()];
+
+    // Go through all hits of the current tile
+    QMapIterator<quint8,quint32> it(currentTileHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QBrush brush( this->pal->getColor(paletteIndex) );
+        QPen pen( Qt::white );
+        this->palHitsScene->addRect(x,y,w,w,pen,brush);
+    }
+}
+
+void PalView::displayCurrentSubtilePalHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Sub-tile hits map
+    QMap<quint8,quint32> currenSubtileHits;
+
+    // Removing existing items
+    this->palHitsScene->clear();
+    // Setting background color
+    this->palHitsScene->setBackgroundBrush( Qt::black );
+
+    // Get the current sub-tile hits
+    currenSubtileHits = this->subtilePalHits[this->levelCelView->getCurrentSubtileIndex()];
+
+    // Go through all hits of the current sub-tile
+    QMapIterator<quint8,quint32> it(currenSubtileHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QBrush brush( this->pal->getColor(paletteIndex) );
+        QPen pen( Qt::white );
+        this->palHitsScene->addRect(x,y,w,w,pen,brush);
+    }
+}
+
+void PalView::displayCurrentFramePalHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Frame hits map
+    QMap<quint8,quint32> currentFrameHits;
+
+    // Removing existing items
+    this->palHitsScene->clear();
+    // Setting background color
+    this->palHitsScene->setBackgroundBrush( Qt::black );
+
+    // Get the current frame hits
+    if( this->isCelLevel )
+        currentFrameHits = this->framePalHits[this->levelCelView->getCurrentFrameIndex()];
+    else
+        currentFrameHits = this->framePalHits[this->celView->getCurrentFrameIndex()];
+
+    // Go through all hits of the current frame
+    QMapIterator<quint8,quint32> it(currentFrameHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QBrush brush( this->pal->getColor(paletteIndex) );
+        QPen pen( Qt::white );
+        this->palHitsScene->addRect(x,y,w,w,pen,brush);
+    }
+}
+
+void PalView::displayTrnHits()
+{
+    if( this->ui->palHitsComboBox->currentText() == "All frames" )
+        this->displayAllFramesTrnHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current tile" )
+        this->displayCurrentTileTrnHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current sub-tile" )
+        this->displayCurrentSubtileTrnHits();
+    else if( this->ui->palHitsComboBox->currentText() == "Current frame" )
+        this->displayCurrentFrameTrnHits();
+}
+
+void PalView::displayAllFramesTrnHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Removing existing items
+    this->trn1HitsScene->clear();
+    this->trn2HitsScene->clear();
+    // Setting background color
+    this->trn1HitsScene->setBackgroundBrush( Qt::black );
+    this->trn2HitsScene->setBackgroundBrush( Qt::black );
+
+    // Go through all hits of the current frame
+    QMapIterator<quint8,quint32> it(this->allFramesPalHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QPen pen( Qt::white );
+
+        QBrush brush1( this->trn1->getResultingPalette()->getColor(paletteIndex) );
+        this->trn1HitsScene->addRect(x,y,w,w,pen,brush1);
+
+        QBrush brush2( this->trn2->getResultingPalette()->getColor(paletteIndex) );
+        this->trn2HitsScene->addRect(x,y,w,w,pen,brush2);
+    }
+}
+
+void PalView::displayCurrentTileTrnHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Tile hits map
+    QMap<quint8,quint32> currentTileHits;
+
+    // Removing existing items
+    this->trn1HitsScene->clear();
+    this->trn2HitsScene->clear();
+    // Setting background color
+    this->trn1HitsScene->setBackgroundBrush( Qt::black );
+    this->trn2HitsScene->setBackgroundBrush( Qt::black );
+
+    // Get the current tile hits
+    currentTileHits = this->tilePalHits[this->levelCelView->getCurrentTileIndex()];
+
+    // Go through all hits of the current tile
+    QMapIterator<quint8,quint32> it(currentTileHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QPen pen( Qt::white );
+
+        QBrush brush1( this->trn1->getResultingPalette()->getColor(paletteIndex) );
+        this->trn1HitsScene->addRect(x,y,w,w,pen,brush1);
+
+        QBrush brush2( this->trn2->getResultingPalette()->getColor(paletteIndex) );
+        this->trn2HitsScene->addRect(x,y,w,w,pen,brush2);
+    }
+}
+
+void PalView::displayCurrentSubtileTrnHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Sub-tile hits map
+    QMap<quint8,quint32> currentSubtileHits;
+
+    // Removing existing items
+    this->trn1HitsScene->clear();
+    this->trn2HitsScene->clear();
+    // Setting background color
+    this->trn1HitsScene->setBackgroundBrush( Qt::black );
+    this->trn2HitsScene->setBackgroundBrush( Qt::black );
+
+    // Get the current sub-tile hits
+    currentSubtileHits = this->subtilePalHits[this->levelCelView->getCurrentSubtileIndex()];
+
+    // Go through all hits of the current sub-tile
+    QMapIterator<quint8,quint32> it(currentSubtileHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QPen pen( Qt::white );
+
+        QBrush brush1( this->trn1->getResultingPalette()->getColor(paletteIndex) );
+        this->trn1HitsScene->addRect(x,y,w,w,pen,brush1);
+
+        QBrush brush2( this->trn2->getResultingPalette()->getColor(paletteIndex) );
+        this->trn2HitsScene->addRect(x,y,w,w,pen,brush2);
+    }
+}
+
+void PalView::displayCurrentFrameTrnHits()
+{
+    // Positions
+    int x = 0, y = 0;
+
+    // X delta
+    int dx = PALETTE_DEFAULT_WIDTH/16;
+    // Y delta
+    int dy = PALETTE_DEFAULT_WIDTH/16;
+
+    // Color width (-1 is for QRect border)
+    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+
+    // Palette index
+    quint8 paletteIndex = 0;
+
+    // Frame hits map
+    QMap<quint8,quint32> currentFrameHits;
+
+    // Removing existing items
+    this->trn1HitsScene->clear();
+    this->trn2HitsScene->clear();
+    // Setting background color
+    this->trn1HitsScene->setBackgroundBrush( Qt::black );
+    this->trn2HitsScene->setBackgroundBrush( Qt::black );
+
+    // Get the current frame hits
+    if( this->isCelLevel )
+        currentFrameHits = this->framePalHits[this->levelCelView->getCurrentFrameIndex()];
+    else
+        currentFrameHits = this->framePalHits[this->celView->getCurrentFrameIndex()];
+
+    // Go through all hits of the current frame
+    QMapIterator<quint8,quint32> it(currentFrameHits);
+    while( it.hasNext() )
+    {
+        it.next();
+
+        paletteIndex = it.key();
+
+        // Compute coordinates
+        if( paletteIndex == 0 )
+        {
+            x = 0;
+            y = 0;
+        }
+        else
+        {
+            x = (paletteIndex%16) * dx;
+            y = (paletteIndex/16) * dy;
+        }
+
+        QPen pen( Qt::white );
+
+        QBrush brush1( this->trn1->getResultingPalette()->getColor(paletteIndex) );
+        this->trn1HitsScene->addRect(x,y,w,w,pen,brush1);
+
+        QBrush brush2( this->trn2->getResultingPalette()->getColor(paletteIndex) );
+        this->trn2HitsScene->addRect(x,y,w,w,pen,brush2);
+    }
+}
+
 void PalView::on_palComboBox_currentIndexChanged(const QString &arg1)
 {
     if( this->palettesPaths.isEmpty() || this->buildingPalComboBox )
@@ -276,6 +887,8 @@ void PalView::on_palComboBox_currentIndexChanged(const QString &arg1)
 
     this->displayPal();
     this->displayTrn();
+
+    this->displayPalHits();
 
     if( this->isCelLevel )
         this->levelCelView->displayFrame();
@@ -332,4 +945,10 @@ void PalView::on_trn2ComboBox_currentIndexChanged(const QString &arg1)
         this->levelCelView->displayFrame();
     else
         this->celView->displayFrame();
+}
+
+void PalView::on_palHitsComboBox_currentIndexChanged()
+{
+    this->displayPalHits();
+    this->displayTrnHits();
 }

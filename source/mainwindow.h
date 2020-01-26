@@ -8,6 +8,8 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QJsonDocument>
+#include <QJsonObject>
 
 #include "d1pal.h"
 #include "d1trn.h"
@@ -19,9 +21,10 @@
 #include "palview.h"
 #include "celview.h"
 #include "levelcelview.h"
+#include "settingsdialog.h"
 #include "exportdialog.h"
 
-#define D1_GRAPHICS_TOOL_VERSION "0.3.2"
+#define D1_GRAPHICS_TOOL_VERSION "0.4.0"
 
 namespace Ui
 {
@@ -36,25 +39,33 @@ public:
     explicit MainWindow( QWidget *parent = 0 );
     ~MainWindow();
 
+    void loadConfiguration();
+
 private slots:
-    void on_actionAbout_triggered();
-    void on_actionQuit_triggered();
-    void on_actionAbout_Qt_triggered();
     void on_actionOpen_triggered();
     void on_actionClose_triggered();
+    void on_actionExport_triggered();
+    void on_actionSettings_triggered();
+    void on_actionQuit_triggered();
+
     void on_actionLoad_PAL_triggered();
     void on_actionLoad_Translation_1_triggered();
     void on_actionLoad_Translation_2_triggered();
     void on_actionReset_PAL_triggered();
     void on_actionReset_Translation_1_triggered();
     void on_actionReset_Translation_2_triggered();
-    void on_actionExport_triggered();
+
+    void on_actionAbout_triggered();
+    void on_actionAbout_Qt_triggered();
 
 private:
     Ui::MainWindow *ui;
+    QJsonObject *configuration;
+
     QPointer<CelView> celView;
     QPointer<LevelCelView> levelCelView;
     QPointer<PalView> palView;
+    QPointer<SettingsDialog> settingsDialog;
     QPointer<ExportDialog> exportDialog;
 
     QPointer<D1Pal> pal;
