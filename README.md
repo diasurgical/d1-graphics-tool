@@ -11,7 +11,6 @@ This tool is written using the Qt Framework 5.12 LTS and can be compiled on Wind
 Go to the [releases page](https://github.com/savagesteel/d1-graphics-tool/releases) to download the latest Windows 32-bit build.
 
 ![Screenshot 1](/images/screenshot001.png)
-
 ![Screenshot 2](/images/screenshot002.png)
-
 ![Screenshot 3](/images/screenshot003.png)
+![Screenshot 4](/images/screenshot004.png)
