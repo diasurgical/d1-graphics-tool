@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Palette hits view for all frames and current frame.
 - Palette translation hits view for all frames and current frame.
+- Palette hits view for current tile and current sub-tile when displaying a level CEL.
+- JSON configuration file and corresponding settings dialog.
+- Working folder setting.
 - Status bar message when opening file.
 
 ### Changed
@@ -15,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Default palette translation to _null.trn.
 
 ### Fixed
+- Export dialog button height.
 
 
 ## 0.3.2 - 2020-01-08
