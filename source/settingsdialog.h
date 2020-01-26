@@ -23,7 +23,7 @@ public:
     void saveConfiguration();
 
 private slots:
-    void on_workingFolderBrowseButton_clicked();
+    void on_workingDirectoryBrowseButton_clicked();
 
     void on_settingsOkButton_clicked();
 
@@ -34,7 +34,7 @@ private:
     QJsonObject *configuration;
 
     bool configurationChanged;
-    QString workingFolder;
+    QString workingDirectory;
 
 };
 

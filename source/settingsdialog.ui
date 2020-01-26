@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="workingFolderGroupBox">
+    <widget class="QGroupBox" name="workingDirectoryGroupBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -35,18 +35,18 @@
       </size>
      </property>
      <property name="title">
-      <string>Working Folder</string>
+      <string>Working Directory</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
-       <widget class="QLineEdit" name="workingFolderEdit">
+       <widget class="QLineEdit" name="workingDirectoryEdit">
         <property name="readOnly">
          <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="workingFolderBrowseButton">
+       <widget class="QPushButton" name="workingDirectoryBrowseButton">
         <property name="text">
          <string>Browse</string>
         </property>

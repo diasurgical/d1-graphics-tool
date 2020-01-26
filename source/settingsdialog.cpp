@@ -18,8 +18,8 @@ void SettingsDialog::initialize( QJsonObject *cfg )
 {
     this->configuration = cfg;
 
-    this->workingFolder = this->configuration->value("WorkingFolder").toString();
-    this->ui->workingFolderEdit->setText( this->workingFolder );
+    this->workingDirectory = this->configuration->value("WorkingDirectory").toString();
+    this->ui->workingDirectoryEdit->setText( this->workingDirectory );
 }
 
 void SettingsDialog::saveConfiguration()
@@ -33,26 +33,26 @@ void SettingsDialog::saveConfiguration()
     saveJson.close();
 }
 
-void SettingsDialog::on_workingFolderBrowseButton_clicked()
+void SettingsDialog::on_workingDirectoryBrowseButton_clicked()
 {
-    QString selectedFolder = QFileDialog::getExistingDirectory(
-        this, "Select Working Folder", QString(), QFileDialog::ShowDirsOnly );
+    QString selectedDirectory = QFileDialog::getExistingDirectory(
+        this, "Select Working Directory", QString(), QFileDialog::ShowDirsOnly );
 
     // If cancel button has been clicked in the file dialog
-    if( selectedFolder == "" )
+    if( selectedDirectory == "" )
         return;
 
-    this->workingFolder = selectedFolder;
+    this->workingDirectory = selectedDirectory;
     this->configurationChanged = true;
 
-    this->ui->workingFolderEdit->setText( this->workingFolder );
+    this->ui->workingDirectoryEdit->setText( this->workingDirectory );
 }
 
 void SettingsDialog::on_settingsOkButton_clicked()
 {
     if( this->configurationChanged )
     {
-        this->configuration->insert( "WorkingFolder", this->workingFolder );
+        this->configuration->insert( "WorkingDirectory", this->workingDirectory );
         this->saveConfiguration();
         this->configurationChanged = false;
     }

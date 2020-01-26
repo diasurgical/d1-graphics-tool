@@ -59,7 +59,7 @@ void MainWindow::loadConfiguration()
     }
     else
     {
-        this->configuration->insert( "WorkingFolder",QCoreApplication::applicationDirPath() );
+        this->configuration->insert( "WorkingDirectory",QCoreApplication::applicationDirPath() );
 
         QFile saveJson( jsonFilePath );
         saveJson.open( QIODevice::WriteOnly );
@@ -77,6 +77,7 @@ void MainWindow::on_actionOpen_triggered()
     QString celFileName;
     QString minFilePath;
     QString tilFilePath;
+
     QString openFilePath = QFileDialog::getOpenFileName(
         this, "Open Graphics", this->configuration->value("WorkingDirectory").toString(),
         "CEL/CL2 Files (*.cel *.cl2);;PCX Files (*.pcx);;GIF Files (*.gif)" );
