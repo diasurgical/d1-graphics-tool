@@ -102,13 +102,13 @@ bool D1Cl2Frame::load( QByteArray rawData )
         {
             for( int i = 0; i < readByte; i++ )
             {
+                // Add transparent pixel
+                pixelLine.append( D1CelPixel(true,0) );
                 if( pixelLine.size() == this->width )
                 {
                     pixels.insert( 0, pixelLine );
                     pixelLine.clear();
                 }
-                // Add transparent pixel
-                pixelLine.append( D1CelPixel(true,0) );
             }
         }
         // Repeat palette index
@@ -119,13 +119,13 @@ bool D1Cl2Frame::load( QByteArray rawData )
 
             for( int i = 0; i < (0xBF-readByte); i++ )
             {
+                // Add opaque pixel
+                pixelLine.append( D1CelPixel(false,rawData[o]) );
                 if( pixelLine.size() == this->width )
                 {
                     pixels.insert( 0, pixelLine );
                     pixelLine.clear();
                 }
-                // Add opaque pixel
-                pixelLine.append( D1CelPixel(false,rawData[o]) );
             }
         }
         // Palette indices
@@ -133,15 +133,15 @@ bool D1Cl2Frame::load( QByteArray rawData )
         {
             for( int i = 0; i < (256-readByte); i++ )
             {
+                // Go to the next palette index offset
+                o++;
+                // Add opaque pixel
+                pixelLine.append( D1CelPixel(false,rawData[o]) );
                 if( pixelLine.size() == this->width )
                 {
                     pixels.insert( 0, pixelLine );
                     pixelLine.clear();
                 }
-                // Go to the next palette index offset
-                o++;
-                // Add opaque pixel
-                pixelLine.append( D1CelPixel(false,rawData[o]) );
             }
         }
         else if( readByte == 0x00 )
