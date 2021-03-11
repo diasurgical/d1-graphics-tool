@@ -104,6 +104,7 @@ bool D1Cl2Frame::load( QByteArray rawData )
             {
                 // Add transparent pixel
                 pixelLine.append( D1CelPixel(true,0) );
+
                 if( pixelLine.size() == this->width )
                 {
                     pixels.insert( 0, pixelLine );
@@ -121,6 +122,7 @@ bool D1Cl2Frame::load( QByteArray rawData )
             {
                 // Add opaque pixel
                 pixelLine.append( D1CelPixel(false,rawData[o]) );
+
                 if( pixelLine.size() == this->width )
                 {
                     pixels.insert( 0, pixelLine );
@@ -137,6 +139,7 @@ bool D1Cl2Frame::load( QByteArray rawData )
                 o++;
                 // Add opaque pixel
                 pixelLine.append( D1CelPixel(false,rawData[o]) );
+
                 if( pixelLine.size() == this->width )
                 {
                     pixels.insert( 0, pixelLine );

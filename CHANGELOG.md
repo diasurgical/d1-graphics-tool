@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.4.1 - 2021-03-11
 ### Changed
-- Qt Framework updated to 5.15.2 LTS
+- Qt Framework updated to 5.15.2 LTS.
+
+### Fixed
+- CL2 loading issue, the top pixel line of CL2 frames was not loaded nor rendered.
 
 
 ## 0.4.0 - 2020-01-08
@@ -24,7 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Export dialog button height.
-
 
 ## 0.3.2 - 2020-01-08
 ### Changed
