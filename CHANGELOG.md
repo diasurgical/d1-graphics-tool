@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.3.2 - 2020-01-08
 ### Changed
-- Start using Qt Framework 5.12.6 LTS.
+- Qt Framework updated to 5.12.6 LTS.
 - Rewrite changelog.
 
 ### Fixed
@@ -38,7 +38,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.3.1 - 2018-03-09
 ### Changed
-- Qt Framework 5.9 LTS.
+- Qt Framework updated to 5.9 LTS.
 - Code cleaning.
 
 ## 0.3.0
