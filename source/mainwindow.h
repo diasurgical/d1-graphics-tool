@@ -24,7 +24,7 @@
 #include "settingsdialog.h"
 #include "exportdialog.h"
 
-#define D1_GRAPHICS_TOOL_VERSION "0.4.0"
+#define D1_GRAPHICS_TOOL_VERSION "0.4.1"
 
 namespace Ui
 {
