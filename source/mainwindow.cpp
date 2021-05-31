@@ -16,6 +16,8 @@ MainWindow::MainWindow( QWidget *parent ) :
     min( new D1Min ),
     til( new D1Til )
 {
+    //QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling, true );
+
     ui->setupUi( this );
 
     this->loadConfiguration();

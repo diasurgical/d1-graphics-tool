@@ -19,6 +19,7 @@
     - Translate individual color by double-clicking (or single-click plus "Translate" button) the color to translate and clicking the target color
     - Translate hue by selecting the hue to translate, click the "Translate" button and click the target hue (hue must be the same size)
     - "Save translation 1", "Save translation 2", "Save translation 1 as", "Save translation 2 as" items in the "Palette" menu
+- Rescale the palette when changing screen depending on DPI
 - Add settings
     - Background color? (grey, green, magenta, cyan?)
     - Default zoom level (depending on CEL/CL2 type?)
