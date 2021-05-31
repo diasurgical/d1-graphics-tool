@@ -29,6 +29,7 @@ SOURCES += main.cpp \
     d1pal.cpp \
     d1trn.cpp \
     celview.cpp \
+    palettewidget.cpp \
     palview.cpp \
     d1min.cpp \
     d1til.cpp \
@@ -43,6 +44,7 @@ HEADERS  += mainwindow.h \
     d1pal.h \
     d1trn.h \
     celview.h \
+    palettewidget.h \
     palview.h \
     d1min.h \
     d1til.h \
@@ -53,6 +55,7 @@ HEADERS  += mainwindow.h \
 
 FORMS += mainwindow.ui \
     celview.ui \
+    palettewidget.ui \
     palview.ui \
     levelcelview.ui \
     exportdialog.ui \
