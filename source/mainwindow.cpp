@@ -96,12 +96,14 @@ void MainWindow::on_actionOpen_triggered()
             this->pal = new D1Pal;
             this->pal->load( ":/default.pal" );
 
-            // Loading default null.trn
+            // Create D1Trn entities
             this->trn1 = new D1Trn;
-            this->trn1->setPalette( this->pal );
-            this->trn1->load( ":/null.trn" );
             this->trn2 = new D1Trn;
-            this->trn2->setPalette( this->trn1->getResultingPalette() );
+            // Set the palettes in reversed order, because in the game the trn files are applied to the cel files, not to the palettes.
+            this->trn1->setPalette( this->trn2->getResultingPalette() );
+            this->trn2->setPalette( this->pal );
+            // Loading default null.trn
+            this->trn1->load( ":/null.trn" );
             this->trn2->load( ":/null.trn" );
 
             if( openFilePath.toLower().endsWith( ".cel" ) )
@@ -120,8 +122,8 @@ void MainWindow::on_actionOpen_triggered()
                 QMessageBox::critical( this, "Error", errorMessage );
                 return;
             }
-
-            this->cel->setPalette( this->trn2->getResultingPalette() );
+            // use the result of the first D1Trn object, since the D1Trn's are in reversed order.
+            this->cel->setPalette( this->trn1->getResultingPalette() );
 
             this->palView = new PalView;
 
