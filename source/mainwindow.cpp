@@ -127,6 +127,13 @@ void MainWindow::on_actionOpen_triggered()
 
             this->palView = new PalView;
 
+            this->palWidget = new PaletteWidget;
+            this->trn1Widget = new PaletteWidget;
+            this->trn2Widget = new PaletteWidget;
+
+            this->ui->palFrame->layout()->addWidget( this->palWidget );
+            this->ui->palFrame->layout()->addWidget( this->trn1Widget );
+            this->ui->palFrame->layout()->addWidget( this->trn2Widget );
 
             // If the CEL file is a level CEL file, then look for
             // associated MIN and TIL files
@@ -197,7 +204,7 @@ void MainWindow::on_actionOpen_triggered()
                 this->ui->mainFrame->layout()->addWidget( this->levelCelView );
 
             // Adding the PalView to the pal frame
-            this->ui->palFrame->layout()->addWidget( this->palView );
+            //this->ui->palFrame->layout()->addWidget( this->palView );
             this->ui->menuPalette->setEnabled( true );
             this->ui->actionExport->setEnabled( true );
 

@@ -19,6 +19,7 @@
 #include "d1til.h"
 
 #include "palview.h"
+#include "palettewidget.h"
 #include "celview.h"
 #include "levelcelview.h"
 #include "settingsdialog.h"
@@ -64,7 +65,13 @@ private:
 
     QPointer<CelView> celView;
     QPointer<LevelCelView> levelCelView;
+
     QPointer<PalView> palView;
+
+    QPointer<PaletteWidget> palWidget;
+    QPointer<PaletteWidget> trn1Widget;
+    QPointer<PaletteWidget> trn2Widget;
+
     QPointer<SettingsDialog> settingsDialog;
     QPointer<ExportDialog> exportDialog;
 
