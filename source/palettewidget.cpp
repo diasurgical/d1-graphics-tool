@@ -45,7 +45,7 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
     this->trn = t;
     this->celView = c;
 
-    this->ui->colorGroupBox->setDisabled(true);
+    this->ui->colorGroupBox->hide();
 
     this->refresh();
 }
@@ -58,7 +58,7 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
     this->isCelLevel = true;
     this->levelCelView = lc;
 
-    this->ui->colorGroupBox->setDisabled(true);
+    this->ui->colorGroupBox->hide();
 
     this->refresh();
 }
