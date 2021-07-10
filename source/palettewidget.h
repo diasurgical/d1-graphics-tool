@@ -12,6 +12,8 @@
 #include "d1pal.h"
 #include "d1trn.h"
 
+#define PALETTE_DEFAULT_WIDTH 224
+
 namespace Ui {
 class PaletteWidget;
 }
