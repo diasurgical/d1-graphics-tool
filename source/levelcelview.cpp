@@ -283,7 +283,7 @@ void LevelCelView::on_zoomOutButton_clicked()
 {
     if( this->currentZoomFactor - 1 >= 1 )
         this->currentZoomFactor -= 1;
-    ui->celGraphicsView->resetMatrix();
+    ui->celGraphicsView->resetTransform();
     ui->celGraphicsView->scale( this->currentZoomFactor, this->currentZoomFactor );
     ui->celGraphicsView->show();
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );
@@ -293,7 +293,7 @@ void LevelCelView::on_zoomInButton_clicked()
 {
     if( this->currentZoomFactor + 1 <= 10 )
         this->currentZoomFactor += 1;
-    ui->celGraphicsView->resetMatrix();
+    ui->celGraphicsView->resetTransform();
     ui->celGraphicsView->scale( this->currentZoomFactor, this->currentZoomFactor );
     ui->celGraphicsView->show();
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );
@@ -305,7 +305,7 @@ void LevelCelView::on_zoomEdit_returnPressed()
 
     if( zoom >= 1 && zoom <= 10 )
         this->currentZoomFactor = zoom;
-    ui->celGraphicsView->resetMatrix();
+    ui->celGraphicsView->resetTransform();
     ui->celGraphicsView->scale( this->currentZoomFactor, this->currentZoomFactor );
     ui->celGraphicsView->show();
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );
