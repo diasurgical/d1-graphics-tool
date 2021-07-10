@@ -127,13 +127,17 @@ void MainWindow::on_actionOpen_triggered()
 
             this->palView = new PalView;
 
+            // Add palette views for PAL and TRNs
             this->palWidget = new PaletteWidget;
             this->trn1Widget = new PaletteWidget;
             this->trn2Widget = new PaletteWidget;
-
             this->ui->palFrame->layout()->addWidget( this->palWidget );
             this->ui->palFrame->layout()->addWidget( this->trn1Widget );
             this->ui->palFrame->layout()->addWidget( this->trn2Widget );
+
+            // Refresh palette view chain
+            QObject::connect( this->palWidget, &PaletteWidget::refreshed, this->trn1Widget, &PaletteWidget::refresh );
+            QObject::connect( this->trn1Widget, &PaletteWidget::refreshed, this->trn2Widget, &PaletteWidget::refresh );
 
             // If the CEL file is a level CEL file, then look for
             // associated MIN and TIL files

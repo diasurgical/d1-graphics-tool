@@ -12,3 +12,8 @@ PaletteWidget::~PaletteWidget()
 {
     delete ui;
 }
+
+void PaletteWidget::refresh()
+{
+
+}

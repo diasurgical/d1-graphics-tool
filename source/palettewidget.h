@@ -24,8 +24,34 @@ public:
     explicit PaletteWidget(QWidget *parent = nullptr);
     ~PaletteWidget();
 
+    void initialize( D1Pal*, CelView* );
+    void initialize( D1Pal*, LevelCelView* );
+
+    void initialize( D1Pal*, D1Trn*, CelView* );
+    void initialize( D1Pal*, D1Trn*, LevelCelView* );
+
+    void refresh();
+
+signals:
+    void refreshed();
+
+
 private:
     Ui::PaletteWidget *ui;
+    bool isCelLevel;
+    bool isTrn;
+
+    CelView *celView;
+    LevelCelView *levelCelView;
+
+    QGraphicsScene *scene;
+
+    D1Pal *pal;
+    D1Trn *trn;
+
+    QMap<QString,QString> paths;
+
+
 };
 
 #endif // PALETTEWIDGET_H
