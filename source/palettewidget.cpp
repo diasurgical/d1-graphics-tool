@@ -17,7 +17,54 @@ PaletteWidget::~PaletteWidget()
     delete ui;
 }
 
+void PaletteWidget::initialize( D1Pal *p, CelView *c )
+{
+    this->pal = p;
+    this->celView = c;
+
+    this->ui->translationGroupBox->hide();
+
+    this->refresh();
+}
+
+void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
+{
+    this->pal = p;
+    this->isCelLevel = true;
+    this->levelCelView = lc;
+
+    this->ui->translationGroupBox->hide();
+
+    this->refresh();
+}
+
+void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
+{
+    this->isTrn = true;
+    this->pal = p;
+    this->trn = t;
+    this->celView = c;
+
+    this->ui->colorGroupBox->setDisabled(true);
+
+    this->refresh();
+}
+
+void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
+{
+    this->isTrn = true;
+    this->pal = p;
+    this->trn = t;
+    this->isCelLevel = true;
+    this->levelCelView = lc;
+
+    this->ui->colorGroupBox->setDisabled(true);
+
+    this->refresh();
+}
+
 void PaletteWidget::refresh()
 {
 
+    emit refreshed();
 }

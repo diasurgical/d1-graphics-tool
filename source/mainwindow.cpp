@@ -181,7 +181,13 @@ void MainWindow::on_actionOpen_triggered()
                 QObject::connect( this->levelCelView, &LevelCelView::frameChanged, this->palView, &PalView::displayTrnHits );
 
                 this->levelCelView->initialize( this->cel, this->min, this->til );
+
+                //
                 this->palView->initialize( this->pal, this->trn1, this->trn2, this->levelCelView );
+                this->palWidget->initialize( this->pal, this->levelCelView );
+                this->trn1Widget->initialize( this->pal, this->trn1, this->levelCelView );
+                this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->levelCelView );
+
                 this->levelCelView->displayFrame();
             }
             // Otherwise build a CelView
@@ -192,7 +198,13 @@ void MainWindow::on_actionOpen_triggered()
                 QObject::connect( this->celView, &CelView::frameChanged, this->palView, &PalView::displayTrnHits );
 
                 this->celView->initialize( this->cel );
+
+                //
                 this->palView->initialize( this->pal, this->trn1, this->trn2, this->celView );
+                this->palWidget->initialize( this->pal, this->celView );
+                this->trn1Widget->initialize( this->pal, this->trn1, this->celView );
+                this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView );
+
                 this->celView->displayFrame();
             }
 
