@@ -57,6 +57,7 @@ public:
     void refreshPathComboBox();
     void refreshColorLineEdit();
     void refreshIndexLineEdit();
+    void refreshTranslationIndexLineEdit();
 
     void refresh();
 
@@ -81,6 +82,7 @@ private:
     QGraphicsScene *scene;
     quint8 selectedColorIndex;
     QColor selectedColor;
+    quint8 selectedTranslationIndex;
 
     D1Pal *pal;
     D1Trn *trn;

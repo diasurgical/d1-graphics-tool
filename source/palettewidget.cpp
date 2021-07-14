@@ -35,8 +35,6 @@ void PaletteWidget::initialize( D1Pal *p, CelView *c )
     this->pal = p;
     this->celView = c;
 
-    this->selectedColor = this->pal->getColor( 0 );
-
     this->initializeUi();
 }
 
@@ -82,13 +80,22 @@ void PaletteWidget::initializeUi()
     }
     else
     {
-        this->ui->translatedIndexLineEdit->hide();
+        this->ui->translationIndexLineEdit->hide();
         this->ui->translationLabel->hide();
     }
 
+    this->selectedColor = this->pal->getColor( 0 );
+    if( this->isTrn )
+        this->selectedTranslationIndex = this->trn->getTranslation( 0 );
+
+
     this->initializePathComboBox();
+
     this->refreshColorLineEdit();
     this->refreshIndexLineEdit();
+    if( this->isTrn )
+        this->refreshTranslationIndexLineEdit();
+
     this->displayColors();
     this->displaySelection();
 }
@@ -113,6 +120,9 @@ void PaletteWidget::selectColor( quint8 index )
 {
     this->selectedColorIndex = index;
     this->selectedColor = this->pal->getColor( index );
+
+    if( this->isTrn )
+        this->selectedTranslationIndex = this->trn->getTranslation( index );
 
     this->refresh();
     emit colorSelected( index );
@@ -249,12 +259,18 @@ void PaletteWidget::refreshPathComboBox()
 
 void PaletteWidget::refreshColorLineEdit()
 {
-    this->ui->colorLineEdit->setText( selectedColor.name() );
+    this->selectedColor = this->pal->getColor( this->selectedColorIndex );
+    this->ui->colorLineEdit->setText( this->selectedColor.name() );
 }
 
 void PaletteWidget::refreshIndexLineEdit()
 {
     this->ui->indexLineEdit->setText( QString::number(selectedColorIndex) );
+}
+
+void PaletteWidget::refreshTranslationIndexLineEdit()
+{
+    this->ui->translationIndexLineEdit->setText( QString::number(selectedTranslationIndex) );
 }
 
 void PaletteWidget::refresh()
@@ -267,6 +283,8 @@ void PaletteWidget::refresh()
     this->refreshPathComboBox();
     this->refreshColorLineEdit();
     this->refreshIndexLineEdit();
+    if( this->trn )
+        this->refreshTranslationIndexLineEdit();
 
     emit refreshed();
 }
@@ -298,6 +316,7 @@ void PaletteWidget::pathComboBox_currentIndexChanged( int index )
         }
     }
 
-    this->refresh();
     emit this->modified();
+
+    this->refresh();
 }
