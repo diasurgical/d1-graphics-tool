@@ -38,6 +38,7 @@ public:
 
     // Coordinates functions
     QRectF getColorCoordinates( quint8 );
+    quint8 getColorIndexFromCoordinates( QPointF );
 
     // Mouse event filter
     bool eventFilter( QObject*, QEvent* );

@@ -73,12 +73,30 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
 
 QRectF PaletteWidget::getColorCoordinates( quint8 index )
 {
-    int x = index % PALETTE_COLORS_PER_LINE;
-    int y = index / PALETTE_COLORS_PER_LINE;
+    int ix = index % PALETTE_COLORS_PER_LINE;
+    int iy = index / PALETTE_COLORS_PER_LINE;
 
     int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
 
-    return QRectF( x, y, w, w );
+    QRectF coordinates( ix*w, iy*w, w, w );
+    qDebug() << "Color coordinates: " << ix << "," << iy << " " << coordinates;
+
+    return coordinates;
+}
+
+quint8 PaletteWidget::getColorIndexFromCoordinates( QPointF coordinates )
+{
+    quint8 index = 0;
+
+    int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
+
+    int ix = coordinates.x() / w;
+    int iy = coordinates.y() / w;
+
+    index = iy * PALETTE_COLORS_PER_LINE + ix;
+
+    qDebug() << "Color index: " << index;
+    return index;
 }
 
 // This event filter is used on the QGraphicsView
@@ -87,15 +105,22 @@ bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
     if( event->type() == QEvent::MouseButtonPress )
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        qDebug() << "Clicked : " << mouseEvent->position().x() << "," << mouseEvent->position().y();
+        qDebug() << "Clicked: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
+
+        // Check if selected color has changed
+        quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
+
+        if( colorIndex != this->selectedColorIndex )
+        {
+            this->selectedColorIndex = colorIndex;
+        }
+
+        this->refresh();
+
         return true;
     }
     if( event->type() == QEvent::MouseButtonDblClick )
     {
-        //QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        //qDebug("Ate key press %d", keyEvent->key());
-
-        qDebug("DOUBLE CLICKED");
 
         return true;
     }
