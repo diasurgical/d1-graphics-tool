@@ -71,6 +71,13 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
     this->displaySelection();
 }
 
+void PaletteWidget::selectColor( quint8 index )
+{
+    this->selectedColorIndex = index;
+    this->refresh();
+    emit colorSelected( index );
+}
+
 QRectF PaletteWidget::getColorCoordinates( quint8 index )
 {
     int ix = index % PALETTE_COLORS_PER_LINE;
@@ -79,7 +86,6 @@ QRectF PaletteWidget::getColorCoordinates( quint8 index )
     int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
 
     QRectF coordinates( ix*w, iy*w, w, w );
-    qDebug() << "Color coordinates: " << ix << "," << iy << " " << coordinates;
 
     return coordinates;
 }
@@ -95,7 +101,6 @@ quint8 PaletteWidget::getColorIndexFromCoordinates( QPointF coordinates )
 
     index = iy * PALETTE_COLORS_PER_LINE + ix;
 
-    qDebug() << "Color index: " << index;
     return index;
 }
 
@@ -112,11 +117,8 @@ bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
 
         if( colorIndex != this->selectedColorIndex )
         {
-            this->selectedColorIndex = colorIndex;
+            this->selectColor( colorIndex );
         }
-
-        this->refresh();
-
         return true;
     }
     if( event->type() == QEvent::MouseButtonDblClick )

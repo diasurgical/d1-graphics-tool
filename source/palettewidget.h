@@ -36,6 +36,8 @@ public:
     void initialize( D1Pal*, D1Trn*, CelView* );
     void initialize( D1Pal*, D1Trn*, LevelCelView* );
 
+    void selectColor( quint8 );
+
     // Coordinates functions
     QRectF getColorCoordinates( quint8 );
     quint8 getColorIndexFromCoordinates( QPointF );
@@ -50,6 +52,7 @@ public:
     void refresh();
 
 signals:
+    void colorSelected( quint8 );
     void refreshed();
 
 private:
