@@ -32,11 +32,12 @@ public:
     void initialize( D1Pal*, D1Trn*, CelView* );
     void initialize( D1Pal*, D1Trn*, LevelCelView* );
 
+    void displayColors();
+
     void refresh();
 
 signals:
     void refreshed();
-
 
 private:
     Ui::PaletteWidget *ui;
