@@ -74,12 +74,16 @@ void PaletteWidget::initializeUi()
 {
     if( this->isTrn )
     {
-        this->ui->indexLineEdit->setEnabled( true );
         this->ui->indexPickPushButton->setEnabled( true );
         this->ui->indexResetPushButton->setEnabled( true );
         this->ui->colorLineEdit->setEnabled( false );
         this->ui->colorPickPushButton->setEnabled( false );
         this->ui->colorResetPushButton->setEnabled( false );
+    }
+    else
+    {
+        this->ui->translatedIndexLineEdit->hide();
+        this->ui->translationLabel->hide();
     }
 
     this->initializePathComboBox();
