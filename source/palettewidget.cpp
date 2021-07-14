@@ -7,7 +7,7 @@ PaletteWidget::PaletteWidget(QWidget *parent) :
     isCelLevel( false ),
     isTrn( false ),
     scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
-    selectedColorOffset( 0 )
+    selectedColorIndex( 0 )
 {
     ui->setupUi(this);
     ui->graphicsView->setScene( this->scene );
@@ -26,6 +26,7 @@ void PaletteWidget::initialize( D1Pal *p, CelView *c )
     this->ui->translationGroupBox->hide();
 
     this->displayColors();
+    this->displaySelection();
 }
 
 void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
@@ -37,6 +38,7 @@ void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
     this->ui->translationGroupBox->hide();
 
     this->displayColors();
+    this->displaySelection();
 }
 
 void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
@@ -49,6 +51,7 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
     this->ui->colorGroupBox->hide();
 
     this->displayColors();
+    this->displaySelection();
 }
 
 void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
@@ -62,6 +65,17 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
     this->ui->colorGroupBox->hide();
 
     this->displayColors();
+    this->displaySelection();
+}
+
+QRectF PaletteWidget::getColorCoordinates( quint8 index )
+{
+    int x = index % PALETTE_COLORS_PER_LINE;
+    int y = index / PALETTE_COLORS_PER_LINE;
+
+    int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
+
+    return QRectF( x, y, w, w );
 }
 
 void PaletteWidget::displayColors()
@@ -114,8 +128,23 @@ void PaletteWidget::displayColors()
 */
 }
 
+void PaletteWidget::displaySelection()
+{
+    QBrush brush( Qt::NoBrush );
+    QPen pen( Qt::red );
+    pen.setStyle( Qt::SolidLine );
+    pen.setJoinStyle( Qt::MiterJoin );
+    pen.setWidth( PALETTE_SELECTION_WIDTH );
+
+    QRectF coordinates = getColorCoordinates( selectedColorIndex );
+    coordinates.adjust(1,1,-1,-1);
+
+    this->scene->addRect( coordinates, pen, brush );
+}
+
 void PaletteWidget::refresh()
 {
     this->displayColors();
+    this->displaySelection();
     emit refreshed();
 }

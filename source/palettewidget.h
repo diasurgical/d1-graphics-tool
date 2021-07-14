@@ -13,7 +13,9 @@
 #include "d1trn.h"
 
 #define PALETTE_WIDTH 224
+#define PALETTE_COLORS_PER_LINE 16
 #define PALETTE_COLOR_SPACING 1
+#define PALETTE_SELECTION_WIDTH 2
 
 namespace Ui {
 class PaletteWidget;
@@ -33,7 +35,10 @@ public:
     void initialize( D1Pal*, D1Trn*, CelView* );
     void initialize( D1Pal*, D1Trn*, LevelCelView* );
 
+    QRectF getColorCoordinates( quint8 );
+
     void displayColors();
+    void displaySelection();
 
     void refresh();
 
@@ -48,15 +53,14 @@ private:
     CelView *celView;
     LevelCelView *levelCelView;
 
+
     QGraphicsScene *scene;
-    quint8 selectedColorOffset;
+    quint8 selectedColorIndex;
 
     D1Pal *pal;
     D1Trn *trn;
 
     QMap<QString,QString> paths;
-
-
 };
 
 #endif // PALETTEWIDGET_H

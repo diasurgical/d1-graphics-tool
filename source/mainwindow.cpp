@@ -248,6 +248,13 @@ void MainWindow::on_actionClose_triggered()
     if( this->palView )
         delete this->palView;
 
+    if( this->palWidget )
+        delete this->palWidget;
+    if( this->trn1Widget )
+        delete this->trn1Widget;
+    if( this->trn2Widget )
+        delete this->trn2Widget;
+
     if( this->cel )
         delete this->cel;
 
