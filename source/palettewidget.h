@@ -6,6 +6,7 @@
 #include <QGraphicsScene>
 #include <QFileInfo>
 #include <QDirIterator>
+#include <QComboBox>
 #include <QMouseEvent>
 
 #include "celview.h"
@@ -36,6 +37,8 @@ public:
     void initialize( D1Pal*, D1Trn*, CelView* );
     void initialize( D1Pal*, D1Trn*, LevelCelView* );
 
+    void initializePathComboBox();
+
     void selectColor( quint8 );
 
     // Coordinates functions
@@ -49,11 +52,19 @@ public:
     void displayColors();
     void displaySelection();
 
+    void refreshPathComboBox();
+
     void refresh();
 
 signals:
     void colorSelected( quint8 );
+    void modified();
     void refreshed();
+
+public slots:
+
+    void pathComboBox_currentIndexChanged( int );
+
 
 private:
     Ui::PaletteWidget *ui;
@@ -69,6 +80,7 @@ private:
     D1Pal *pal;
     D1Trn *trn;
 
+    bool buildingPathComboBox;
     QMap<QString,QString> paths;
 };
 

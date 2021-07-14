@@ -7,10 +7,19 @@ PaletteWidget::PaletteWidget(QWidget *parent) :
     isCelLevel( false ),
     isTrn( false ),
     scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
-    selectedColorIndex( 0 )
+    selectedColorIndex( 0 ),
+    buildingPathComboBox( false )
 {
     ui->setupUi(this);
     ui->graphicsView->setScene( this->scene );
+
+    // Slots need to be written connected manually because I use multiple instances of PaletteWidget
+    // thus Qt is not able to differentiate between children widgets with the same name.
+    // e.g. the pathComboBox will be present three times, one for the PAL and two for the TRNs.
+    QObject::connect(
+        this->findChild<QComboBox*>("pathComboBox"), &QComboBox::currentIndexChanged,
+        this, &PaletteWidget::pathComboBox_currentIndexChanged );
+
 
     // Install the mouse events filter on the QGraphicsView
     ui->graphicsView->installEventFilter(this);
@@ -27,6 +36,7 @@ void PaletteWidget::initialize( D1Pal *p, CelView *c )
     this->celView = c;
 
     this->ui->translationGroupBox->hide();
+    this->initializePathComboBox();
 
     this->displayColors();
     this->displaySelection();
@@ -39,6 +49,8 @@ void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
     this->levelCelView = lc;
 
     this->ui->translationGroupBox->hide();
+    this->initializePathComboBox();
+
 
     this->displayColors();
     this->displaySelection();
@@ -52,6 +64,7 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
     this->celView = c;
 
     this->ui->colorGroupBox->hide();
+    this->initializePathComboBox();
 
     this->displayColors();
     this->displaySelection();
@@ -66,9 +79,28 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
     this->levelCelView = lc;
 
     this->ui->colorGroupBox->hide();
+    this->initializePathComboBox();
 
     this->displayColors();
     this->displaySelection();
+}
+
+void PaletteWidget::initializePathComboBox()
+{
+    this->paths.clear();
+
+    if( !this->isTrn )
+    {
+        this->paths["_default.pal"] = ":/default.pal";
+        this->paths["_town.pal"] = ":/town.pal";
+    }
+    else
+    {
+        this->paths["_null.trn"] = ":/null.trn";
+        this->paths["_null2.trn"] = ":/null.trn";
+    }
+
+    this->refreshPathComboBox();
 }
 
 void PaletteWidget::selectColor( quint8 index )
@@ -198,10 +230,59 @@ void PaletteWidget::displaySelection()
     this->scene->addRect( coordinates, pen, brush );
 }
 
+void PaletteWidget::refreshPathComboBox()
+{
+    // This boolean is used to avoid infinite loop when adding items to the combo box
+    // because adding items calls pathComboBox_currentIndexChanged() which itself calls
+    // refresh() which calls pathComboBox_currentIndexChanged(), ...
+    this->buildingPathComboBox = true;
+
+    ui->pathComboBox->clear();
+    for( int i = 0; i < this->paths.keys().size(); i++ )
+        ui->pathComboBox->addItem( this->paths.keys().at(i) );
+    ui->pathComboBox->setCurrentText( this->paths.key(this->pal->getFilePath()) );
+
+    this->buildingPathComboBox = false;
+}
+
 void PaletteWidget::refresh()
 {
+    if( this->isTrn )
+        this->trn->refreshResultingPalette();
+
     this->displayColors();
     this->displaySelection();
+    this->refreshPathComboBox();
     emit refreshed();
 }
 
+void PaletteWidget::pathComboBox_currentIndexChanged( int index )
+{
+    if( this->paths.isEmpty() || this->buildingPathComboBox )
+        return;
+
+    QString filePath = this->paths[ this->ui->pathComboBox->currentText() ];
+
+    if( !filePath.isEmpty() )
+    {
+        if( !this->isTrn )
+        {
+            if( !this->pal->load( filePath ) )
+            {
+                QMessageBox::critical( this, "Error", "Could not load PAL file." );
+                return;
+            }
+        }
+        else
+        {
+            if( !this->trn->load( filePath ) )
+            {
+                QMessageBox::critical( this, "Error", "Could not load TRN file." );
+                return;
+            }
+        }
+    }
+
+    this->refresh();
+    emit this->modified();
+}
