@@ -248,8 +248,6 @@ void MainWindow::on_actionOpen_triggered()
 
                 this->celView->initialize( this->cel );
 
-                //
-
                 this->palWidget->initialize( this->pal, this->celView );
                 this->trn1Widget->initialize( this->pal, this->trn1, this->celView );
                 this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView );

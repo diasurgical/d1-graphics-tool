@@ -22,7 +22,7 @@ PaletteWidget::PaletteWidget(QWidget *parent) :
 
 
     // Install the mouse events filter on the QGraphicsView
-    ui->graphicsView->installEventFilter(this);
+    ui->graphicsView->installEventFilter( this );
 }
 
 PaletteWidget::~PaletteWidget()
@@ -35,11 +35,9 @@ void PaletteWidget::initialize( D1Pal *p, CelView *c )
     this->pal = p;
     this->celView = c;
 
-    this->ui->translationGroupBox->hide();
-    this->initializePathComboBox();
+    this->selectedColor = this->pal->getColor( 0 );
 
-    this->displayColors();
-    this->displaySelection();
+    this->initializeUi();
 }
 
 void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
@@ -48,12 +46,7 @@ void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
     this->isCelLevel = true;
     this->levelCelView = lc;
 
-    this->ui->translationGroupBox->hide();
-    this->initializePathComboBox();
-
-
-    this->displayColors();
-    this->displaySelection();
+    this->initializeUi();
 }
 
 void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
@@ -63,11 +56,7 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
     this->trn = t;
     this->celView = c;
 
-    this->ui->colorGroupBox->hide();
-    this->initializePathComboBox();
-
-    this->displayColors();
-    this->displaySelection();
+    this->initializeUi();
 }
 
 void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
@@ -78,9 +67,24 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
     this->isCelLevel = true;
     this->levelCelView = lc;
 
-    this->ui->colorGroupBox->hide();
-    this->initializePathComboBox();
+    this->initializeUi();
+}
 
+void PaletteWidget::initializeUi()
+{
+    if( this->isTrn )
+    {
+        this->ui->indexLineEdit->setEnabled( true );
+        this->ui->indexPickPushButton->setEnabled( true );
+        this->ui->indexResetPushButton->setEnabled( true );
+        this->ui->colorLineEdit->setEnabled( false );
+        this->ui->colorPickPushButton->setEnabled( false );
+        this->ui->colorResetPushButton->setEnabled( false );
+    }
+
+    this->initializePathComboBox();
+    this->refreshColorLineEdit();
+    this->refreshIndexLineEdit();
     this->displayColors();
     this->displaySelection();
 }
@@ -95,7 +99,7 @@ void PaletteWidget::initializePathComboBox()
     else
     {
         this->paths["_null.trn"] = ":/null.trn";
-        this->paths["_null2.trn"] = ":/null.trn";
+        //this->paths["_null2.trn"] = ":/null.trn";
     }
 
     this->refreshPathComboBox();
@@ -104,6 +108,8 @@ void PaletteWidget::initializePathComboBox()
 void PaletteWidget::selectColor( quint8 index )
 {
     this->selectedColorIndex = index;
+    this->selectedColor = this->pal->getColor( index );
+
     this->refresh();
     emit colorSelected( index );
 }
@@ -205,17 +211,6 @@ void PaletteWidget::displayColors()
 
         x += dx;
     }
-/*
-    // This boolean is used to avoid infinite loop when adding items to the combo box
-    // because adding items calls on_palComboBox_currentIndexChanged() which itself calls
-    // displayPal() which calls on_palComboBox_currentIndexChanged(), ...
-    this->buildingPalComboBox = true;
-    ui->palComboBox->clear();
-    for( int i = 0; i < this->palettesPaths.keys().size(); i++ )
-        ui->palComboBox->addItem( this->palettesPaths.keys().at(i) );
-    ui->palComboBox->setCurrentText( this->palettesPaths.key(this->pal->getFilePath()) );
-    this->buildingPalComboBox = false;
-*/
 }
 
 void PaletteWidget::displaySelection()
@@ -248,6 +243,16 @@ void PaletteWidget::refreshPathComboBox()
     this->buildingPathComboBox = false;
 }
 
+void PaletteWidget::refreshColorLineEdit()
+{
+    this->ui->colorLineEdit->setText( selectedColor.name() );
+}
+
+void PaletteWidget::refreshIndexLineEdit()
+{
+    this->ui->indexLineEdit->setText( QString::number(selectedColorIndex) );
+}
+
 void PaletteWidget::refresh()
 {
     if( this->isTrn )
@@ -256,6 +261,9 @@ void PaletteWidget::refresh()
     this->displayColors();
     this->displaySelection();
     this->refreshPathComboBox();
+    this->refreshColorLineEdit();
+    this->refreshIndexLineEdit();
+
     emit refreshed();
 }
 

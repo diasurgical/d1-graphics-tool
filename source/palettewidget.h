@@ -37,6 +37,7 @@ public:
     void initialize( D1Pal*, D1Trn*, CelView* );
     void initialize( D1Pal*, D1Trn*, LevelCelView* );
 
+    void initializeUi();
     void initializePathComboBox();
 
     void selectColor( quint8 );
@@ -54,6 +55,8 @@ public:
     void displaySelection();
 
     void refreshPathComboBox();
+    void refreshColorLineEdit();
+    void refreshIndexLineEdit();
 
     void refresh();
 
@@ -77,6 +80,7 @@ private:
 
     QGraphicsScene *scene;
     quint8 selectedColorIndex;
+    QColor selectedColor;
 
     D1Pal *pal;
     D1Trn *trn;
