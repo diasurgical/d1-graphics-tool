@@ -125,8 +125,6 @@ void MainWindow::on_actionOpen_triggered()
 
             this->cel->setPalette( this->trn2->getResultingPalette() );
 
-            this->palView = new PalView;
-
             // Add palette widgets for PAL and TRNs
             this->palWidget = new PaletteWidget;
             this->trn1Widget = new PaletteWidget;
@@ -144,6 +142,52 @@ void MainWindow::on_actionOpen_triggered()
             QObject::connect( this->trn1Widget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
             QObject::connect( this->trn2Widget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
 
+
+            // Look for all palettes in the same folder as the CEL/CL2 file
+            QFileInfo celFileInfo( openFilePath );
+            QDirIterator it( celFileInfo.absolutePath(), QStringList() << "*.pal", QDir::Files );
+            QString firstPaletteFound = QString();
+            bool relevantPaletteFound = false;
+            while( it.hasNext() )
+            {
+                QString path = it.next();
+
+                if( path != "1" )
+                {
+                    if( firstPaletteFound.isEmpty() )
+                        firstPaletteFound = path;
+
+                    QFileInfo palFileInfo( path );
+                    this->palWidget->addPath( palFileInfo.fileName(), palFileInfo.absoluteFilePath() );
+
+                    if( !relevantPaletteFound
+                        && palFileInfo.fileName().toLower().startsWith(
+                        celFileInfo.fileName().toLower().replace(".cel","").replace(".cl2","") ) )
+                    {
+                        if( !this->pal->load( palFileInfo.absoluteFilePath() ) )
+                        {
+                            QMessageBox::critical( this, "Error", "Could not load PAL file." );
+                            return;
+                        }
+
+                        this->trn1->refreshResultingPalette();
+                        this->trn2->refreshResultingPalette();
+
+                        relevantPaletteFound = true;
+                    }
+
+                    if( !it.hasNext() && !relevantPaletteFound )
+                    {
+                        if( !this->pal->load( firstPaletteFound ) )
+                        {
+                            QMessageBox::critical( this, "Error", "Could not load PAL file." );
+                            return;
+                        }
+                        this->trn1->refreshResultingPalette();
+                        this->trn2->refreshResultingPalette();
+                    }
+                }
+            }
 
             // If the CEL file is a level CEL file, then look for
             // associated MIN and TIL files
@@ -183,8 +227,6 @@ void MainWindow::on_actionOpen_triggered()
                 this->til->setMin( this->min );
 
                 this->levelCelView = new LevelCelView;
-                QObject::connect( this->levelCelView, &LevelCelView::frameChanged, this->palView, &PalView::displayPalHits );
-                QObject::connect( this->levelCelView, &LevelCelView::frameChanged, this->palView, &PalView::displayTrnHits );
 
                 // Refresh CEL view if a PAL or TRN is modified
                 QObject::connect( this->palWidget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
@@ -193,8 +235,6 @@ void MainWindow::on_actionOpen_triggered()
 
                 this->levelCelView->initialize( this->cel, this->min, this->til );
 
-                //
-                this->palView->initialize( this->pal, this->trn1, this->trn2, this->levelCelView );
                 this->palWidget->initialize( this->pal, this->levelCelView );
                 this->trn1Widget->initialize( this->pal, this->trn1, this->levelCelView );
                 this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->levelCelView );
@@ -205,13 +245,11 @@ void MainWindow::on_actionOpen_triggered()
             else
             {
                 this->celView = new CelView;
-                QObject::connect( this->celView, &CelView::frameChanged, this->palView, &PalView::displayPalHits );
-                QObject::connect( this->celView, &CelView::frameChanged, this->palView, &PalView::displayTrnHits );
 
                 this->celView->initialize( this->cel );
 
                 //
-                this->palView->initialize( this->pal, this->trn1, this->trn2, this->celView );
+
                 this->palWidget->initialize( this->pal, this->celView );
                 this->trn1Widget->initialize( this->pal, this->trn1, this->celView );
                 this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView );
@@ -219,10 +257,6 @@ void MainWindow::on_actionOpen_triggered()
                 this->celView->displayFrame();
             }
 
-            this->palView->displayPal();
-            this->palView->displayTrn();
-
-            this->palView->displayPalHits();
 
             // Adding the CelView to the main frame
             if( this->celView )
@@ -255,9 +289,6 @@ void MainWindow::on_actionClose_triggered()
 
     if( this->levelCelView )
         delete this->levelCelView;
-
-    if( this->palView )
-        delete this->palView;
 
     if( this->palWidget )
         delete this->palWidget;
@@ -330,7 +361,12 @@ void MainWindow::on_actionLoad_PAL_triggered()
     this->trn1->refreshResultingPalette();
     this->trn2->refreshResultingPalette();
 
+
+    // Add file name and file path to the PaletteWidget
+    QFileInfo palFileInfo( this->pal->getFilePath() );
+    this->palWidget->addPath( palFileInfo.fileName(), this->pal->getFilePath() );
     this->palWidget->refresh();
+
 
     if( this->celView )
         this->celView->displayFrame();
@@ -355,10 +391,6 @@ void MainWindow::on_actionLoad_Translation_1_triggered()
     this->trn1->refreshResultingPalette();
     this->trn2->refreshResultingPalette();
 
-    this->palView->refreshTranslationsPathsAndNames();
-    this->palView->displayTrn();
-
-    this->palView->displayTrn();
     if( this->celView )
         this->celView->displayFrame();
     if( this->levelCelView )
@@ -381,10 +413,6 @@ void MainWindow::on_actionLoad_Translation_2_triggered()
 
     this->trn2->refreshResultingPalette();
 
-    this->palView->refreshTranslationsPathsAndNames();
-    this->palView->displayTrn();
-
-    this->palView->displayTrn();
     if( this->celView )
         this->celView->displayFrame();
     if( this->levelCelView )
@@ -393,13 +421,6 @@ void MainWindow::on_actionLoad_Translation_2_triggered()
 
 void MainWindow::on_actionReset_PAL_triggered()
 {
-    this->palView->refreshPalettesPathsAndNames();
-
-    this->palView->displayPal();
-    this->palView->displayTrn();
-
-    this->palView->displayPalHits();
-
     if( this->celView )
         this->celView->displayFrame();
     if( this->levelCelView )
@@ -412,7 +433,6 @@ void MainWindow::on_actionReset_Translation_1_triggered()
     this->trn1->refreshResultingPalette();
     this->trn2->refreshResultingPalette();
 
-    this->palView->displayTrn();
     if( this->celView )
         this->celView->displayFrame();
     if( this->levelCelView )
@@ -424,7 +444,6 @@ void MainWindow::on_actionReset_Translation_2_triggered()
     this->trn2->load( ":/null.trn" );
     this->trn2->refreshResultingPalette();
 
-    this->palView->displayTrn();
     if( this->celView )
         this->celView->displayFrame();
     if( this->levelCelView )
@@ -449,7 +468,7 @@ void MainWindow::on_actionAbout_triggered()
 #endif
 
 #ifdef Q_OS_MAC
-    operatingSystem = "Mac OS X";
+    operatingSystem = "macOS";
 #endif
 
 #ifdef Q_OS_LINUX

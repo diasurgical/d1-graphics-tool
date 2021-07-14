@@ -87,8 +87,6 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
 
 void PaletteWidget::initializePathComboBox()
 {
-    this->paths.clear();
-
     if( !this->isTrn )
     {
         this->paths["_default.pal"] = ":/default.pal";
@@ -108,6 +106,11 @@ void PaletteWidget::selectColor( quint8 index )
     this->selectedColorIndex = index;
     this->refresh();
     emit colorSelected( index );
+}
+
+void PaletteWidget::addPath( QString name, QString path )
+{
+    this->paths[name] = path;
 }
 
 QRectF PaletteWidget::getColorCoordinates( quint8 index )

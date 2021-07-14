@@ -66,8 +66,6 @@ private:
     QPointer<CelView> celView;
     QPointer<LevelCelView> levelCelView;
 
-    QPointer<PalView> palView;
-
     QPointer<PaletteWidget> palWidget;
     QPointer<PaletteWidget> trn1Widget;
     QPointer<PaletteWidget> trn2Widget;

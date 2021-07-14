@@ -40,6 +40,7 @@ public:
     void initializePathComboBox();
 
     void selectColor( quint8 );
+    void addPath( QString, QString );
 
     // Coordinates functions
     QRectF getColorCoordinates( quint8 );
