@@ -12,7 +12,8 @@
 #include "d1pal.h"
 #include "d1trn.h"
 
-#define PALETTE_DEFAULT_WIDTH 224
+#define PALETTE_WIDTH 224
+#define PALETTE_COLOR_SPACING 1
 
 namespace Ui {
 class PaletteWidget;
@@ -48,6 +49,7 @@ private:
     LevelCelView *levelCelView;
 
     QGraphicsScene *scene;
+    quint8 selectedColorOffset;
 
     D1Pal *pal;
     D1Trn *trn;

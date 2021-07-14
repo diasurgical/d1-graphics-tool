@@ -3,10 +3,11 @@
 
 PaletteWidget::PaletteWidget(QWidget *parent) :
     QWidget(parent),
+    ui(new Ui::PaletteWidget),
     isCelLevel( false ),
     isTrn( false ),
-    scene( new QGraphicsScene(0,0,PALETTE_DEFAULT_WIDTH,PALETTE_DEFAULT_WIDTH) ),
-    ui(new Ui::PaletteWidget)
+    scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
+    selectedColorOffset( 0 )
 {
     ui->setupUi(this);
     ui->graphicsView->setScene( this->scene );
@@ -25,7 +26,6 @@ void PaletteWidget::initialize( D1Pal *p, CelView *c )
     this->ui->translationGroupBox->hide();
 
     this->displayColors();
-    //this->refresh();
 }
 
 void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
@@ -37,7 +37,6 @@ void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
     this->ui->translationGroupBox->hide();
 
     this->displayColors();
-    //this->refresh();
 }
 
 void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
@@ -50,7 +49,6 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
     this->ui->colorGroupBox->hide();
 
     this->displayColors();
-    //this->refresh();
 }
 
 void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
@@ -64,21 +62,22 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
     this->ui->colorGroupBox->hide();
 
     this->displayColors();
-    //this->refresh();
 }
 
 void PaletteWidget::displayColors()
 {
     // Positions
-    int x = 0, y = 0;
+    int x = 0;
+    int y = 0;
 
     // X delta
-    int dx = PALETTE_DEFAULT_WIDTH/16;
+    int dx = PALETTE_WIDTH/16;
     // Y delta
-    int dy = PALETTE_DEFAULT_WIDTH/16;
+    int dy = PALETTE_WIDTH/16;
 
-    // Color width (-1 is for QRect border)
-    int w = PALETTE_DEFAULT_WIDTH/16 - 1;
+    // Color width
+    int w = PALETTE_WIDTH/16 - 2*PALETTE_COLOR_SPACING;
+    int bsw = PALETTE_COLOR_SPACING;
 
     // Removing existing items
     this->scene->clear();
@@ -89,6 +88,7 @@ void PaletteWidget::displayColors()
     // Displaying palette colors
     for( int i = 0; i < D1PAL_COLORS; i++ )
     {
+        // Go to next line
         if( i%16 == 0 && i != 0 )
         {
             x = 0;
@@ -96,8 +96,8 @@ void PaletteWidget::displayColors()
         }
 
         QBrush brush( this->pal->getColor(i) );
-        QPen pen( Qt::white );
-        this->scene->addRect(x,y,w,w,pen,brush);
+        QPen pen( Qt::NoPen );
+        this->scene->addRect( x+bsw, y+bsw, w, w, pen, brush );
 
         x += dx;
     }
