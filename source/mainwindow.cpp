@@ -324,11 +324,7 @@ void MainWindow::on_actionLoad_PAL_triggered()
     this->trn1->refreshResultingPalette();
     this->trn2->refreshResultingPalette();
 
-    this->palView->refreshPalettesPathsAndNames();
-    this->palView->displayPal();
-    this->palView->displayTrn();
-
-    this->palView->displayPalHits();
+    this->palWidget->refresh();
 
     if( this->celView )
         this->celView->displayFrame();
