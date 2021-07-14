@@ -138,8 +138,6 @@ void MainWindow::on_actionOpen_triggered()
             // Refresh PAL/TRN view chain
             QObject::connect( this->palWidget, &PaletteWidget::refreshed, this->trn1Widget, &PaletteWidget::refresh );
             QObject::connect( this->trn1Widget, &PaletteWidget::refreshed, this->trn2Widget, &PaletteWidget::refresh );
-            //QObject::connect( this->palWidget, &PaletteWidget::colorSelected, this->trn1Widget, &PaletteWidget::selectColor );
-            //QObject::connect( this->trn1Widget, &PaletteWidget::colorSelected, this->trn2Widget, &PaletteWidget::selectColor );
 
             // Refresh CEL view if a PAL or TRN is modified
             QObject::connect( this->palWidget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
@@ -187,8 +185,6 @@ void MainWindow::on_actionOpen_triggered()
                 this->levelCelView = new LevelCelView;
                 QObject::connect( this->levelCelView, &LevelCelView::frameChanged, this->palView, &PalView::displayPalHits );
                 QObject::connect( this->levelCelView, &LevelCelView::frameChanged, this->palView, &PalView::displayTrnHits );
-                //QObject::connect( this->palWidget, &PaletteWidget::colorSelected, this->trn1Widget, &PaletteWidget::selectColor );
-                //QObject::connect( this->trn1Widget, &PaletteWidget::colorSelected, this->trn2Widget, &PaletteWidget::selectColor );
 
                 // Refresh CEL view if a PAL or TRN is modified
                 QObject::connect( this->palWidget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
