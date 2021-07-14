@@ -13,13 +13,15 @@ PaletteWidget::PaletteWidget(QWidget *parent) :
     ui->setupUi(this);
     ui->graphicsView->setScene( this->scene );
 
+    // When there is a modification to the PAL or TRNs then UI must be refreshed
+    QObject::connect( this, &PaletteWidget::modified, this, &PaletteWidget::refresh );
+
     // Slots need to be written connected manually because I use multiple instances of PaletteWidget
     // thus Qt is not able to differentiate between children widgets with the same name.
     // e.g. the pathComboBox will be present three times, one for the PAL and two for the TRNs.
     QObject::connect(
         this->findChild<QComboBox*>("pathComboBox"), &QComboBox::currentIndexChanged,
         this, &PaletteWidget::pathComboBox_currentIndexChanged );
-
 
     // Install the mouse events filter on the QGraphicsView
     ui->graphicsView->installEventFilter( this );
@@ -317,6 +319,9 @@ void PaletteWidget::pathComboBox_currentIndexChanged( int index )
     }
 
     emit this->modified();
+}
 
-    this->refresh();
+void PaletteWidget::on_colorLineEdit_returnPressed()
+{
+
 }

@@ -66,10 +66,9 @@ signals:
     void modified();
     void refreshed();
 
-public slots:
-
+private slots:
     void pathComboBox_currentIndexChanged( int );
-
+    void on_colorLineEdit_returnPressed();
 
 private:
     Ui::PaletteWidget *ui;
