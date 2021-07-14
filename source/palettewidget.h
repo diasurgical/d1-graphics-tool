@@ -6,6 +6,7 @@
 #include <QGraphicsScene>
 #include <QFileInfo>
 #include <QDirIterator>
+#include <QMouseEvent>
 
 #include "celview.h"
 #include "levelcelview.h"
@@ -35,8 +36,13 @@ public:
     void initialize( D1Pal*, D1Trn*, CelView* );
     void initialize( D1Pal*, D1Trn*, LevelCelView* );
 
+    // Coordinates functions
     QRectF getColorCoordinates( quint8 );
 
+    // Mouse event filter
+    bool eventFilter( QObject*, QEvent* );
+
+    // Display functions
     void displayColors();
     void displaySelection();
 
@@ -52,7 +58,6 @@ private:
 
     CelView *celView;
     LevelCelView *levelCelView;
-
 
     QGraphicsScene *scene;
     quint8 selectedColorIndex;

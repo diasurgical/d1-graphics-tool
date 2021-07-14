@@ -11,6 +11,9 @@ PaletteWidget::PaletteWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->graphicsView->setScene( this->scene );
+
+    // Install the mouse events filter on the QGraphicsView
+    ui->graphicsView->installEventFilter(this);
 }
 
 PaletteWidget::~PaletteWidget()
@@ -78,6 +81,31 @@ QRectF PaletteWidget::getColorCoordinates( quint8 index )
     return QRectF( x, y, w, w );
 }
 
+// This event filter is used on the QGraphicsView
+bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if( event->type() == QEvent::MouseButtonPress )
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        qDebug() << "Clicked : " << mouseEvent->position().x() << "," << mouseEvent->position().y();
+        return true;
+    }
+    if( event->type() == QEvent::MouseButtonDblClick )
+    {
+        //QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        //qDebug("Ate key press %d", keyEvent->key());
+
+        qDebug("DOUBLE CLICKED");
+
+        return true;
+    }
+    else
+    {
+        // standard event processing
+        return QObject::eventFilter(obj, event);
+    }
+}
+
 void PaletteWidget::displayColors()
 {
     // Positions
@@ -85,12 +113,12 @@ void PaletteWidget::displayColors()
     int y = 0;
 
     // X delta
-    int dx = PALETTE_WIDTH/16;
+    int dx = PALETTE_WIDTH/PALETTE_COLORS_PER_LINE;
     // Y delta
-    int dy = PALETTE_WIDTH/16;
+    int dy = PALETTE_WIDTH/PALETTE_COLORS_PER_LINE;
 
     // Color width
-    int w = PALETTE_WIDTH/16 - 2*PALETTE_COLOR_SPACING;
+    int w = PALETTE_WIDTH/PALETTE_COLORS_PER_LINE - 2*PALETTE_COLOR_SPACING;
     int bsw = PALETTE_COLOR_SPACING;
 
     // Removing existing items
@@ -103,7 +131,7 @@ void PaletteWidget::displayColors()
     for( int i = 0; i < D1PAL_COLORS; i++ )
     {
         // Go to next line
-        if( i%16 == 0 && i != 0 )
+        if( i%PALETTE_COLORS_PER_LINE == 0 && i != 0 )
         {
             x = 0;
             y += dy;
@@ -137,7 +165,8 @@ void PaletteWidget::displaySelection()
     pen.setWidth( PALETTE_SELECTION_WIDTH );
 
     QRectF coordinates = getColorCoordinates( selectedColorIndex );
-    coordinates.adjust(1,1,-1,-1);
+    int a = PALETTE_SELECTION_WIDTH/2;
+    coordinates.adjust( a, a, -a, -a );
 
     this->scene->addRect( coordinates, pen, brush );
 }
@@ -148,3 +177,4 @@ void PaletteWidget::refresh()
     this->displaySelection();
     emit refreshed();
 }
+

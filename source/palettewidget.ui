@@ -44,15 +44,21 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>226</width>
-           <height>226</height>
+           <width>224</width>
+           <height>224</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>226</width>
-           <height>226</height>
+           <width>224</width>
+           <height>224</height>
           </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="lineWidth">
+          <number>0</number>
          </property>
         </widget>
        </item>
