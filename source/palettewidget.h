@@ -28,7 +28,7 @@ class PaletteWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit PaletteWidget(QWidget *parent = nullptr);
+    explicit PaletteWidget(QWidget *parent = nullptr, QString title = "Palette");
     ~PaletteWidget();
 
     void initialize( D1Pal*, CelView* );

@@ -1,7 +1,7 @@
 #include "palettewidget.h"
 #include "ui_palettewidget.h"
 
-PaletteWidget::PaletteWidget(QWidget *parent) :
+PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     QWidget(parent),
     ui(new Ui::PaletteWidget),
     isCelLevel( false ),
@@ -12,6 +12,8 @@ PaletteWidget::PaletteWidget(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->graphicsView->setScene( this->scene );
+
+    ui->groupBox->setTitle( title );
 
     // When there is a modification to the PAL or TRNs then UI must be refreshed
     QObject::connect( this, &PaletteWidget::modified, this, &PaletteWidget::refresh );

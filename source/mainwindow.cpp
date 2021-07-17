@@ -126,9 +126,9 @@ void MainWindow::on_actionOpen_triggered()
             this->cel->setPalette( this->trn2->getResultingPalette() );
 
             // Add palette widgets for PAL and TRNs
-            this->palWidget = new PaletteWidget;
-            this->trn1Widget = new PaletteWidget;
-            this->trn2Widget = new PaletteWidget;
+            this->palWidget = new PaletteWidget( nullptr, "Palette" );
+            this->trn1Widget = new PaletteWidget( nullptr, "Translation" );
+            this->trn2Widget = new PaletteWidget( nullptr, "Unique translation" );
             this->ui->palFrame->layout()->addWidget( this->palWidget );
             this->ui->palFrame->layout()->addWidget( this->trn1Widget );
             this->ui->palFrame->layout()->addWidget( this->trn2Widget );
