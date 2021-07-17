@@ -28,12 +28,14 @@ void CelView::initialize( D1CelBase* c )
     QFileInfo celFileInfo( this->cel->getFilePath() );
     ui->celLabel->setText( celFileInfo.fileName() );
 
+    /*
     if( this->cel->getGroupCount() == 1 )
-        ui->celGroupsControlWidget->setDisabled(true);
+    {
+    }
+    */
 
     if( this->cel->getFrameCount() == 1 )
     {
-        ui->celFrameControlsWidget->setDisabled(true);
         ui->stopButton->setDisabled(true);
         ui->playButton->setDisabled(true);
     }
