@@ -14,7 +14,7 @@
 #include "d1pal.h"
 #include "d1trn.h"
 
-#define PALETTE_WIDTH 224
+#define PALETTE_WIDTH 192
 #define PALETTE_COLORS_PER_LINE 16
 #define PALETTE_COLOR_SPACING 1
 #define PALETTE_SELECTION_WIDTH 2
