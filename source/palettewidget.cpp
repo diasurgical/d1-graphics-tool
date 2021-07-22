@@ -223,7 +223,11 @@ void PaletteWidget::displayColors()
             y += dy;
         }
 
-        QBrush brush( this->pal->getColor(i) );
+        QBrush brush;
+        if( !this->isTrn )
+            brush = QBrush( this->pal->getColor(i) );
+        else
+            brush = QBrush( this->trn->getResultingPalette()->getColor(i) );
         QPen pen( Qt::NoPen );
         this->scene->addRect( x+bsw, y+bsw, w, w, pen, brush );
 
@@ -256,7 +260,11 @@ void PaletteWidget::refreshPathComboBox()
     ui->pathComboBox->clear();
     for( int i = 0; i < this->paths.keys().size(); i++ )
         ui->pathComboBox->addItem( this->paths.keys().at(i) );
-    ui->pathComboBox->setCurrentText( this->paths.key(this->pal->getFilePath()) );
+
+    if( !this->isTrn )
+        ui->pathComboBox->setCurrentText( this->paths.key(this->pal->getFilePath()) );
+    else
+        ui->pathComboBox->setCurrentText( this->paths.key(this->trn->getFilePath()) );
 
     this->buildingPathComboBox = false;
 }

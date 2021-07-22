@@ -127,11 +127,11 @@ void MainWindow::on_actionOpen_triggered()
 
             // Add palette widgets for PAL and TRNs
             this->palWidget = new PaletteWidget( nullptr, "Palette" );
-            this->trn1Widget = new PaletteWidget( nullptr, "Translation" );
-            this->trn2Widget = new PaletteWidget( nullptr, "Unique translation" );
+            this->trn2Widget = new PaletteWidget( nullptr, "Translation" );
+            this->trn1Widget = new PaletteWidget( nullptr, "Unique translation" );
             this->ui->palFrame->layout()->addWidget( this->palWidget );
-            this->ui->palFrame->layout()->addWidget( this->trn1Widget );
             this->ui->palFrame->layout()->addWidget( this->trn2Widget );
+            this->ui->palFrame->layout()->addWidget( this->trn1Widget );
 
             // Refresh PAL/TRN view chain
             QObject::connect( this->palWidget, &PaletteWidget::refreshed, this->trn1Widget, &PaletteWidget::refresh );
@@ -363,12 +363,6 @@ void MainWindow::on_actionOpen_PAL_triggered()
     QFileInfo palFileInfo( this->pal->getFilePath() );
     this->palWidget->addPath( palFileInfo.fileName(), this->pal->getFilePath() );
     this->palWidget->refresh();
-
-
-    if( this->celView )
-        this->celView->displayFrame();
-    if( this->levelCelView )
-        this->levelCelView->displayFrame();
 }
 
 void MainWindow::on_actionOpen_Translation_1_triggered()
@@ -387,6 +381,11 @@ void MainWindow::on_actionOpen_Translation_1_triggered()
 
     this->trn1->refreshResultingPalette();
     this->trn2->refreshResultingPalette();
+
+    // Add file name and file path to the PaletteWidget
+    QFileInfo trnFileInfo( this->trn1->getFilePath() );
+    this->trn1Widget->addPath( trnFileInfo.fileName(), this->trn1->getFilePath() );
+    this->trn1Widget->refresh();
 
     if( this->celView )
         this->celView->displayFrame();
@@ -410,10 +409,11 @@ void MainWindow::on_actionOpen_Translation_2_triggered()
 
     this->trn2->refreshResultingPalette();
 
-    if( this->celView )
-        this->celView->displayFrame();
-    if( this->levelCelView )
-        this->levelCelView->displayFrame();
+    // Add file name and file path to the PaletteWidget
+    QFileInfo trnFileInfo( this->trn2->getFilePath() );
+    this->trn2Widget->addPath( trnFileInfo.fileName(), this->trn2->getFilePath() );
+    this->trn2Widget->refresh();
+
 }
 
 void MainWindow::on_actionReset_PAL_triggered()
