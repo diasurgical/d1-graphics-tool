@@ -128,7 +128,7 @@
      <x>0</x>
      <y>0</y>
      <width>1300</width>
-     <height>26</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -158,11 +158,18 @@
      <string>Palette</string>
     </property>
     <addaction name="actionOpen_PAL"/>
-    <addaction name="actionOpen_Translation_2"/>
-    <addaction name="actionOpen_Translation_1"/>
-    <addaction name="separator"/>
+    <addaction name="actionSave_PAL"/>
+    <addaction name="actionSave_PAL_as"/>
     <addaction name="actionReset_PAL"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_Translation_2"/>
+    <addaction name="actionSave_translation_2"/>
+    <addaction name="actionSave_translation_2_as"/>
     <addaction name="actionReset_Translation_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen_Translation_1"/>
+    <addaction name="actionSave_translation_1"/>
+    <addaction name="actionSave_translation_1_as"/>
     <addaction name="actionReset_Translation_1"/>
    </widget>
    <addaction name="menuFile"/>
@@ -230,15 +237,12 @@
     <string>Open unique translation</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+T</string>
+    <string>Ctrl+U</string>
    </property>
   </action>
   <action name="actionReset_PAL">
    <property name="text">
     <string>Reset</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+P</string>
    </property>
   </action>
   <action name="actionReset_Translation_1">
@@ -247,9 +251,6 @@
    </property>
    <property name="toolTip">
     <string>Reset unique translation</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+T</string>
    </property>
   </action>
   <action name="actionOpen_Translation_2">
@@ -260,7 +261,7 @@
     <string>Open translation</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+T</string>
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionReset_Translation_2">
@@ -269,9 +270,6 @@
    </property>
    <property name="toolTip">
     <string>Reset translation</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+Shift+T</string>
    </property>
   </action>
   <action name="actionExport">
@@ -288,6 +286,36 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionSave_PAL">
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionSave_PAL_as">
+   <property name="text">
+    <string>Save as...</string>
+   </property>
+  </action>
+  <action name="actionSave_translation_2">
+   <property name="text">
+    <string>Save translation</string>
+   </property>
+  </action>
+  <action name="actionSave_translation_2_as">
+   <property name="text">
+    <string>Save translation as...</string>
+   </property>
+  </action>
+  <action name="actionSave_translation_1">
+   <property name="text">
+    <string>Save unique translation</string>
+   </property>
+  </action>
+  <action name="actionSave_translation_1_as">
+   <property name="text">
+    <string>Save unique translation as...</string>
    </property>
   </action>
  </widget>
