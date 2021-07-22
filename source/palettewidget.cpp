@@ -325,5 +325,16 @@ void PaletteWidget::pathComboBox_currentIndexChanged( int index )
 
 void PaletteWidget::on_colorLineEdit_returnPressed()
 {
+    QColor color = QColor( ui->colorLineEdit->text() );
 
+    this->selectedColor = color;
+    this->pal->setColor( this->selectedColorIndex, color );
+
+    emit this->modified();
 }
+
+void PaletteWidget::on_translationIndexLineEdit_returnPressed()
+{
+    emit this->modified();
+}
+

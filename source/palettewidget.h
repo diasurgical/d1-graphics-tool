@@ -70,6 +70,8 @@ private slots:
     void pathComboBox_currentIndexChanged( int );
     void on_colorLineEdit_returnPressed();
 
+    void on_translationIndexLineEdit_returnPressed();
+
 private:
     Ui::PaletteWidget *ui;
     bool isCelLevel;
