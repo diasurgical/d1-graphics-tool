@@ -128,7 +128,7 @@
      <x>0</x>
      <y>0</y>
      <width>1300</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -157,13 +157,13 @@
     <property name="title">
      <string>Palette</string>
     </property>
-    <addaction name="actionLoad_PAL"/>
-    <addaction name="actionLoad_Translation_1"/>
-    <addaction name="actionLoad_Translation_2"/>
+    <addaction name="actionOpen_PAL"/>
+    <addaction name="actionOpen_Translation_2"/>
+    <addaction name="actionOpen_Translation_1"/>
     <addaction name="separator"/>
     <addaction name="actionReset_PAL"/>
-    <addaction name="actionReset_Translation_1"/>
     <addaction name="actionReset_Translation_2"/>
+    <addaction name="actionReset_Translation_1"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPalette"/>
@@ -200,9 +200,15 @@
     <string>Ctrl+Shift+C</string>
    </property>
   </action>
-  <action name="actionLoad_PAL">
+  <action name="actionOpen_PAL">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Load</string>
+    <string>Open...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
@@ -216,9 +222,12 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionLoad_Translation_1">
+  <action name="actionOpen_Translation_1">
    <property name="text">
-    <string>Load Translation 1</string>
+    <string>Open unique translation...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open unique translation</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
@@ -234,15 +243,21 @@
   </action>
   <action name="actionReset_Translation_1">
    <property name="text">
-    <string>Reset Translation 1</string>
+    <string>Reset unique translation</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset unique translation</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+T</string>
    </property>
   </action>
-  <action name="actionLoad_Translation_2">
+  <action name="actionOpen_Translation_2">
    <property name="text">
-    <string>Load Translation 2</string>
+    <string>Open translation...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open translation</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+T</string>
@@ -250,7 +265,10 @@
   </action>
   <action name="actionReset_Translation_2">
    <property name="text">
-    <string>Reset Translation 2</string>
+    <string>Reset translation</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset translation</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Alt+Shift+T</string>

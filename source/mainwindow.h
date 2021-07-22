@@ -49,9 +49,9 @@ private slots:
     void on_actionSettings_triggered();
     void on_actionQuit_triggered();
 
-    void on_actionLoad_PAL_triggered();
-    void on_actionLoad_Translation_1_triggered();
-    void on_actionLoad_Translation_2_triggered();
+    void on_actionOpen_PAL_triggered();
+    void on_actionOpen_Translation_1_triggered();
+    void on_actionOpen_Translation_2_triggered();
     void on_actionReset_PAL_triggered();
     void on_actionReset_Translation_1_triggered();
     void on_actionReset_Translation_2_triggered();
