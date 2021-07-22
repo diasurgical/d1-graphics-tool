@@ -358,7 +358,6 @@ void MainWindow::on_actionOpen_PAL_triggered()
     this->trn1->refreshResultingPalette();
     this->trn2->refreshResultingPalette();
 
-
     // Add file name and file path to the PaletteWidget
     QFileInfo palFileInfo( this->pal->getFilePath() );
     this->palWidget->addPath( palFileInfo.fileName(), this->pal->getFilePath() );
@@ -385,12 +384,7 @@ void MainWindow::on_actionOpen_Translation_1_triggered()
     // Add file name and file path to the PaletteWidget
     QFileInfo trnFileInfo( this->trn1->getFilePath() );
     this->trn1Widget->addPath( trnFileInfo.fileName(), this->trn1->getFilePath() );
-    this->trn1Widget->refresh();
-
-    if( this->celView )
-        this->celView->displayFrame();
-    if( this->levelCelView )
-        this->levelCelView->displayFrame();
+    this->trn1Widget->setSelectedPath( trnFileInfo.fileName() );
 }
 
 void MainWindow::on_actionOpen_Translation_2_triggered()
@@ -412,8 +406,7 @@ void MainWindow::on_actionOpen_Translation_2_triggered()
     // Add file name and file path to the PaletteWidget
     QFileInfo trnFileInfo( this->trn2->getFilePath() );
     this->trn2Widget->addPath( trnFileInfo.fileName(), this->trn2->getFilePath() );
-    this->trn2Widget->refresh();
-
+    this->trn2Widget->setSelectedPath( trnFileInfo.fileName() );
 }
 
 void MainWindow::on_actionReset_PAL_triggered()

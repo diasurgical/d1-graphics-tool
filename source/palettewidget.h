@@ -42,6 +42,7 @@ public:
 
     void selectColor( quint8 );
     void addPath( QString, QString );
+    void setSelectedPath( QString );
 
     // Coordinates functions
     QRectF getColorCoordinates( quint8 );

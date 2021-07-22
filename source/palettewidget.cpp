@@ -137,6 +137,12 @@ void PaletteWidget::addPath( QString name, QString path )
     this->paths[name] = path;
 }
 
+void PaletteWidget::setSelectedPath( QString name )
+{
+    this->ui->pathComboBox->setCurrentText( name );
+    emit this->modified();
+}
+
 QRectF PaletteWidget::getColorCoordinates( quint8 index )
 {
     int ix = index % PALETTE_COLORS_PER_LINE;
