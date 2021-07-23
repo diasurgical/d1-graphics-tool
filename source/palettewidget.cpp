@@ -349,6 +349,9 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
 
 void PaletteWidget::on_translationIndexLineEdit_returnPressed()
 {
+    quint8 index = ui->translationIndexLineEdit->text().toUInt();
+    this->trn->setTranslation( this->selectedColorIndex, index );
+
     emit this->modified();
 }
 
