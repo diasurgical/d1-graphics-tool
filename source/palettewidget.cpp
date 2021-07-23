@@ -365,3 +365,11 @@ void PaletteWidget::on_colorPickPushButton_clicked()
     emit this->modified();
 }
 
+
+void PaletteWidget::on_indexResetPushButton_clicked()
+{
+    this->trn->setTranslation( this->selectedColorIndex, this->selectedColorIndex );
+
+    emit this->modified();
+}
+

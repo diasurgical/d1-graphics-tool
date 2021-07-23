@@ -76,6 +76,8 @@ private slots:
 
     void on_colorPickPushButton_clicked();
 
+    void on_indexResetPushButton_clicked();
+
 private:
     Ui::PaletteWidget *ui;
     bool isCelLevel;
