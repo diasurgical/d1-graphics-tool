@@ -352,3 +352,13 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
     emit this->modified();
 }
 
+
+void PaletteWidget::on_colorPickPushButton_clicked()
+{
+    QColor color = QColorDialog::getColor();
+    this->selectedColor = color;
+    this->pal->setColor( this->selectedColorIndex, color );
+
+    emit this->modified();
+}
+

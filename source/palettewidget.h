@@ -8,6 +8,7 @@
 #include <QDirIterator>
 #include <QComboBox>
 #include <QMouseEvent>
+#include <QColorDialog>
 
 #include "celview.h"
 #include "levelcelview.h"
@@ -72,6 +73,8 @@ private slots:
     void on_colorLineEdit_returnPressed();
 
     void on_translationIndexLineEdit_returnPressed();
+
+    void on_colorPickPushButton_clicked();
 
 private:
     Ui::PaletteWidget *ui;
