@@ -8,6 +8,7 @@ PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     isTrn( false ),
     scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
     selectedColorIndex( 0 ),
+    selectingTranslationColor( false ),
     buildingPathComboBox( false )
 {
     ui->setupUi(this);
@@ -126,10 +127,32 @@ void PaletteWidget::selectColor( quint8 index )
     this->selectedColor = this->pal->getColor( index );
 
     if( this->isTrn )
+    {
         this->selectedTranslationIndex = this->trn->getTranslation( index );
+
+        if( this->selectingTranslationColor )
+        {
+            this->clearInfo();
+            emit this->clearRootInformation();
+            this->selectingTranslationColor = false;
+        }
+    }
 
     this->refresh();
     emit colorSelected( index );
+}
+
+void PaletteWidget::checkTranslationSelection( quint8 index )
+{
+    if( !this->selectingTranslationColor )
+        return;
+
+    this->trn->setTranslation( this->selectedColorIndex, index );
+    emit this->modified();
+
+    this->selectingTranslationColor = false;
+    this->clearInfo();
+    emit this->clearRootInformation();
 }
 
 void PaletteWidget::addPath( QString name, QString path )
@@ -170,7 +193,7 @@ quint8 PaletteWidget::getColorIndexFromCoordinates( QPointF coordinates )
 }
 
 // This event filter is used on the QGraphicsView
-bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
+bool PaletteWidget::eventFilter( QObject *obj, QEvent *event )
 {
     if( event->type() == QEvent::MouseButtonPress )
     {
@@ -179,11 +202,8 @@ bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
 
         // Check if selected color has changed
         quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
-
-        if( colorIndex != this->selectedColorIndex )
-        {
-            this->selectColor( colorIndex );
-        }
+        this->selectColor( colorIndex );
+        
         return true;
     }
     if( event->type() == QEvent::MouseButtonDblClick )
@@ -254,6 +274,16 @@ void PaletteWidget::displaySelection()
     coordinates.adjust( a, a, -a, -a );
 
     this->scene->addRect( coordinates, pen, brush );
+}
+
+void PaletteWidget::displayInfo( QString info )
+{
+    ui->informationLabel->setText( info );
+}
+
+void PaletteWidget::clearInfo()
+{
+    ui->informationLabel->clear();
 }
 
 void PaletteWidget::refreshPathComboBox()
@@ -371,5 +401,19 @@ void PaletteWidget::on_indexResetPushButton_clicked()
     this->trn->setTranslation( this->selectedColorIndex, this->selectedColorIndex );
 
     emit this->modified();
+}
+
+
+void PaletteWidget::on_indexPickPushButton_clicked()
+{
+    this->selectingTranslationColor = true;
+
+    if( ui->groupBox->title() == "Translation" )
+        this->displayInfo( "Select translated color in Unique translation group box." );
+
+    if( ui->groupBox->title() == "Unique translation" )
+        this->displayInfo( "Select translated color in Palette group box." );
+
+    emit this->displayRootInformation( "<<<" );
 }
 

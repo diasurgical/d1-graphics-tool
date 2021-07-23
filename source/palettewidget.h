@@ -42,6 +42,7 @@ public:
     void initializePathComboBox();
 
     void selectColor( quint8 );
+    void checkTranslationSelection( quint8 );
     void addPath( QString, QString );
     void setSelectedPath( QString );
 
@@ -55,6 +56,8 @@ public:
     // Display functions
     void displayColors();
     void displaySelection();
+    void displayInfo( QString );
+    void clearInfo();
 
     void refreshPathComboBox();
     void refreshColorLineEdit();
@@ -65,18 +68,18 @@ public:
 
 signals:
     void colorSelected( quint8 );
+    void displayRootInformation( QString );
+    void clearRootInformation();
     void modified();
     void refreshed();
 
 private slots:
     void pathComboBox_currentIndexChanged( int );
     void on_colorLineEdit_returnPressed();
-
-    void on_translationIndexLineEdit_returnPressed();
-
     void on_colorPickPushButton_clicked();
-
+    void on_translationIndexLineEdit_returnPressed();
     void on_indexResetPushButton_clicked();
+    void on_indexPickPushButton_clicked();
 
 private:
     Ui::PaletteWidget *ui;
@@ -87,9 +90,12 @@ private:
     LevelCelView *levelCelView;
 
     QGraphicsScene *scene;
+
     quint8 selectedColorIndex;
     QColor selectedColor;
     quint8 selectedTranslationIndex;
+
+    bool selectingTranslationColor;
 
     D1Pal *pal;
     D1Trn *trn;
