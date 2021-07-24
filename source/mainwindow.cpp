@@ -235,6 +235,11 @@ void MainWindow::on_actionOpen_triggered()
                 QObject::connect( this->trn1Widget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
                 QObject::connect( this->trn2Widget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
 
+                // Select color when level CEL view clicked
+                //QObject::connect( this->levelCelView, &CelView::colorIndexClicked, this->palWidget, &PaletteWidget::selectColor );
+                //QObject::connect( this->levelCelView, &CelView::colorIndexClicked, this->trn1Widget, &PaletteWidget::selectColor );
+                //QObject::connect( this->levelCelView, &CelView::colorIndexClicked, this->trn2Widget, &PaletteWidget::selectColor );
+
                 this->levelCelView->initialize( this->cel, this->min, this->til );
 
                 this->palWidget->initialize( this->pal, this->levelCelView );
@@ -252,6 +257,11 @@ void MainWindow::on_actionOpen_triggered()
                 QObject::connect( this->palWidget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
                 QObject::connect( this->trn1Widget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
                 QObject::connect( this->trn2Widget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
+
+                // Select color when CEL view clicked
+                QObject::connect( this->celView, &CelView::colorIndexClicked, this->palWidget, &PaletteWidget::selectColor );
+                QObject::connect( this->celView, &CelView::colorIndexClicked, this->trn1Widget, &PaletteWidget::selectColor );
+                QObject::connect( this->celView, &CelView::colorIndexClicked, this->trn2Widget, &PaletteWidget::selectColor );
 
                 this->celView->initialize( this->cel );
 

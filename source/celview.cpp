@@ -4,8 +4,11 @@
 void CelScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
     qDebug() << "Clicked: " << event->scenePos().x() << "," << event->scenePos().y();
-    // TODO: substract spacing to get real frame coordinates
-    // TODO: emit signal to transmit coordinates to CelView
+
+    quint16 x = (quint16)event->scenePos().x() - CEL_SCENE_SPACING;
+    quint16 y = (quint16)event->scenePos().y() - CEL_SCENE_SPACING;
+
+    emit this->framePixelClicked( x, y );
 }
 
 CelView::CelView( QWidget *parent ) :
@@ -20,6 +23,9 @@ CelView::CelView( QWidget *parent ) :
     ui->celGraphicsView->setScene( this->celScene );
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );
     this->playTimer.connect( &this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()) );
+
+    // If a pixel of the frame was clicked get pixel color index and notify the palette widgets
+    QObject::connect( this->celScene, &CelScene::framePixelClicked, this, &CelView::framePixelClicked );
 }
 
 CelView::~CelView()
@@ -69,18 +75,14 @@ quint32 CelView::getCurrentFrameIndex()
     return this->currentFrameIndex;
 }
 
-quint8 CelView::getColorIndexFromCoordinates( QPointF coordinates )
+void CelView::framePixelClicked( quint16 x, quint16 y )
 {
     quint8 index = 0;
 
-    //int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
-    //
-    //int ix = coordinates.x() / w;
-    //int iy = coordinates.y() / w;
-    //
-    //index = iy * PALETTE_COLORS_PER_LINE + ix;
+    index = this->cel->getFrame(
+        this->currentFrameIndex)->getPixel(x,y).getPaletteIndex();
 
-    return index;
+    emit this->colorIndexClicked( index );
 }
 
 void CelView::displayFrame()

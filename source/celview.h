@@ -21,9 +21,13 @@ class CelView;
 
 class CelScene : public QGraphicsScene
 {
+    Q_OBJECT
 
 protected:
     void mousePressEvent( QGraphicsSceneMouseEvent *event );
+
+signals:
+    void framePixelClicked( quint16, quint16 );
 
 };
 
@@ -39,7 +43,7 @@ public:
     D1CelBase* getCel();
     QString getCelPath();
     quint32 getCurrentFrameIndex();
-    quint8 getColorIndexFromCoordinates( QPointF );
+    void framePixelClicked( quint16, quint16 );
 
     void displayFrame();
     bool checkGroupNumber();
@@ -47,6 +51,7 @@ public:
 
 signals:
     void frameChanged();
+    void colorIndexClicked( quint8 );
 
 private slots:
     void on_firstFrameButton_clicked();
@@ -71,7 +76,7 @@ private slots:
 
 private:
     Ui::CelView *ui;
-    QGraphicsScene *celScene;
+    CelScene *celScene;
 
     D1CelBase *cel;
     quint16 currentGroupIndex;
