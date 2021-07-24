@@ -1,10 +1,17 @@
 #include "celview.h"
 #include "ui_celview.h"
 
+void CelScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
+{
+    qDebug() << "Clicked: " << event->scenePos().x() << "," << event->scenePos().y();
+    // TODO: substract spacing to get real frame coordinates
+    // TODO: emit signal to transmit coordinates to CelView
+}
+
 CelView::CelView( QWidget *parent ) :
     QWidget( parent ),
     ui( new Ui::CelView ),
-    celScene( new QGraphicsScene ),
+    celScene( new CelScene ),
     currentGroupIndex( 0 ),
     currentFrameIndex( 0 ),
     currentZoomFactor( 1 )
@@ -62,6 +69,20 @@ quint32 CelView::getCurrentFrameIndex()
     return this->currentFrameIndex;
 }
 
+quint8 CelView::getColorIndexFromCoordinates( QPointF coordinates )
+{
+    quint8 index = 0;
+
+    //int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
+    //
+    //int ix = coordinates.x() / w;
+    //int iy = coordinates.y() / w;
+    //
+    //index = iy * PALETTE_COLORS_PER_LINE + ix;
+
+    return index;
+}
+
 void CelView::displayFrame()
 {
     if( !this->cel )
@@ -102,7 +123,7 @@ void CelView::displayFrame()
         QString::number( this->currentFrameIndex + 1 ) );
 
     // Notify PalView that the frame changed (used to refresh palette hits
-    emit frameChanged();
+    emit this->frameChanged();
 }
 
 bool CelView::checkGroupNumber()
