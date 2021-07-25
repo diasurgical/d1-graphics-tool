@@ -95,23 +95,38 @@ void LevelCelView::framePixelClicked( quint16 x, quint16 y )
     quint8 index = 0;
 
     quint16 celFrameWidth = this->cel->getFrameWidth( this->currentFrameIndex );
-    quint16 subtileWidth = this->min->getSubtileWidth();
-    quint16 tileWidth = this->til->getTileWidth();
+    quint16 subtileWidth = this->min->getSubtileWidth()*32;
+    quint16 tileWidth = subtileWidth*2;
 
     quint16 celFrameHeight = this->cel->getFrameHeight( this->currentFrameIndex );
-    quint16 subtileHeight = this->min->getSubtileHeight();
-    quint16 tileHeight = this->til->getTileHeight();
+    quint16 subtileHeight = this->min->getSubtileHeight()*32;
+    quint16 tileHeight = subtileHeight+32;
 
     if( x > CEL_SCENE_SPACING && x < (celFrameWidth+CEL_SCENE_SPACING)
         && y > CEL_SCENE_SPACING && y < (celFrameHeight+CEL_SCENE_SPACING) )
     {
+        // If CEL frame color is clicked, select it in the palette widgets
         index = this->cel->getFrame(
             this->currentFrameIndex)->getPixel(x-CEL_SCENE_SPACING,y-CEL_SCENE_SPACING).getPaletteIndex();
 
         emit this->colorIndexClicked( index );
-
     }
-
+    else if( x > (celFrameWidth+CEL_SCENE_SPACING*2)
+        && x < (celFrameWidth+subtileWidth+CEL_SCENE_SPACING*2)
+        && y > CEL_SCENE_SPACING
+        && y < (subtileHeight+CEL_SCENE_SPACING) )
+    {
+        // TODO: When a CEL frame is clicked in the subtile, display the corresponding subtile
+        qDebug() << "Subtile clicked";
+    }
+    else if( x > (celFrameWidth+subtileWidth+CEL_SCENE_SPACING*3)
+        && x < (celFrameWidth+subtileWidth+tileWidth+CEL_SCENE_SPACING*3)
+        && y > CEL_SCENE_SPACING
+        && y < tileHeight+CEL_SCENE_SPACING )
+    {
+        // TODO: When a subtile is clicked in the tile, display the corresponding subtile
+        qDebug() << "Tile clicked";
+    }
 }
 
 void LevelCelView::displayFrame()
