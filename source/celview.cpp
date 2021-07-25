@@ -5,6 +5,13 @@ void CelScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
     qDebug() << "Clicked: " << event->scenePos().x() << "," << event->scenePos().y();
 
+    // If the the click event lands in the scene spacing, ignore
+    if( event->scenePos().x() < CEL_SCENE_SPACING
+        || event->scenePos().x() > (this->width()-CEL_SCENE_SPACING)
+        || event->scenePos().y() < CEL_SCENE_SPACING
+        || event->scenePos().y() > (this->height()-CEL_SCENE_SPACING) )
+        return;
+
     quint16 x = (quint16)event->scenePos().x() - CEL_SCENE_SPACING;
     quint16 y = (quint16)event->scenePos().y() - CEL_SCENE_SPACING;
 
