@@ -1,10 +1,20 @@
 #include "levelcelview.h"
 #include "ui_levelcelview.h"
 
+void LevelCelScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
+{
+    qDebug() << "Clicked: " << event->scenePos().x() << "," << event->scenePos().y();
+
+    quint16 x = (quint16)event->scenePos().x();
+    quint16 y = (quint16)event->scenePos().y();
+
+    emit this->framePixelClicked( x, y );
+}
+
 LevelCelView::LevelCelView(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::LevelCelView),
-    celScene( new QGraphicsScene ),
+    celScene( new LevelCelScene ),
     currentFrameIndex( 0 ),
     currentSubtileIndex( 0 ),
     currentTileIndex( 0 ),
@@ -13,6 +23,9 @@ LevelCelView::LevelCelView(QWidget *parent) :
     ui->setupUi(this);
     ui->celGraphicsView->setScene( this->celScene );
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );
+
+    // If a pixel of the frame, subtile or tile was clicked get pixel color index and notify the palette widgets
+    QObject::connect( this->celScene, &LevelCelScene::framePixelClicked, this, &LevelCelView::framePixelClicked );
 }
 
 LevelCelView::~LevelCelView()
@@ -75,6 +88,30 @@ quint16 LevelCelView::getCurrentSubtileIndex()
 quint16 LevelCelView::getCurrentTileIndex()
 {
     return this->currentTileIndex;
+}
+
+void LevelCelView::framePixelClicked( quint16 x, quint16 y )
+{
+    quint8 index = 0;
+
+    quint16 celFrameWidth = this->cel->getFrameWidth( this->currentFrameIndex );
+    quint16 subtileWidth = this->min->getSubtileWidth();
+    quint16 tileWidth = this->til->getTileWidth();
+
+    quint16 celFrameHeight = this->cel->getFrameHeight( this->currentFrameIndex );
+    quint16 subtileHeight = this->min->getSubtileHeight();
+    quint16 tileHeight = this->til->getTileHeight();
+
+    if( x > CEL_SCENE_SPACING && x < (celFrameWidth+CEL_SCENE_SPACING)
+        && y > CEL_SCENE_SPACING && y < (celFrameHeight+CEL_SCENE_SPACING) )
+    {
+        index = this->cel->getFrame(
+            this->currentFrameIndex)->getPixel(x-CEL_SCENE_SPACING,y-CEL_SCENE_SPACING).getPaletteIndex();
+
+        emit this->colorIndexClicked( index );
+
+    }
+
 }
 
 void LevelCelView::displayFrame()

@@ -5,15 +5,8 @@ void CelScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
 {
     qDebug() << "Clicked: " << event->scenePos().x() << "," << event->scenePos().y();
 
-    // If the the click event lands in the scene spacing, ignore
-    if( event->scenePos().x() < CEL_SCENE_SPACING
-        || event->scenePos().x() > (this->width()-CEL_SCENE_SPACING)
-        || event->scenePos().y() < CEL_SCENE_SPACING
-        || event->scenePos().y() > (this->height()-CEL_SCENE_SPACING) )
-        return;
-
-    quint16 x = (quint16)event->scenePos().x() - CEL_SCENE_SPACING;
-    quint16 y = (quint16)event->scenePos().y() - CEL_SCENE_SPACING;
+    quint16 x = (quint16)event->scenePos().x();
+    quint16 y = (quint16)event->scenePos().y();
 
     emit this->framePixelClicked( x, y );
 }
@@ -86,8 +79,15 @@ void CelView::framePixelClicked( quint16 x, quint16 y )
 {
     quint8 index = 0;
 
+    // If the the click event lands in the scene spacing, ignore
+    if( x < CEL_SCENE_SPACING
+        || x > (CEL_SCENE_SPACING+this->cel->getFrameWidth(this->currentFrameIndex))
+        || y < CEL_SCENE_SPACING
+        || y > (CEL_SCENE_SPACING+this->cel->getFrameHeight(this->currentFrameIndex)) )
+        return;
+
     index = this->cel->getFrame(
-        this->currentFrameIndex)->getPixel(x,y).getPaletteIndex();
+        this->currentFrameIndex)->getPixel(x-CEL_SCENE_SPACING,y-CEL_SCENE_SPACING).getPaletteIndex();
 
     emit this->colorIndexClicked( index );
 }

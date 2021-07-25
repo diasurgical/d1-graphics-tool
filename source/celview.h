@@ -6,7 +6,6 @@
 #include <QGraphicsPixmapItem>
 #include <QFileInfo>
 #include <QTimer>
-#include <QMouseEvent>
 #include <QGraphicsSceneMouseEvent>
 
 #include "d1cel.h"
