@@ -118,6 +118,7 @@ void LevelCelView::framePixelClicked( quint16 x, quint16 y )
     {
         // When a CEL frame is clicked in the subtile, display the corresponding CEL frame
 
+        // Adjust coordinates
         quint16 stx = x - celFrameWidth - CEL_SCENE_SPACING*2;
         quint16 sty = y - CEL_SCENE_SPACING;
 
@@ -137,8 +138,53 @@ void LevelCelView::framePixelClicked( quint16 x, quint16 y )
         && y > CEL_SCENE_SPACING
         && y < tileHeight+CEL_SCENE_SPACING )
     {
-        // TODO: When a subtile is clicked in the tile, display the corresponding subtile
-        qDebug() << "Tile clicked";
+        // When a subtile is clicked in the tile, display the corresponding subtile
+
+        // Adjust coordinates
+        quint16 tx = x - celFrameWidth - subtileWidth - CEL_SCENE_SPACING*3;
+        quint16 ty = y - CEL_SCENE_SPACING;
+
+        //qDebug() << "Tile clicked" << tx << "," << ty;
+
+        // Ground squares must be clicked
+        // The four squares can be delimited by the following functions
+        // f(x) = 0.5x + (tileHeight - 4*16)
+        // g(x) = -0.5x + tileHeight
+        // f(tx)
+        int ftx = tx/2 + tileHeight - 64;
+        // g(tx)
+        int gtx = -tx/2 + tileHeight;
+        //qDebug() << "fx=" << ftx << ", gx=" << gtx;
+        quint8 tSubtile = 0;
+        if( ty < ftx )
+        {
+            if( ty < gtx )
+            {
+                // tx to allow selecting subtile 1 and 2 if tile is clicked on the bottom left and bottom right side
+                if( tx < 32 )
+                    tSubtile = 2;
+                else if( tx > 96 )
+                    tSubtile = 1;
+                else
+                    tSubtile = 0;
+            }
+            else
+                tSubtile = 1;
+        }
+        else
+        {
+            if( ty < gtx )
+                tSubtile = 2;
+            else
+                tSubtile = 3;
+        }
+
+        quint16 subtileIndex = this->til->getSubtileIndices( this->currentTileIndex ).at( tSubtile );
+
+        //qDebug() << "tSubtile=" << tSubtile << ", subtileIndex=" << subtileIndex;
+
+        this->currentSubtileIndex = subtileIndex;
+        this->displayFrame();
     }
 }
 
