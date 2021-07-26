@@ -116,8 +116,21 @@ void LevelCelView::framePixelClicked( quint16 x, quint16 y )
         && y > CEL_SCENE_SPACING
         && y < (subtileHeight+CEL_SCENE_SPACING) )
     {
-        // TODO: When a CEL frame is clicked in the subtile, display the corresponding subtile
-        qDebug() << "Subtile clicked";
+        // When a CEL frame is clicked in the subtile, display the corresponding CEL frame
+
+        quint16 stx = x - celFrameWidth - CEL_SCENE_SPACING*2;
+        quint16 sty = y - CEL_SCENE_SPACING;
+
+        //qDebug() << "Subtile clicked: " << stx << "," << sty;
+
+        quint8 stFrame = (sty/32)*2+(stx/32);
+        quint16 frameIndex = this->min->getCelFrameIndices( this->currentSubtileIndex ).at( stFrame );
+
+        //qDebug() << "stFrame: " << stFrame << ", frameIndex: " << frameIndex;
+
+        if( frameIndex > 0 )
+            this->currentFrameIndex = frameIndex-1;
+        this->displayFrame();
     }
     else if( x > (celFrameWidth+subtileWidth+CEL_SCENE_SPACING*3)
         && x < (celFrameWidth+subtileWidth+tileWidth+CEL_SCENE_SPACING*3)
