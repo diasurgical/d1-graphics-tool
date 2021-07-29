@@ -17,6 +17,7 @@
 #include "d1cl2.h"
 #include "d1min.h"
 #include "d1til.h"
+#include "d1palhits.h"
 
 #include "palview.h"
 #include "palettewidget.h"
@@ -79,6 +80,9 @@ private:
     QPointer<D1CelBase> cel;
     QPointer<D1Min> min;
     QPointer<D1Til> til;
+
+    // Palette hits are instantiated in main window to make them available to the three PaletteWidgets
+    QPointer<D1PalHits> palHits;
 };
 
 #endif // MAINWINDOW_H

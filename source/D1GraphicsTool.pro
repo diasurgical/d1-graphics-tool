@@ -23,6 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += main.cpp \
+    d1palhits.cpp \
     mainwindow.cpp \
     d1cel.cpp \
     d1cl2.cpp \
@@ -42,6 +43,7 @@ HEADERS  += mainwindow.h \
     d1cel.h \
     d1cl2.h \
     d1pal.h \
+    d1palhits.h \
     d1trn.h \
     celview.h \
     palettewidget.h \

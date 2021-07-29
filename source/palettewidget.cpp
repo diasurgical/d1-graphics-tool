@@ -4,7 +4,7 @@
 PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     QWidget(parent),
     ui(new Ui::PaletteWidget),
-    isCelLevel( false ),
+    isLevelCel( false ),
     isTrn( false ),
     scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
     selectedColorIndex( 0 ),
@@ -35,40 +35,44 @@ PaletteWidget::~PaletteWidget()
     delete ui;
 }
 
-void PaletteWidget::initialize( D1Pal *p, CelView *c )
+void PaletteWidget::initialize( D1Pal *p, CelView *c, D1PalHits* ph )
 {
     this->pal = p;
     this->celView = c;
+    this->palHits = ph;
 
     this->initializeUi();
 }
 
-void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc )
+void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc, D1PalHits* ph )
 {
     this->pal = p;
-    this->isCelLevel = true;
+    this->isLevelCel = true;
     this->levelCelView = lc;
+    this->palHits = ph;
 
     this->initializeUi();
 }
 
-void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c )
+void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c, D1PalHits* ph )
 {
     this->isTrn = true;
     this->pal = p;
     this->trn = t;
     this->celView = c;
+    this->palHits = ph;
 
     this->initializeUi();
 }
 
-void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc )
+void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits* ph )
 {
     this->isTrn = true;
     this->pal = p;
     this->trn = t;
-    this->isCelLevel = true;
+    this->isLevelCel = true;
     this->levelCelView = lc;
+    this->palHits = ph;
 
     this->initializeUi();
 }
@@ -78,10 +82,8 @@ void PaletteWidget::initializeUi()
     if( this->isTrn )
     {
         this->ui->indexPickPushButton->setEnabled( true );
-        this->ui->indexResetPushButton->setEnabled( true );
         this->ui->colorLineEdit->setEnabled( false );
         this->ui->colorPickPushButton->setEnabled( false );
-        this->ui->colorResetPushButton->setEnabled( false );
     }
     else
     {
@@ -95,6 +97,7 @@ void PaletteWidget::initializeUi()
 
 
     this->initializePathComboBox();
+    this->initializeDisplayComboBox();
 
     this->refreshColorLineEdit();
     this->refreshIndexLineEdit();
@@ -119,6 +122,27 @@ void PaletteWidget::initializePathComboBox()
     }
 
     this->refreshPathComboBox();
+}
+
+void PaletteWidget::initializeDisplayComboBox()
+{
+    ui->displayComboBox->addItem("Show all colors");
+
+    if( !this->isTrn )
+    {
+        ui->displayComboBox->addItem("Show all frames hits");
+        if( this->isLevelCel )
+        {
+            ui->displayComboBox->addItem("Show current tile hits");
+            ui->displayComboBox->addItem("Show current sub-tile hits");
+        }
+        ui->displayComboBox->addItem("Show current frame hits");
+    }
+    else
+    {
+        ui->displayComboBox->addItem("Show all colors");
+        ui->displayComboBox->addItem("Show translated colors");
+    }
 }
 
 void PaletteWidget::selectColor( quint8 index )
@@ -255,6 +279,20 @@ void PaletteWidget::displayColors()
         else
             brush = QBrush( this->trn->getResultingPalette()->getColor(i) );
         QPen pen( Qt::NoPen );
+
+        // Check palette display filter
+        if( ui->displayComboBox->currentText() != "All colors" )
+        {
+            if( !this->isTrn )
+            {
+                //if()
+            }
+        }
+
+        // Check translation display filter
+
+
+
         this->scene->addRect( x+bsw, y+bsw, w, w, pen, brush );
 
         x += dx;

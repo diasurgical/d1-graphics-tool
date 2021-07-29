@@ -14,6 +14,7 @@
 #include "levelcelview.h"
 #include "d1pal.h"
 #include "d1trn.h"
+#include "d1palhits.h"
 
 #define PALETTE_WIDTH 192
 #define PALETTE_COLORS_PER_LINE 16
@@ -32,14 +33,15 @@ public:
     explicit PaletteWidget(QWidget *parent = nullptr, QString title = "Palette");
     ~PaletteWidget();
 
-    void initialize( D1Pal*, CelView* );
-    void initialize( D1Pal*, LevelCelView* );
+    void initialize( D1Pal*, CelView*, D1PalHits* );
+    void initialize( D1Pal*, LevelCelView*, D1PalHits* );
 
-    void initialize( D1Pal*, D1Trn*, CelView* );
-    void initialize( D1Pal*, D1Trn*, LevelCelView* );
+    void initialize( D1Pal*, D1Trn*, CelView*, D1PalHits* );
+    void initialize( D1Pal*, D1Trn*, LevelCelView*, D1PalHits* );
 
     void initializeUi();
     void initializePathComboBox();
+    void initializeDisplayComboBox();
 
     void selectColor( quint8 );
     void checkTranslationSelection( quint8 );
@@ -83,7 +85,7 @@ private slots:
 
 private:
     Ui::PaletteWidget *ui;
-    bool isCelLevel;
+    bool isLevelCel;
     bool isTrn;
 
     CelView *celView;
@@ -99,6 +101,11 @@ private:
 
     D1Pal *pal;
     D1Trn *trn;
+
+    D1PalHits *palHits;
+    //D1TrnHits *trnHits;
+    QString palDisplayFilter;
+    QString trnDisplayFilter;
 
     bool buildingPathComboBox;
     QMap<QString,QString> paths;

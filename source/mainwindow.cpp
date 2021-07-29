@@ -242,9 +242,12 @@ void MainWindow::on_actionOpen_triggered()
 
                 this->levelCelView->initialize( this->cel, this->min, this->til );
 
-                this->palWidget->initialize( this->pal, this->levelCelView );
-                this->trn1Widget->initialize( this->pal, this->trn1, this->levelCelView );
-                this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->levelCelView );
+                this->palHits = new D1PalHits( this->pal, this->cel, this->min, this->til );
+
+                this->palWidget->initialize( this->pal, this->levelCelView, this->palHits );
+                this->trn1Widget->initialize( this->pal, this->trn1, this->levelCelView, this->palHits );
+                this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->levelCelView, this->palHits );
+
 
                 this->levelCelView->displayFrame();
             }
@@ -265,9 +268,11 @@ void MainWindow::on_actionOpen_triggered()
 
                 this->celView->initialize( this->cel );
 
-                this->palWidget->initialize( this->pal, this->celView );
-                this->trn1Widget->initialize( this->pal, this->trn1, this->celView );
-                this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView );
+                this->palHits = new D1PalHits( this->pal, this->cel );
+
+                this->palWidget->initialize( this->pal, this->celView, this->palHits );
+                this->trn1Widget->initialize( this->pal, this->trn1, this->celView, this->palHits );
+                this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView, this->palHits );
 
                 this->celView->displayFrame();
             }
