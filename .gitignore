@@ -50,6 +50,7 @@ compile_commands.json
 
 # QtCreator local machine specific files for imported projects
 *creator.user*
+*pro.user
 
 # Temp release folder
 releases/temp/*
