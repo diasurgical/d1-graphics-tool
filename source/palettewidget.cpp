@@ -430,7 +430,7 @@ void PaletteWidget::displayComboBox_currentTextChanged( const QString &arg1 )
     if( this->buildingDisplayComboBox )
         return;
 
-    if( arg1 == "Show all colors" )
+    if( arg1 == "Show all colors" && !this->isTrn )
         this->palHits->setMode( D1PALHITS_MODE::ALL_COLORS );
     else if( arg1 == "Show all frames hits" )
         this->palHits->setMode( D1PALHITS_MODE::ALL_FRAMES );
