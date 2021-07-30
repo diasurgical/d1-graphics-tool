@@ -290,6 +290,7 @@ void PaletteWidget::displayColors()
 
         // Check palette display filter
         displayColor = true;
+        indexHits = 0;
         if( this->palHits->getMode() == D1PALHITS_MODE::ALL_COLORS
             || this->palHits->getMode() == D1PALHITS_MODE::ALL_FRAMES )
             indexHits = this->palHits->getIndexHits(i);
@@ -306,7 +307,10 @@ void PaletteWidget::displayColors()
             displayColor = false;
 
         // Check translation display filter
-        //
+        if( this->isTrn && ui->displayComboBox->currentText() == "Show translated colors"
+            && this->trn->getTranslation(i) == i )
+            displayColor = false;
+
 
         if( displayColor )
             this->scene->addRect( x+bsw, y+bsw, w, w, pen, brush );
