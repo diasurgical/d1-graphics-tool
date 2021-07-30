@@ -229,6 +229,7 @@ void MainWindow::on_actionOpen_triggered()
                 this->til->setMin( this->min );
 
                 this->levelCelView = new LevelCelView;
+                this->levelCelView->initialize( this->cel, this->min, this->til );
 
                 // Refresh CEL view if a PAL or TRN is modified
                 QObject::connect( this->palWidget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
@@ -240,10 +241,11 @@ void MainWindow::on_actionOpen_triggered()
                 QObject::connect( this->levelCelView, &LevelCelView::colorIndexClicked, this->trn1Widget, &PaletteWidget::selectColor );
                 QObject::connect( this->levelCelView, &LevelCelView::colorIndexClicked, this->trn2Widget, &PaletteWidget::selectColor );
 
-                this->levelCelView->initialize( this->cel, this->min, this->til );
+                // Refresh palette widgets when frame, subtile of tile is changed
+                QObject::connect( this->levelCelView, &LevelCelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh );
 
+                // Initialize palette widgets
                 this->palHits = new D1PalHits( this->pal, this->cel, this->min, this->til );
-
                 this->palWidget->initialize( this->pal, this->levelCelView, this->palHits );
                 this->trn1Widget->initialize( this->pal, this->trn1, this->levelCelView, this->palHits );
                 this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->levelCelView, this->palHits );
@@ -255,6 +257,7 @@ void MainWindow::on_actionOpen_triggered()
             else
             {
                 this->celView = new CelView;
+                this->celView->initialize( this->cel );
 
                 // Refresh CEL view if a PAL or TRN is modified
                 QObject::connect( this->palWidget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
@@ -266,10 +269,11 @@ void MainWindow::on_actionOpen_triggered()
                 QObject::connect( this->celView, &CelView::colorIndexClicked, this->trn1Widget, &PaletteWidget::selectColor );
                 QObject::connect( this->celView, &CelView::colorIndexClicked, this->trn2Widget, &PaletteWidget::selectColor );
 
-                this->celView->initialize( this->cel );
+                // Refresh palette widgets when frame
+                QObject::connect( this->celView, &CelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh );
 
+                // Initialize palette widgets
                 this->palHits = new D1PalHits( this->pal, this->cel );
-
                 this->palWidget->initialize( this->pal, this->celView, this->palHits );
                 this->trn1Widget->initialize( this->pal, this->trn1, this->celView, this->palHits );
                 this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView, this->palHits );

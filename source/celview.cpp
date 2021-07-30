@@ -132,7 +132,7 @@ void CelView::displayFrame()
         QString::number( this->currentFrameIndex + 1 ) );
 
     // Notify PalView that the frame changed (used to refresh palette hits
-    emit this->frameChanged();
+    emit this->frameRefreshed();
 }
 
 bool CelView::checkGroupNumber()

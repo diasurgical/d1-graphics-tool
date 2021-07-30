@@ -49,7 +49,7 @@ public:
     void setGroupNumber();
 
 signals:
-    void frameChanged();
+    void frameRefreshed();
     void colorIndexClicked( quint8 );
 
 private slots:

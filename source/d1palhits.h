@@ -36,6 +36,7 @@ public:
 
     // Returns the number of hits for a specific index
     quint32 getIndexHits( quint8 );
+    quint32 getIndexHits( quint8, quint32 );
 
 private:
 

@@ -23,8 +23,11 @@ PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     // thus Qt is not able to differentiate between children widgets with the same name.
     // e.g. the pathComboBox will be present three times, one for the PAL and two for the TRNs.
     QObject::connect(
-        this->findChild<QComboBox*>("pathComboBox"), &QComboBox::currentIndexChanged,
-        this, &PaletteWidget::pathComboBox_currentIndexChanged );
+        this->findChild<QComboBox*>("pathComboBox"), &QComboBox::currentTextChanged,
+        this, &PaletteWidget::pathComboBox_currentTextChanged );
+    QObject::connect(
+        this->findChild<QComboBox*>("displayComboBox"), &QComboBox::currentTextChanged,
+        this, &PaletteWidget::displayComboBox_currentTextChanged );
 
     // Install the mouse events filter on the QGraphicsView
     ui->graphicsView->installEventFilter( this );
@@ -126,6 +129,8 @@ void PaletteWidget::initializePathComboBox()
 
 void PaletteWidget::initializeDisplayComboBox()
 {
+    this->buildingDisplayComboBox = true;
+
     ui->displayComboBox->addItem("Show all colors");
 
     if( !this->isTrn )
@@ -140,9 +145,10 @@ void PaletteWidget::initializeDisplayComboBox()
     }
     else
     {
-        ui->displayComboBox->addItem("Show all colors");
         ui->displayComboBox->addItem("Show translated colors");
     }
+
+    this->buildingDisplayComboBox = false;
 }
 
 void PaletteWidget::selectColor( quint8 index )
@@ -264,6 +270,8 @@ void PaletteWidget::displayColors()
     this->scene->setBackgroundBrush( Qt::white );
 
     // Displaying palette colors
+    bool displayColor;
+    quint32 indexHits;
     for( int i = 0; i < D1PAL_COLORS; i++ )
     {
         // Go to next line
@@ -281,19 +289,27 @@ void PaletteWidget::displayColors()
         QPen pen( Qt::NoPen );
 
         // Check palette display filter
-        if( ui->displayComboBox->currentText() != "All colors" )
-        {
-            if( !this->isTrn )
-            {
-                //if()
-            }
-        }
+        displayColor = true;
+        if( this->palHits->getMode() == D1PALHITS_MODE::ALL_COLORS
+            || this->palHits->getMode() == D1PALHITS_MODE::ALL_FRAMES )
+            indexHits = this->palHits->getIndexHits(i);
+        else if( this->palHits->getMode() == D1PALHITS_MODE::CURRENT_TILE )
+            indexHits = this->palHits->getIndexHits( i, this->levelCelView->getCurrentTileIndex() );
+        else if( this->palHits->getMode() == D1PALHITS_MODE::CURRENT_SUBTILE )
+            indexHits = this->palHits->getIndexHits( i, this->levelCelView->getCurrentSubtileIndex() );
+        else if( this->palHits->getMode() == D1PALHITS_MODE::CURRENT_FRAME && !this->isLevelCel )
+            indexHits = this->palHits->getIndexHits( i, this->celView->getCurrentFrameIndex() );
+        else if( this->palHits->getMode() == D1PALHITS_MODE::CURRENT_FRAME && this->isLevelCel )
+            indexHits = this->palHits->getIndexHits( i, this->levelCelView->getCurrentFrameIndex() );
+
+        if( indexHits == 0 )
+            displayColor = false;
 
         // Check translation display filter
+        //
 
-
-
-        this->scene->addRect( x+bsw, y+bsw, w, w, pen, brush );
+        if( displayColor )
+            this->scene->addRect( x+bsw, y+bsw, w, w, pen, brush );
 
         x += dx;
     }
@@ -375,12 +391,12 @@ void PaletteWidget::refresh()
     emit refreshed();
 }
 
-void PaletteWidget::pathComboBox_currentIndexChanged( int index )
+void PaletteWidget::pathComboBox_currentTextChanged( const QString &arg1 )
 {
     if( this->paths.isEmpty() || this->buildingPathComboBox )
         return;
 
-    QString filePath = this->paths[ this->ui->pathComboBox->currentText() ];
+    QString filePath = this->paths[ arg1 ];
 
     if( !filePath.isEmpty() )
     {
@@ -403,6 +419,25 @@ void PaletteWidget::pathComboBox_currentIndexChanged( int index )
     }
 
     emit this->modified();
+}
+
+void PaletteWidget::displayComboBox_currentTextChanged( const QString &arg1 )
+{
+    if( this->buildingDisplayComboBox )
+        return;
+
+    if( arg1 == "Show all colors" )
+        this->palHits->setMode( D1PALHITS_MODE::ALL_COLORS );
+    else if( arg1 == "Show all frames hits" )
+        this->palHits->setMode( D1PALHITS_MODE::ALL_FRAMES );
+    else if( arg1 == "Show current tile hits" )
+        this->palHits->setMode( D1PALHITS_MODE::CURRENT_TILE );
+    else if( arg1 == "Show current sub-tile hits" )
+        this->palHits->setMode( D1PALHITS_MODE::CURRENT_SUBTILE );
+    else if( arg1 == "Show current frame hits" )
+        this->palHits->setMode( D1PALHITS_MODE::CURRENT_FRAME );
+
+    this->refresh();
 }
 
 void PaletteWidget::on_colorLineEdit_returnPressed()
@@ -454,4 +489,3 @@ void PaletteWidget::on_indexPickPushButton_clicked()
 
     emit this->displayRootInformation( "<<<" );
 }
-

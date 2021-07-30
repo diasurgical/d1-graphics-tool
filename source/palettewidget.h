@@ -76,7 +76,8 @@ signals:
     void refreshed();
 
 private slots:
-    void pathComboBox_currentIndexChanged( int );
+    void pathComboBox_currentTextChanged( const QString &arg1 );
+    void displayComboBox_currentTextChanged( const QString &arg1 );
     void on_colorLineEdit_returnPressed();
     void on_colorPickPushButton_clicked();
     void on_translationIndexLineEdit_returnPressed();
@@ -104,11 +105,11 @@ private:
 
     D1PalHits *palHits;
     //D1TrnHits *trnHits;
-    QString palDisplayFilter;
-    QString trnDisplayFilter;
 
     bool buildingPathComboBox;
     QMap<QString,QString> paths;
+
+    bool buildingDisplayComboBox;
 };
 
 #endif // PALETTEWIDGET_H

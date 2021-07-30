@@ -263,8 +263,8 @@ void LevelCelView::displayFrame()
     this->ui->tileIndexEdit->setText(
         QString::number( this->currentTileIndex + 1 ) );
 
-    // Notify PalView that the frame changed (used to refresh palette hits
-    emit frameChanged();
+    // Notify PalView that the frame changed (used to refresh palette hits)
+    emit frameRefreshed();
 }
 
 void LevelCelView::on_firstFrameButton_clicked()

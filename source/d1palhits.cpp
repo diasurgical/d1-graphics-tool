@@ -134,7 +134,7 @@ void D1PalHits::buildTilePalHits()
     }
 }
 
-quint32 D1PalHits::getIndexHits( quint8 index )
+quint32 D1PalHits::getIndexHits( quint8 colorIndex )
 {
     if( this->mode == D1PALHITS_MODE::ALL_COLORS )
     {
@@ -142,10 +142,39 @@ quint32 D1PalHits::getIndexHits( quint8 index )
     }
     else if( this->mode == D1PALHITS_MODE::ALL_FRAMES )
     {
-        if( !this->allFramesPalHits.contains(index) )
+        if( !this->allFramesPalHits.contains(colorIndex) )
             return 0;
         else
-            return this->allFramesPalHits[index];
+            return this->allFramesPalHits[colorIndex];
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+quint32 D1PalHits::getIndexHits( quint8 colorIndex, quint32 itemIndex )
+{
+    if( this->mode == D1PALHITS_MODE::CURRENT_TILE )
+    {
+        if( !this->tilePalHits[itemIndex].contains(colorIndex) )
+            return 0;
+        else
+            return this->tilePalHits[itemIndex][colorIndex];
+    }
+    else if( this->mode == D1PALHITS_MODE::CURRENT_SUBTILE )
+    {
+        if( !this->subtilePalHits[itemIndex].contains(colorIndex) )
+            return 0;
+        else
+            return this->subtilePalHits[itemIndex][colorIndex];
+    }
+    else if( this->mode == D1PALHITS_MODE::CURRENT_FRAME )
+    {
+        if( !this->framePalHits[itemIndex].contains(colorIndex) )
+            return 0;
+        else
+            return this->framePalHits[itemIndex][colorIndex];
     }
     else
     {
