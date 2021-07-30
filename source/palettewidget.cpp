@@ -177,11 +177,14 @@ void PaletteWidget::checkTranslationSelection( quint8 index )
     if( !this->selectingTranslationColor )
         return;
 
+    this->selectedTranslationIndex = index;
     this->trn->setTranslation( this->selectedColorIndex, index );
+
     emit this->modified();
 
     this->selectingTranslationColor = false;
     this->clearInfo();
+
     emit this->clearRootInformation();
 }
 
@@ -457,6 +460,8 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
 void PaletteWidget::on_translationIndexLineEdit_returnPressed()
 {
     quint8 index = ui->translationIndexLineEdit->text().toUInt();
+
+    this->selectedTranslationIndex = index;
     this->trn->setTranslation( this->selectedColorIndex, index );
 
     emit this->modified();
@@ -466,6 +471,7 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
 void PaletteWidget::on_colorPickPushButton_clicked()
 {
     QColor color = QColorDialog::getColor();
+
     this->selectedColor = color;
     this->pal->setColor( this->selectedColorIndex, color );
 
