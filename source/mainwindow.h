@@ -19,7 +19,6 @@
 #include "d1til.h"
 #include "d1palhits.h"
 
-#include "palview.h"
 #include "palettewidget.h"
 #include "celview.h"
 #include "levelcelview.h"
