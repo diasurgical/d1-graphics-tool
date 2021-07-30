@@ -17,6 +17,9 @@ public:
     ~D1Trn();
 
     bool load( QString );
+    bool save();
+    bool save( QString );
+
     void refreshResultingPalette();
     QColor getResultingColor( quint8 );
 

@@ -113,6 +113,44 @@ bool D1Pal::loadJascPalette()
     return true;
 }
 
+bool D1Pal::save()
+{
+    for( int i = 0; i < D1PAL_COLORS; i++ )
+    {
+        QColor color = this->colors[i];
+
+        QByteArray colorBytes;
+        colorBytes.resize(3);
+        colorBytes[0] = color.red();
+        colorBytes[1] = color.green();
+        colorBytes[2] = color.blue();
+
+        if( this->file.write( colorBytes ) == -1 )
+            return false;
+    }
+
+    if( !this->file.flush() )
+        return false;
+
+    if( this->file.size() != D1PAL_SIZE_BYTES )
+        return false;
+
+    return true;
+}
+
+bool D1Pal::save( QString palFilePath )
+{
+    if( this->file.isOpen() )
+        file.close();
+
+    this->file.setFileName( palFilePath );
+
+    if( !this->file.open(QIODevice::ReadWrite) )
+        return false;
+
+    return this->save();
+}
+
 QString D1Pal::getFilePath()
 {
     if( this->file.isOpen() )

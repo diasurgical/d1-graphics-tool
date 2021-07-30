@@ -391,6 +391,43 @@ void MainWindow::on_actionOpen_PAL_triggered()
     this->palWidget->refresh();
 }
 
+void MainWindow::on_actionSave_PAL_triggered()
+{
+    QString palFilePath = this->pal->getFilePath();
+    if( palFilePath.startsWith(":/") || palFilePath.isEmpty() )
+    {
+        this->on_actionSave_PAL_as_triggered();
+    }
+    else
+    {
+        if( !this->pal->save( palFilePath ) )
+        {
+            QMessageBox::critical( this, "Error", "Could not save PAL file." );
+            return;
+        }
+    }
+}
+
+void MainWindow::on_actionSave_PAL_as_triggered()
+{
+    QString palFilePath = QFileDialog::getSaveFileName(
+        this, "Save palette file as...", QString(), "PAL Files (*.pal)" );
+
+    if( !palFilePath.isEmpty() )
+    {
+        if( !this->pal->save( palFilePath ) )
+        {
+            QMessageBox::critical( this, "Error", "Could not save PAL file." );
+            return;
+        }
+    }
+
+    // Add file name and file path to the PaletteWidget
+    QFileInfo palFileInfo( this->pal->getFilePath() );
+    this->palWidget->addPath( palFileInfo.fileName(), this->pal->getFilePath() );
+    this->palWidget->refresh();
+}
+
 void MainWindow::on_actionOpen_Translation_1_triggered()
 {
     QString trnFilePath = QFileDialog::getOpenFileName(

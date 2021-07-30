@@ -29,6 +29,8 @@ public:
     bool load( QString );
     bool loadRegularPalette();
     bool loadJascPalette();
+    bool save();
+    bool save( QString );
 
     QString getFilePath();
     bool isFileOpen();
