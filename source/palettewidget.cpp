@@ -219,6 +219,7 @@ void PaletteWidget::setSelectedPath( QString name )
         return;
 
     this->ui->pathComboBox->setCurrentText( this->paths[key] );
+    this->ui->pathComboBox->setToolTip( key );
 
     emit this->modified();
 }
@@ -363,12 +364,12 @@ void PaletteWidget::displaySelection()
 
 void PaletteWidget::displayInfo( QString info )
 {
-    ui->informationLabel->setText( info );
+    this->ui->informationLabel->setText( info );
 }
 
 void PaletteWidget::clearInfo()
 {
-    ui->informationLabel->clear();
+    this->ui->informationLabel->clear();
 }
 
 void PaletteWidget::refreshPathComboBox()
@@ -378,7 +379,7 @@ void PaletteWidget::refreshPathComboBox()
     // refresh() which calls pathComboBox_currentIndexChanged(), ...
     this->buildingPathComboBox = true;
 
-    ui->pathComboBox->clear();
+    this->ui->pathComboBox->clear();
 
 
     // Go through the hits of the CEL frame and add them to the subtile hits
@@ -386,13 +387,19 @@ void PaletteWidget::refreshPathComboBox()
     while( it.hasNext() )
     {
         it.next();
-        ui->pathComboBox->addItem( it.value() );
+        this->ui->pathComboBox->addItem( it.value() );
     }
 
     if( !this->isTrn )
-        ui->pathComboBox->setCurrentText( this->paths[this->pal->getFilePath()] );
+    {
+        this->ui->pathComboBox->setCurrentText( this->paths[this->pal->getFilePath()] );
+        this->ui->pathComboBox->setToolTip( this->pal->getFilePath() );
+    }
     else
-        ui->pathComboBox->setCurrentText( this->paths[this->trn->getFilePath()] );
+    {
+        this->ui->pathComboBox->setCurrentText( this->paths[this->trn->getFilePath()] );
+        this->ui->pathComboBox->setToolTip( this->trn->getFilePath() );
+    }
 
     this->buildingPathComboBox = false;
 }
@@ -435,6 +442,9 @@ void PaletteWidget::pathComboBox_currentTextChanged( const QString &arg1 )
         return;
 
     QString filePath = this->paths.key( arg1 );
+
+    // Set tooltip to display full file path when mouse hover
+    ui->pathComboBox->setToolTip( filePath );
 
     if( !filePath.isEmpty() )
     {
