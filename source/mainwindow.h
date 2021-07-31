@@ -40,6 +40,10 @@ public:
     explicit MainWindow( QWidget *parent = 0 );
     ~MainWindow();
 
+    void setPal( D1Pal* );
+    void setTrn1( D1Trn* );
+    void setTrn2( D1Trn* );
+
     void loadConfiguration();
 
 private slots:

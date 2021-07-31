@@ -46,6 +46,26 @@ MainWindow::~MainWindow()
         delete this->til;
 }
 
+void MainWindow::setPal( D1Pal *p )
+{
+    this->pal = p;
+    this->trn1->refreshResultingPalette();
+    this->trn2->refreshResultingPalette();
+}
+
+void MainWindow::setTrn1( D1Trn *t1 )
+{
+    this->trn1 = t1;
+    this->trn1->refreshResultingPalette();
+    this->trn2->refreshResultingPalette();
+}
+
+void MainWindow::setTrn2( D1Trn *t2 )
+{
+    this->trn2 = t2;
+    this->trn2->refreshResultingPalette();
+}
+
 void MainWindow::loadConfiguration()
 {
     QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
@@ -160,7 +180,7 @@ void MainWindow::on_actionOpen_triggered()
                         firstPaletteFound = path;
 
                     QFileInfo palFileInfo( path );
-                    this->palWidget->addPath( palFileInfo.fileName(), palFileInfo.absoluteFilePath() );
+                    this->palWidget->addPath( palFileInfo.absoluteFilePath(), palFileInfo.fileName() );
 
                     if( !relevantPaletteFound
                         && palFileInfo.fileName().toLower().startsWith(
@@ -384,10 +404,10 @@ void MainWindow::on_actionNew_PAL_triggered()
             return;
         }
     }
-
+    
     // Add file name and file path to the PaletteWidget
     QFileInfo palFileInfo( this->pal->getFilePath() );
-    this->palWidget->addPath( palFileInfo.fileName(), this->pal->getFilePath() );
+    this->palWidget->addPath( palFileInfo.absoluteFilePath(), palFileInfo.fileName() );
     this->palWidget->refresh();
     */
 }
@@ -411,7 +431,7 @@ void MainWindow::on_actionOpen_PAL_triggered()
 
     // Add file name and file path to the PaletteWidget
     QFileInfo palFileInfo( this->pal->getFilePath() );
-    this->palWidget->addPath( palFileInfo.fileName(), this->pal->getFilePath() );
+    this->palWidget->addPath( palFileInfo.absoluteFilePath(), palFileInfo.fileName() );
     this->palWidget->refresh();
 }
 
@@ -448,7 +468,7 @@ void MainWindow::on_actionSave_PAL_as_triggered()
 
     // Add file name and file path to the PaletteWidget
     QFileInfo palFileInfo( this->pal->getFilePath() );
-    this->palWidget->addPath( palFileInfo.fileName(), this->pal->getFilePath() );
+    this->palWidget->addPath( palFileInfo.absoluteFilePath(), palFileInfo.fileName() );
     this->palWidget->refresh();
 }
 
@@ -471,7 +491,7 @@ void MainWindow::on_actionOpen_Translation_1_triggered()
 
     // Add file name and file path to the PaletteWidget
     QFileInfo trnFileInfo( this->trn1->getFilePath() );
-    this->trn1Widget->addPath( trnFileInfo.fileName(), this->trn1->getFilePath() );
+    this->trn1Widget->addPath( trnFileInfo.absoluteFilePath(), trnFileInfo.fileName() );
     this->trn1Widget->setSelectedPath( trnFileInfo.fileName() );
 }
 
@@ -493,7 +513,7 @@ void MainWindow::on_actionOpen_Translation_2_triggered()
 
     // Add file name and file path to the PaletteWidget
     QFileInfo trnFileInfo( this->trn2->getFilePath() );
-    this->trn2Widget->addPath( trnFileInfo.fileName(), this->trn2->getFilePath() );
+    this->trn2Widget->addPath( trnFileInfo.absoluteFilePath(), trnFileInfo.fileName() );
     this->trn2Widget->setSelectedPath( trnFileInfo.fileName() );
 }
 

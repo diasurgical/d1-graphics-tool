@@ -38,7 +38,7 @@ PaletteWidget::~PaletteWidget()
     delete ui;
 }
 
-void PaletteWidget::initialize( D1Pal *p, CelView *c, D1PalHits* ph )
+void PaletteWidget::initialize( D1Pal *p, CelView *c, D1PalHits *ph )
 {
     this->pal = p;
     this->celView = c;
@@ -47,7 +47,7 @@ void PaletteWidget::initialize( D1Pal *p, CelView *c, D1PalHits* ph )
     this->initializeUi();
 }
 
-void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc, D1PalHits* ph )
+void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc, D1PalHits *ph )
 {
     this->pal = p;
     this->isLevelCel = true;
@@ -57,7 +57,7 @@ void PaletteWidget::initialize( D1Pal *p, LevelCelView *lc, D1PalHits* ph )
     this->initializeUi();
 }
 
-void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c, D1PalHits* ph )
+void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph )
 {
     this->isTrn = true;
     this->pal = p;
@@ -68,7 +68,7 @@ void PaletteWidget::initialize( D1Pal *p, D1Trn *t, CelView *c, D1PalHits* ph )
     this->initializeUi();
 }
 
-void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits* ph )
+void PaletteWidget::initialize( D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *ph )
 {
     this->isTrn = true;
     this->pal = p;
@@ -115,13 +115,13 @@ void PaletteWidget::initializePathComboBox()
 {
     if( !this->isTrn )
     {
-        this->paths["_default.pal"] = ":/default.pal";
-        this->paths["_town.pal"] = ":/town.pal";
+        this->paths[":/default.pal"] = "_default.pal";
+        // TODO: remove town.pal
+        this->paths[":/town.pal"] = "_town.pal";
     }
     else
     {
-        this->paths["_null.trn"] = ":/null.trn";
-        //this->paths["_null2.trn"] = ":/null.trn";
+        this->paths[":/null.trn"] = "_null.trn";
     }
 
     this->refreshPathComboBox();
@@ -190,32 +190,35 @@ void PaletteWidget::checkTranslationSelection( quint8 index )
 
 QString PaletteWidget::getPath( QString name )
 {
-    if( this->paths.contains(name) )
-        return this->paths[name];
-    else
-        return QString();
+    return this->paths.key( name );
 }
 
-void PaletteWidget::setPath( QString name, QString path )
+void PaletteWidget::setPath( QString path, QString name )
 {
-    if( this->paths.contains(name) )
-        this->paths[name] = path;
+    this->paths[path] = name;
 }
 
-void PaletteWidget::addPath( QString name, QString path )
+void PaletteWidget::addPath( QString path, QString name )
 {
-    this->paths[name] = path;
+    this->paths[path] = name;
 }
 
 void PaletteWidget::removePath( QString name )
 {
-    if( this->paths.contains(name) )
-        this->paths.remove(name);
+    QString key = this->paths.key( name );
+
+    if( !key.isEmpty() )
+        this->paths.remove(key);
 }
 
 void PaletteWidget::setSelectedPath( QString name )
 {
-    this->ui->pathComboBox->setCurrentText( name );
+    QString key = this->paths.key( name );
+
+    if( key.isEmpty() )
+        return;
+
+    this->ui->pathComboBox->setCurrentText( this->paths[key] );
 
     emit this->modified();
 }
@@ -376,13 +379,20 @@ void PaletteWidget::refreshPathComboBox()
     this->buildingPathComboBox = true;
 
     ui->pathComboBox->clear();
-    for( int i = 0; i < this->paths.keys().size(); i++ )
-        ui->pathComboBox->addItem( this->paths.keys().at(i) );
+
+
+    // Go through the hits of the CEL frame and add them to the subtile hits
+    QMapIterator<QString,QString> it( this->paths );
+    while( it.hasNext() )
+    {
+        it.next();
+        ui->pathComboBox->addItem( it.value() );
+    }
 
     if( !this->isTrn )
-        ui->pathComboBox->setCurrentText( this->paths.key(this->pal->getFilePath()) );
+        ui->pathComboBox->setCurrentText( this->paths[this->pal->getFilePath()] );
     else
-        ui->pathComboBox->setCurrentText( this->paths.key(this->trn->getFilePath()) );
+        ui->pathComboBox->setCurrentText( this->paths[this->trn->getFilePath()] );
 
     this->buildingPathComboBox = false;
 }
@@ -424,7 +434,7 @@ void PaletteWidget::pathComboBox_currentTextChanged( const QString &arg1 )
     if( this->paths.isEmpty() || this->buildingPathComboBox )
         return;
 
-    QString filePath = this->paths[ arg1 ];
+    QString filePath = this->paths.key( arg1 );
 
     if( !filePath.isEmpty() )
     {

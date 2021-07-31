@@ -103,6 +103,9 @@ private:
 
     bool selectingTranslationColor;
 
+    QMap<QString,D1Pal*> pals; // key: path, value: pointer to palette
+    QMap<QString,D1Trn*> trns; // key: path, value: pointer to translation
+
     D1Pal *pal;
     D1Trn *trn;
 
