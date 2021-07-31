@@ -1,5 +1,13 @@
 ## TODO
 
+### Shortlist
+1. Implement in-memory storage (QMap) of all the open palettes and translations to retain modifications when switching between them
+2. Implement new/close for palettes and translations
+3. Implement multi-color selection in palette widgets
+4. Implement undo/redo stack
+5. Fix DPI issues
+
+
 ### Add
 - Each PAL/TRN view features the following display filter check boxes
     - Show: Frame only
