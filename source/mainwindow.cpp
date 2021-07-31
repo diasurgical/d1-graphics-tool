@@ -368,6 +368,30 @@ void MainWindow::on_actionQuit_triggered()
     qApp->quit();
 }
 
+void MainWindow::on_actionNew_PAL_triggered()
+{
+    /*
+    QString palFilePath = QFileDialog::getSaveFileName(
+        this, "New palette file", QString(), "PAL Files (*.pal)" );
+
+    if( !palFilePath.isEmpty() )
+    {
+        this->pal->load(":/default.pal");
+
+        if( !this->pal->save(palFilePath) )
+        {
+            QMessageBox::critical( this, "Error", "Could not create PAL file." );
+            return;
+        }
+    }
+
+    // Add file name and file path to the PaletteWidget
+    QFileInfo palFileInfo( this->pal->getFilePath() );
+    this->palWidget->addPath( palFileInfo.fileName(), this->pal->getFilePath() );
+    this->palWidget->refresh();
+    */
+}
+
 void MainWindow::on_actionOpen_PAL_triggered()
 {
     QString palFilePath = QFileDialog::getOpenFileName(

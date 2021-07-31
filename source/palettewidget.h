@@ -45,7 +45,10 @@ public:
 
     void selectColor( quint8 );
     void checkTranslationSelection( quint8 );
+    QString getPath( QString );
+    void setPath( QString, QString );
     void addPath( QString, QString );
+    void removePath( QString );
     void setSelectedPath( QString );
 
     // Coordinates functions

@@ -188,14 +188,35 @@ void PaletteWidget::checkTranslationSelection( quint8 index )
     emit this->clearRootInformation();
 }
 
+QString PaletteWidget::getPath( QString name )
+{
+    if( this->paths.contains(name) )
+        return this->paths[name];
+    else
+        return QString();
+}
+
+void PaletteWidget::setPath( QString name, QString path )
+{
+    if( this->paths.contains(name) )
+        this->paths[name] = path;
+}
+
 void PaletteWidget::addPath( QString name, QString path )
 {
     this->paths[name] = path;
 }
 
+void PaletteWidget::removePath( QString name )
+{
+    if( this->paths.contains(name) )
+        this->paths.remove(name);
+}
+
 void PaletteWidget::setSelectedPath( QString name )
 {
     this->ui->pathComboBox->setCurrentText( name );
+
     emit this->modified();
 }
 
