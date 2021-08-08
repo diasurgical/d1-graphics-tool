@@ -446,14 +446,14 @@ void MainWindow::on_actionOpen_PAL_triggered()
 
 void MainWindow::on_actionSave_PAL_triggered()
 {
-    QString palFilePath = this->pal->getFilePath();
-    if( palFilePath.startsWith(":/") || palFilePath.isEmpty() )
+    QString selectedPath = this->palWidget->getSelectedPath();
+    if( selectedPath.startsWith(":/") || selectedPath.isEmpty() )
     {
         this->on_actionSave_PAL_as_triggered();
     }
     else
     {
-        if( !this->pal->save( palFilePath ) )
+        if( !this->pal->save( selectedPath ) )
         {
             QMessageBox::critical( this, "Error", "Could not save PAL file." );
             return;
@@ -487,6 +487,24 @@ void MainWindow::on_actionSave_PAL_as_triggered()
 
     this->palWidget->addPath( path, name );
     this->palWidget->selectPath( path );
+}
+
+void MainWindow::on_actionClose_PAL_triggered()
+{
+    QString selectedPath = this->palWidget->getSelectedPath();
+    if( selectedPath.startsWith(":/") || selectedPath.isEmpty() )
+        return;
+
+    if( this->pals.contains( selectedPath ) )
+    {
+        delete this->pals[selectedPath];
+        this->pals.remove(selectedPath);
+    }
+
+    this->pal = this->pals[":/default.pal"];
+
+    this->palWidget->removePath( selectedPath );
+    this->palWidget->selectPath( ":/default.pal" );
 }
 
 void MainWindow::on_actionOpen_Translation_1_triggered()
@@ -539,37 +557,6 @@ void MainWindow::on_actionOpen_Translation_2_triggered()
 
     this->trn2Widget->addPath( path, name );
     this->trn2Widget->selectPath( path );
-}
-
-void MainWindow::on_actionReset_PAL_triggered()
-{
-    if( this->celView )
-        this->celView->displayFrame();
-    if( this->levelCelView )
-        this->levelCelView->displayFrame();
-}
-
-void MainWindow::on_actionReset_Translation_1_triggered()
-{
-    this->trn1->load( ":/null.trn" );
-    this->trn1->refreshResultingPalette();
-    this->trn2->refreshResultingPalette();
-
-    if( this->celView )
-        this->celView->displayFrame();
-    if( this->levelCelView )
-        this->levelCelView->displayFrame();
-}
-
-void MainWindow::on_actionReset_Translation_2_triggered()
-{
-    this->trn2->load( ":/null.trn" );
-    this->trn2->refreshResultingPalette();
-
-    if( this->celView )
-        this->celView->displayFrame();
-    if( this->levelCelView )
-        this->levelCelView->displayFrame();
 }
 
 void MainWindow::on_actionAbout_triggered()

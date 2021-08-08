@@ -128,7 +128,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>25</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -152,7 +152,7 @@
    </widget>
    <widget class="QMenu" name="menuPalette">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="title">
      <string>Palette</string>
@@ -162,17 +162,14 @@
     <addaction name="actionSave_PAL"/>
     <addaction name="actionSave_PAL_as"/>
     <addaction name="actionClose_PAL"/>
-    <addaction name="actionReset_PAL"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_Translation_2"/>
     <addaction name="actionSave_translation_2"/>
     <addaction name="actionSave_translation_2_as"/>
-    <addaction name="actionReset_Translation_2"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_Translation_1"/>
     <addaction name="actionSave_translation_1"/>
     <addaction name="actionSave_translation_1_as"/>
-    <addaction name="actionReset_Translation_1"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPalette"/>
