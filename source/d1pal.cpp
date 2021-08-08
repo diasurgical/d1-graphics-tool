@@ -2,12 +2,14 @@
 
 D1Pal::D1Pal() :
     type( D1PAL_TYPE::REGULAR ),
+    modified(false),
     file(new QFile),
     colors(new QColor[D1PAL_COLORS])
 {}
 
 D1Pal::D1Pal( QString path ) :
     type( D1PAL_TYPE::REGULAR ),
+    modified(false),
     file( new QFile ),
     colors( new QColor[D1PAL_COLORS] )
 {
@@ -74,6 +76,8 @@ bool D1Pal::loadRegularPalette()
         this->colors[i] = QColor( red, green, blue );
     }
 
+    this->modified = false;
+
     return true;
 }
 
@@ -110,11 +114,21 @@ bool D1Pal::loadJascPalette()
         }
     }
 
+    this->modified = false;
+
     return true;
 }
 
-bool D1Pal::save()
+bool D1Pal::save( QString palFilePath )
 {
+    if( this->file.isOpen() )
+        file.close();
+
+    this->file.setFileName( palFilePath );
+
+    if( !this->file.open(QIODevice::ReadWrite) )
+        return false;
+
     for( int i = 0; i < D1PAL_COLORS; i++ )
     {
         QColor color = this->colors[i];
@@ -135,20 +149,14 @@ bool D1Pal::save()
     if( this->file.size() != D1PAL_SIZE_BYTES )
         return false;
 
+    this->modified = false;
+
     return true;
 }
 
-bool D1Pal::save( QString palFilePath )
+bool D1Pal::isModified()
 {
-    if( this->file.isOpen() )
-        file.close();
-
-    this->file.setFileName( palFilePath );
-
-    if( !this->file.open(QIODevice::ReadWrite) )
-        return false;
-
-    return this->save();
+    return this->modified;
 }
 
 QString D1Pal::getFilePath()
@@ -172,4 +180,5 @@ QColor D1Pal::getColor( quint8 index )
 void D1Pal::setColor( quint8 index, QColor color )
 {
     this->colors[index] = color;
+    this->modified = true;
 }
