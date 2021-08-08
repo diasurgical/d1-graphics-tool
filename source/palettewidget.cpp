@@ -38,6 +38,20 @@ PaletteWidget::~PaletteWidget()
     delete ui;
 }
 
+void PaletteWidget::setPal( D1Pal *p )
+{
+    this->pal = p;
+
+    emit this->modified();
+}
+
+void PaletteWidget::setTrn( D1Trn *t )
+{
+    this->trn = t;
+
+    emit this->modified();
+}
+
 void PaletteWidget::initialize( D1Pal *p, CelView *c, D1PalHits *ph )
 {
     this->pal = p;
@@ -116,8 +130,6 @@ void PaletteWidget::initializePathComboBox()
     if( !this->isTrn )
     {
         this->paths[":/default.pal"] = "_default.pal";
-        // TODO: remove town.pal
-        this->paths[":/town.pal"] = "_town.pal";
     }
     else
     {
@@ -190,6 +202,7 @@ void PaletteWidget::checkTranslationSelection( quint8 index )
 
 QString PaletteWidget::getPath( QString name )
 {
+    // Returns empty string if not found
     return this->paths.key( name );
 }
 
@@ -203,25 +216,24 @@ void PaletteWidget::addPath( QString path, QString name )
     this->paths[path] = name;
 }
 
-void PaletteWidget::removePath( QString name )
+void PaletteWidget::removePath( QString path )
 {
-    QString key = this->paths.key( name );
-
-    if( !key.isEmpty() )
-        this->paths.remove(key);
+    if( this->paths.contains(path) )
+        this->paths.remove(path);
 }
 
-void PaletteWidget::setSelectedPath( QString name )
+void PaletteWidget::selectPath( QString path )
 {
-    QString key = this->paths.key( name );
+    this->ui->pathComboBox->setCurrentText( this->paths[path] );
+    this->ui->pathComboBox->setToolTip( path );
 
-    if( key.isEmpty() )
-        return;
-
-    this->ui->pathComboBox->setCurrentText( this->paths[key] );
-    this->ui->pathComboBox->setToolTip( key );
-
+    emit this->pathSelected( path );
     emit this->modified();
+}
+
+QString PaletteWidget::getSelectedPath()
+{
+    return this->paths.key( this->ui->pathComboBox->currentText() );
 }
 
 QRectF PaletteWidget::getColorCoordinates( quint8 index )
@@ -446,26 +458,7 @@ void PaletteWidget::pathComboBox_currentTextChanged( const QString &arg1 )
     // Set tooltip to display full file path when mouse hover
     ui->pathComboBox->setToolTip( filePath );
 
-    if( !filePath.isEmpty() )
-    {
-        if( !this->isTrn )
-        {
-            if( !this->pal->load( filePath ) )
-            {
-                QMessageBox::critical( this, "Error", "Could not load PAL file." );
-                return;
-            }
-        }
-        else
-        {
-            if( !this->trn->load( filePath ) )
-            {
-                QMessageBox::critical( this, "Error", "Could not load TRN file." );
-                return;
-            }
-        }
-    }
-
+    emit this->pathSelected( filePath );
     emit this->modified();
 }
 

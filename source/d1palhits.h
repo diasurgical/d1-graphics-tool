@@ -24,8 +24,8 @@ class D1PalHits : public QObject
     Q_OBJECT
 
 public:
-    D1PalHits( D1Pal*, D1CelBase* );
-    D1PalHits( D1Pal*, D1CelBase*, D1Min*, D1Til* );
+    D1PalHits( D1CelBase* );
+    D1PalHits( D1CelBase*, D1Min*, D1Til* );
 
     D1PALHITS_MODE getMode();
     void setMode( D1PALHITS_MODE );
@@ -44,7 +44,6 @@ private:
 
     D1PALHITS_MODE mode;
 
-    D1Pal *pal;
     D1CelBase *cel;
     D1Min *min;
     D1Til *til;

@@ -40,9 +40,9 @@ public:
     explicit MainWindow( QWidget *parent = 0 );
     ~MainWindow();
 
-    void setPal( D1Pal* );
-    void setTrn1( D1Trn* );
-    void setTrn2( D1Trn* );
+    void setPal( QString );
+    void setTrn1( QString );
+    void setTrn2( QString );
 
     void loadConfiguration();
 
@@ -88,6 +88,10 @@ private:
     QPointer<D1CelBase> cel;
     QPointer<D1Min> min;
     QPointer<D1Til> til;
+
+    QMap<QString,D1Pal*> pals; // key: path, value: pointer to palette
+    QMap<QString,D1Trn*> trn1s; // key: path, value: pointer to translation
+    QMap<QString,D1Trn*> trn2s; // key: path, value: pointer to translation
 
     // Palette hits are instantiated in main window to make them available to the three PaletteWidgets
     QPointer<D1PalHits> palHits;

@@ -33,6 +33,9 @@ public:
     explicit PaletteWidget(QWidget *parent = nullptr, QString title = "Palette");
     ~PaletteWidget();
 
+    void setPal( D1Pal* );
+    void setTrn( D1Trn* );
+
     void initialize( D1Pal*, CelView*, D1PalHits* );
     void initialize( D1Pal*, LevelCelView*, D1PalHits* );
 
@@ -45,11 +48,13 @@ public:
 
     void selectColor( quint8 );
     void checkTranslationSelection( quint8 );
+
     QString getPath( QString );
     void setPath( QString, QString );
     void addPath( QString, QString );
     void removePath( QString );
-    void setSelectedPath( QString );
+    void selectPath( QString );
+    QString getSelectedPath();
 
     // Coordinates functions
     QRectF getColorCoordinates( quint8 );
@@ -72,6 +77,7 @@ public:
     void refresh();
 
 signals:
+    void pathSelected( QString );
     void colorSelected( quint8 );
     void displayRootInformation( QString );
     void clearRootInformation();
@@ -103,14 +109,10 @@ private:
 
     bool selectingTranslationColor;
 
-    QMap<QString,D1Pal*> pals; // key: path, value: pointer to palette
-    QMap<QString,D1Trn*> trns; // key: path, value: pointer to translation
-
     D1Pal *pal;
     D1Trn *trn;
 
     D1PalHits *palHits;
-    //D1TrnHits *trnHits;
 
     bool buildingPathComboBox;
     QMap<QString,QString> paths;

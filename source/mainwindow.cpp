@@ -46,24 +46,34 @@ MainWindow::~MainWindow()
         delete this->til;
 }
 
-void MainWindow::setPal( D1Pal *p )
+void MainWindow::setPal( QString path )
 {
-    this->pal = p;
+    this->pal = this->pals[path];
+    this->trn1->setPalette( this->pal );
     this->trn1->refreshResultingPalette();
     this->trn2->refreshResultingPalette();
+
+    this->palWidget->setPal( this->pal );
 }
 
-void MainWindow::setTrn1( D1Trn *t1 )
+void MainWindow::setTrn1( QString path )
 {
-    this->trn1 = t1;
+    this->trn1 = this->trn1s[path];
     this->trn1->refreshResultingPalette();
+    this->trn2->setPalette( this->trn1->getResultingPalette() );
     this->trn2->refreshResultingPalette();
+
+    this->trn1Widget->setTrn( this->trn1 );
 }
 
-void MainWindow::setTrn2( D1Trn *t2 )
+void MainWindow::setTrn2( QString path )
 {
-    this->trn2 = t2;
+    this->trn2 = this->trn2s[path];
     this->trn2->refreshResultingPalette();
+
+    this->cel->setPalette( this->trn2->getResultingPalette() );
+
+    this->trn2Widget->setTrn( this->trn2 );
 }
 
 void MainWindow::loadConfiguration()
@@ -115,16 +125,15 @@ void MainWindow::on_actionOpen_triggered()
             this->ui->statusBar->repaint();
 
             // Loading default.pal
-            this->pal = new D1Pal;
-            this->pal->load( ":/default.pal" );
+            this->pals[":/default.pal"] = new D1Pal(":/default.pal");
+            this->pal = this->pals[":/default.pal"];
 
             // Loading default null.trn
-            this->trn1 = new D1Trn;
-            this->trn1->setPalette( this->pal );
-            this->trn1->load( ":/null.trn" );
-            this->trn2 = new D1Trn;
-            this->trn2->setPalette( this->trn1->getResultingPalette() );
-            this->trn2->load( ":/null.trn" );
+            this->trn1s[":/null.trn"] = new D1Trn(":/null.trn", this->pal );
+            this->trn1 = this->trn1s[":/null.trn"];
+            this->trn2s[":/null.trn"] = new D1Trn(":/null.trn", this->trn1->getResultingPalette() );
+            this->trn2 = this->trn2s[":/null.trn"];
+
 
             if( openFilePath.toLower().endsWith( ".cel" ) )
             {
@@ -153,11 +162,17 @@ void MainWindow::on_actionOpen_triggered()
             this->ui->palFrame->layout()->addWidget( this->trn2Widget );
             this->ui->palFrame->layout()->addWidget( this->trn1Widget );
 
+            // Palette and translation file selection
+            // When a .pal or .trn file is selected in the PaletteWidget update the pal or trn
+            QObject::connect( this->palWidget, &PaletteWidget::pathSelected, this, &MainWindow::setPal );
+            QObject::connect( this->trn1Widget, &PaletteWidget::pathSelected, this, &MainWindow::setTrn1 );
+            QObject::connect( this->trn2Widget, &PaletteWidget::pathSelected, this, &MainWindow::setTrn2 );
+
             // Refresh PAL/TRN view chain
             QObject::connect( this->palWidget, &PaletteWidget::refreshed, this->trn1Widget, &PaletteWidget::refresh );
             QObject::connect( this->trn1Widget, &PaletteWidget::refreshed, this->trn2Widget, &PaletteWidget::refresh );
 
-            // Translation selection
+            // Translation color selection
             QObject::connect( this->palWidget, &PaletteWidget::colorSelected, this->trn1Widget, &PaletteWidget::checkTranslationSelection );
             QObject::connect( this->trn1Widget, &PaletteWidget::colorSelected, this->trn2Widget, &PaletteWidget::checkTranslationSelection );
             QObject::connect( this->trn1Widget, &PaletteWidget::displayRootInformation, this->palWidget, &PaletteWidget::displayInfo );
@@ -169,45 +184,29 @@ void MainWindow::on_actionOpen_triggered()
             QFileInfo celFileInfo( openFilePath );
             QDirIterator it( celFileInfo.absolutePath(), QStringList() << "*.pal", QDir::Files );
             QString firstPaletteFound = QString();
-            bool relevantPaletteFound = false;
             while( it.hasNext() )
             {
-                QString path = it.next();
+                QString sPath = it.next();
 
-                if( path != "1" )
+                if( sPath != "1" )
                 {
+                    QFileInfo palFileInfo( sPath );
+                    QString path = palFileInfo.absoluteFilePath();
+                    QString name = palFileInfo.fileName();
+                    this->pals[path] = new D1Pal();
+
+                    if( !this->pals[path]->load( path ) )
+                    {
+                        delete this->pals[path];
+                        this->pals.remove( path );
+                        QMessageBox::critical( this, "Error", "Could not load PAL file." );
+                        return;
+                    }
+
+                    this->palWidget->addPath( path, name );
+
                     if( firstPaletteFound.isEmpty() )
                         firstPaletteFound = path;
-
-                    QFileInfo palFileInfo( path );
-                    this->palWidget->addPath( palFileInfo.absoluteFilePath(), palFileInfo.fileName() );
-
-                    if( !relevantPaletteFound
-                        && palFileInfo.fileName().toLower().startsWith(
-                        celFileInfo.fileName().toLower().replace(".cel","").replace(".cl2","") ) )
-                    {
-                        if( !this->pal->load( palFileInfo.absoluteFilePath() ) )
-                        {
-                            QMessageBox::critical( this, "Error", "Could not load PAL file." );
-                            return;
-                        }
-
-                        this->trn1->refreshResultingPalette();
-                        this->trn2->refreshResultingPalette();
-
-                        relevantPaletteFound = true;
-                    }
-
-                    if( !it.hasNext() && !relevantPaletteFound )
-                    {
-                        if( !this->pal->load( firstPaletteFound ) )
-                        {
-                            QMessageBox::critical( this, "Error", "Could not load PAL file." );
-                            return;
-                        }
-                        this->trn1->refreshResultingPalette();
-                        this->trn2->refreshResultingPalette();
-                    }
                 }
             }
 
@@ -265,7 +264,7 @@ void MainWindow::on_actionOpen_triggered()
                 QObject::connect( this->levelCelView, &LevelCelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh );
 
                 // Initialize palette widgets
-                this->palHits = new D1PalHits( this->pal, this->cel, this->min, this->til );
+                this->palHits = new D1PalHits( this->cel, this->min, this->til );
                 this->palWidget->initialize( this->pal, this->levelCelView, this->palHits );
                 this->trn1Widget->initialize( this->pal, this->trn1, this->levelCelView, this->palHits );
                 this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->levelCelView, this->palHits );
@@ -293,7 +292,7 @@ void MainWindow::on_actionOpen_triggered()
                 QObject::connect( this->celView, &CelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh );
 
                 // Initialize palette widgets
-                this->palHits = new D1PalHits( this->pal, this->cel );
+                this->palHits = new D1PalHits( this->cel );
                 this->palWidget->initialize( this->pal, this->celView, this->palHits );
                 this->trn1Widget->initialize( this->pal, this->trn1, this->celView, this->palHits );
                 this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView, this->palHits );
@@ -301,6 +300,9 @@ void MainWindow::on_actionOpen_triggered()
                 this->celView->displayFrame();
             }
 
+            // Select the first palette found in the same folder as the CEL/CL2 if it exists
+            if( !firstPaletteFound.isEmpty() )
+                this->palWidget->selectPath( firstPaletteFound );
 
             // Adding the CelView to the main frame
             if( this->celView )
@@ -344,20 +346,23 @@ void MainWindow::on_actionClose_triggered()
     if( this->cel )
         delete this->cel;
 
-    if( this->pal )
-        delete pal;
+    qDeleteAll( this->pals );
+    this->pals = QMap<QString,D1Pal*>();
 
-    if( this->trn1 )
-        delete trn1;
+    qDeleteAll( this->trn1s );
+    this->trn1s = QMap<QString,D1Trn*>();
 
-    if( this->trn2 )
-        delete trn2;
+    qDeleteAll( this->trn2s );
+    this->trn2s = QMap<QString,D1Trn*>();
 
     if( this->min )
-        delete min;
+        delete this->min;
 
     if( this->til )
-        delete til;
+        delete this->til;
+
+    if( this->palHits )
+        delete this->palHits;
 
     ui->menuPalette->setEnabled( false );
     ui->actionExport->setEnabled( false );
@@ -417,22 +422,24 @@ void MainWindow::on_actionOpen_PAL_triggered()
     QString palFilePath = QFileDialog::getOpenFileName(
         this, "Load Palette File", QString(), "PAL Files (*.pal)" );
 
-    if( !palFilePath.isEmpty() )
+    if( palFilePath.isEmpty() )
+        return;
+
+    QFileInfo palFileInfo( palFilePath );
+    QString path = palFileInfo.absoluteFilePath();
+    QString name = palFileInfo.fileName();
+
+    this->pals[path] = new D1Pal();
+    if( !this->pals[path]->load( path ) )
     {
-        if( !this->pal->load( palFilePath ) )
-        {
-            QMessageBox::critical( this, "Error", "Could not load PAL file." );
-            return;
-        }
+        delete this->pals[path];
+        this->pals.remove( path );
+        QMessageBox::critical( this, "Error", "Could not load PAL file." );
+        return;
     }
 
-    this->trn1->refreshResultingPalette();
-    this->trn2->refreshResultingPalette();
-
-    // Add file name and file path to the PaletteWidget
-    QFileInfo palFileInfo( this->pal->getFilePath() );
-    this->palWidget->addPath( palFileInfo.absoluteFilePath(), palFileInfo.fileName() );
-    this->palWidget->refresh();
+    this->palWidget->addPath( path, name );
+    this->palWidget->selectPath( path );
 }
 
 void MainWindow::on_actionSave_PAL_triggered()
@@ -466,10 +473,18 @@ void MainWindow::on_actionSave_PAL_as_triggered()
         }
     }
 
-    // Add file name and file path to the PaletteWidget
-    QFileInfo palFileInfo( this->pal->getFilePath() );
-    this->palWidget->addPath( palFileInfo.absoluteFilePath(), palFileInfo.fileName() );
-    this->palWidget->refresh();
+    QFileInfo palFileInfo( palFilePath );
+    QString path = palFileInfo.absoluteFilePath();
+    QString name = palFileInfo.fileName();
+
+    if( this->pals.contains(path) )
+        delete this->pals[path];
+
+    this->pals[path] = new D1Pal( path );
+    this->pal = this->pals[path];
+
+    this->palWidget->addPath( path, name );
+    this->palWidget->selectPath( path );
 }
 
 void MainWindow::on_actionOpen_Translation_1_triggered()
@@ -477,22 +492,25 @@ void MainWindow::on_actionOpen_Translation_1_triggered()
     QString trnFilePath = QFileDialog::getOpenFileName(
         this, "Load Palette Translation File", QString(), "TRN Files (*.trn)" );
 
-    if( !trnFilePath.isEmpty() )
+    if( trnFilePath.isEmpty() )
+        return;
+
+    QFileInfo trnFileInfo( trnFilePath );
+    QString path = trnFileInfo.absoluteFilePath();
+    QString name = trnFileInfo.fileName();
+
+    this->trn1s[path] = new D1Trn();
+    this->trn1s[path]->setPalette( this->pal );
+    if( !this->trn1s[path]->load( path ) )
     {
-        if( !this->trn1->load( trnFilePath ) )
-        {
-            QMessageBox::critical( this, "Error", "Could not load TRN file." );
-            return;
-        }
+        delete this->trn1s[path];
+        this->trn1s.remove( path );
+        QMessageBox::critical( this, "Error", "Could not load TRN file." );
+        return;
     }
 
-    this->trn1->refreshResultingPalette();
-    this->trn2->refreshResultingPalette();
-
-    // Add file name and file path to the PaletteWidget
-    QFileInfo trnFileInfo( this->trn1->getFilePath() );
-    this->trn1Widget->addPath( trnFileInfo.absoluteFilePath(), trnFileInfo.fileName() );
-    this->trn1Widget->setSelectedPath( trnFileInfo.fileName() );
+    this->trn1Widget->addPath( path, name );
+    this->trn1Widget->selectPath( path );
 }
 
 void MainWindow::on_actionOpen_Translation_2_triggered()
@@ -500,21 +518,25 @@ void MainWindow::on_actionOpen_Translation_2_triggered()
     QString trnFilePath = QFileDialog::getOpenFileName(
         this, "Load Palette Translation File", QString(), "TRN Files (*.trn)" );
 
-    if( !trnFilePath.isEmpty() )
+    if( trnFilePath.isEmpty() )
+        return;
+
+    QFileInfo trnFileInfo( trnFilePath );
+    QString path = trnFileInfo.absoluteFilePath();
+    QString name = trnFileInfo.fileName();
+
+    this->trn2s[path] = new D1Trn();
+    this->trn2s[path]->setPalette( this->pal );
+    if( !this->trn2s[path]->load( path ) )
     {
-        if( !this->trn2->load( trnFilePath ) )
-        {
-            QMessageBox::critical( this, "Error", "Could not load TRN file." );
-            return;
-        }
+        delete this->trn2s[path];
+        this->trn2s.remove( path );
+        QMessageBox::critical( this, "Error", "Could not load TRN file." );
+        return;
     }
 
-    this->trn2->refreshResultingPalette();
-
-    // Add file name and file path to the PaletteWidget
-    QFileInfo trnFileInfo( this->trn2->getFilePath() );
-    this->trn2Widget->addPath( trnFileInfo.absoluteFilePath(), trnFileInfo.fileName() );
-    this->trn2Widget->setSelectedPath( trnFileInfo.fileName() );
+    this->trn2Widget->addPath( path, name );
+    this->trn2Widget->selectPath( path );
 }
 
 void MainWindow::on_actionReset_PAL_triggered()
