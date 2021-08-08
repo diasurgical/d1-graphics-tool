@@ -507,6 +507,11 @@ void MainWindow::on_actionClose_PAL_triggered()
     this->palWidget->selectPath( ":/default.pal" );
 }
 
+void MainWindow::on_actionNew_Translation_1_triggered()
+{
+
+}
+
 void MainWindow::on_actionOpen_Translation_1_triggered()
 {
     QString trnFilePath = QFileDialog::getOpenFileName(
@@ -533,6 +538,26 @@ void MainWindow::on_actionOpen_Translation_1_triggered()
     this->trn1Widget->selectPath( path );
 }
 
+void MainWindow::on_actionSave_Translation_1_triggered()
+{
+
+}
+
+void MainWindow::on_actionSave_Translation_1_as_triggered()
+{
+
+}
+
+void MainWindow::on_actionClose_Translation_1_triggered()
+{
+
+}
+
+void MainWindow::on_actionNew_Translation_2_triggered()
+{
+
+}
+
 void MainWindow::on_actionOpen_Translation_2_triggered()
 {
     QString trnFilePath = QFileDialog::getOpenFileName(
@@ -557,6 +582,21 @@ void MainWindow::on_actionOpen_Translation_2_triggered()
 
     this->trn2Widget->addPath( path, name );
     this->trn2Widget->selectPath( path );
+}
+
+void MainWindow::on_actionSave_Translation_2_triggered()
+{
+
+}
+
+void MainWindow::on_actionSave_Translation_2_as_triggered()
+{
+
+}
+
+void MainWindow::on_actionClose_Translation_2_triggered()
+{
+
 }
 
 void MainWindow::on_actionAbout_triggered()

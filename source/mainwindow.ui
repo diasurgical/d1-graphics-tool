@@ -163,13 +163,18 @@
     <addaction name="actionSave_PAL_as"/>
     <addaction name="actionClose_PAL"/>
     <addaction name="separator"/>
+    <addaction name="actionNew_Translation_2"/>
     <addaction name="actionOpen_Translation_2"/>
-    <addaction name="actionSave_translation_2"/>
-    <addaction name="actionSave_translation_2_as"/>
+    <addaction name="actionSave_Translation_2"/>
+    <addaction name="actionSave_Translation_2_as"/>
+    <addaction name="actionClose_Translation_2"/>
     <addaction name="separator"/>
+    <addaction name="actionNew_Translation_1"/>
     <addaction name="actionOpen_Translation_1"/>
-    <addaction name="actionSave_translation_1"/>
-    <addaction name="actionSave_translation_1_as"/>
+    <addaction name="actionSave_Translation_1"/>
+    <addaction name="actionSave_Translation_1_as"/>
+    <addaction name="actionClose_Translation_1"/>
+    <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuPalette"/>
@@ -239,19 +244,6 @@
     <string>Ctrl+U</string>
    </property>
   </action>
-  <action name="actionReset_PAL">
-   <property name="text">
-    <string>Reset palette</string>
-   </property>
-  </action>
-  <action name="actionReset_Translation_1">
-   <property name="text">
-    <string>Reset unique translation</string>
-   </property>
-   <property name="toolTip">
-    <string>Reset unique translation</string>
-   </property>
-  </action>
   <action name="actionOpen_Translation_2">
    <property name="text">
     <string>Open translation...</string>
@@ -261,14 +253,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
-   </property>
-  </action>
-  <action name="actionReset_Translation_2">
-   <property name="text">
-    <string>Reset translation</string>
-   </property>
-   <property name="toolTip">
-    <string>Reset translation</string>
    </property>
   </action>
   <action name="actionExport">
@@ -297,22 +281,22 @@
     <string>Save palette as...</string>
    </property>
   </action>
-  <action name="actionSave_translation_2">
+  <action name="actionSave_Translation_2">
    <property name="text">
     <string>Save translation</string>
    </property>
   </action>
-  <action name="actionSave_translation_2_as">
+  <action name="actionSave_Translation_2_as">
    <property name="text">
     <string>Save translation as...</string>
    </property>
   </action>
-  <action name="actionSave_translation_1">
+  <action name="actionSave_Translation_1">
    <property name="text">
     <string>Save unique translation</string>
    </property>
   </action>
-  <action name="actionSave_translation_1_as">
+  <action name="actionSave_Translation_1_as">
    <property name="text">
     <string>Save unique translation as...</string>
    </property>
@@ -325,6 +309,26 @@
   <action name="actionClose_PAL">
    <property name="text">
     <string>Close palette</string>
+   </property>
+  </action>
+  <action name="actionClose_Translation_2">
+   <property name="text">
+    <string>Close translation</string>
+   </property>
+  </action>
+  <action name="actionClose_Translation_1">
+   <property name="text">
+    <string>Close unique translation</string>
+   </property>
+  </action>
+  <action name="actionNew_Translation_2">
+   <property name="text">
+    <string>New translation</string>
+   </property>
+  </action>
+  <action name="actionNew_Translation_1">
+   <property name="text">
+    <string>New unique translation</string>
    </property>
   </action>
  </widget>
