@@ -19,6 +19,7 @@ MainWindow::MainWindow( QWidget *parent ) :
     //QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling, true );
 
     ui->setupUi( this );
+    this->ui->menuPalette->setEnabled( false );
 
     this->loadConfiguration();
 }
