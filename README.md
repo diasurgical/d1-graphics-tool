@@ -8,7 +8,7 @@ The tool now also supports PAL/TRN editing.
 
 ![Screenshot 1](/images/screenshot001.png)
 
-This tool is written using Qt Framework 6.1.2 and can be compiled on Windows, Linux and macOS.  
+This tool is cross-platform, it can be compiled on Windows, Linux, or macOS (using Qt Framework 6.1.2).  
 Go to the [releases page](https://github.com/savagesteel/d1-graphics-tool/releases) to download the latest build.
 
 ## Features
@@ -17,9 +17,6 @@ Go to the [releases page](https://github.com/savagesteel/d1-graphics-tool/releas
 - PAL/TRN support (read/write).
 - Palette hits and palette translation hits display.
 - Bitmap and PNG export in multiple files or tiled file.
-
-## Documentation
-
 
 ## Acknowledgements
 I would like to thank anyone who contributed to the development, bug reporting or testing of this tool.
