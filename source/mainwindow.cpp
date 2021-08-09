@@ -59,6 +59,7 @@ void MainWindow::setPal( QString path )
 void MainWindow::setTrn1( QString path )
 {
     this->trn1 = this->trn1s[path];
+    this->trn1->setPalette( this->pal );
     this->trn1->refreshResultingPalette();
     this->trn2->setPalette( this->trn1->getResultingPalette() );
     this->trn2->refreshResultingPalette();
@@ -69,6 +70,7 @@ void MainWindow::setTrn1( QString path )
 void MainWindow::setTrn2( QString path )
 {
     this->trn2 = this->trn2s[path];
+    this->trn2->setPalette( this->trn1->getResultingPalette() );
     this->trn2->refreshResultingPalette();
 
     this->cel->setPalette( this->trn2->getResultingPalette() );
@@ -396,7 +398,7 @@ void MainWindow::on_actionQuit_triggered()
 void MainWindow::on_actionNew_PAL_triggered()
 {
     QString palFilePath = QFileDialog::getSaveFileName(
-        this, "Save palette file as...", QString(), "PAL Files (*.pal)" );
+        this, "New palette file", QString(), "PAL Files (*.pal)" );
 
     if( palFilePath.isEmpty() )
         return;
@@ -498,7 +500,7 @@ void MainWindow::on_actionClose_PAL_triggered()
     if( this->pals.contains( selectedPath ) )
     {
         delete this->pals[selectedPath];
-        this->pals.remove(selectedPath);
+        this->pals.remove( selectedPath );
     }
 
     this->pal = this->pals[":/default.pal"];
@@ -509,7 +511,29 @@ void MainWindow::on_actionClose_PAL_triggered()
 
 void MainWindow::on_actionNew_Translation_1_triggered()
 {
+    QString trnFilePath = QFileDialog::getSaveFileName(
+        this, "New translation", QString(), "TRN Files (*.trn)" );
 
+    if( trnFilePath.isEmpty() )
+        return;
+
+    QFileInfo trnFileInfo( trnFilePath );
+    QString path = trnFileInfo.absoluteFilePath();
+    QString name = trnFileInfo.fileName();
+
+    this->trn1s[path] = new D1Trn();
+    this->trn1s[path]->setPalette( this->pal );
+    if( !this->trn1s[path]->load( ":/null.trn" ) )
+    {
+        delete this->trn1s[path];
+        this->trn1s.remove( path );
+        QMessageBox::critical( this, "Error", "Could not load TRN file." );
+        return;
+    }
+    this->trn1s[path]->save( path );
+
+    this->trn1Widget->addPath( path, name );
+    this->trn1Widget->selectPath( path );
 }
 
 void MainWindow::on_actionOpen_Translation_1_triggered()
@@ -540,22 +564,92 @@ void MainWindow::on_actionOpen_Translation_1_triggered()
 
 void MainWindow::on_actionSave_Translation_1_triggered()
 {
-
+    QString selectedPath = this->trn1Widget->getSelectedPath();
+    if( selectedPath.startsWith(":/") || selectedPath.isEmpty() )
+    {
+        this->on_actionSave_Translation_1_as_triggered();
+    }
+    else
+    {
+        if( !this->trn1->save( selectedPath ) )
+        {
+            QMessageBox::critical( this, "Error", "Could not save TRN file." );
+            return;
+        }
+    }
 }
 
 void MainWindow::on_actionSave_Translation_1_as_triggered()
 {
+    QString trnFilePath = QFileDialog::getSaveFileName(
+        this, "Save translation file as...", QString(), "TRN Files (*.trn)" );
 
+    if( !trnFilePath.isEmpty() )
+    {
+        if( !this->trn1->save( trnFilePath ) )
+        {
+            QMessageBox::critical( this, "Error", "Could not save TRN file." );
+            return;
+        }
+    }
+
+    QFileInfo trnFileInfo( trnFilePath );
+    QString path = trnFileInfo.absoluteFilePath();
+    QString name = trnFileInfo.fileName();
+
+    if( this->trn1s.contains(path) )
+        delete this->trn1s[path];
+
+    this->trn1s[path] = new D1Trn( path, this->pal );
+    this->trn1 = this->trn1s[path];
+
+    this->trn1Widget->addPath( path, name );
+    this->trn1Widget->selectPath( path );
 }
 
 void MainWindow::on_actionClose_Translation_1_triggered()
 {
+    QString selectedPath = this->trn1Widget->getSelectedPath();
+    if( selectedPath.startsWith(":/") || selectedPath.isEmpty() )
+        return;
 
+    if( this->trn1s.contains( selectedPath ) )
+    {
+        delete this->trn1s[selectedPath];
+        this->trn1s.remove( selectedPath );
+    }
+
+    this->trn1 = this->trn1s[":/null.trn"];
+
+    this->trn1Widget->removePath( selectedPath );
+    this->trn1Widget->selectPath( ":/null.trn" );
 }
 
 void MainWindow::on_actionNew_Translation_2_triggered()
 {
+    QString trnFilePath = QFileDialog::getSaveFileName(
+        this, "New translation", QString(), "TRN Files (*.trn)" );
 
+    if( trnFilePath.isEmpty() )
+        return;
+
+    QFileInfo trnFileInfo( trnFilePath );
+    QString path = trnFileInfo.absoluteFilePath();
+    QString name = trnFileInfo.fileName();
+
+    this->trn2s[path] = new D1Trn();
+    this->trn2s[path]->setPalette( this->trn1->getResultingPalette() );
+    if( !this->trn2s[path]->load( ":/null.trn" ) )
+    {
+        delete this->trn2s[path];
+        this->trn2s.remove( path );
+        QMessageBox::critical( this, "Error", "Could not load TRN file." );
+        return;
+    }
+    this->trn2s[path]->save( path );
+
+    this->trn2Widget->addPath( path, name );
+    this->trn2Widget->selectPath( path );
 }
 
 void MainWindow::on_actionOpen_Translation_2_triggered()
@@ -586,17 +680,65 @@ void MainWindow::on_actionOpen_Translation_2_triggered()
 
 void MainWindow::on_actionSave_Translation_2_triggered()
 {
-
+    QString selectedPath = this->trn2Widget->getSelectedPath();
+    if( selectedPath.startsWith(":/") || selectedPath.isEmpty() )
+    {
+        this->on_actionSave_Translation_2_as_triggered();
+    }
+    else
+    {
+        if( !this->trn2->save( selectedPath ) )
+        {
+            QMessageBox::critical( this, "Error", "Could not save TRN file." );
+            return;
+        }
+    }
 }
 
 void MainWindow::on_actionSave_Translation_2_as_triggered()
 {
+    QString trnFilePath = QFileDialog::getSaveFileName(
+        this, "Save translation file as...", QString(), "TRN Files (*.trn)" );
 
+    if( !trnFilePath.isEmpty() )
+    {
+        if( !this->trn2->save( trnFilePath ) )
+        {
+            QMessageBox::critical( this, "Error", "Could not save TRN file." );
+            return;
+        }
+    }
+
+    QFileInfo trnFileInfo( trnFilePath );
+    QString path = trnFileInfo.absoluteFilePath();
+    QString name = trnFileInfo.fileName();
+
+    if( this->trn2s.contains(path) )
+        delete this->trn2s[path];
+
+    this->trn2s[path] = new D1Trn( path, this->trn1->getResultingPalette() );
+    this->trn2 = this->trn2s[path];
+
+    this->trn2Widget->addPath( path, name );
+    this->trn2Widget->selectPath( path );
 }
 
 void MainWindow::on_actionClose_Translation_2_triggered()
 {
+    QString selectedPath = this->trn2Widget->getSelectedPath();
+    if( selectedPath.startsWith(":/") || selectedPath.isEmpty() )
+        return;
 
+    if( this->trn2s.contains( selectedPath ) )
+    {
+        delete this->trn2s[selectedPath];
+        this->trn2s.remove( selectedPath );
+    }
+
+    this->trn2 = this->trn1s[":/null.trn"];
+
+    this->trn2Widget->removePath( selectedPath );
+    this->trn2Widget->selectPath( ":/null.trn" );
 }
 
 void MainWindow::on_actionAbout_triggered()
