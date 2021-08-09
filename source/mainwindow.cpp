@@ -179,8 +179,12 @@ void MainWindow::on_actionOpen_triggered()
             QObject::connect( this->trn1Widget, &PaletteWidget::colorSelected, this->trn2Widget, &PaletteWidget::checkTranslationSelection );
             QObject::connect( this->trn1Widget, &PaletteWidget::displayRootInformation, this->palWidget, &PaletteWidget::displayInfo );
             QObject::connect( this->trn2Widget, &PaletteWidget::displayRootInformation, this->trn1Widget, &PaletteWidget::displayInfo );
+            QObject::connect( this->trn1Widget, &PaletteWidget::displayRootBorder, this->palWidget, &PaletteWidget::displayBorder );
+            QObject::connect( this->trn2Widget, &PaletteWidget::displayRootBorder, this->trn1Widget, &PaletteWidget::displayBorder );
             QObject::connect( this->trn1Widget, &PaletteWidget::clearRootInformation, this->palWidget, &PaletteWidget::clearInfo );
             QObject::connect( this->trn2Widget, &PaletteWidget::clearRootInformation, this->trn1Widget, &PaletteWidget::clearInfo );
+            QObject::connect( this->trn1Widget, &PaletteWidget::clearRootBorder, this->palWidget, &PaletteWidget::clearBorder );
+            QObject::connect( this->trn2Widget, &PaletteWidget::clearRootBorder, this->trn1Widget, &PaletteWidget::clearBorder );
 
             // Look for all palettes in the same folder as the CEL/CL2 file
             QFileInfo celFileInfo( openFilePath );

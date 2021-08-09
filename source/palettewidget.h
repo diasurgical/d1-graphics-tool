@@ -68,6 +68,8 @@ public:
     void displaySelection();
     void displayInfo( QString );
     void clearInfo();
+    void displayBorder();
+    void clearBorder();
 
     void refreshPathComboBox();
     void refreshColorLineEdit();
@@ -81,6 +83,8 @@ signals:
     void colorSelected( quint8 );
     void displayRootInformation( QString );
     void clearRootInformation();
+    void displayRootBorder();
+    void clearRootBorder();
     void modified();
     void refreshed();
 

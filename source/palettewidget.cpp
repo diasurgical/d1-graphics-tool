@@ -176,6 +176,7 @@ void PaletteWidget::selectColor( quint8 index )
         {
             this->clearInfo();
             emit this->clearRootInformation();
+            emit this->clearRootBorder();
             this->selectingTranslationColor = false;
         }
     }
@@ -198,6 +199,7 @@ void PaletteWidget::checkTranslationSelection( quint8 index )
     this->clearInfo();
 
     emit this->clearRootInformation();
+    emit this->clearRootBorder();
 }
 
 QString PaletteWidget::getPath( QString name )
@@ -384,6 +386,16 @@ void PaletteWidget::clearInfo()
     this->ui->informationLabel->clear();
 }
 
+void PaletteWidget::displayBorder()
+{
+    this->ui->graphicsView->setStyleSheet("color: rgb(255, 0, 0);");
+}
+
+void PaletteWidget::clearBorder()
+{
+    this->ui->graphicsView->setStyleSheet("color: rgb(255, 255, 255);");
+}
+
 void PaletteWidget::refreshPathComboBox()
 {
     // This boolean is used to avoid infinite loop when adding items to the combo box
@@ -525,11 +537,13 @@ void PaletteWidget::on_indexPickPushButton_clicked()
 {
     this->selectingTranslationColor = true;
 
+/*
     if( ui->groupBox->title() == "Translation" )
         this->displayInfo( "Select translated color in Unique translation group box." );
 
     if( ui->groupBox->title() == "Unique translation" )
         this->displayInfo( "Select translated color in Palette group box." );
-
-    emit this->displayRootInformation( "<<<" );
+*/
+    emit this->displayRootInformation( "<- Select translation" );
+    emit this->displayRootBorder();
 }
