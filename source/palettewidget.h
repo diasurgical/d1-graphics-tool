@@ -132,8 +132,8 @@ public:
 
 signals:
     void pathSelected( QString );
-    void translationsSelected( QList<quint8> );
-    void colorsSelected( QList<QColor> );
+    //void translationsSelected( QList<quint8> );
+    void colorsSelected( QList<quint8> );
 
     void displayAllRootColors();
     void displayRootInformation( QString );

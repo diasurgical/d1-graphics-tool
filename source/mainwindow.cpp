@@ -203,8 +203,8 @@ void MainWindow::on_actionOpen_triggered()
             QObject::connect( this->trn1Widget, &PaletteWidget::refreshed, this->trn2Widget, &PaletteWidget::refresh );
 
             // Translation color selection
-            QObject::connect( this->palWidget, &PaletteWidget::translationsSelected, this->trn1Widget, &PaletteWidget::checkTranslationsSelection );
-            QObject::connect( this->trn1Widget, &PaletteWidget::translationsSelected, this->trn2Widget, &PaletteWidget::checkTranslationsSelection );
+            QObject::connect( this->palWidget, &PaletteWidget::colorsSelected, this->trn1Widget, &PaletteWidget::checkTranslationsSelection );
+            QObject::connect( this->trn1Widget, &PaletteWidget::colorsSelected, this->trn2Widget, &PaletteWidget::checkTranslationsSelection );
             QObject::connect( this->trn1Widget, &PaletteWidget::displayAllRootColors, this->palWidget, &PaletteWidget::temporarilyDisplayAllColors );
             QObject::connect( this->trn2Widget, &PaletteWidget::displayAllRootColors, this->trn1Widget, &PaletteWidget::temporarilyDisplayAllColors );
             QObject::connect( this->trn1Widget, &PaletteWidget::displayRootInformation, this->palWidget, &PaletteWidget::displayInfo );

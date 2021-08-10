@@ -281,20 +281,13 @@ void PaletteWidget::selectColors()
 
     this->temporarilyDisplayingAllColors = false;
 
-    // emit selected colors or translations
-    if( !this->isTrn && !this->pal.isNull() )
+    // emit selected colors
+    if( (!this->isTrn && !this->pal.isNull()) || (this->isTrn && !this->trn.isNull()) )
     {
-        QList<QColor> colors;
+        QList<quint8> indexes;
         for( int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++ )
-            colors.append( this->pal->getColor(i) );
-        emit this->colorsSelected( colors );
-    }
-    else if( this->isTrn && !this->trn.isNull() )
-    {
-        QList<quint8> translations;
-        for( int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++ )
-            translations.append( this->trn->getTranslation(i) );
-        emit this->translationsSelected( translations );
+            indexes.append( i );
+        emit this->colorsSelected( indexes );
     }
 
     this->refresh();
