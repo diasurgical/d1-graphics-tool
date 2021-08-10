@@ -39,7 +39,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow( QWidget *parent = 0 );
+    explicit MainWindow( QWidget *parent = nullptr );
     ~MainWindow();
 
     void setPal( QString );
@@ -47,6 +47,8 @@ public:
     void setTrn2( QString );
 
     void loadConfiguration();
+
+    void pushCommandToUndoStack( QUndoCommand* );
 
 private slots:
     void on_actionOpen_triggered();

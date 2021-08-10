@@ -126,6 +126,11 @@ void MainWindow::loadConfiguration()
     }
 }
 
+void MainWindow::pushCommandToUndoStack( QUndoCommand *cmd )
+{
+    this->undoStack->push( cmd );
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
     QString errorMessage;
@@ -211,6 +216,11 @@ void MainWindow::on_actionOpen_triggered()
             QObject::connect( this->trn1Widget, &PaletteWidget::clearRootBorder, this->palWidget, &PaletteWidget::clearBorder );
             QObject::connect( this->trn2Widget, &PaletteWidget::clearRootBorder, this->trn1Widget, &PaletteWidget::clearBorder );
 
+            // Send editing actions to the undo/redo stack
+            QObject::connect( this->palWidget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
+            QObject::connect( this->trn1Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
+            QObject::connect( this->trn2Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
+            
             // Look for all palettes in the same folder as the CEL/CL2 file
             QFileInfo celFileInfo( openFilePath );
             QDirIterator it( celFileInfo.absolutePath(), QStringList() << "*.pal", QDir::Files );

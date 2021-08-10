@@ -9,6 +9,7 @@
 #include <QComboBox>
 #include <QMouseEvent>
 #include <QColorDialog>
+#include <QUndoCommand>
 
 #include "celview.h"
 #include "levelcelview.h"
@@ -21,9 +22,29 @@
 #define PALETTE_COLOR_SPACING 1
 #define PALETTE_SELECTION_WIDTH 2
 
-namespace Ui {
-class PaletteWidget;
+namespace Ui
+{
+    class PaletteWidget;
+    class EditColorsCommand;
 }
+
+class EditColorsCommand : public QUndoCommand
+{
+public:
+    EditColorsCommand( D1Pal*, quint8, quint8, QColor, QUndoCommand *parent = nullptr );
+    ~EditColorsCommand();
+
+    void undo() override;
+    void redo() override;
+
+private:
+    QPointer<D1Pal> pal;
+    quint8 startColorIndex;
+    quint8 endColorIndex;
+    QList<QColor> initialColors;
+    QColor newColor;
+};
+
 
 class PaletteWidget : public QWidget
 {
@@ -87,6 +108,9 @@ signals:
     void clearRootInformation();
     void displayRootBorder();
     void clearRootBorder();
+
+    void sendEditingCommand( QUndoCommand* );
+
     void modified();
     void refreshed();
 

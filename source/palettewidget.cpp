@@ -1,6 +1,40 @@
 #include "palettewidget.h"
 #include "ui_palettewidget.h"
 
+EditColorsCommand::EditColorsCommand( D1Pal* p, quint8 sci, quint8 eci, QColor nc, QUndoCommand *parent ) :
+    QUndoCommand(parent),
+    pal( p ),
+    startColorIndex( sci ),
+    endColorIndex( eci ),
+    newColor( nc )
+{
+    // Get the initial color values before doing any modification
+    for( int i = startColorIndex; i <= endColorIndex; i++ )
+        initialColors.append( this->pal->getColor(i) );
+
+}
+
+EditColorsCommand::~EditColorsCommand()
+{}
+
+void EditColorsCommand::undo()
+{
+    if( this->pal.isNull() )
+        return;
+
+    for( int i = startColorIndex; i <= endColorIndex; i++ )
+        this->pal->setColor( i, this->initialColors.at(i-this->startColorIndex) );
+}
+
+void EditColorsCommand::redo()
+{
+    if( this->pal.isNull() )
+        return;
+
+    for( int i = startColorIndex; i <= endColorIndex; i++ )
+        this->pal->setColor( i, this->newColor );
+}
+
 PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     QWidget(parent),
     ui(new Ui::PaletteWidget),
@@ -172,6 +206,12 @@ void PaletteWidget::initializeDisplayComboBox()
 void PaletteWidget::selectColor( quint8 index )
 {
     this->selectedColorIndex = index;
+
+    // TODO: remove
+    this->selectedFirstColorIndex = index;
+    this->selectedLastColorIndex = index;
+
+
     this->selectedColor = this->pal->getColor( index );
 
     if( this->isTrn )
@@ -514,8 +554,15 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
 {
     QColor color = QColor( ui->colorLineEdit->text() );
 
+    // TODO: remove this variable
     this->selectedColor = color;
-    this->pal->setColor( this->selectedColorIndex, color );
+
+    EditColorsCommand *command = new EditColorsCommand(
+        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color );
+
+    emit this->sendEditingCommand( command );
+
+    //this->pal->setColor( this->selectedColorIndex, color );
 
     emit this->modified();
 }
