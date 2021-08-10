@@ -18,5 +18,10 @@ Go to the [releases page](https://github.com/savagesteel/d1-graphics-tool/releas
 - Palette hits and palette translation hits display.
 - Bitmap and PNG export in multiple files or tiled file.
 
+## Screenshots
+![Screenshot 1](/images/screenshot002.png)
+![Screenshot 1](/images/screenshot003.png)
+![Screenshot 1](/images/screenshot004.png)
+
 ## Acknowledgements
 I would like to thank anyone who contributed to the development, bug reporting or testing of this tool.

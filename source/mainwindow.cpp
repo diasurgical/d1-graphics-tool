@@ -178,6 +178,8 @@ void MainWindow::on_actionOpen_triggered()
             // Translation color selection
             QObject::connect( this->palWidget, &PaletteWidget::colorSelected, this->trn1Widget, &PaletteWidget::checkTranslationSelection );
             QObject::connect( this->trn1Widget, &PaletteWidget::colorSelected, this->trn2Widget, &PaletteWidget::checkTranslationSelection );
+            QObject::connect( this->trn1Widget, &PaletteWidget::displayAllRootColors, this->palWidget, &PaletteWidget::temporarilyDisplayAllColors );
+            QObject::connect( this->trn2Widget, &PaletteWidget::displayAllRootColors, this->trn1Widget, &PaletteWidget::temporarilyDisplayAllColors );
             QObject::connect( this->trn1Widget, &PaletteWidget::displayRootInformation, this->palWidget, &PaletteWidget::displayInfo );
             QObject::connect( this->trn2Widget, &PaletteWidget::displayRootInformation, this->trn1Widget, &PaletteWidget::displayInfo );
             QObject::connect( this->trn1Widget, &PaletteWidget::displayRootBorder, this->palWidget, &PaletteWidget::displayBorder );

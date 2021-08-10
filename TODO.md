@@ -4,6 +4,7 @@
 1. Implement multi-color selection in palette widgets
 2. Implement undo/redo stack
 3. Show all colors when clicking "Pick" button
+4. Warn about modified files before closing them
 
 ### 0.6.0
 

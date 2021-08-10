@@ -8,7 +8,8 @@ PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     isTrn( false ),
     scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
     selectedColorIndex( 0 ),
-    selectingTranslationColor( false ),
+    pickingTranslationColor( false ),
+    temporarilyDisplayingAllColors( false ),
     buildingPathComboBox( false )
 {
     ui->setupUi(this);
@@ -172,14 +173,16 @@ void PaletteWidget::selectColor( quint8 index )
     {
         this->selectedTranslationIndex = this->trn->getTranslation( index );
 
-        if( this->selectingTranslationColor )
+        if( this->pickingTranslationColor )
         {
             this->clearInfo();
             emit this->clearRootInformation();
             emit this->clearRootBorder();
-            this->selectingTranslationColor = false;
+            this->pickingTranslationColor = false;
         }
     }
+
+    this->temporarilyDisplayingAllColors = false;
 
     this->refresh();
     emit colorSelected( index );
@@ -187,7 +190,7 @@ void PaletteWidget::selectColor( quint8 index )
 
 void PaletteWidget::checkTranslationSelection( quint8 index )
 {
-    if( !this->selectingTranslationColor )
+    if( !this->pickingTranslationColor )
         return;
 
     this->selectedTranslationIndex = index;
@@ -195,7 +198,7 @@ void PaletteWidget::checkTranslationSelection( quint8 index )
 
     emit this->modified();
 
-    this->selectingTranslationColor = false;
+    this->pickingTranslationColor = false;
     this->clearInfo();
 
     emit this->clearRootInformation();
@@ -333,8 +336,11 @@ void PaletteWidget::displayColors()
         // Check palette display filter
         displayColor = true;
         indexHits = 0;
-        if( this->palHits->getMode() == D1PALHITS_MODE::ALL_COLORS
-            || this->palHits->getMode() == D1PALHITS_MODE::ALL_FRAMES )
+
+        // if user just click "Pick" button to select color in parent palette or translation, display all colors
+        if( this->temporarilyDisplayingAllColors || this->palHits->getMode() == D1PALHITS_MODE::ALL_COLORS )
+            indexHits = 1;
+        else if( this->palHits->getMode() == D1PALHITS_MODE::ALL_FRAMES )
             indexHits = this->palHits->getIndexHits(i);
         else if( this->palHits->getMode() == D1PALHITS_MODE::CURRENT_TILE )
             indexHits = this->palHits->getIndexHits( i, this->levelCelView->getCurrentTileIndex() );
@@ -374,6 +380,12 @@ void PaletteWidget::displaySelection()
     coordinates.adjust( a, a, -a, -a );
 
     this->scene->addRect( coordinates, pen, brush );
+}
+
+void PaletteWidget::temporarilyDisplayAllColors()
+{
+    this->temporarilyDisplayingAllColors = true;
+    this->displayColors();
 }
 
 void PaletteWidget::displayInfo( QString info )
@@ -535,15 +547,9 @@ void PaletteWidget::on_indexResetPushButton_clicked()
 
 void PaletteWidget::on_indexPickPushButton_clicked()
 {
-    this->selectingTranslationColor = true;
+    this->pickingTranslationColor = true;
 
-/*
-    if( ui->groupBox->title() == "Translation" )
-        this->displayInfo( "Select translated color in Unique translation group box." );
-
-    if( ui->groupBox->title() == "Unique translation" )
-        this->displayInfo( "Select translated color in Palette group box." );
-*/
+    emit this->displayAllRootColors();
     emit this->displayRootInformation( "<- Select translation" );
     emit this->displayRootBorder();
 }

@@ -66,6 +66,7 @@ public:
     // Display functions
     void displayColors();
     void displaySelection();
+    void temporarilyDisplayAllColors();
     void displayInfo( QString );
     void clearInfo();
     void displayBorder();
@@ -81,6 +82,7 @@ public:
 signals:
     void pathSelected( QString );
     void colorSelected( quint8 );
+    void displayAllRootColors();
     void displayRootInformation( QString );
     void clearRootInformation();
     void displayRootBorder();
@@ -111,7 +113,8 @@ private:
     QColor selectedColor;
     quint8 selectedTranslationIndex;
 
-    bool selectingTranslationColor;
+    bool pickingTranslationColor;
+    bool temporarilyDisplayingAllColors;
 
     D1Pal *pal;
     D1Trn *trn;
