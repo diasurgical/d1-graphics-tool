@@ -401,25 +401,34 @@ bool PaletteWidget::eventFilter( QObject *obj, QEvent *event )
         quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
 
         this->selectedFirstColorIndex = colorIndex;
+        this->selectedLastColorIndex = colorIndex;
 
-        //this->selectColor( colorIndex );
-        
         return true;
     }
     if( event->type() == QEvent::MouseMove )
     {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
+
+        this->selectedLastColorIndex = colorIndex;
+
+        // Note: this is swapping the two selection indexes if the user is selecting backwards
+        this->refreshIndexLineEdit();
+
+        this->displayColors();
+        this->displaySelection();
 
         return true;
     }
     if( event->type() == QEvent::MouseButtonRelease )
     {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        qDebug() << "MouseButtonRelease: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
+        //QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        //qDebug() << "MouseButtonRelease: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
 
         // Check if selected color has changed
-        quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
+        //quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
 
-        this->selectedLastColorIndex = colorIndex;
+        //this->selectedLastColorIndex = colorIndex;
         this->selectColors();
 
         return true;
@@ -518,11 +527,31 @@ void PaletteWidget::displaySelection()
     pen.setJoinStyle( Qt::MiterJoin );
     pen.setWidth( PALETTE_SELECTION_WIDTH );
 
-    QRectF coordinates = getColorCoordinates( this->selectedFirstColorIndex );
-    int a = PALETTE_SELECTION_WIDTH/2;
-    coordinates.adjust( a, a, -a, -a );
+    for( int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++ )
+    {
+        QRectF coordinates = getColorCoordinates( i );
+        int a = PALETTE_SELECTION_WIDTH/2;
+        coordinates.adjust( a, a, -a, -a );
 
-    this->scene->addRect( coordinates, pen, brush );
+
+        // left line
+        if( i == this->selectedFirstColorIndex )
+            this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y(),
+                coordinates.topLeft().x(), coordinates.topLeft().y(), pen );
+
+        // right line
+        if( i == this->selectedLastColorIndex )
+            this->scene->addLine( coordinates.topRight().x(), coordinates.topRight().y(),
+                coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
+
+        // top line
+        this->scene->addLine( coordinates.topLeft().x(), coordinates.topLeft().y(),
+            coordinates.topRight().x(), coordinates.topRight().y(), pen );
+
+        // bottom line
+        this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y(),
+            coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
+    }
 }
 
 void PaletteWidget::temporarilyDisplayAllColors()
