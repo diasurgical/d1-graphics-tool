@@ -26,6 +26,7 @@ namespace Ui
 {
     class PaletteWidget;
     class EditColorsCommand;
+    class EditTranslationsCommand;
 }
 
 class EditColorsCommand : public QObject, public QUndoCommand
@@ -50,6 +51,27 @@ private:
     QColor newColor;
 };
 
+class EditTranslationsCommand : public QObject, public QUndoCommand
+{
+    Q_OBJECT
+
+public:
+    explicit EditTranslationsCommand( D1Trn*, quint8, quint8, quint8, QUndoCommand *parent = nullptr );
+    ~EditTranslationsCommand();
+
+    void undo() override;
+    void redo() override;
+
+signals:
+    void modified();
+
+private:
+    QPointer<D1Trn> trn;
+    quint8 startColorIndex;
+    quint8 endColorIndex;
+    QList<quint8> initialTranslations;
+    quint8 newTranslation;
+};
 
 class PaletteWidget : public QWidget
 {
@@ -126,7 +148,6 @@ private slots:
     void on_colorLineEdit_returnPressed();
     void on_colorPickPushButton_clicked();
     void on_translationIndexLineEdit_returnPressed();
-    void on_indexResetPushButton_clicked();
     void on_indexPickPushButton_clicked();
 
 private:
@@ -140,9 +161,10 @@ private:
     QGraphicsScene *scene;
 
     quint8 selectedColorIndex;
+    quint8 selectedTranslationIndex;
+
     quint8 selectedFirstColorIndex;
     quint8 selectedLastColorIndex;
-    quint8 selectedTranslationIndex;
     quint8 selectedFirstTranslationIndex;
     quint8 selectedLastTranslationIndex;
 
