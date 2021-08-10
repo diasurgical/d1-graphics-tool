@@ -10,6 +10,8 @@
 #include <QTextStream>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QUndoStack>
+#include <QUndoCommand>
 
 #include "d1pal.h"
 #include "d1trn.h"
@@ -77,6 +79,10 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QJsonObject *configuration;
+
+    QUndoStack *undoStack;
+    QAction *undoAction;
+    QAction *redoAction;
 
     QPointer<CelView> celView;
     QPointer<LevelCelView> levelCelView;

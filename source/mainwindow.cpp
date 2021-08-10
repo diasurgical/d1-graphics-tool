@@ -19,6 +19,16 @@ MainWindow::MainWindow( QWidget *parent ) :
     //QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling, true );
 
     ui->setupUi( this );
+
+    // Initialize undo/redo
+    this->undoStack = new QUndoStack( this );
+    this->undoAction = undoStack->createUndoAction( this, "Undo" );
+    this->undoAction->setShortcuts( QKeySequence::Undo );
+    this->redoAction = undoStack->createRedoAction( this, "Redo" );
+    this->redoAction->setShortcuts( QKeySequence::Redo );
+    this->ui->menuEdit->addAction( this->undoAction );
+    this->ui->menuEdit->addAction( this->redoAction );
+
     this->ui->menuPalette->setEnabled( false );
 
     this->loadConfiguration();
@@ -27,6 +37,15 @@ MainWindow::MainWindow( QWidget *parent ) :
 MainWindow::~MainWindow()
 {
     delete ui;
+
+    if( this->undoStack )
+        delete this->undoStack;
+
+    if( this->undoAction )
+        delete this->undoAction;
+
+    if( this->redoAction )
+        delete this->redoAction;
 
     if( this->pal )
         delete this->pal;
@@ -45,6 +64,9 @@ MainWindow::~MainWindow()
 
     if( this->til )
         delete this->til;
+
+    if( this->palHits )
+        delete this->palHits;
 }
 
 void MainWindow::setPal( QString path )

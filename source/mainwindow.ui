@@ -176,7 +176,13 @@
     <addaction name="actionClose_Translation_1"/>
     <addaction name="separator"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuPalette"/>
    <addaction name="menuHelp"/>
   </widget>

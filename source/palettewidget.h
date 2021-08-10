@@ -110,8 +110,12 @@ private:
     QGraphicsScene *scene;
 
     quint8 selectedColorIndex;
+    quint8 selectedFirstColorIndex;
+    quint8 selectedLastColorIndex;
     QColor selectedColor;
     quint8 selectedTranslationIndex;
+    quint8 selectedFirstTranslationIndex;
+    quint8 selectedLastTranslationIndex;
 
     bool pickingTranslationColor;
     bool temporarilyDisplayingAllColors;

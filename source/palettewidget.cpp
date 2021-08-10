@@ -8,6 +8,11 @@ PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     isTrn( false ),
     scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
     selectedColorIndex( 0 ),
+    selectedFirstColorIndex( 0 ),
+    selectedLastColorIndex( 0 ),
+    selectedTranslationIndex( 0 ),
+    selectedFirstTranslationIndex( 0 ),
+    selectedLastTranslationIndex( 0 ),
     pickingTranslationColor( false ),
     temporarilyDisplayingAllColors( false ),
     buildingPathComboBox( false )
