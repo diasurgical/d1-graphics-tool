@@ -56,7 +56,7 @@ class EditTranslationsCommand : public QObject, public QUndoCommand
     Q_OBJECT
 
 public:
-    explicit EditTranslationsCommand( D1Trn*, quint8, quint8, quint8, QUndoCommand *parent = nullptr );
+    explicit EditTranslationsCommand( D1Trn*, quint8, quint8, QList<quint8>, QUndoCommand *parent = nullptr );
     ~EditTranslationsCommand();
 
     void undo() override;
@@ -70,7 +70,7 @@ private:
     quint8 startColorIndex;
     quint8 endColorIndex;
     QList<quint8> initialTranslations;
-    quint8 newTranslation;
+    QList<quint8> newTranslations;
 };
 
 class PaletteWidget : public QWidget
@@ -95,7 +95,9 @@ public:
     void initializeDisplayComboBox();
 
     void selectColor( quint8 );
+    void selectColors();
     void checkTranslationSelection( quint8 );
+    void checkTranslationsSelection( QList<quint8> );
 
     QString getPath( QString );
     void setPath( QString, QString );
@@ -130,7 +132,9 @@ public:
 
 signals:
     void pathSelected( QString );
-    void colorSelected( quint8 );
+    void translationsSelected( QList<quint8> );
+    void colorsSelected( QList<QColor> );
+
     void displayAllRootColors();
     void displayRootInformation( QString );
     void clearRootInformation();
@@ -160,9 +164,6 @@ private:
 
     QGraphicsScene *scene;
 
-    quint8 selectedColorIndex;
-    quint8 selectedTranslationIndex;
-
     quint8 selectedFirstColorIndex;
     quint8 selectedLastColorIndex;
     quint8 selectedFirstTranslationIndex;
@@ -171,8 +172,8 @@ private:
     bool pickingTranslationColor;
     bool temporarilyDisplayingAllColors;
 
-    D1Pal *pal;
-    D1Trn *trn;
+    QPointer<D1Pal> pal;
+    QPointer<D1Trn> trn;
 
     D1PalHits *palHits;
 

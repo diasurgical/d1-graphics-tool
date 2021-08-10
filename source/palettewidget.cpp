@@ -44,12 +44,12 @@ void EditColorsCommand::redo()
     emit this->modified();
 }
 
-EditTranslationsCommand::EditTranslationsCommand( D1Trn *t, quint8 sci, quint8 eci, quint8 nt, QUndoCommand *parent ) :
+EditTranslationsCommand::EditTranslationsCommand( D1Trn *t, quint8 sci, quint8 eci, QList<quint8> nt, QUndoCommand *parent ) :
     QUndoCommand(parent),
     trn( t ),
     startColorIndex( sci ),
     endColorIndex( eci ),
-    newTranslation( nt )
+    newTranslations( nt )
 {
     // Get the initial color values before doing any modification
     for( int i = startColorIndex; i <= endColorIndex; i++ )
@@ -82,7 +82,7 @@ void EditTranslationsCommand::redo()
     }
 
     for( int i = startColorIndex; i <= endColorIndex; i++ )
-        this->trn->setTranslation( i, this->newTranslation );
+        this->trn->setTranslation( i, this->newTranslations.at(i-this->startColorIndex) );
 
     emit this->modified();
 }
@@ -93,10 +93,6 @@ PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     isLevelCel( false ),
     isTrn( false ),
     scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
-
-    selectedColorIndex( 0 ),
-    selectedTranslationIndex( 0 ),
-
     selectedFirstColorIndex( 0 ),
     selectedLastColorIndex( 0 ),
     selectedFirstTranslationIndex( 0 ),
@@ -124,7 +120,7 @@ PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
         this, &PaletteWidget::displayComboBox_currentTextChanged );
 
     // Install the mouse events filter on the QGraphicsView
-    ui->graphicsView->installEventFilter( this );
+    ui->graphicsView->viewport()->installEventFilter( this );
 }
 
 PaletteWidget::~PaletteWidget()
@@ -202,10 +198,6 @@ void PaletteWidget::initializeUi()
         this->ui->translationLabel->hide();
     }
 
-    if( this->isTrn )
-        this->selectedTranslationIndex = this->trn->getTranslation( 0 );
-
-
     this->initializePathComboBox();
     this->initializeDisplayComboBox();
 
@@ -258,16 +250,26 @@ void PaletteWidget::initializeDisplayComboBox()
 
 void PaletteWidget::selectColor( quint8 index )
 {
-    this->selectedColorIndex = index;
-
-    // TODO: remove
     this->selectedFirstColorIndex = index;
     this->selectedLastColorIndex = index;
 
+    this->temporarilyDisplayingAllColors = false;
+
+    this->refresh();
+}
+
+void PaletteWidget::selectColors()
+{
+    // If second selected color has an index less than the first one swap them
+    if( this->selectedFirstColorIndex > this->selectedLastColorIndex )
+    {
+        quint8 tmp = this->selectedFirstColorIndex;
+        this->selectedFirstColorIndex = this->selectedLastColorIndex;
+        this->selectedLastColorIndex = tmp;
+    }
+
     if( this->isTrn )
     {
-        this->selectedTranslationIndex = this->trn->getTranslation( index );
-
         if( this->pickingTranslationColor )
         {
             this->clearInfo();
@@ -279,23 +281,42 @@ void PaletteWidget::selectColor( quint8 index )
 
     this->temporarilyDisplayingAllColors = false;
 
+    // emit selected colors or translations
+    if( !this->isTrn && !this->pal.isNull() )
+    {
+        QList<QColor> colors;
+        for( int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++ )
+            colors.append( this->pal->getColor(i) );
+        emit this->colorsSelected( colors );
+    }
+    else if( this->isTrn && !this->trn.isNull() )
+    {
+        QList<quint8> translations;
+        for( int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++ )
+            translations.append( this->trn->getTranslation(i) );
+        emit this->translationsSelected( translations );
+    }
+
     this->refresh();
-    emit colorSelected( index );
 }
 
-void PaletteWidget::checkTranslationSelection( quint8 index )
+void PaletteWidget::checkTranslationsSelection( QList<quint8> indexes )
 {
     if( !this->pickingTranslationColor )
         return;
 
+    quint8 selectionLength = this->selectedLastColorIndex-this->selectedFirstColorIndex+1;
+    if( selectionLength != indexes.length() )
+    {
+        QMessageBox::warning( this, "Warning", "Source and target selection length do not match.");
+        return;
+    }
+
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     EditTranslationsCommand* command = new EditTranslationsCommand(
-        this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, index );
+        this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, indexes );
     QObject::connect( command, &EditTranslationsCommand::modified, this, &PaletteWidget::modify );
-
-    // TODO: remove?
-    this->selectedTranslationIndex = index;
 
     emit this->sendEditingCommand( command );
 
@@ -374,12 +395,33 @@ bool PaletteWidget::eventFilter( QObject *obj, QEvent *event )
     if( event->type() == QEvent::MouseButtonPress )
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        qDebug() << "Clicked: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
+        qDebug() << "MouseButtonPress: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
 
         // Check if selected color has changed
         quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
-        this->selectColor( colorIndex );
+
+        this->selectedFirstColorIndex = colorIndex;
+
+        //this->selectColor( colorIndex );
         
+        return true;
+    }
+    if( event->type() == QEvent::MouseMove )
+    {
+
+        return true;
+    }
+    if( event->type() == QEvent::MouseButtonRelease )
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        qDebug() << "MouseButtonRelease: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
+
+        // Check if selected color has changed
+        quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
+
+        this->selectedLastColorIndex = colorIndex;
+        this->selectColors();
+
         return true;
     }
     if( event->type() == QEvent::MouseButtonDblClick )
@@ -476,7 +518,7 @@ void PaletteWidget::displaySelection()
     pen.setJoinStyle( Qt::MiterJoin );
     pen.setWidth( PALETTE_SELECTION_WIDTH );
 
-    QRectF coordinates = getColorCoordinates( selectedColorIndex );
+    QRectF coordinates = getColorCoordinates( this->selectedFirstColorIndex );
     int a = PALETTE_SELECTION_WIDTH/2;
     coordinates.adjust( a, a, -a, -a );
 
@@ -543,18 +585,44 @@ void PaletteWidget::refreshPathComboBox()
 
 void PaletteWidget::refreshColorLineEdit()
 {
-    QColor selectedColor = this->pal->getColor( this->selectedColorIndex );
-    this->ui->colorLineEdit->setText( selectedColor.name() );
+    if( this->selectedFirstColorIndex == this->selectedLastColorIndex )
+    {
+        QColor selectedColor = this->pal->getColor( this->selectedFirstColorIndex );
+        this->ui->colorLineEdit->setText( selectedColor.name() );
+    }
+    else
+    {
+        this->ui->colorLineEdit->setText( "*" );
+    }
 }
 
 void PaletteWidget::refreshIndexLineEdit()
 {
-    this->ui->indexLineEdit->setText( QString::number(selectedColorIndex) );
+    if( this->selectedFirstColorIndex == this->selectedLastColorIndex )
+    {
+        this->ui->indexLineEdit->setText( QString::number(this->selectedFirstColorIndex) );
+    }
+    else
+    {
+        this->ui->indexLineEdit->setText(
+            QString::number(this->selectedFirstColorIndex) + "-" + QString::number(this->selectedLastColorIndex) );
+    }
 }
 
 void PaletteWidget::refreshTranslationIndexLineEdit()
 {
-    this->ui->translationIndexLineEdit->setText( QString::number(selectedTranslationIndex) );
+    if( this->trn.isNull() )
+        return;
+
+    if( this->selectedFirstColorIndex == this->selectedLastColorIndex )
+    {
+        this->ui->translationIndexLineEdit->setText(
+            QString::number( this->trn->getTranslation(this->selectedFirstColorIndex) ) );
+    }
+    else
+    {
+        this->ui->translationIndexLineEdit->setText( "*" );
+    }
 }
 
 void PaletteWidget::refresh()
@@ -567,7 +635,7 @@ void PaletteWidget::refresh()
     this->refreshPathComboBox();
     this->refreshColorLineEdit();
     this->refreshIndexLineEdit();
-    if( this->trn )
+    if( this->isTrn )
         this->refreshTranslationIndexLineEdit();
 
     emit refreshed();
@@ -639,14 +707,14 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
 {
     quint8 index = ui->translationIndexLineEdit->text().toUInt();
 
+    // New translations
+    QList<quint8> newTranslations( this->selectedLastColorIndex-this->selectedFirstColorIndex+1, index );
+
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     EditTranslationsCommand* command = new EditTranslationsCommand(
-        this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, index );
+        this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, newTranslations );
     QObject::connect( command, &EditTranslationsCommand::modified, this, &PaletteWidget::modify );
-
-    // TODO: remove?
-    this->selectedTranslationIndex = index;
 
     emit this->sendEditingCommand( command );
 

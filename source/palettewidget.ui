@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>456</width>
+    <width>494</width>
     <height>265</height>
    </rect>
   </property>
@@ -139,14 +139,20 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>0</height>
+               </size>
+              </property>
               <property name="maximumSize">
                <size>
-                <width>40</width>
+                <width>80</width>
                 <height>40</height>
                </size>
               </property>
               <property name="maxLength">
-               <number>3</number>
+               <number>7</number>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -156,15 +162,15 @@
             <item row="0" column="1" colspan="3">
              <widget class="QLineEdit" name="colorLineEdit">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="maximumSize">
                <size>
-                <width>100</width>
-                <height>100</height>
+                <width>140</width>
+                <height>40</height>
                </size>
               </property>
               <property name="maxLength">
@@ -182,6 +188,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>40</width>
+                <height>0</height>
+               </size>
               </property>
               <property name="maximumSize">
                <size>
