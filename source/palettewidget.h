@@ -28,14 +28,19 @@ namespace Ui
     class EditColorsCommand;
 }
 
-class EditColorsCommand : public QUndoCommand
+class EditColorsCommand : public QObject, public QUndoCommand
 {
+    Q_OBJECT
+
 public:
-    EditColorsCommand( D1Pal*, quint8, quint8, QColor, QUndoCommand *parent = nullptr );
+    explicit EditColorsCommand( D1Pal*, quint8, quint8, QColor, QUndoCommand *parent = nullptr );
     ~EditColorsCommand();
 
     void undo() override;
     void redo() override;
+
+signals:
+    void modified();
 
 private:
     QPointer<D1Pal> pal;
@@ -98,6 +103,7 @@ public:
     void refreshIndexLineEdit();
     void refreshTranslationIndexLineEdit();
 
+    void modify();
     void refresh();
 
 signals:
@@ -136,7 +142,6 @@ private:
     quint8 selectedColorIndex;
     quint8 selectedFirstColorIndex;
     quint8 selectedLastColorIndex;
-    QColor selectedColor;
     quint8 selectedTranslationIndex;
     quint8 selectedFirstTranslationIndex;
     quint8 selectedLastTranslationIndex;

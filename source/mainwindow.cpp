@@ -371,6 +371,8 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionClose_triggered()
 {
+    this->undoStack->clear();
+
     if( this->celView )
         delete this->celView;
 
