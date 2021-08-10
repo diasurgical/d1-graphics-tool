@@ -617,6 +617,9 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
     QObject::connect( command, &EditColorsCommand::modified, this, &PaletteWidget::modify );
 
     emit this->sendEditingCommand( command );
+
+    // Release focus to allow keyboard shortcuts to work as expected
+    this->ui->colorLineEdit->clearFocus();
 }
 
 void PaletteWidget::on_colorPickPushButton_clicked()
@@ -646,6 +649,9 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
     this->selectedTranslationIndex = index;
 
     emit this->sendEditingCommand( command );
+
+    // Release focus to allow keyboard shortcuts to work as expected
+    this->ui->translationIndexLineEdit->clearFocus();
 }
 
 void PaletteWidget::on_indexPickPushButton_clicked()
