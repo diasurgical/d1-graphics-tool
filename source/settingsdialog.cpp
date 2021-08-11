@@ -56,6 +56,18 @@ void SettingsDialog::on_workingDirectoryBrowseButton_clicked()
     this->ui->workingDirectoryEdit->setText( this->workingDirectory );
 }
 
+void SettingsDialog::on_defaultPaletteColorPushButton_clicked()
+{
+    QColor color = QColorDialog::getColor();
+    this->ui->defaultPaletteColorLineEdit->setText( color.name() );
+}
+
+void SettingsDialog::on_paletteSelectionBorderColorPushButton_clicked()
+{
+    QColor color = QColorDialog::getColor();
+    this->ui->paletteSelectionBorderColorLineEdit->setText( color.name() );
+}
+
 void SettingsDialog::on_settingsOkButton_clicked()
 {
     // WorkingDirectory

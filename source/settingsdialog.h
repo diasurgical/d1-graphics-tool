@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QFileDialog>
+#include <QColorDialog>
 #include <QJsonObject>
 #include <QJsonDocument>
 
@@ -27,6 +28,8 @@ signals:
 
 private slots:
     void on_workingDirectoryBrowseButton_clicked();
+    void on_defaultPaletteColorPushButton_clicked();
+    void on_paletteSelectionBorderColorPushButton_clicked();
     void on_settingsOkButton_clicked();
     void on_settingsCancelButton_clicked();
 
@@ -36,7 +39,6 @@ private:
 
     bool configurationChanged;
     QString workingDirectory;
-
 };
 
 #endif // SETTINGSDIALOG_H
