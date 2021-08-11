@@ -172,9 +172,11 @@ private slots:
     void displayComboBox_currentTextChanged( const QString &arg1 );
     void on_colorLineEdit_returnPressed();
     void on_colorPickPushButton_clicked();
+    void on_colorClearPushButton_clicked();
     void on_translationIndexLineEdit_returnPressed();
     void on_translationPickPushButton_clicked();
     void on_translationClearPushButton_clicked();
+
 
 private:
     QJsonObject *configuration;
@@ -188,7 +190,7 @@ private:
 
     QGraphicsScene *scene;
 
-    QColor defaultPaletteColor;
+    QColor paletteDefaultColor;
 
     QColor selectionBorderColor;
     quint8 selectedFirstColorIndex;

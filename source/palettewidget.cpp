@@ -820,6 +820,17 @@ void PaletteWidget::on_colorPickPushButton_clicked()
     emit this->sendEditingCommand( command );
 }
 
+void PaletteWidget::on_colorClearPushButton_clicked()
+{
+    // Build color editing command and connect it to the current palette widget
+    // to update the PAL/TRN and CEL views when undo/redo is performed
+    EditColorsCommand* command = new EditColorsCommand(
+        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, this->paletteDefaultColor );
+    QObject::connect( command, &EditColorsCommand::modified, this, &PaletteWidget::modify );
+
+    emit this->sendEditingCommand( command );
+}
+
 void PaletteWidget::on_translationIndexLineEdit_returnPressed()
 {
     quint8 index = ui->translationIndexLineEdit->text().toUInt();
