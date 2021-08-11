@@ -31,7 +31,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - town.pal (_town.pal) from the application resource file.
 
 ### Fixed
-- CEL/CL2 group and frame buttons alignment.
+- CEL/CL2 group and frame button alignments.
+- Level CEL tile, sub-tile and frame button alignments.
 
 ## 0.4.1 - 2021-03-11
 ### Changed
