@@ -131,7 +131,6 @@ public:
 
 signals:
     void pathSelected( QString );
-    //void translationsSelected( QList<quint8> );
     void colorsSelected( QList<quint8> );
 
     void displayAllRootColors();
@@ -151,7 +150,7 @@ private slots:
     void on_colorLineEdit_returnPressed();
     void on_colorPickPushButton_clicked();
     void on_translationIndexLineEdit_returnPressed();
-    void on_indexPickPushButton_clicked();
+    void on_translationPickPushButton_clicked();
 
 private:
     Ui::PaletteWidget *ui;

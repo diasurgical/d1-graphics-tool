@@ -188,9 +188,11 @@ void PaletteWidget::initializeUi()
 {
     if( this->isTrn )
     {
-        this->ui->indexPickPushButton->setEnabled( true );
+        this->ui->translationPickPushButton->setEnabled( true );
+        this->ui->translationClearPushButton->setEnabled( true );
         this->ui->colorLineEdit->setEnabled( false );
         this->ui->colorPickPushButton->setEnabled( false );
+        this->ui->colorClearPushButton->setEnabled( false );
     }
     else
     {
@@ -777,7 +779,7 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
     this->ui->translationIndexLineEdit->clearFocus();
 }
 
-void PaletteWidget::on_indexPickPushButton_clicked()
+void PaletteWidget::on_translationPickPushButton_clicked()
 {
     this->pickingTranslationColor = true;
 
