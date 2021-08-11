@@ -62,3 +62,5 @@ FORMS += mainwindow.ui \
 
 RESOURCES += \
     d1files.qrc
+
+RC_ICONS = icon.ico
