@@ -527,6 +527,7 @@ void PaletteWidget::displaySelection()
 
     int first = 0;
     int last = 0;
+    //int length = 0;
     if( this->selectedFirstColorIndex <= this->selectedLastColorIndex )
     {
         first = this->selectedFirstColorIndex;
@@ -538,6 +539,7 @@ void PaletteWidget::displaySelection()
         first = this->selectedLastColorIndex;
         last = this->selectedFirstColorIndex;
     }
+    //length = last - first + 1;
 
     for( int i = first; i <= last; i++ )
     {
@@ -545,24 +547,31 @@ void PaletteWidget::displaySelection()
         int a = PALETTE_SELECTION_WIDTH/2;
         coordinates.adjust( a, a, -a, -a );
 
-
         // left line
-        if( i == first )
+        if( i == first && i + PALETTE_COLORS_PER_LINE <= last )
+            this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y()+PALETTE_SELECTION_WIDTH,
+                coordinates.topLeft().x(), coordinates.topLeft().y(), pen );
+        else if( i % PALETTE_COLORS_PER_LINE == 0 )
             this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y(),
                 coordinates.topLeft().x(), coordinates.topLeft().y(), pen );
 
         // right line
-        if( i == last )
+        if( i == last && i - PALETTE_COLORS_PER_LINE >= first )
+            this->scene->addLine( coordinates.topRight().x(), coordinates.topRight().y()-PALETTE_SELECTION_WIDTH,
+                coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
+        else if( i % PALETTE_COLORS_PER_LINE == PALETTE_COLORS_PER_LINE-1 )
             this->scene->addLine( coordinates.topRight().x(), coordinates.topRight().y(),
                 coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
 
         // top line
-        this->scene->addLine( coordinates.topLeft().x(), coordinates.topLeft().y(),
-            coordinates.topRight().x(), coordinates.topRight().y(), pen );
+        if( i - PALETTE_COLORS_PER_LINE < first )
+            this->scene->addLine( coordinates.topLeft().x(), coordinates.topLeft().y(),
+                coordinates.topRight().x(), coordinates.topRight().y(), pen );
 
         // bottom line
-        this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y(),
-            coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
+        if( i + PALETTE_COLORS_PER_LINE > last )
+            this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y(),
+                coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
     }
 }
 
