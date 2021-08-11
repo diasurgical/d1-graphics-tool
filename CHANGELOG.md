@@ -4,18 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.5.0 - 2021-08-
+## 0.5.0 - 2021-08-12
 ### Added
-- 
+- Color palette (PAL) write support.
+- Color translation (TRN) write support.
+- Multi-selection support in the palette widgets.
+- Color editing in the palette widget.
+- Translation editing in the palette widgets.
+- "Show translated colors" display filter for color translations palette widgets.
+- CEL level tiles can now be clicked to select the corresponding sub-tile.
+- CEL level sub-tiles can now be clicked to select the corresponding frame.
+- CEL/CL2 frames can now be clicked to select the corresponding color in the palette widgets.
+- New setting for palette default color.
+- New setting for selection border color.
+- Tooltip to display full path of PAL/TRN files when hovering the path dropdown list.
+- Application icon.
 
 ### Changed
-- 
+- Qt Framework updated to 6.1.2.
+- Palette view is replaced by three palette widgets (one for the palette and two for translations).
+- Palette hits are now displayed in the same graphic view as colors through a display mask mechanism.
+- Translation 1 and 2 have been swapped and renamed "Translation" and "Unique translation"; unique translation applies first.
 
 ### Removed
-- 
+- town.pal (_town.pal) from the application resource file.
 
 ### Fixed
-- 
+- CEL/CL2 group and frame buttons alignment.
 
 ## 0.4.1 - 2021-03-11
 ### Changed
