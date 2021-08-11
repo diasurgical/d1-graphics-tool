@@ -551,7 +551,7 @@ void PaletteWidget::displaySelection()
         if( i == first && i + PALETTE_COLORS_PER_LINE <= last )
             this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y()+PALETTE_SELECTION_WIDTH,
                 coordinates.topLeft().x(), coordinates.topLeft().y(), pen );
-        else if( i % PALETTE_COLORS_PER_LINE == 0 )
+        else if( i == first || i % PALETTE_COLORS_PER_LINE == 0 )
             this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y(),
                 coordinates.topLeft().x(), coordinates.topLeft().y(), pen );
 
@@ -559,7 +559,7 @@ void PaletteWidget::displaySelection()
         if( i == last && i - PALETTE_COLORS_PER_LINE >= first )
             this->scene->addLine( coordinates.topRight().x(), coordinates.topRight().y()-PALETTE_SELECTION_WIDTH,
                 coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
-        else if( i % PALETTE_COLORS_PER_LINE == PALETTE_COLORS_PER_LINE-1 )
+        else if( i == last || i % PALETTE_COLORS_PER_LINE == PALETTE_COLORS_PER_LINE-1 )
             this->scene->addLine( coordinates.topRight().x(), coordinates.topRight().y(),
                 coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
 
