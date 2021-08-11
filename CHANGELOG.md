@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CEL level tiles can now be clicked to select the corresponding sub-tile.
 - CEL level sub-tiles can now be clicked to select the corresponding frame.
 - CEL/CL2 frames can now be clicked to select the corresponding color in the palette widgets.
+- Cycling through tiles, sub-tiles, frame groups and frames is now allowed when clicking previous/next on first/last item.
 - New setting for palette default color.
 - New setting for selection border color.
 - Tooltip to display full path of PAL/TRN files when hovering the path dropdown list.
