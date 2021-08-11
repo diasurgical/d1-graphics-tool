@@ -129,20 +129,24 @@ void ClearTranslationsCommand::redo()
     emit this->modified();
 }
 
-PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
+PaletteWidget::PaletteWidget( QJsonObject *config, QWidget *parent, QString title) :
     QWidget(parent),
+    configuration( config ),
     ui(new Ui::PaletteWidget),
     isLevelCel( false ),
     isTrn( false ),
     scene( new QGraphicsScene(0,0,PALETTE_WIDTH,PALETTE_WIDTH) ),
+    paletteDefaultColor( Qt::magenta ),
+    selectionBorderColor( Qt::red ),
     selectedFirstColorIndex( 0 ),
     selectedLastColorIndex( 0 ),
-    selectedFirstTranslationIndex( 0 ),
-    selectedLastTranslationIndex( 0 ),
     pickingTranslationColor( false ),
     temporarilyDisplayingAllColors( false ),
     buildingPathComboBox( false )
 {
+    // Load selection border color from JSON config file
+    this->reloadConfig();
+
     ui->setupUi(this);
     ui->graphicsView->setScene( this->scene );
 
@@ -290,6 +294,15 @@ void PaletteWidget::initializeDisplayComboBox()
     }
 
     this->buildingDisplayComboBox = false;
+}
+
+void PaletteWidget::reloadConfig()
+{
+    this->paletteDefaultColor = QColor(
+        this->configuration->value("PaletteDefaultColor").toString() );
+
+    this->selectionBorderColor = QColor(
+        this->configuration->value("PaletteSelectionBorderColor").toString() );
 }
 
 void PaletteWidget::selectColor( quint8 index )
@@ -564,7 +577,7 @@ void PaletteWidget::displayColors()
 void PaletteWidget::displaySelection()
 {
     QBrush brush( Qt::NoBrush );
-    QPen pen( Qt::red );
+    QPen pen( this->selectionBorderColor );
     pen.setStyle( Qt::SolidLine );
     pen.setJoinStyle( Qt::MiterJoin );
     pen.setWidth( PALETTE_SELECTION_WIDTH );

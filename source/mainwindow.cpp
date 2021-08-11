@@ -18,6 +18,8 @@ MainWindow::MainWindow( QWidget *parent ) :
 {
     //QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling, true );
 
+    this->loadConfiguration();
+
     ui->setupUi( this );
 
     // Initialize undo/redo
@@ -30,8 +32,6 @@ MainWindow::MainWindow( QWidget *parent ) :
     this->ui->menuEdit->addAction( this->redoAction );
 
     this->ui->menuPalette->setEnabled( false );
-
-    this->loadConfiguration();
 }
 
 MainWindow::~MainWindow()
@@ -104,6 +104,7 @@ void MainWindow::setTrn2( QString path )
 void MainWindow::loadConfiguration()
 {
     QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
+    bool configurationModified = false;
 
     // If configuration file exists load it otherwise create it
     if( QFile::exists(jsonFilePath) )
@@ -113,11 +114,28 @@ void MainWindow::loadConfiguration()
         QJsonDocument loadJsonDoc = QJsonDocument::fromJson( loadJson.readAll() );
         this->configuration = new QJsonObject( loadJsonDoc.object() );
         loadJson.close();
+
+        if( !this->configuration->contains("PaletteDefaultColor") )
+        {
+            this->configuration->insert( "PaletteDefaultColor", "#FF00FF" );
+            configurationModified = true;
+        }
+        if( !this->configuration->contains("PaletteSelectionBorderColor") )
+        {
+            this->configuration->insert( "PaletteSelectionBorderColor", "#FF0000" );
+            configurationModified = true;
+        }
     }
     else
     {
         this->configuration->insert( "WorkingDirectory",QCoreApplication::applicationDirPath() );
+        this->configuration->insert( "PaletteDefaultColor", "#FF00FF" );
+        this->configuration->insert( "PaletteSelectionBorderColor", "#FF0000" );
+        configurationModified = true;
+    }
 
+    if( configurationModified )
+    {
         QFile saveJson( jsonFilePath );
         saveJson.open( QIODevice::WriteOnly );
         QJsonDocument saveDoc( *this->configuration );
@@ -185,12 +203,18 @@ void MainWindow::on_actionOpen_triggered()
             this->cel->setPalette( this->trn2->getResultingPalette() );
 
             // Add palette widgets for PAL and TRNs
-            this->palWidget = new PaletteWidget( nullptr, "Palette" );
-            this->trn2Widget = new PaletteWidget( nullptr, "Translation" );
-            this->trn1Widget = new PaletteWidget( nullptr, "Unique translation" );
+            this->palWidget = new PaletteWidget( this->configuration, nullptr, "Palette" );
+            this->trn2Widget = new PaletteWidget( this->configuration, nullptr, "Translation" );
+            this->trn1Widget = new PaletteWidget( this->configuration, nullptr, "Unique translation" );
             this->ui->palFrame->layout()->addWidget( this->palWidget );
             this->ui->palFrame->layout()->addWidget( this->trn2Widget );
             this->ui->palFrame->layout()->addWidget( this->trn1Widget );
+
+            // Configuration update triggers refresh of the palette widgets
+            QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::reloadConfig );
+            QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->trn1Widget, &PaletteWidget::reloadConfig );
+            QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->trn2Widget, &PaletteWidget::reloadConfig );
+            QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::refresh );
 
             // Palette and translation file selection
             // When a .pal or .trn file is selected in the PaletteWidget update the pal or trn

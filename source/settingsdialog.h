@@ -22,11 +22,12 @@ public:
 
     void saveConfiguration();
 
+signals:
+    void configurationSaved();
+
 private slots:
     void on_workingDirectoryBrowseButton_clicked();
-
     void on_settingsOkButton_clicked();
-
     void on_settingsCancelButton_clicked();
 
 private:

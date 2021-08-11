@@ -10,6 +10,7 @@
 #include <QMouseEvent>
 #include <QColorDialog>
 #include <QUndoCommand>
+#include <QJsonObject>
 
 #include "celview.h"
 #include "levelcelview.h"
@@ -99,7 +100,7 @@ class PaletteWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit PaletteWidget(QWidget *parent = nullptr, QString title = "Palette");
+    explicit PaletteWidget( QJsonObject *configuration, QWidget *parent = nullptr, QString title = "Palette" );
     ~PaletteWidget();
 
     void setPal( D1Pal* );
@@ -115,6 +116,7 @@ public:
     void initializePathComboBox();
     void initializeDisplayComboBox();
 
+    void reloadConfig();
     void selectColor( quint8 );
     void selectColors();
     void checkTranslationsSelection( QList<quint8> );
@@ -175,6 +177,8 @@ private slots:
     void on_translationClearPushButton_clicked();
 
 private:
+    QJsonObject *configuration;
+
     Ui::PaletteWidget *ui;
     bool isLevelCel;
     bool isTrn;
@@ -184,10 +188,11 @@ private:
 
     QGraphicsScene *scene;
 
+    QColor defaultPaletteColor;
+
+    QColor selectionBorderColor;
     quint8 selectedFirstColorIndex;
     quint8 selectedLastColorIndex;
-    quint8 selectedFirstTranslationIndex;
-    quint8 selectedLastTranslationIndex;
 
     bool pickingTranslationColor;
     bool temporarilyDisplayingAllColors;
