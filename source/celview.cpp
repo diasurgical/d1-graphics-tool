@@ -200,23 +200,25 @@ void CelView::on_firstFrameButton_clicked()
 void CelView::on_previousFrameButton_clicked()
 {
     if( this->currentFrameIndex >= 1 )
-    {
         this->currentFrameIndex--;
-        if( !this->checkGroupNumber() )
-            this->setGroupNumber();
-        this->displayFrame();
-    }
+    else
+        this->currentFrameIndex = this->cel->getFrameCount() - 1;
+
+    if( !this->checkGroupNumber() )
+        this->setGroupNumber();
+    this->displayFrame();
 }
 
 void CelView::on_nextFrameButton_clicked()
 {
     if( this->currentFrameIndex < (this->cel->getFrameCount() - 1) )
-    {
         this->currentFrameIndex++;
-        if( !this->checkGroupNumber() )
-            this->setGroupNumber();
-        this->displayFrame();
-    }
+    else
+        this->currentFrameIndex = 0;
+
+    if( !this->checkGroupNumber() )
+        this->setGroupNumber();
+    this->displayFrame();
 }
 
 void CelView::on_lastFrameButton_clicked()
@@ -247,13 +249,13 @@ void CelView::on_firstGroupButton_clicked()
 void CelView::on_previousGroupButton_clicked()
 {
     if( this->currentGroupIndex >= 1 )
-    {
         this->currentGroupIndex--;
-        this->currentFrameIndex = this->cel->getGroupFrameIndices(
-            this->currentGroupIndex ).first;
-        this->displayFrame();
-    }
+    else
+        this->currentGroupIndex = this->cel->getGroupCount() - 1;
 
+    this->currentFrameIndex = this->cel->getGroupFrameIndices(
+        this->currentGroupIndex ).first;
+    this->displayFrame();
 }
 
 void CelView::on_groupIndexEdit_returnPressed()
@@ -272,12 +274,13 @@ void CelView::on_groupIndexEdit_returnPressed()
 void CelView::on_nextGroupButton_clicked()
 {
     if( this->currentGroupIndex < (this->cel->getGroupCount() - 1) )
-    {
         this->currentGroupIndex++;
-        this->currentFrameIndex = this->cel->getGroupFrameIndices(
-            this->currentGroupIndex ).first;
-        this->displayFrame();
-    }
+    else
+        this->currentGroupIndex = 0;
+
+    this->currentFrameIndex = this->cel->getGroupFrameIndices(
+        this->currentGroupIndex ).first;
+    this->displayFrame();
 }
 
 void CelView::on_lastGroupButton_clicked()

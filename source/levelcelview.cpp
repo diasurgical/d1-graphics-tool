@@ -276,19 +276,21 @@ void LevelCelView::on_firstFrameButton_clicked()
 void LevelCelView::on_previousFrameButton_clicked()
 {
     if( this->currentFrameIndex >= 1 )
-    {
         this->currentFrameIndex--;
-        this->displayFrame();
-    }
+    else
+        this->currentFrameIndex = this->cel->getFrameCount() - 1;
+
+    this->displayFrame();
 }
 
 void LevelCelView::on_nextFrameButton_clicked()
 {
     if( this->currentFrameIndex < (this->cel->getFrameCount() - 1) )
-    {
         this->currentFrameIndex++;
-        this->displayFrame();
-    }
+    else
+        this->currentFrameIndex = 0;
+
+    this->displayFrame();
 }
 
 void LevelCelView::on_lastFrameButton_clicked()
@@ -317,19 +319,21 @@ void LevelCelView::on_firstSubtileButton_clicked()
 void LevelCelView::on_previousSubtileButton_clicked()
 {
     if( this->currentSubtileIndex >= 1 )
-    {
         this->currentSubtileIndex--;
-        this->displayFrame();
-    }
+    else
+        this->currentSubtileIndex = this->min->getSubtileCount() - 1;
+
+    this->displayFrame();
 }
 
 void LevelCelView::on_nextSubtileButton_clicked()
 {
     if( this->currentSubtileIndex < this->min->getSubtileCount() - 1 )
-    {
         this->currentSubtileIndex++;
-        this->displayFrame();
-    }
+    else
+        this->currentSubtileIndex = 0;
+
+    this->displayFrame();
 }
 
 void LevelCelView::on_lastSubtileButton_clicked()
@@ -358,19 +362,21 @@ void LevelCelView::on_firstTileButton_clicked()
 void LevelCelView::on_previousTileButton_clicked()
 {
     if( this->currentTileIndex >= 1 )
-    {
         this->currentTileIndex--;
-        this->displayFrame();
-    }
+    else
+        this->currentTileIndex = this->til->getTileCount() - 1;
+
+    this->displayFrame();
 }
 
 void LevelCelView::on_nextTileButton_clicked()
 {
     if( this->currentTileIndex < this->til->getTileCount() - 1 )
-    {
         this->currentTileIndex++;
-        this->displayFrame();
-    }
+    else
+        this->currentTileIndex = 0;
+
+    this->displayFrame();
 }
 
 void LevelCelView::on_lastTileButton_clicked()
