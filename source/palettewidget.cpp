@@ -87,6 +87,48 @@ void EditTranslationsCommand::redo()
     emit this->modified();
 }
 
+ClearTranslationsCommand::ClearTranslationsCommand( D1Trn *t, quint8 sci, quint8 eci, QUndoCommand *parent ) :
+    QUndoCommand(parent),
+    trn( t ),
+    startColorIndex( sci ),
+    endColorIndex( eci )
+{
+    // Get the initial color values before doing any modification
+    for( int i = startColorIndex; i <= endColorIndex; i++ )
+        initialTranslations.append( this->trn->getTranslation(i) );
+}
+
+ClearTranslationsCommand::~ClearTranslationsCommand()
+{}
+
+void ClearTranslationsCommand::undo()
+{
+    if( this->trn.isNull() )
+    {
+        this->setObsolete( true );
+        return;
+    }
+
+    for( int i = startColorIndex; i <= endColorIndex; i++ )
+        this->trn->setTranslation( i, this->initialTranslations.at(i-this->startColorIndex) );
+
+    emit this->modified();
+}
+
+void ClearTranslationsCommand::redo()
+{
+    if( this->trn.isNull() )
+    {
+        this->setObsolete( true );
+        return;
+    }
+
+    for( int i = startColorIndex; i <= endColorIndex; i++ )
+        this->trn->setTranslation( i, i );
+
+    emit this->modified();
+}
+
 PaletteWidget::PaletteWidget(QWidget *parent, QString title) :
     QWidget(parent),
     ui(new Ui::PaletteWidget),
@@ -682,6 +724,11 @@ void PaletteWidget::refreshTranslationIndexLineEdit()
     }
 }
 
+void PaletteWidget::modify()
+{
+    emit this->modified();
+}
+
 void PaletteWidget::refresh()
 {
     if( this->isTrn )
@@ -767,7 +814,7 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
     // New translations
     QList<quint8> newTranslations( this->selectedLastColorIndex-this->selectedFirstColorIndex+1, index );
 
-    // Build color editing command and connect it to the current palette widget
+    // Build translation editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     EditTranslationsCommand* command = new EditTranslationsCommand(
         this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, newTranslations );
@@ -788,7 +835,13 @@ void PaletteWidget::on_translationPickPushButton_clicked()
     emit this->displayRootBorder();
 }
 
-void PaletteWidget::modify()
+void PaletteWidget::on_translationClearPushButton_clicked()
 {
-    emit this->modified();
+    // Build translation clearing command and connect it to the current palette widget
+    // to update the PAL/TRN and CEL views when undo/redo is performed
+    ClearTranslationsCommand* command = new ClearTranslationsCommand(
+        this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex );
+    QObject::connect( command, &ClearTranslationsCommand::modified, this, &PaletteWidget::modify );
+
+    emit this->sendEditingCommand( command );
 }

@@ -73,6 +73,27 @@ private:
     QList<quint8> newTranslations;
 };
 
+class ClearTranslationsCommand : public QObject, public QUndoCommand
+{
+    Q_OBJECT
+
+public:
+    explicit ClearTranslationsCommand( D1Trn*, quint8, quint8, QUndoCommand *parent = nullptr );
+    ~ClearTranslationsCommand();
+
+    void undo() override;
+    void redo() override;
+
+signals:
+    void modified();
+
+private:
+    QPointer<D1Trn> trn;
+    quint8 startColorIndex;
+    quint8 endColorIndex;
+    QList<quint8> initialTranslations;
+};
+
 class PaletteWidget : public QWidget
 {
     Q_OBJECT
@@ -151,6 +172,7 @@ private slots:
     void on_colorPickPushButton_clicked();
     void on_translationIndexLineEdit_returnPressed();
     void on_translationPickPushButton_clicked();
+    void on_translationClearPushButton_clicked();
 
 private:
     Ui::PaletteWidget *ui;
