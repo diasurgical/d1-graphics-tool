@@ -401,11 +401,16 @@ bool PaletteWidget::eventFilter( QObject *obj, QEvent *event )
     if( event->type() == QEvent::MouseMove )
     {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
+        if( mouseEvent->position().x() < 0 || mouseEvent->position().x() > PALETTE_WIDTH
+            || mouseEvent->position().y() < 0 || mouseEvent->position().y() > PALETTE_WIDTH )
+                return true;
         quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
+
+        if( colorIndex == this->selectedLastColorIndex )
+           return true;
 
         this->selectedLastColorIndex = colorIndex;
 
-        // Note: this is swapping the two selection indexes if the user is selecting backwards
         this->refreshIndexLineEdit();
 
         this->displayColors();
@@ -434,7 +439,7 @@ bool PaletteWidget::eventFilter( QObject *obj, QEvent *event )
     else
     {
         // standard event processing
-        return QObject::eventFilter(obj, event);
+        return QObject::eventFilter( obj, event );
     }
 }
 
@@ -520,7 +525,21 @@ void PaletteWidget::displaySelection()
     pen.setJoinStyle( Qt::MiterJoin );
     pen.setWidth( PALETTE_SELECTION_WIDTH );
 
-    for( int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++ )
+    int first = 0;
+    int last = 0;
+    if( this->selectedFirstColorIndex <= this->selectedLastColorIndex )
+    {
+        first = this->selectedFirstColorIndex;
+        last = this->selectedLastColorIndex;
+    }
+    else
+    {
+        // Swap first and last color if this is a backwards selection
+        first = this->selectedLastColorIndex;
+        last = this->selectedFirstColorIndex;
+    }
+
+    for( int i = first; i <= last; i++ )
     {
         QRectF coordinates = getColorCoordinates( i );
         int a = PALETTE_SELECTION_WIDTH/2;
@@ -528,12 +547,12 @@ void PaletteWidget::displaySelection()
 
 
         // left line
-        if( i == this->selectedFirstColorIndex )
+        if( i == first )
             this->scene->addLine( coordinates.bottomLeft().x(), coordinates.bottomLeft().y(),
                 coordinates.topLeft().x(), coordinates.topLeft().y(), pen );
 
         // right line
-        if( i == this->selectedLastColorIndex )
+        if( i == last )
             this->scene->addLine( coordinates.topRight().x(), coordinates.topRight().y(),
                 coordinates.bottomRight().x(), coordinates.bottomRight().y(), pen );
 
@@ -626,8 +645,13 @@ void PaletteWidget::refreshIndexLineEdit()
     }
     else
     {
-        this->ui->indexLineEdit->setText(
-            QString::number(this->selectedFirstColorIndex) + "-" + QString::number(this->selectedLastColorIndex) );
+        // If second selected color has an index less than the first one swap them
+        if( this->selectedFirstColorIndex < this->selectedLastColorIndex )
+            this->ui->indexLineEdit->setText(
+                QString::number(this->selectedFirstColorIndex) + "-" + QString::number(this->selectedLastColorIndex) );
+        else
+            this->ui->indexLineEdit->setText(
+                QString::number(this->selectedLastColorIndex) + "-" + QString::number(this->selectedFirstColorIndex) );
     }
 }
 

@@ -96,7 +96,6 @@ public:
 
     void selectColor( quint8 );
     void selectColors();
-    void checkTranslationSelection( quint8 );
     void checkTranslationsSelection( QList<quint8> );
 
     QString getPath( QString );
