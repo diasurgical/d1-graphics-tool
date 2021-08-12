@@ -15,7 +15,7 @@ Go to the [releases page](https://github.com/savagesteel/d1-graphics-tool/releas
 - Regular, level and compiled CEL support (read-only).
 - Mono and multi-group CL2 support (read-only).
 - PAL/TRN support (read/write).
-- Palette hits and palette translation hits display.
+- Palette hits and color translation hits display.
 - Bitmap and PNG export in multiple files or tiled file.
 
 ## Acknowledgements
