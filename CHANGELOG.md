@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Multi-selection support in the palette widgets.
 - Color editing in the palette widget.
 - Translation editing in the palette widgets.
+- Undo/redo support for color palette and color translation editing.
 - "Show translated colors" display filter for color translations palette widgets.
 - CEL level tiles can now be clicked to select the corresponding sub-tile.
 - CEL level sub-tiles can now be clicked to select the corresponding frame.
