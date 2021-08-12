@@ -1,7 +1,7 @@
 #Requires -Version 7
 
 $ReleaseName = 'd1-graphics-tool'
-$ReleaseVersion = '0.5.0-beta5'
+$ReleaseVersion = '0.5.0'
 $ReleaseOs = 'windows'
 $ReleaseArchitecture = 'x64'
 $ReleaseZipFileName = "$ReleaseName-$ReleaseVersion-$ReleaseOs-$ReleaseArchitecture.zip"
