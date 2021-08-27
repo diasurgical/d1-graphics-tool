@@ -3,6 +3,8 @@
 ### 0.5.x
 ### Add
 
+- Display hovered index and selection length in the informationLabel
+    - Index: x, Selection length: y
 - Warn about modified files before closing them.
 - Add CEL/CL2/PAL/TRN mappings in a JSON file for diablo and hellfire (retail version).
 - Implement shadow selection when picking translation.
