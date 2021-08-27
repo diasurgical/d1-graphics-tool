@@ -6,6 +6,10 @@
 - Display hovered index and selection length in the informationLabel
     - Index: x, Selection length: y
 - Warn about modified files before closing them.
+- Implement backup files (.bak) when editing PAL/TRN
+    - A copy of the PAL/TRN file is created automatically (e.g. redv.trn.bak)
+        - Only if it does not exist and only when saving
+    - Add associated setting in the settings dialog
 - Add CEL/CL2/PAL/TRN mappings in a JSON file for diablo and hellfire (retail version).
 - Implement shadow selection when picking translation.
 
