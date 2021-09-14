@@ -3,7 +3,14 @@
 ### 0.5.x
 ### Add
 
+- Display hovered index and selection length in the informationLabel
+    - Index: x, Selection length: y
 - Warn about modified files before closing them.
+
+- Implement backup files (.bak) when editing PAL/TRN
+    - A copy of the PAL/TRN file is created automatically (e.g. redv.trn.bak)
+        - Only if it does not exist and only when saving
+    - Add setting to enable/disable the feature (enabled by default)
 
 - Add export options for level tiles to be compatible with Tiled
     - https://github.com/diasurgical/modding-tools/tree/master/Tiled
@@ -18,6 +25,7 @@
     - Update PowerShell release script to take a Qt build folder as parameter.
     - https://github.com/mapeditor/tiled/blob/master/.github/workflows/ubuntu-20.04.yml
     - https://github.com/mapeditor/tiled/blob/master/.github/workflows/packages.yml
+
 
 - Add CEL/CL2/PAL/TRN mappings in a JSON file for diablo and hellfire (retail version).
 - Implement shadow selection when picking translation.
