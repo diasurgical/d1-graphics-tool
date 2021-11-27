@@ -18,8 +18,10 @@
     - Adjust line/column number
 - Add export options for monsters compatible with Tiled
     - https://github.com/sergi4ua/opensource-ami/blob/master/gen_monsters_tileset.sh
+    - https://github.com/diasurgical/modding-tools/blob/3620efe13a62792a5b02f107cda86d68d19f5cdf/Tiled/extensions/diablo-dun.js#L257
 - Add export options for item
     - https://github.com/sergi4ua/opensource-ami/blob/master/gen_objects_tileset.sh
+    - https://github.com/diasurgical/modding-tools/blob/3620efe13a62792a5b02f107cda86d68d19f5cdf/Tiled/extensions/diablo-dun.js#L330
 
 - Add CI/CD with appimage build for Linux (and .msi for Windows?).
     - Update PowerShell release script to take a Qt build folder as parameter.

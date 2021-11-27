@@ -9,6 +9,7 @@ MainWindow::MainWindow( QWidget *parent ) :
     configuration( new QJsonObject ),
     settingsDialog( new SettingsDialog(this) ),
     exportDialog( new ExportDialog(this) ),
+    batchExportDialog( new BatchExportDialog(this) ),
     pal( new D1Pal ),
     trn1( new D1Trn ),
     trn2( new D1Trn ),
@@ -453,6 +454,11 @@ void MainWindow::on_actionExport_triggered()
         this->exportDialog->setCel( this->cel );
 
     this->exportDialog->show();
+}
+
+void MainWindow::on_actionBatchExport_triggered()
+{
+    this->batchExportDialog->show();
 }
 
 void MainWindow::on_actionQuit_triggered()

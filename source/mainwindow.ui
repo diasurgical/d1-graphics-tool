@@ -138,6 +138,7 @@
     <addaction name="actionOpen"/>
     <addaction name="actionClose"/>
     <addaction name="actionExport"/>
+    <addaction name="actionBatchExport"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
     <addaction name="separator"/>
@@ -335,6 +336,11 @@
   <action name="actionNew_Translation_1">
    <property name="text">
     <string>New unique translation</string>
+   </property>
+  </action>
+  <action name="actionBatchExport">
+   <property name="text">
+    <string>Batch Export</string>
    </property>
   </action>
  </widget>

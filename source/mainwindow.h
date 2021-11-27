@@ -26,8 +26,9 @@
 #include "levelcelview.h"
 #include "settingsdialog.h"
 #include "exportdialog.h"
+#include "batchexportdialog.h"
 
-#define D1_GRAPHICS_TOOL_VERSION "0.5.0"
+#define D1_GRAPHICS_TOOL_VERSION "0.5.1"
 
 namespace Ui
 {
@@ -54,6 +55,7 @@ private slots:
     void on_actionOpen_triggered();
     void on_actionClose_triggered();
     void on_actionExport_triggered();
+    void on_actionBatchExport_triggered();
     void on_actionSettings_triggered();
     void on_actionQuit_triggered();
 
@@ -95,6 +97,7 @@ private:
 
     QPointer<SettingsDialog> settingsDialog;
     QPointer<ExportDialog> exportDialog;
+    QPointer<BatchExportDialog> batchExportDialog;
 
     QPointer<D1Pal> pal;
     QPointer<D1Trn> trn1;

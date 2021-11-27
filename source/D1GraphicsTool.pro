@@ -23,6 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += main.cpp \
+    batchexportdialog.cpp \
     d1palhits.cpp \
     mainwindow.cpp \
     d1cel.cpp \
@@ -39,6 +40,7 @@ SOURCES += main.cpp \
     settingsdialog.cpp
 
 HEADERS  += mainwindow.h \
+    batchexportdialog.h \
     d1cel.h \
     d1cl2.h \
     d1pal.h \
@@ -54,6 +56,7 @@ HEADERS  += mainwindow.h \
     settingsdialog.h
 
 FORMS += mainwindow.ui \
+    batchexportdialog.ui \
     celview.ui \
     palettewidget.ui \
     levelcelview.ui \
