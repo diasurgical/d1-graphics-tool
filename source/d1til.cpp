@@ -22,6 +22,7 @@ D1Til::D1Til( QString path, D1Min* m ) :
     tilePixelHeight( 0 )
 {
     this->load( path );
+    this->setMin(this->min);
 }
 
 D1Til::~D1Til()

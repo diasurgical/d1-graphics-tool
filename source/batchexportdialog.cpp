@@ -7,9 +7,6 @@ BatchExportDialog::BatchExportDialog(QJsonObject *config, QWidget *parent) :
     ui(new Ui::BatchExportDialog)
 {
     ui->setupUi(this);
-
-
-    //this->configuration
 }
 
 BatchExportDialog::~BatchExportDialog()
@@ -24,8 +21,12 @@ void BatchExportDialog::setInputFolder(QString path)
 
 void BatchExportDialog::exportAllDiabloLevelTilesForTiled()
 {
+    bool exportSuccess = true;
     QString inputFolder = ui->inputFolderEdit->text();
     QString outputFolder = ui->outputFolderEdit->text();
+
+    QImage tiles;
+    QString outputFilePath;
 
     // Check if cel, special cel, min, til, pal files exist
     if(!Export::checkLevelFilePaths(inputFolder,TOWN_FILE_PATHS)
@@ -38,8 +39,50 @@ void BatchExportDialog::exportAllDiabloLevelTilesForTiled()
         return;
     }
 
+    try
+    {
+        // TOWN
+        //tiles = Export::getAllLevelTilesWithSpecials(
+        //    inputFolder, TOWN_FILE_PATHS, QList<quint16>(), QMap<quint16,QList<quint16>>());
+        //outputFilePath = outputFolder + "/" + TOWN_FILE_PATHS["png"];
+        //tiles.save(outputFilePath);
 
+        // L1
+        tiles = Export::getAllLevelTilesWithSpecials(
+            inputFolder, L1_FILE_PATHS, L1S_BLIT_SUBTILE_INDEXES, L1_TILES_BLIT_SPECIAL_INDEXES);
+        outputFilePath = outputFolder + "/" + L1_FILE_PATHS["png"];
+        tiles.save(outputFilePath);
 
+        // L2
+        //tiles = Export::getAllLevelTilesWithSpecials(
+        //    inputFolder, L2_FILE_PATHS, L2S_BLIT_SUBTILE_INDEXES, L2_TILES_BLIT_SPECIAL_INDEXES);
+        //outputFilePath = outputFolder + "/" + L2_FILE_PATHS["png"];
+        //tiles.save(outputFilePath);
+
+        // L3
+        tiles = Export::getAllLevelTilesWithSpecials(
+            inputFolder, L3_FILE_PATHS, QList<quint16>(), QMap<quint16,QList<quint16>>());
+        outputFilePath = outputFolder + "/" + L3_FILE_PATHS["png"];
+        tiles.save(outputFilePath);
+
+        // L4
+        //tiles = Export::getAllLevelTilesWithSpecials(
+        //    inputFolder, L4_FILE_PATHS, QList<quint16>(), QMap<quint16,QList<quint16>>());
+        //outputFilePath = outputFolder + "/" + L4_FILE_PATHS["png"];
+        //tiles.save(outputFilePath);
+    }
+    catch(...)
+    {
+        exportSuccess = false;
+    }
+
+    if( exportSuccess )
+    {
+        QMessageBox::information( this, "Information", "Export successful." );
+        this->close();
+    }
+    else
+        QMessageBox::critical( this, "Error", "Export Failed." );
 }
 
 void BatchExportDialog::exportAllHellfireLevelTilesForTiled()

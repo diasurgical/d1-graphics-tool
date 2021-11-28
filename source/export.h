@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QFileInfo>
+#include <QImage>
 
 #include "d1cel.h"
 #include "d1cl2.h"
@@ -38,9 +39,11 @@ public:
 
     static bool checkLevelFilePaths(QString, QMap<QString,QString>);
 
-    static QImage getLevelTileWithSpecial(
-        D1Til*, D1Cel*, QList<quint16>, QMap<quint16, QList<quint16>>);
-    static QImage getAllLevelTilesWith(QMap<QString,QString>);
+    static QImage getAllLevelTilesWithSpecials(
+        QString, QMap<QString, QString>, QList<quint16>, QMap<quint16, QList<quint16>>);
+
+    static QImage getLevelTileWithSpecials(
+        D1Til*, quint16, D1Cel*, QList<quint16>*, QList<quint16>*);
 
 signals:
 
