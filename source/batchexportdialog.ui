@@ -103,14 +103,17 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QRadioButton" name="radioButton">
+       <widget class="QRadioButton" name="exportAllDiabloLevelTilesRadioButton">
         <property name="text">
          <string>Export all Diablo level tiles (for Tiled)</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioButton_2">
+       <widget class="QRadioButton" name="exportAllHellfireLevelTilesRadioButton">
         <property name="text">
          <string>Export all Hellfire level tiles (for Tiled)</string>
         </property>

@@ -129,7 +129,7 @@ void ClearTranslationsCommand::redo()
     emit this->modified();
 }
 
-PaletteWidget::PaletteWidget( QJsonObject *config, QWidget *parent, QString title) :
+PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title) :
     QWidget(parent),
     configuration( config ),
     ui(new Ui::PaletteWidget),

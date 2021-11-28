@@ -9,7 +9,7 @@ MainWindow::MainWindow( QWidget *parent ) :
     configuration( new QJsonObject ),
     settingsDialog( new SettingsDialog(this) ),
     exportDialog( new ExportDialog(this) ),
-    batchExportDialog( new BatchExportDialog(this) ),
+    batchExportDialog( new BatchExportDialog(configuration,this) ),
     pal( new D1Pal ),
     trn1( new D1Trn ),
     trn2( new D1Trn ),
@@ -458,6 +458,10 @@ void MainWindow::on_actionExport_triggered()
 
 void MainWindow::on_actionBatchExport_triggered()
 {
+    if(this->configuration->contains("WorkingDirectory") )
+        batchExportDialog->setInputFolder(
+            this->configuration->value("WorkingDirectory").toString());
+
     this->batchExportDialog->show();
 }
 

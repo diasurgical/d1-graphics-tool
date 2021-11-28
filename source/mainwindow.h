@@ -28,7 +28,7 @@
 #include "exportdialog.h"
 #include "batchexportdialog.h"
 
-#define D1_GRAPHICS_TOOL_VERSION "0.5.1"
+#define D1_GRAPHICS_TOOL_VERSION "0.5.1-beta1"
 
 namespace Ui
 {

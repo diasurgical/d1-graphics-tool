@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.5.1 - 2021-
+### Added
+- New batch export dialog
+- Support for Diablo and Hellfire level tiles batch export (compatible with Tiled)
+
+### Changed
+- Qt Framework updated to 6.2.1.
+
 ## 0.5.0 - 2021-08-12
 ### Added
 - Color palette (PAL) write support.
