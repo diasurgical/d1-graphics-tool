@@ -31,6 +31,7 @@ CelView::CelView( QWidget *parent ) :
 CelView::~CelView()
 {
     delete ui;
+    delete celScene;
 }
 
 void CelView::initialize( D1CelBase* c )
