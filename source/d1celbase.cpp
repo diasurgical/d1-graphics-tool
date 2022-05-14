@@ -67,6 +67,8 @@ D1CelBase::D1CelBase( D1Pal* pal ) :
 
 D1CelBase::~D1CelBase()
 {
+    qDeleteAll( this->frames );
+
     if( this->file.isOpen() )
         this->file.close();
 }
