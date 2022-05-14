@@ -176,12 +176,6 @@ void MainWindow::on_actionOpen_triggered()
             this->pals[":/default.pal"] = new D1Pal(":/default.pal");
             this->pal = this->pals[":/default.pal"];
 
-            // Create D1Trn entities
-            this->trn1 = new D1Trn;
-            this->trn2 = new D1Trn;
-            // Set the palettes in reversed order, because in the game the trn files are applied to the cel files, not to the palettes.
-            this->trn1->setPalette( this->trn2->getResultingPalette() );
-            this->trn2->setPalette( this->pal );
             // Loading default null.trn
             this->trn1s[":/null.trn"] = new D1Trn(":/null.trn", this->pal );
             this->trn1 = this->trn1s[":/null.trn"];
@@ -205,8 +199,8 @@ void MainWindow::on_actionOpen_triggered()
                 QMessageBox::critical( this, "Error", errorMessage );
                 return;
             }
-            // use the result of the first D1Trn object, since the D1Trn's are in reversed order.
-            this->cel->setPalette( this->trn1->getResultingPalette() );
+
+            this->cel->setPalette( this->trn2->getResultingPalette() );
 
             // Add palette widgets for PAL and TRNs
             this->palWidget = new PaletteWidget( this->configuration, nullptr, "Palette" );
