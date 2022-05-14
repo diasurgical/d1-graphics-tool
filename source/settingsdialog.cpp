@@ -20,6 +20,12 @@ void SettingsDialog::initialize( QJsonObject *cfg )
 
     this->workingDirectory = this->configuration->value("WorkingDirectory").toString();
     this->ui->workingDirectoryEdit->setText( this->workingDirectory );
+
+    QColor palDefaultColor = QColor( this->configuration->value("PaletteDefaultColor").toString() );
+    this->ui->defaultPaletteColorLineEdit->setText( palDefaultColor.name() );
+
+    QColor palSelectionBorderColor = QColor( this->configuration->value("PaletteSelectionBorderColor").toString() );
+    this->ui->paletteSelectionBorderColorLineEdit->setText( palSelectionBorderColor.name() );
 }
 
 void SettingsDialog::saveConfiguration()
@@ -31,6 +37,8 @@ void SettingsDialog::saveConfiguration()
     QJsonDocument saveDoc( *this->configuration );
     saveJson.write( saveDoc.toJson() );
     saveJson.close();
+
+    emit this->configurationSaved();
 }
 
 void SettingsDialog::on_workingDirectoryBrowseButton_clicked()
@@ -48,14 +56,33 @@ void SettingsDialog::on_workingDirectoryBrowseButton_clicked()
     this->ui->workingDirectoryEdit->setText( this->workingDirectory );
 }
 
+void SettingsDialog::on_defaultPaletteColorPushButton_clicked()
+{
+    QColor color = QColorDialog::getColor();
+    this->ui->defaultPaletteColorLineEdit->setText( color.name() );
+}
+
+void SettingsDialog::on_paletteSelectionBorderColorPushButton_clicked()
+{
+    QColor color = QColorDialog::getColor();
+    this->ui->paletteSelectionBorderColorLineEdit->setText( color.name() );
+}
+
 void SettingsDialog::on_settingsOkButton_clicked()
 {
-    if( this->configurationChanged )
-    {
-        this->configuration->insert( "WorkingDirectory", this->workingDirectory );
-        this->saveConfiguration();
-        this->configurationChanged = false;
-    }
+    // WorkingDirectory
+    this->configuration->insert( "WorkingDirectory", this->workingDirectory );
+
+    // PaletteDefaultColor
+    QColor palDefaultColor = QColor( ui->defaultPaletteColorLineEdit->text() );
+    this->configuration->insert( "PaletteDefaultColor", palDefaultColor.name() );
+
+    // PaletteSelectionBorderColor
+    QColor palSelectionBorderColor = QColor( ui->paletteSelectionBorderColorLineEdit->text() );
+    this->configuration->insert( "PaletteSelectionBorderColor", palSelectionBorderColor.name() );
+
+    this->saveConfiguration();
+    this->configurationChanged = false;
 
     this->close();
 }

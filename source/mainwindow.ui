@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>900</height>
+    <height>820</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>1200</width>
-    <height>800</height>
+    <height>820</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -128,7 +128,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>30</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -152,20 +152,37 @@
    </widget>
    <widget class="QMenu" name="menuPalette">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="title">
      <string>Palette</string>
     </property>
-    <addaction name="actionLoad_PAL"/>
-    <addaction name="actionLoad_Translation_1"/>
-    <addaction name="actionLoad_Translation_2"/>
+    <addaction name="actionNew_PAL"/>
+    <addaction name="actionOpen_PAL"/>
+    <addaction name="actionSave_PAL"/>
+    <addaction name="actionSave_PAL_as"/>
+    <addaction name="actionClose_PAL"/>
     <addaction name="separator"/>
-    <addaction name="actionReset_PAL"/>
-    <addaction name="actionReset_Translation_1"/>
-    <addaction name="actionReset_Translation_2"/>
+    <addaction name="actionNew_Translation_2"/>
+    <addaction name="actionOpen_Translation_2"/>
+    <addaction name="actionSave_Translation_2"/>
+    <addaction name="actionSave_Translation_2_as"/>
+    <addaction name="actionClose_Translation_2"/>
+    <addaction name="separator"/>
+    <addaction name="actionNew_Translation_1"/>
+    <addaction name="actionOpen_Translation_1"/>
+    <addaction name="actionSave_Translation_1"/>
+    <addaction name="actionSave_Translation_1_as"/>
+    <addaction name="actionClose_Translation_1"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuPalette"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -197,12 +214,18 @@
     <string>Close</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+C</string>
+    <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="actionLoad_PAL">
+  <action name="actionOpen_PAL">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Load</string>
+    <string>Open palette...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
@@ -216,44 +239,26 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionLoad_Translation_1">
+  <action name="actionOpen_Translation_1">
    <property name="text">
-    <string>Load Translation 1</string>
+    <string>Open unique translation...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open unique translation</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionOpen_Translation_2">
+   <property name="text">
+    <string>Open translation...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open translation</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
-   </property>
-  </action>
-  <action name="actionReset_PAL">
-   <property name="text">
-    <string>Reset</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+P</string>
-   </property>
-  </action>
-  <action name="actionReset_Translation_1">
-   <property name="text">
-    <string>Reset Translation 1</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+T</string>
-   </property>
-  </action>
-  <action name="actionLoad_Translation_2">
-   <property name="text">
-    <string>Load Translation 2</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Shift+T</string>
-   </property>
-  </action>
-  <action name="actionReset_Translation_2">
-   <property name="text">
-    <string>Reset Translation 2</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+Alt+Shift+T</string>
    </property>
   </action>
   <action name="actionExport">
@@ -270,6 +275,66 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionSave_PAL">
+   <property name="text">
+    <string>Save palette</string>
+   </property>
+  </action>
+  <action name="actionSave_PAL_as">
+   <property name="text">
+    <string>Save palette as...</string>
+   </property>
+  </action>
+  <action name="actionSave_Translation_2">
+   <property name="text">
+    <string>Save translation</string>
+   </property>
+  </action>
+  <action name="actionSave_Translation_2_as">
+   <property name="text">
+    <string>Save translation as...</string>
+   </property>
+  </action>
+  <action name="actionSave_Translation_1">
+   <property name="text">
+    <string>Save unique translation</string>
+   </property>
+  </action>
+  <action name="actionSave_Translation_1_as">
+   <property name="text">
+    <string>Save unique translation as...</string>
+   </property>
+  </action>
+  <action name="actionNew_PAL">
+   <property name="text">
+    <string>New palette</string>
+   </property>
+  </action>
+  <action name="actionClose_PAL">
+   <property name="text">
+    <string>Close palette</string>
+   </property>
+  </action>
+  <action name="actionClose_Translation_2">
+   <property name="text">
+    <string>Close translation</string>
+   </property>
+  </action>
+  <action name="actionClose_Translation_1">
+   <property name="text">
+    <string>Close unique translation</string>
+   </property>
+  </action>
+  <action name="actionNew_Translation_2">
+   <property name="text">
+    <string>New translation</string>
+   </property>
+  </action>
+  <action name="actionNew_Translation_1">
+   <property name="text">
+    <string>New unique translation</string>
    </property>
   </action>
  </widget>

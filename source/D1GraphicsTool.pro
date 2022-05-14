@@ -23,13 +23,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += main.cpp \
+    d1palhits.cpp \
     mainwindow.cpp \
     d1cel.cpp \
     d1cl2.cpp \
     d1pal.cpp \
     d1trn.cpp \
     celview.cpp \
-    palview.cpp \
+    palettewidget.cpp \
     d1min.cpp \
     d1til.cpp \
     levelcelview.cpp \
@@ -41,9 +42,10 @@ HEADERS  += mainwindow.h \
     d1cel.h \
     d1cl2.h \
     d1pal.h \
+    d1palhits.h \
     d1trn.h \
     celview.h \
-    palview.h \
+    palettewidget.h \
     d1min.h \
     d1til.h \
     levelcelview.h \
@@ -53,10 +55,12 @@ HEADERS  += mainwindow.h \
 
 FORMS += mainwindow.ui \
     celview.ui \
-    palview.ui \
+    palettewidget.ui \
     levelcelview.ui \
     exportdialog.ui \
     settingsdialog.ui
 
 RESOURCES += \
     d1files.qrc
+
+RC_ICONS = icon.ico

@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>town.pal</file>
         <file>null.trn</file>
         <file>default.pal</file>
     </qresource>

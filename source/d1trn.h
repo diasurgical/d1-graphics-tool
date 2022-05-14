@@ -17,6 +17,10 @@ public:
     ~D1Trn();
 
     bool load( QString );
+    bool save( QString );
+
+    bool isModified();
+
     void refreshResultingPalette();
     QColor getResultingColor( quint8 );
 
@@ -29,6 +33,7 @@ public:
     D1Pal* getResultingPalette();
 
 private:
+    bool modified;
     QFile file;
     quint8 *translations;
     QPointer<D1Pal> palette;

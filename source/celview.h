@@ -6,6 +6,7 @@
 #include <QGraphicsPixmapItem>
 #include <QFileInfo>
 #include <QTimer>
+#include <QGraphicsSceneMouseEvent>
 
 #include "d1cel.h"
 #include "d1cl2.h"
@@ -13,8 +14,21 @@
 #define CEL_SCENE_SPACING 8
 
 namespace Ui {
+class CelScene;
 class CelView;
 }
+
+class CelScene : public QGraphicsScene
+{
+    Q_OBJECT
+
+protected:
+    void mousePressEvent( QGraphicsSceneMouseEvent *event );
+
+signals:
+    void framePixelClicked( quint16, quint16 );
+
+};
 
 class CelView : public QWidget
 {
@@ -28,13 +42,15 @@ public:
     D1CelBase* getCel();
     QString getCelPath();
     quint32 getCurrentFrameIndex();
+    void framePixelClicked( quint16, quint16 );
 
     void displayFrame();
     bool checkGroupNumber();
     void setGroupNumber();
 
 signals:
-    void frameChanged();
+    void frameRefreshed();
+    void colorIndexClicked( quint8 );
 
 private slots:
     void on_firstFrameButton_clicked();
@@ -59,7 +75,7 @@ private slots:
 
 private:
     Ui::CelView *ui;
-    QGraphicsScene *celScene;
+    CelScene *celScene;
 
     D1CelBase *cel;
     quint16 currentGroupIndex;

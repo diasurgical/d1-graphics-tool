@@ -1,10 +1,20 @@
 #include "celview.h"
 #include "ui_celview.h"
 
+void CelScene::mousePressEvent( QGraphicsSceneMouseEvent *event )
+{
+    qDebug() << "Clicked: " << event->scenePos().x() << "," << event->scenePos().y();
+
+    quint16 x = (quint16)event->scenePos().x();
+    quint16 y = (quint16)event->scenePos().y();
+
+    emit this->framePixelClicked( x, y );
+}
+
 CelView::CelView( QWidget *parent ) :
     QWidget( parent ),
     ui( new Ui::CelView ),
-    celScene( new QGraphicsScene ),
+    celScene( new CelScene ),
     currentGroupIndex( 0 ),
     currentFrameIndex( 0 ),
     currentZoomFactor( 1 )
@@ -13,6 +23,9 @@ CelView::CelView( QWidget *parent ) :
     ui->celGraphicsView->setScene( this->celScene );
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );
     this->playTimer.connect( &this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()) );
+
+    // If a pixel of the frame was clicked get pixel color index and notify the palette widgets
+    QObject::connect( this->celScene, &CelScene::framePixelClicked, this, &CelView::framePixelClicked );
 }
 
 CelView::~CelView()
@@ -28,12 +41,14 @@ void CelView::initialize( D1CelBase* c )
     QFileInfo celFileInfo( this->cel->getFilePath() );
     ui->celLabel->setText( celFileInfo.fileName() );
 
+    /*
     if( this->cel->getGroupCount() == 1 )
-        ui->celGroupsControlWidget->setDisabled(true);
+    {
+    }
+    */
 
     if( this->cel->getFrameCount() == 1 )
     {
-        ui->celFrameControlsWidget->setDisabled(true);
         ui->stopButton->setDisabled(true);
         ui->playButton->setDisabled(true);
     }
@@ -58,6 +73,23 @@ QString CelView::getCelPath()
 quint32 CelView::getCurrentFrameIndex()
 {
     return this->currentFrameIndex;
+}
+
+void CelView::framePixelClicked( quint16 x, quint16 y )
+{
+    quint8 index = 0;
+
+    // If the the click event lands in the scene spacing, ignore
+    if( x < CEL_SCENE_SPACING
+        || x > (CEL_SCENE_SPACING+this->cel->getFrameWidth(this->currentFrameIndex))
+        || y < CEL_SCENE_SPACING
+        || y > (CEL_SCENE_SPACING+this->cel->getFrameHeight(this->currentFrameIndex)) )
+        return;
+
+    index = this->cel->getFrame(
+        this->currentFrameIndex)->getPixel(x-CEL_SCENE_SPACING,y-CEL_SCENE_SPACING).getPaletteIndex();
+
+    emit this->colorIndexClicked( index );
 }
 
 void CelView::displayFrame()
@@ -100,7 +132,7 @@ void CelView::displayFrame()
         QString::number( this->currentFrameIndex + 1 ) );
 
     // Notify PalView that the frame changed (used to refresh palette hits
-    emit frameChanged();
+    emit this->frameRefreshed();
 }
 
 bool CelView::checkGroupNumber()
@@ -168,23 +200,25 @@ void CelView::on_firstFrameButton_clicked()
 void CelView::on_previousFrameButton_clicked()
 {
     if( this->currentFrameIndex >= 1 )
-    {
         this->currentFrameIndex--;
-        if( !this->checkGroupNumber() )
-            this->setGroupNumber();
-        this->displayFrame();
-    }
+    else
+        this->currentFrameIndex = this->cel->getFrameCount() - 1;
+
+    if( !this->checkGroupNumber() )
+        this->setGroupNumber();
+    this->displayFrame();
 }
 
 void CelView::on_nextFrameButton_clicked()
 {
     if( this->currentFrameIndex < (this->cel->getFrameCount() - 1) )
-    {
         this->currentFrameIndex++;
-        if( !this->checkGroupNumber() )
-            this->setGroupNumber();
-        this->displayFrame();
-    }
+    else
+        this->currentFrameIndex = 0;
+
+    if( !this->checkGroupNumber() )
+        this->setGroupNumber();
+    this->displayFrame();
 }
 
 void CelView::on_lastFrameButton_clicked()
@@ -215,13 +249,13 @@ void CelView::on_firstGroupButton_clicked()
 void CelView::on_previousGroupButton_clicked()
 {
     if( this->currentGroupIndex >= 1 )
-    {
         this->currentGroupIndex--;
-        this->currentFrameIndex = this->cel->getGroupFrameIndices(
-            this->currentGroupIndex ).first;
-        this->displayFrame();
-    }
+    else
+        this->currentGroupIndex = this->cel->getGroupCount() - 1;
 
+    this->currentFrameIndex = this->cel->getGroupFrameIndices(
+        this->currentGroupIndex ).first;
+    this->displayFrame();
 }
 
 void CelView::on_groupIndexEdit_returnPressed()
@@ -240,12 +274,13 @@ void CelView::on_groupIndexEdit_returnPressed()
 void CelView::on_nextGroupButton_clicked()
 {
     if( this->currentGroupIndex < (this->cel->getGroupCount() - 1) )
-    {
         this->currentGroupIndex++;
-        this->currentFrameIndex = this->cel->getGroupFrameIndices(
-            this->currentGroupIndex ).first;
-        this->displayFrame();
-    }
+    else
+        this->currentGroupIndex = 0;
+
+    this->currentFrameIndex = this->cel->getGroupFrameIndices(
+        this->currentGroupIndex ).first;
+    this->displayFrame();
 }
 
 void CelView::on_lastGroupButton_clicked()
@@ -260,7 +295,7 @@ void CelView::on_zoomOutButton_clicked()
 {
     if( this->currentZoomFactor - 1 >= 1 )
         this->currentZoomFactor -= 1;
-    ui->celGraphicsView->resetMatrix();
+    ui->celGraphicsView->resetTransform();
     ui->celGraphicsView->scale( this->currentZoomFactor, this->currentZoomFactor );
     ui->celGraphicsView->show();
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );
@@ -270,7 +305,7 @@ void CelView::on_zoomInButton_clicked()
 {
     if( this->currentZoomFactor + 1 <= 10 )
         this->currentZoomFactor += 1;
-    ui->celGraphicsView->resetMatrix();
+    ui->celGraphicsView->resetTransform();
     ui->celGraphicsView->scale( this->currentZoomFactor, this->currentZoomFactor );
     ui->celGraphicsView->show();
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );
@@ -282,7 +317,7 @@ void CelView::on_zoomEdit_returnPressed()
 
     if( zoom >= 1 && zoom <= 10 )
         this->currentZoomFactor = zoom;
-    ui->celGraphicsView->resetMatrix();
+    ui->celGraphicsView->resetTransform();
     ui->celGraphicsView->scale( this->currentZoomFactor, this->currentZoomFactor );
     ui->celGraphicsView->show();
     ui->zoomEdit->setText( QString::number( this->currentZoomFactor ) );

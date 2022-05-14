@@ -29,6 +29,9 @@ public:
     bool load( QString );
     bool loadRegularPalette();
     bool loadJascPalette();
+    bool save( QString );
+
+    bool isModified();
 
     QString getFilePath();
     bool isFileOpen();
@@ -38,6 +41,7 @@ public:
 
 private:
     D1PAL_TYPE type;
+    bool modified;
     QFile file;
     QColor *colors;
 };

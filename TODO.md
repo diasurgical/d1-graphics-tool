@@ -1,26 +1,29 @@
 ## TODO
 
+### 0.5.0
+1. Implement multi-color selection in palette widgets
+2. Implement undo/redo stack
+3. Show all colors when clicking "Pick" button
+4. Warn about modified files before closing them
+
+### 0.6.0
+
+
 ### Add
-- PowerShell release script which takes a Qt build folder as parameter
 - Add settings
     - Background color? (grey, green, magenta, cyan?)
     - Default zoom level (depending on CEL/CL2 type?)
         - By default: x2
         - Automatic dezoom when opening a bigger image?
-    - Default palette size? (192px, 256px)
+- PowerShell release script which takes a Qt build folder as parameter
 - Application icon
 - PCX support
-- GIF viewing support
+- GIF support
 
 ### Change
-- Rework PAL and TRN support
-    - Build additional palettes
-        - Last color with specific color to identify transparent zones
-        - Second half with specific color?
-        - One for each hue in a specific color?
-    - Include cel/cl2 to trn mapping in the program, especially for monsters.
+- Include CEL/CL2 to TRN mapping in the program, especially for monsters.
 - Remove CelView and LevelCelView dependencies from PalView by leveraging signals/slots.
 - Rewrite level CEL frame type detection to leverage associated MIN file when available.
 
 ### Fix
-- Last color of pal/trn not displayed as transparent??
+- Last color of PAL/TRN not displayed as transparent??
