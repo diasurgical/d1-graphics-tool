@@ -31,6 +31,7 @@ LevelCelView::LevelCelView(QWidget *parent) :
 LevelCelView::~LevelCelView()
 {
     delete ui;
+    delete celScene;
 }
 
 void LevelCelView::initialize( D1CelBase* c, D1Min* m, D1Til* t )

@@ -2,14 +2,14 @@
 
 D1Trn::D1Trn() :
     modified( false ),
-    file( new QFile ),
+    file( ),
     translations( new quint8[D1TRN_TRANSLATIONS] ),
     resultingPalette( new D1Pal )
 {}
 
 D1Trn::D1Trn( QString path, D1Pal* pal ) :
     modified( false ),
-    file( new QFile ),
+    file( ),
     translations( new quint8[D1TRN_TRANSLATIONS] ),
     palette( QPointer<D1Pal>(pal) ),
     resultingPalette( new D1Pal )
@@ -20,6 +20,7 @@ D1Trn::D1Trn( QString path, D1Pal* pal ) :
 D1Trn::~D1Trn()
 {
     delete[] translations;
+    delete resultingPalette;
 
     if( this->file.isOpen() )
         this->file.close();

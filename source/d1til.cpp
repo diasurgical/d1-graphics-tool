@@ -2,7 +2,7 @@
 
 D1Til::D1Til() :
     type( D1TIL_TYPE::REGULAR_HEIGHT ),
-    file( new QFile ),
+    file( ),
     min( NULL ),
     tileCount( 0 ),
     tileWidth( 0 ),
@@ -13,7 +13,7 @@ D1Til::D1Til() :
 
 D1Til::D1Til( QString path, D1Min* m ) :
     type( D1TIL_TYPE::REGULAR_HEIGHT ),
-    file( new QFile ),
+    file( ),
     min( m ),
     tileCount( 0 ),
     tileWidth( 0 ),

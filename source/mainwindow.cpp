@@ -37,6 +37,9 @@ MainWindow::MainWindow( QWidget *parent ) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete configuration;
+    delete settingsDialog;
+    delete exportDialog;
 
     if( this->undoStack )
         delete this->undoStack;
@@ -112,6 +115,7 @@ void MainWindow::loadConfiguration()
         QFile loadJson(jsonFilePath);
         loadJson.open( QIODevice::ReadOnly );
         QJsonDocument loadJsonDoc = QJsonDocument::fromJson( loadJson.readAll() );
+        delete this->configuration;
         this->configuration = new QJsonObject( loadJsonDoc.object() );
         loadJson.close();
 
@@ -472,6 +476,8 @@ void MainWindow::on_actionNew_PAL_triggered()
     QString path = palFileInfo.absoluteFilePath();
     QString name = palFileInfo.fileName();
 
+    if( this->pals.contains(path) )
+        delete this->pals[path];
     this->pals[path] = new D1Pal();
     if( !this->pals[path]->load( ":/default.pal" ) )
     {
@@ -498,6 +504,8 @@ void MainWindow::on_actionOpen_PAL_triggered()
     QString path = palFileInfo.absoluteFilePath();
     QString name = palFileInfo.fileName();
 
+    if( this->pals.contains(path) )
+        delete this->pals[path];
     this->pals[path] = new D1Pal();
     if( !this->pals[path]->load( path ) )
     {
@@ -586,6 +594,8 @@ void MainWindow::on_actionNew_Translation_1_triggered()
     QString path = trnFileInfo.absoluteFilePath();
     QString name = trnFileInfo.fileName();
 
+    if( this->trn1s.contains(path) )
+        delete this->trn1s[path];
     this->trn1s[path] = new D1Trn();
     this->trn1s[path]->setPalette( this->pal );
     if( !this->trn1s[path]->load( ":/null.trn" ) )
@@ -613,6 +623,8 @@ void MainWindow::on_actionOpen_Translation_1_triggered()
     QString path = trnFileInfo.absoluteFilePath();
     QString name = trnFileInfo.fileName();
 
+    if( this->trn1s.contains(path) )
+        delete this->trn1s[path];
     this->trn1s[path] = new D1Trn();
     this->trn1s[path]->setPalette( this->pal );
     if( !this->trn1s[path]->load( path ) )
@@ -702,6 +714,8 @@ void MainWindow::on_actionNew_Translation_2_triggered()
     QString path = trnFileInfo.absoluteFilePath();
     QString name = trnFileInfo.fileName();
 
+    if( this->trn2s.contains(path) )
+        delete this->trn2s[path];
     this->trn2s[path] = new D1Trn();
     this->trn2s[path]->setPalette( this->trn1->getResultingPalette() );
     if( !this->trn2s[path]->load( ":/null.trn" ) )
@@ -729,6 +743,8 @@ void MainWindow::on_actionOpen_Translation_2_triggered()
     QString path = trnFileInfo.absoluteFilePath();
     QString name = trnFileInfo.fileName();
 
+    if( this->trn2s.contains(path) )
+        delete this->trn2s[path];
     this->trn2s[path] = new D1Trn();
     this->trn2s[path]->setPalette( this->pal );
     if( !this->trn2s[path]->load( path ) )

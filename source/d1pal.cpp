@@ -3,14 +3,14 @@
 D1Pal::D1Pal() :
     type( D1PAL_TYPE::REGULAR ),
     modified(false),
-    file(new QFile),
-    colors(new QColor[D1PAL_COLORS])
+    file( ),
+    colors( new QColor[D1PAL_COLORS] )
 {}
 
 D1Pal::D1Pal( QString path ) :
     type( D1PAL_TYPE::REGULAR ),
     modified(false),
-    file( new QFile ),
+    file( ),
     colors( new QColor[D1PAL_COLORS] )
 {
     this->load( path );

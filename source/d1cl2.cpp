@@ -323,6 +323,7 @@ bool D1Cl2::load( QString cl2FilePath )
 
     // BUILDING {CL2 FRAMES}
 
+    qDeleteAll ( this->frames );
     this->frames.clear();
     for( int i = 0; i < this->frameOffsets.size(); i++ )
     {
