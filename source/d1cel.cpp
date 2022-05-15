@@ -438,11 +438,15 @@ quint16 D1CelFrame::computeWidthFromData( QByteArray &rawFrameData )
 
     // If width wasnt found return 0
     if( width == 0 )
+    {
+        qDeleteAll( pixelGroups );
         return 0;
+    }
 
     // If width is consistent
     if( globalPixelCount % width == 0 )
     {
+        qDeleteAll( pixelGroups );
         return width;
     }
     // If width is inconsistent
@@ -457,10 +461,12 @@ quint16 D1CelFrame::computeWidthFromData( QByteArray &rawFrameData )
                 && globalPixelCount % pixelCount == 0
                 && pixelCount >= biggestGroupPixelCount )
             {
+                qDeleteAll( pixelGroups );
                 return pixelCount;
             }
         }
 
+        qDeleteAll( pixelGroups );
         // If still no width found return 0
         return 0;
     }
@@ -818,6 +824,7 @@ bool D1Cel::load( QString celFilePath )
 
     // BUILDING {CEL FRAMES}
 
+    qDeleteAll ( this->frames );
     this->frames.clear();
     for( int i = 0; i < this->frameOffsets.size(); i++ )
     {

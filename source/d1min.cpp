@@ -2,7 +2,7 @@
 
 D1Min::D1Min() :
     type( D1MIN_TYPE::REGULAR_HEIGHT ),
-    file( new QFile ),
+    file( ),
     cel( NULL ),
     subtileWidth( 2 ),
     subtileHeight( 5 ),
@@ -11,7 +11,7 @@ D1Min::D1Min() :
 
 D1Min::D1Min( QString path, D1Cel* c ) :
     type( D1MIN_TYPE::REGULAR_HEIGHT ),
-    file( new QFile ),
+    file( ),
     cel( c ),
     subtileWidth( 2 ),
     subtileHeight( 5 ),
