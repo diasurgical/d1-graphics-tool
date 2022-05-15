@@ -51,7 +51,7 @@ D1CelPixel D1CelFrameBase::getPixel( quint16 x, quint16 y )
 
 D1CelBase::D1CelBase() :
     type( D1CEL_TYPE::NONE ),
-    file( new QFile ),
+    file( ),
     palette( NULL ),
     groupCount( 0 ),
     frameCount( 0 )
@@ -59,7 +59,7 @@ D1CelBase::D1CelBase() :
 
 D1CelBase::D1CelBase( D1Pal* pal ) :
     type( D1CEL_TYPE::NONE ),
-    file( new QFile ),
+    file( ),
     palette( pal ),
     groupCount( 0 ),
     frameCount( 0 )
@@ -67,6 +67,8 @@ D1CelBase::D1CelBase( D1Pal* pal ) :
 
 D1CelBase::~D1CelBase()
 {
+    qDeleteAll( this->frames );
+
     if( this->file.isOpen() )
         this->file.close();
 }

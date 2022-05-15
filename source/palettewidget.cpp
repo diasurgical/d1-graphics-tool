@@ -172,6 +172,7 @@ PaletteWidget::PaletteWidget( QJsonObject *config, QWidget *parent, QString titl
 PaletteWidget::~PaletteWidget()
 {
     delete ui;
+    delete scene;
 }
 
 void PaletteWidget::setPal( D1Pal *p )
