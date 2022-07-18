@@ -160,7 +160,7 @@ void MainWindow::on_actionOpen_triggered()
 
     QString openFilePath = QFileDialog::getOpenFileName(
         this, "Open Graphics", this->configuration->value("WorkingDirectory").toString(),
-        "CEL/CL2 Files (*.cel *.cl2);;PCX Files (*.pcx);;GIF Files (*.gif)" );
+        "CEL/CL2 Files (*.cel *.CEL *.cl2 *.CL2);;PCX Files (*.pcx *.PCX);;GIF Files (*.gif)" );
 
     if( !openFilePath.isEmpty() )
     {
