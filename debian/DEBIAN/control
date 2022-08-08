@@ -1,0 +1,10 @@
+Package: d1-graphics-tool
+Version: 0.5.0
+Architecture: amd64
+Maintainer: Anders Jenbo <anders@jenbo.dk>
+Installed-Size: 444
+Depends: libqt6widgets6 (>= 6.2.4), qt6-qpa-plugins (>= 6.2.4)
+Section: graphics
+Priority: optional
+Homepage: https://github.com/savagesteel/d1-graphics-tool
+Description: Diablo 1 Graphics Tool can open CEL/CL2 graphics files and display them with chosen color palette (PAL) and color translation (TRN) files.

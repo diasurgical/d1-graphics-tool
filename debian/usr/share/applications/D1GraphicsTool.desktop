@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=0.5.0
+Type=Application
+Name=Diablo 1 Graphics Tool
+Comment=Work with Diablo 1 graphics files
+Keywords=Diablo;graphic;
+Exec=D1GraphicsTool
+Icon=/opt/d1-graphics-tool/icon.svg
+Terminal=false
+Categories=Graphics;2DGraphics;RasterGraphics;
+StartupNotify=true
