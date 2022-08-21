@@ -78,6 +78,10 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionAbout_Qt_triggered();
 
+    void openFile( QString openFilePath );
+
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 private:
     Ui::MainWindow *ui;
     QJsonObject *configuration;
