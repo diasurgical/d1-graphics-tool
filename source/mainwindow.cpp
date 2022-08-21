@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QMimeData>
+#include <QDragEnterEvent>
 #include <QTime>
 
 MainWindow::MainWindow( QWidget *parent ) :
@@ -32,6 +34,7 @@ MainWindow::MainWindow( QWidget *parent ) :
     this->ui->menuEdit->addAction( this->redoAction );
 
     this->ui->menuPalette->setEnabled( false );
+    setAcceptDrops(true);
 }
 
 MainWindow::~MainWindow()
@@ -151,238 +154,13 @@ void MainWindow::pushCommandToUndoStack( QUndoCommand *cmd )
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString errorMessage;
-    bool minTilFound = false;
-    QString celDirectory;
-    QString celFileName;
-    QString minFilePath;
-    QString tilFilePath;
-
     QString openFilePath = QFileDialog::getOpenFileName(
         this, "Open Graphics", this->configuration->value("WorkingDirectory").toString(),
         "CEL/CL2 Files (*.cel *.cl2);;PCX Files (*.pcx);;GIF Files (*.gif)" );
 
     if( !openFilePath.isEmpty() )
     {
-        // Check file extension
-        if( openFilePath.toLower().endsWith( ".cel" ) || openFilePath.toLower().endsWith( ".cl2" ) )
-        {
-            this->on_actionClose_triggered();
-
-            this->ui->statusBar->showMessage("Loading...");
-            this->ui->statusBar->repaint();
-
-            // Loading default.pal
-            this->pals[":/default.pal"] = new D1Pal(":/default.pal");
-            this->pal = this->pals[":/default.pal"];
-
-            // Loading default null.trn
-            this->trn1s[":/null.trn"] = new D1Trn(":/null.trn", this->pal );
-            this->trn1 = this->trn1s[":/null.trn"];
-            this->trn2s[":/null.trn"] = new D1Trn(":/null.trn", this->trn1->getResultingPalette() );
-            this->trn2 = this->trn2s[":/null.trn"];
-
-
-            if( openFilePath.toLower().endsWith( ".cel" ) )
-            {
-                this->cel = new D1Cel;
-                errorMessage = "Could not open CEL file.";
-            }
-            else
-            {
-                this->cel = new D1Cl2;
-                errorMessage = "Could not open CL2 file.";
-            }
-
-            if( !this->cel->load( openFilePath ) )
-            {
-                QMessageBox::critical( this, "Error", errorMessage );
-                return;
-            }
-
-            this->cel->setPalette( this->trn2->getResultingPalette() );
-
-            // Add palette widgets for PAL and TRNs
-            this->palWidget = new PaletteWidget( this->configuration, nullptr, "Palette" );
-            this->trn2Widget = new PaletteWidget( this->configuration, nullptr, "Translation" );
-            this->trn1Widget = new PaletteWidget( this->configuration, nullptr, "Unique translation" );
-            this->ui->palFrame->layout()->addWidget( this->palWidget );
-            this->ui->palFrame->layout()->addWidget( this->trn2Widget );
-            this->ui->palFrame->layout()->addWidget( this->trn1Widget );
-
-            // Configuration update triggers refresh of the palette widgets
-            QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::reloadConfig );
-            QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->trn1Widget, &PaletteWidget::reloadConfig );
-            QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->trn2Widget, &PaletteWidget::reloadConfig );
-            QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::refresh );
-
-            // Palette and translation file selection
-            // When a .pal or .trn file is selected in the PaletteWidget update the pal or trn
-            QObject::connect( this->palWidget, &PaletteWidget::pathSelected, this, &MainWindow::setPal );
-            QObject::connect( this->trn1Widget, &PaletteWidget::pathSelected, this, &MainWindow::setTrn1 );
-            QObject::connect( this->trn2Widget, &PaletteWidget::pathSelected, this, &MainWindow::setTrn2 );
-
-            // Refresh PAL/TRN view chain
-            QObject::connect( this->palWidget, &PaletteWidget::refreshed, this->trn1Widget, &PaletteWidget::refresh );
-            QObject::connect( this->trn1Widget, &PaletteWidget::refreshed, this->trn2Widget, &PaletteWidget::refresh );
-
-            // Translation color selection
-            QObject::connect( this->palWidget, &PaletteWidget::colorsSelected, this->trn1Widget, &PaletteWidget::checkTranslationsSelection );
-            QObject::connect( this->trn1Widget, &PaletteWidget::colorsSelected, this->trn2Widget, &PaletteWidget::checkTranslationsSelection );
-            QObject::connect( this->trn1Widget, &PaletteWidget::displayAllRootColors, this->palWidget, &PaletteWidget::temporarilyDisplayAllColors );
-            QObject::connect( this->trn2Widget, &PaletteWidget::displayAllRootColors, this->trn1Widget, &PaletteWidget::temporarilyDisplayAllColors );
-            QObject::connect( this->trn1Widget, &PaletteWidget::displayRootInformation, this->palWidget, &PaletteWidget::displayInfo );
-            QObject::connect( this->trn2Widget, &PaletteWidget::displayRootInformation, this->trn1Widget, &PaletteWidget::displayInfo );
-            QObject::connect( this->trn1Widget, &PaletteWidget::displayRootBorder, this->palWidget, &PaletteWidget::displayBorder );
-            QObject::connect( this->trn2Widget, &PaletteWidget::displayRootBorder, this->trn1Widget, &PaletteWidget::displayBorder );
-            QObject::connect( this->trn1Widget, &PaletteWidget::clearRootInformation, this->palWidget, &PaletteWidget::clearInfo );
-            QObject::connect( this->trn2Widget, &PaletteWidget::clearRootInformation, this->trn1Widget, &PaletteWidget::clearInfo );
-            QObject::connect( this->trn1Widget, &PaletteWidget::clearRootBorder, this->palWidget, &PaletteWidget::clearBorder );
-            QObject::connect( this->trn2Widget, &PaletteWidget::clearRootBorder, this->trn1Widget, &PaletteWidget::clearBorder );
-
-            // Send editing actions to the undo/redo stack
-            QObject::connect( this->palWidget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
-            QObject::connect( this->trn1Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
-            QObject::connect( this->trn2Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
-            
-            // Look for all palettes in the same folder as the CEL/CL2 file
-            QFileInfo celFileInfo( openFilePath );
-            QDirIterator it( celFileInfo.absolutePath(), QStringList() << "*.pal", QDir::Files );
-            QString firstPaletteFound = QString();
-            while( it.hasNext() )
-            {
-                QString sPath = it.next();
-
-                if( sPath != "1" )
-                {
-                    QFileInfo palFileInfo( sPath );
-                    QString path = palFileInfo.absoluteFilePath();
-                    QString name = palFileInfo.fileName();
-                    this->pals[path] = new D1Pal();
-
-                    if( !this->pals[path]->load( path ) )
-                    {
-                        delete this->pals[path];
-                        this->pals.remove( path );
-                        QMessageBox::critical( this, "Error", "Could not load PAL file." );
-                        return;
-                    }
-
-                    this->palWidget->addPath( path, name );
-
-                    if( firstPaletteFound.isEmpty() )
-                        firstPaletteFound = path;
-                }
-            }
-
-            // If the CEL file is a level CEL file, then look for
-            // associated MIN and TIL files
-            if( this->cel->getType() == D1CEL_TYPE::V1_LEVEL )
-            {
-                QFileInfo celFileInfo = QFileInfo( openFilePath );
-                celDirectory = celFileInfo.absolutePath();
-                celFileName = celFileInfo.fileName();
-                minFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel",".min");
-                tilFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel",".til");
-
-                if( QFileInfo::exists( minFilePath )
-                    && QFileInfo::exists( tilFilePath ) )
-                    minTilFound = true;
-            }
-
-            // If the CEL file is a level file and the required MIN and TIL
-            // were found then build a LevelCelView
-            if( minTilFound )
-            {
-                // Loading MIN
-                this->min = new D1Min;
-                if( !this->min->load( minFilePath ) )
-                {
-                    QMessageBox::critical( this, "Error", "Failed loading MIN file: "+minFilePath );
-                    return;
-                }
-                this->min->setCel( this->cel );
-
-                // Loading TIL
-                this->til = new D1Til;
-                if( !this->til->load( tilFilePath ) )
-                {
-                    QMessageBox::critical( this, "Error", "Failed loading TIL file: "+tilFilePath );
-                    return;
-                }
-                this->til->setMin( this->min );
-
-                this->levelCelView = new LevelCelView;
-                this->levelCelView->initialize( this->cel, this->min, this->til );
-
-                // Refresh CEL view if a PAL or TRN is modified
-                QObject::connect( this->palWidget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
-                QObject::connect( this->trn1Widget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
-                QObject::connect( this->trn2Widget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
-
-                // Select color when level CEL view clicked
-                QObject::connect( this->levelCelView, &LevelCelView::colorIndexClicked, this->palWidget, &PaletteWidget::selectColor );
-                QObject::connect( this->levelCelView, &LevelCelView::colorIndexClicked, this->trn1Widget, &PaletteWidget::selectColor );
-                QObject::connect( this->levelCelView, &LevelCelView::colorIndexClicked, this->trn2Widget, &PaletteWidget::selectColor );
-
-                // Refresh palette widgets when frame, subtile of tile is changed
-                QObject::connect( this->levelCelView, &LevelCelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh );
-
-                // Initialize palette widgets
-                this->palHits = new D1PalHits( this->cel, this->min, this->til );
-                this->palWidget->initialize( this->pal, this->levelCelView, this->palHits );
-                this->trn1Widget->initialize( this->pal, this->trn1, this->levelCelView, this->palHits );
-                this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->levelCelView, this->palHits );
-
-
-                this->levelCelView->displayFrame();
-            }
-            // Otherwise build a CelView
-            else
-            {
-                this->celView = new CelView;
-                this->celView->initialize( this->cel );
-
-                // Refresh CEL view if a PAL or TRN is modified
-                QObject::connect( this->palWidget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
-                QObject::connect( this->trn1Widget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
-                QObject::connect( this->trn2Widget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
-
-                // Select color when CEL view clicked
-                QObject::connect( this->celView, &CelView::colorIndexClicked, this->palWidget, &PaletteWidget::selectColor );
-                QObject::connect( this->celView, &CelView::colorIndexClicked, this->trn1Widget, &PaletteWidget::selectColor );
-                QObject::connect( this->celView, &CelView::colorIndexClicked, this->trn2Widget, &PaletteWidget::selectColor );
-
-                // Refresh palette widgets when frame
-                QObject::connect( this->celView, &CelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh );
-
-                // Initialize palette widgets
-                this->palHits = new D1PalHits( this->cel );
-                this->palWidget->initialize( this->pal, this->celView, this->palHits );
-                this->trn1Widget->initialize( this->pal, this->trn1, this->celView, this->palHits );
-                this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView, this->palHits );
-
-                this->celView->displayFrame();
-            }
-
-            // Select the first palette found in the same folder as the CEL/CL2 if it exists
-            if( !firstPaletteFound.isEmpty() )
-                this->palWidget->selectPath( firstPaletteFound );
-
-            // Adding the CelView to the main frame
-            if( this->celView )
-                this->ui->mainFrame->layout()->addWidget( this->celView );
-            else
-                this->ui->mainFrame->layout()->addWidget( this->levelCelView );
-
-            // Adding the PalView to the pal frame
-            //this->ui->palFrame->layout()->addWidget( this->palView );
-            this->ui->menuPalette->setEnabled( true );
-            this->ui->actionExport->setEnabled( true );
-
-            // Clear loading message from status bar
-            this->ui->statusBar->clearMessage();
-        }
+        this->openFile(openFilePath);
     }
 
     //QMessageBox::information( this, "Debug", celFilePath );
@@ -391,6 +169,256 @@ void MainWindow::on_actionOpen_triggered()
     //QTime timer = QTime();
     //timer.start();
     //QMessageBox::information( this, "time", QString::number(timer.elapsed()) );
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasFormat("text/uri-list"))
+        event->acceptProposedAction();
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    if (!event->mimeData()->hasFormat("text/uri-list"))
+        return;
+
+    event->acceptProposedAction();
+
+    for (auto url : event->mimeData()->urls())
+        this->openFile(url.path() );
+}
+
+void MainWindow::openFile( QString openFilePath )
+{
+    bool minTilFound = false;
+    QString errorMessage;
+    QString celDirectory;
+    QString celFileName;
+    QString minFilePath;
+    QString tilFilePath;
+
+    // Check file extension
+    if( !openFilePath.toLower().endsWith( ".cel" ) && !openFilePath.toLower().endsWith( ".cl2" ) )
+    {
+        return;
+    }
+
+
+    this->on_actionClose_triggered();
+
+    this->ui->statusBar->showMessage("Loading...");
+    this->ui->statusBar->repaint();
+
+    // Loading default.pal
+    this->pals[":/default.pal"] = new D1Pal(":/default.pal");
+    this->pal = this->pals[":/default.pal"];
+
+    // Loading default null.trn
+    this->trn1s[":/null.trn"] = new D1Trn(":/null.trn", this->pal );
+    this->trn1 = this->trn1s[":/null.trn"];
+    this->trn2s[":/null.trn"] = new D1Trn(":/null.trn", this->trn1->getResultingPalette() );
+    this->trn2 = this->trn2s[":/null.trn"];
+
+
+    if( openFilePath.toLower().endsWith( ".cel" ) )
+    {
+        this->cel = new D1Cel;
+        errorMessage = "Could not open CEL file.";
+    }
+    else
+    {
+        this->cel = new D1Cl2;
+        errorMessage = "Could not open CL2 file.";
+    }
+
+    if( !this->cel->load( openFilePath ) )
+    {
+        QMessageBox::critical( this, "Error", errorMessage );
+        return;
+    }
+
+    this->cel->setPalette( this->trn2->getResultingPalette() );
+
+    // Add palette widgets for PAL and TRNs
+    this->palWidget = new PaletteWidget( this->configuration, nullptr, "Palette" );
+    this->trn2Widget = new PaletteWidget( this->configuration, nullptr, "Translation" );
+    this->trn1Widget = new PaletteWidget( this->configuration, nullptr, "Unique translation" );
+    this->ui->palFrame->layout()->addWidget( this->palWidget );
+    this->ui->palFrame->layout()->addWidget( this->trn2Widget );
+    this->ui->palFrame->layout()->addWidget( this->trn1Widget );
+
+    // Configuration update triggers refresh of the palette widgets
+    QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::reloadConfig );
+    QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->trn1Widget, &PaletteWidget::reloadConfig );
+    QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->trn2Widget, &PaletteWidget::reloadConfig );
+    QObject::connect( this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::refresh );
+
+    // Palette and translation file selection
+    // When a .pal or .trn file is selected in the PaletteWidget update the pal or trn
+    QObject::connect( this->palWidget, &PaletteWidget::pathSelected, this, &MainWindow::setPal );
+    QObject::connect( this->trn1Widget, &PaletteWidget::pathSelected, this, &MainWindow::setTrn1 );
+    QObject::connect( this->trn2Widget, &PaletteWidget::pathSelected, this, &MainWindow::setTrn2 );
+
+    // Refresh PAL/TRN view chain
+    QObject::connect( this->palWidget, &PaletteWidget::refreshed, this->trn1Widget, &PaletteWidget::refresh );
+    QObject::connect( this->trn1Widget, &PaletteWidget::refreshed, this->trn2Widget, &PaletteWidget::refresh );
+
+    // Translation color selection
+    QObject::connect( this->palWidget, &PaletteWidget::colorsSelected, this->trn1Widget, &PaletteWidget::checkTranslationsSelection );
+    QObject::connect( this->trn1Widget, &PaletteWidget::colorsSelected, this->trn2Widget, &PaletteWidget::checkTranslationsSelection );
+    QObject::connect( this->trn1Widget, &PaletteWidget::displayAllRootColors, this->palWidget, &PaletteWidget::temporarilyDisplayAllColors );
+    QObject::connect( this->trn2Widget, &PaletteWidget::displayAllRootColors, this->trn1Widget, &PaletteWidget::temporarilyDisplayAllColors );
+    QObject::connect( this->trn1Widget, &PaletteWidget::displayRootInformation, this->palWidget, &PaletteWidget::displayInfo );
+    QObject::connect( this->trn2Widget, &PaletteWidget::displayRootInformation, this->trn1Widget, &PaletteWidget::displayInfo );
+    QObject::connect( this->trn1Widget, &PaletteWidget::displayRootBorder, this->palWidget, &PaletteWidget::displayBorder );
+    QObject::connect( this->trn2Widget, &PaletteWidget::displayRootBorder, this->trn1Widget, &PaletteWidget::displayBorder );
+    QObject::connect( this->trn1Widget, &PaletteWidget::clearRootInformation, this->palWidget, &PaletteWidget::clearInfo );
+    QObject::connect( this->trn2Widget, &PaletteWidget::clearRootInformation, this->trn1Widget, &PaletteWidget::clearInfo );
+    QObject::connect( this->trn1Widget, &PaletteWidget::clearRootBorder, this->palWidget, &PaletteWidget::clearBorder );
+    QObject::connect( this->trn2Widget, &PaletteWidget::clearRootBorder, this->trn1Widget, &PaletteWidget::clearBorder );
+
+    // Send editing actions to the undo/redo stack
+    QObject::connect( this->palWidget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
+    QObject::connect( this->trn1Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
+    QObject::connect( this->trn2Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack );
+
+    // Look for all palettes in the same folder as the CEL/CL2 file
+    QFileInfo celFileInfo( openFilePath );
+    QDirIterator it( celFileInfo.absolutePath(), QStringList() << "*.pal", QDir::Files );
+    QString firstPaletteFound = QString();
+    while( it.hasNext() )
+    {
+        QString sPath = it.next();
+
+        if( sPath != "1" )
+        {
+            QFileInfo palFileInfo( sPath );
+            QString path = palFileInfo.absoluteFilePath();
+            QString name = palFileInfo.fileName();
+            this->pals[path] = new D1Pal();
+
+            if( !this->pals[path]->load( path ) )
+            {
+                delete this->pals[path];
+                this->pals.remove( path );
+                QMessageBox::critical( this, "Error", "Could not load PAL file." );
+                return;
+            }
+
+            this->palWidget->addPath( path, name );
+
+            if( firstPaletteFound.isEmpty() )
+                firstPaletteFound = path;
+        }
+    }
+
+    // If the CEL file is a level CEL file, then look for
+    // associated MIN and TIL files
+    if( this->cel->getType() == D1CEL_TYPE::V1_LEVEL )
+    {
+        QFileInfo celFileInfo = QFileInfo( openFilePath );
+        celDirectory = celFileInfo.absolutePath();
+        celFileName = celFileInfo.fileName();
+        minFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel",".min");
+        tilFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel",".til");
+
+        if( QFileInfo::exists( minFilePath )
+            && QFileInfo::exists( tilFilePath ) )
+            minTilFound = true;
+    }
+
+    // If the CEL file is a level file and the required MIN and TIL
+    // were found then build a LevelCelView
+    if( minTilFound )
+    {
+        // Loading MIN
+        this->min = new D1Min;
+        if( !this->min->load( minFilePath ) )
+        {
+            QMessageBox::critical( this, "Error", "Failed loading MIN file: "+minFilePath );
+            return;
+        }
+        this->min->setCel( this->cel );
+
+        // Loading TIL
+        this->til = new D1Til;
+        if( !this->til->load( tilFilePath ) )
+        {
+            QMessageBox::critical( this, "Error", "Failed loading TIL file: "+tilFilePath );
+            return;
+        }
+        this->til->setMin( this->min );
+
+        this->levelCelView = new LevelCelView;
+        this->levelCelView->initialize( this->cel, this->min, this->til );
+
+        // Refresh CEL view if a PAL or TRN is modified
+        QObject::connect( this->palWidget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
+        QObject::connect( this->trn1Widget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
+        QObject::connect( this->trn2Widget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );
+
+        // Select color when level CEL view clicked
+        QObject::connect( this->levelCelView, &LevelCelView::colorIndexClicked, this->palWidget, &PaletteWidget::selectColor );
+        QObject::connect( this->levelCelView, &LevelCelView::colorIndexClicked, this->trn1Widget, &PaletteWidget::selectColor );
+        QObject::connect( this->levelCelView, &LevelCelView::colorIndexClicked, this->trn2Widget, &PaletteWidget::selectColor );
+
+        // Refresh palette widgets when frame, subtile of tile is changed
+        QObject::connect( this->levelCelView, &LevelCelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh );
+
+        // Initialize palette widgets
+        this->palHits = new D1PalHits( this->cel, this->min, this->til );
+        this->palWidget->initialize( this->pal, this->levelCelView, this->palHits );
+        this->trn1Widget->initialize( this->pal, this->trn1, this->levelCelView, this->palHits );
+        this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->levelCelView, this->palHits );
+
+
+        this->levelCelView->displayFrame();
+    }
+    // Otherwise build a CelView
+    else
+    {
+        this->celView = new CelView;
+        this->celView->initialize( this->cel );
+
+        // Refresh CEL view if a PAL or TRN is modified
+        QObject::connect( this->palWidget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
+        QObject::connect( this->trn1Widget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
+        QObject::connect( this->trn2Widget, &PaletteWidget::modified, this->celView, &CelView::displayFrame );
+
+        // Select color when CEL view clicked
+        QObject::connect( this->celView, &CelView::colorIndexClicked, this->palWidget, &PaletteWidget::selectColor );
+        QObject::connect( this->celView, &CelView::colorIndexClicked, this->trn1Widget, &PaletteWidget::selectColor );
+        QObject::connect( this->celView, &CelView::colorIndexClicked, this->trn2Widget, &PaletteWidget::selectColor );
+
+        // Refresh palette widgets when frame
+        QObject::connect( this->celView, &CelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh );
+
+        // Initialize palette widgets
+        this->palHits = new D1PalHits( this->cel );
+        this->palWidget->initialize( this->pal, this->celView, this->palHits );
+        this->trn1Widget->initialize( this->pal, this->trn1, this->celView, this->palHits );
+        this->trn2Widget->initialize( this->trn1->getResultingPalette(), this->trn2, this->celView, this->palHits );
+
+        this->celView->displayFrame();
+    }
+
+    // Select the first palette found in the same folder as the CEL/CL2 if it exists
+    if( !firstPaletteFound.isEmpty() )
+        this->palWidget->selectPath( firstPaletteFound );
+
+    // Adding the CelView to the main frame
+    if( this->celView )
+        this->ui->mainFrame->layout()->addWidget( this->celView );
+    else
+        this->ui->mainFrame->layout()->addWidget( this->levelCelView );
+
+    // Adding the PalView to the pal frame
+    //this->ui->palFrame->layout()->addWidget( this->palView );
+    this->ui->menuPalette->setEnabled( true );
+    this->ui->actionExport->setEnabled( true );
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
 }
 
 void MainWindow::on_actionClose_triggered()
