@@ -17,6 +17,8 @@ jobs:
 
     - name: Install Qt
       uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.2.4'
 
     - name: Configure
       run: qmake source/D1GraphicsTool.pro
