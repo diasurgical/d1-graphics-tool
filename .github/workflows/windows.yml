@@ -1,0 +1,36 @@
+name: Windows
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '6.2.4'
+
+    - name: Build
+      run: |
+        for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
+        dir %Qt6_DIR%\lib\cmake
+        qmake source/D1GraphicsTool.pro
+        nmake
+      shell: cmd
+
+    - name: Upload
+      if: ${{ !env.ACT }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: D1GraphicsTool.exe
+        path: release\D1GraphicsTool.exe
