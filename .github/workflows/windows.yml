@@ -28,7 +28,7 @@ jobs:
       shell: cmd
 
     - name: Build
-      run: make
+      run: nmake
 
     - name: Upload
       if: ${{ !env.ACT }}
