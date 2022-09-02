@@ -28,7 +28,7 @@ jobs:
       shell: cmd
 
     - name: Build
-      run: make -j $(nproc)
+      run: make
 
     - name: Upload
       if: ${{ !env.ACT }}
