@@ -28,7 +28,7 @@ jobs:
       shell: cmd
 
     - name: Build
-      run: make
+      run: cmake --build .
       shell: cmd
 
     - name: Upload
