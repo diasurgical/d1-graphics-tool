@@ -24,6 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp \
     d1palhits.cpp \
+    d1sol.cpp \
     mainwindow.cpp \
     d1cel.cpp \
     d1cl2.cpp \
@@ -43,6 +44,7 @@ HEADERS  += mainwindow.h \
     d1cl2.h \
     d1pal.h \
     d1palhits.h \
+    d1sol.h \
     d1trn.h \
     celview.h \
     palettewidget.h \

@@ -196,6 +196,7 @@ void MainWindow::openFile( QString openFilePath )
     QString celFileName;
     QString minFilePath;
     QString tilFilePath;
+    QString solFilePath;
 
     // Check file extension
     if( !openFilePath.toLower().endsWith( ".cel" ) && !openFilePath.toLower().endsWith( ".cl2" ) )
@@ -321,6 +322,7 @@ void MainWindow::openFile( QString openFilePath )
         celFileName = celFileInfo.fileName();
         minFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel",".min");
         tilFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel",".til");
+        solFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel",".sol");
 
         if( QFileInfo::exists( minFilePath )
             && QFileInfo::exists( tilFilePath ) )
@@ -349,8 +351,16 @@ void MainWindow::openFile( QString openFilePath )
         }
         this->til->setMin( this->min );
 
+        // Loading SOL
+        this->sol = new D1Sol;
+        if( !this->sol->load( solFilePath ) )
+        {
+            QMessageBox::critical( this, "Error", "Failed loading SOL file: "+solFilePath );
+            return;
+        }
+
         this->levelCelView = new LevelCelView;
-        this->levelCelView->initialize( this->cel, this->min, this->til );
+        this->levelCelView->initialize( this->cel, this->min, this->til, this->sol );
 
         // Refresh CEL view if a PAL or TRN is modified
         QObject::connect( this->palWidget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame );

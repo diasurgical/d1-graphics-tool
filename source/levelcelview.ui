@@ -84,99 +84,6 @@
       </item>
       <item>
        <layout class="QGridLayout" name="levelCelControlsGridLayout">
-        <item row="1" column="0">
-         <widget class="QLabel" name="zoomLabel">
-          <property name="minimumSize">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Zoom:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="12">
-         <widget class="QPushButton" name="lastFrameButton">
-          <property name="minimumSize">
-           <size>
-            <width>40</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Last frame</string>
-          </property>
-          <property name="text">
-           <string>&gt;|</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="13">
-         <spacer name="framesRightHorizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="17">
-         <widget class="QLabel" name="minFrameHeightLabel">
-          <property name="text">
-           <string>px</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="14">
-         <widget class="QLineEdit" name="tilFrameWidthEdit">
-          <property name="minimumSize">
-           <size>
-            <width>32</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>32</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Current frame width</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="17">
-         <widget class="QLabel" name="tilFrameHeightLabel">
-          <property name="text">
-           <string>px</string>
-          </property>
-         </widget>
-        </item>
         <item row="1" column="1">
          <widget class="QPushButton" name="zoomOutButton">
           <property name="minimumSize">
@@ -193,19 +100,6 @@
           </property>
           <property name="text">
            <string>-</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="tilLabel">
-          <property name="minimumSize">
-           <size>
-            <width>48</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Tiles :</string>
           </property>
          </widget>
         </item>
@@ -231,15 +125,8 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="15">
-         <widget class="QLabel" name="minFrameWidthLabel">
-          <property name="text">
-           <string>px *</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="8">
-         <widget class="QLineEdit" name="frameIndexEdit">
+        <item row="2" column="8">
+         <widget class="QLineEdit" name="tileIndexEdit">
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -253,7 +140,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Current frame</string>
+           <string>Current group</string>
           </property>
           <property name="text">
            <string>0</string>
@@ -285,192 +172,6 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="11">
-         <widget class="QPushButton" name="nextFrameButton">
-          <property name="minimumSize">
-           <size>
-            <width>40</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Next frame</string>
-          </property>
-          <property name="text">
-           <string>&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="7">
-         <widget class="QPushButton" name="previousTileButton">
-          <property name="minimumSize">
-           <size>
-            <width>40</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Previous group</string>
-          </property>
-          <property name="text">
-           <string>&lt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="14">
-         <widget class="QLineEdit" name="celFrameWidthEdit">
-          <property name="minimumSize">
-           <size>
-            <width>32</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>32</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Current frame width</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="12">
-         <widget class="QPushButton" name="lastSubtileButton">
-          <property name="minimumSize">
-           <size>
-            <width>40</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Last group</string>
-          </property>
-          <property name="text">
-           <string>&gt;|</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="15">
-         <widget class="QLabel" name="tilFrameWidthLabel">
-          <property name="text">
-           <string>px *</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="16">
-         <widget class="QLineEdit" name="tilFrameHeightEdit">
-          <property name="minimumSize">
-           <size>
-            <width>32</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>32</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Current frame height</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="10">
-         <widget class="QLineEdit" name="tileNumberEdit">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>50</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Number of groups</string>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>0</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="6">
-         <widget class="QPushButton" name="firstFrameButton">
-          <property name="minimumSize">
-           <size>
-            <width>40</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>First frame</string>
-          </property>
-          <property name="text">
-           <string>|&lt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="15">
-         <widget class="QLabel" name="celFrameWidthLabel">
-          <property name="text">
-           <string>px *</string>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="9">
          <widget class="QLabel" name="tilSlashLabel">
           <property name="minimumSize">
@@ -493,56 +194,21 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="6">
-         <widget class="QPushButton" name="firstSubtileButton">
+        <item row="3" column="0">
+         <widget class="QLabel" name="minLabel">
           <property name="minimumSize">
            <size>
-            <width>40</width>
+            <width>48</width>
             <height>0</height>
            </size>
           </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>First group</string>
-          </property>
           <property name="text">
-           <string>|&lt;</string>
+           <string>Sub-tiles :</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="17">
-         <widget class="QLabel" name="celFrameHeightLabel">
-          <property name="text">
-           <string>px</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="3">
-         <widget class="QPushButton" name="zoomInButton">
-          <property name="minimumSize">
-           <size>
-            <width>30</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>24</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>+</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="14">
-         <widget class="QLineEdit" name="minFrameWidthEdit">
+        <item row="2" column="14">
+         <widget class="QLineEdit" name="tilFrameWidthEdit">
           <property name="minimumSize">
            <size>
             <width>32</width>
@@ -566,102 +232,8 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="8">
-         <widget class="QLineEdit" name="tileIndexEdit">
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>50</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Current group</string>
-          </property>
-          <property name="text">
-           <string>0</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="10">
-         <widget class="QLineEdit" name="frameNumberEdit">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="minimumSize">
-           <size>
-            <width>50</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>50</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Number of frames</string>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="text">
-           <string>0</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="9">
-         <widget class="QLabel" name="slashLabel">
-          <property name="minimumSize">
-           <size>
-            <width>8</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>8</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>/</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="framesLabel">
-          <property name="minimumSize">
-           <size>
-            <width>48</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Frames :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="6">
-         <widget class="QPushButton" name="firstTileButton">
+        <item row="4" column="12">
+         <widget class="QPushButton" name="lastFrameButton">
           <property name="minimumSize">
            <size>
             <width>40</width>
@@ -675,37 +247,47 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>First group</string>
+           <string>Last frame</string>
           </property>
           <property name="text">
-           <string>|&lt;</string>
+           <string>&gt;|</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="16">
-         <widget class="QLineEdit" name="celFrameHeightEdit">
+        <item row="2" column="12">
+         <widget class="QPushButton" name="lastTileButton">
           <property name="minimumSize">
            <size>
-            <width>32</width>
+            <width>40</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>32</width>
+            <width>40</width>
             <height>16777215</height>
            </size>
           </property>
           <property name="toolTip">
-           <string>Current frame height</string>
+           <string>Last group</string>
           </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-          <property name="readOnly">
-           <bool>true</bool>
+          <property name="text">
+           <string>&gt;|</string>
           </property>
          </widget>
+        </item>
+        <item row="3" column="13">
+         <spacer name="minRightHorizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>77</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
         </item>
         <item row="3" column="16">
          <widget class="QLineEdit" name="minFrameHeightEdit">
@@ -729,6 +311,26 @@
           </property>
           <property name="readOnly">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" colspan="4">
+         <spacer name="minLeftHorizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>77</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="15">
+         <widget class="QLabel" name="celFrameWidthLabel">
+          <property name="text">
+           <string>px *</string>
           </property>
          </widget>
         </item>
@@ -788,86 +390,29 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="13">
-         <spacer name="minRightHorizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+        <item row="4" column="17">
+         <widget class="QLabel" name="celFrameHeightLabel">
+          <property name="text">
+           <string>px</string>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>77</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
+         </widget>
         </item>
-        <item row="2" column="12">
-         <widget class="QPushButton" name="lastTileButton">
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="zoomEdit">
           <property name="minimumSize">
            <size>
-            <width>40</width>
+            <width>24</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>40</width>
+            <width>24</width>
             <height>16777215</height>
            </size>
           </property>
-          <property name="toolTip">
-           <string>Last group</string>
-          </property>
-          <property name="text">
-           <string>&gt;|</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="minLabel">
-          <property name="minimumSize">
-           <size>
-            <width>48</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Sub-tiles :</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="13">
-         <spacer name="tilRightHorizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>77</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="11">
-         <widget class="QPushButton" name="nextSubtileButton">
-          <property name="minimumSize">
-           <size>
-            <width>40</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="toolTip">
-           <string>Next group</string>
-          </property>
-          <property name="text">
-           <string>&gt;</string>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -890,25 +435,6 @@
           </property>
           <property name="text">
            <string>&gt;</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QLineEdit" name="zoomEdit">
-          <property name="minimumSize">
-           <size>
-            <width>24</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>24</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -937,10 +463,406 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="6" colspan="7">
-         <widget class="QLabel" name="label">
+        <item row="2" column="0">
+         <widget class="QLabel" name="tilLabel">
+          <property name="minimumSize">
+           <size>
+            <width>48</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
-           <string/>
+           <string>Tiles :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="11">
+         <widget class="QPushButton" name="nextFrameButton">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Next frame</string>
+          </property>
+          <property name="text">
+           <string>&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="6">
+         <widget class="QPushButton" name="firstTileButton">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>First group</string>
+          </property>
+          <property name="text">
+           <string>|&lt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="framesLabel">
+          <property name="minimumSize">
+           <size>
+            <width>48</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Frames :</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="15">
+         <widget class="QLabel" name="tilFrameWidthLabel">
+          <property name="text">
+           <string>px *</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="17">
+         <widget class="QLabel" name="minFrameHeightLabel">
+          <property name="text">
+           <string>px</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="8">
+         <widget class="QLineEdit" name="frameIndexEdit">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Current frame</string>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="9">
+         <widget class="QLabel" name="slashLabel">
+          <property name="minimumSize">
+           <size>
+            <width>8</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>8</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>/</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="13" colspan="5">
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="12">
+         <widget class="QPushButton" name="lastSubtileButton">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Last group</string>
+          </property>
+          <property name="text">
+           <string>&gt;|</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="15">
+         <widget class="QLabel" name="minFrameWidthLabel">
+          <property name="text">
+           <string>px *</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="10">
+         <widget class="QLineEdit" name="tileNumberEdit">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Number of groups</string>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="16">
+         <widget class="QLineEdit" name="celFrameHeightEdit">
+          <property name="minimumSize">
+           <size>
+            <width>32</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Current frame height</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="17">
+         <widget class="QLabel" name="tilFrameHeightLabel">
+          <property name="text">
+           <string>px</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="6">
+         <widget class="QPushButton" name="firstFrameButton">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>First frame</string>
+          </property>
+          <property name="text">
+           <string>|&lt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="11">
+         <widget class="QPushButton" name="nextSubtileButton">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Next group</string>
+          </property>
+          <property name="text">
+           <string>&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="13">
+         <spacer name="tilRightHorizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>77</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="4" column="10">
+         <widget class="QLineEdit" name="frameNumberEdit">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Number of frames</string>
+          </property>
+          <property name="autoFillBackground">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>0</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="4">
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="16">
+         <widget class="QLineEdit" name="tilFrameHeightEdit">
+          <property name="minimumSize">
+           <size>
+            <width>32</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Current frame height</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="4">
+         <spacer name="tilLeftHorizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>77</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="3" column="6">
+         <widget class="QPushButton" name="firstSubtileButton">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>First group</string>
+          </property>
+          <property name="text">
+           <string>|&lt;</string>
           </property>
          </widget>
         </item>
@@ -957,34 +879,27 @@
           </property>
          </spacer>
         </item>
-        <item row="3" column="1" colspan="4">
-         <spacer name="minLeftHorizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
+        <item row="1" column="0">
+         <widget class="QLabel" name="zoomLabel">
+          <property name="minimumSize">
            <size>
-            <width>77</width>
-            <height>20</height>
+            <width>0</width>
+            <height>0</height>
            </size>
           </property>
-         </spacer>
-        </item>
-        <item row="2" column="1" colspan="4">
-         <spacer name="tilLeftHorizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
+          <property name="maximumSize">
            <size>
-            <width>77</width>
-            <height>20</height>
+            <width>16777215</width>
+            <height>16777215</height>
            </size>
           </property>
-         </spacer>
+          <property name="text">
+           <string>Zoom:</string>
+          </property>
+         </widget>
         </item>
-        <item row="1" column="4">
-         <spacer name="horizontalSpacer">
+        <item row="4" column="13">
+         <spacer name="framesRightHorizontalSpacer">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -996,18 +911,193 @@
           </property>
          </spacer>
         </item>
-        <item row="1" column="13" colspan="5">
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+        <item row="1" column="6" colspan="7">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string/>
           </property>
-          <property name="sizeHint" stdset="0">
+         </widget>
+        </item>
+        <item row="2" column="7">
+         <widget class="QPushButton" name="previousTileButton">
+          <property name="minimumSize">
            <size>
             <width>40</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
-         </spacer>
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Previous group</string>
+          </property>
+          <property name="text">
+           <string>&lt;</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="14">
+         <widget class="QLineEdit" name="celFrameWidthEdit">
+          <property name="minimumSize">
+           <size>
+            <width>32</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Current frame width</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="14">
+         <widget class="QLineEdit" name="minFrameWidthEdit">
+          <property name="minimumSize">
+           <size>
+            <width>32</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>32</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Current frame width</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QPushButton" name="zoomInButton">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>24</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>+</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0" columnstretch="0,0,0,0" columnminimumwidth="0,0,0,0">
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="sol4">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Left masked</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QCheckBox" name="sol2">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Block missile</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="sol1">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Block light</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QCheckBox" name="sol5">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Right masked</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QCheckBox" name="sol7">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Allow trap</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QCheckBox" name="sol3">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Transparent</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="sol0">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="text">
+           <string>Solid</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Sub-tile properties</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

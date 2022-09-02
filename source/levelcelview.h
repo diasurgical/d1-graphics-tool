@@ -10,6 +10,7 @@
 #include "d1cel.h"
 #include "d1min.h"
 #include "d1til.h"
+#include "d1sol.h"
 
 #define CEL_SCENE_SPACING 8
 
@@ -38,7 +39,7 @@ public:
     explicit LevelCelView(QWidget *parent = 0);
     ~LevelCelView();
 
-    void initialize( D1CelBase*, D1Min*, D1Til* );
+    void initialize( D1CelBase*, D1Min*, D1Til*, D1Sol* );
     D1CelBase* getCel();
     QString getCelPath();
     D1Min* getMin();
@@ -85,6 +86,7 @@ private:
     D1CelBase *cel;
     D1Min *min;
     D1Til *til;
+    D1Sol *sol;
     quint32 currentFrameIndex;
     quint16 currentSubtileIndex;
     quint16 currentTileIndex;
