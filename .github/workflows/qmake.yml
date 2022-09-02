@@ -16,7 +16,7 @@ jobs:
     - name: dependencies
       run: apt-get install qmake6 qt6-base-dev
     - name: configure
-      run: qmake6 source/D1GraphicsTool.pro
+      run: sudo qmake6 source/D1GraphicsTool.pro
     - name: make
       run: make -j $(nproc)
     - name: Upload-Package
