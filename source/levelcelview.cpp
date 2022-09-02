@@ -33,17 +33,19 @@ LevelCelView::~LevelCelView()
     delete ui;
 }
 
-void LevelCelView::initialize( D1CelBase* c, D1Min* m, D1Til* t )
+void LevelCelView::initialize( D1CelBase* c, D1Min* m, D1Til* t, D1Sol* s )
 {
     this->cel = c;
     this->min = m;
     this->til = t;
+    this->sol = s;
 
     // Displaying CEL file path information
     QFileInfo celFileInfo( this->cel->getFilePath() );
     QFileInfo minFileInfo( this->min->getFilePath() );
     QFileInfo tilFileInfo( this->til->getFilePath() );
-    ui->celLabel->setText( celFileInfo.fileName()+", "+minFileInfo.fileName()+", "+tilFileInfo.fileName() );
+    QFileInfo solFileInfo( this->sol->getFilePath() );
+    ui->celLabel->setText( celFileInfo.fileName()+", "+minFileInfo.fileName()+", "+tilFileInfo.fileName()+", "+solFileInfo.fileName() );
 
     ui->frameNumberEdit->setText(
         QString::number( this->cel->getFrameCount() ) );
@@ -202,6 +204,15 @@ void LevelCelView::displayFrame()
     QImage celFrame = this->cel->getFrameImage( this->currentFrameIndex );
     QImage subtile = this->min->getSubtileImage( this->currentSubtileIndex );
     QImage tile = this->til->getTileImage( this->currentTileIndex );
+    quint8 sol = this->sol->getSubtileProperties( this->currentSubtileIndex );
+
+    this->ui->sol0->setChecked((sol & 1 << 0) != 0);
+    this->ui->sol1->setChecked((sol & 1 << 1) != 0);
+    this->ui->sol2->setChecked((sol & 1 << 2) != 0);
+    this->ui->sol3->setChecked((sol & 1 << 3) != 0);
+    this->ui->sol4->setChecked((sol & 1 << 4) != 0);
+    this->ui->sol5->setChecked((sol & 1 << 5) != 0);
+    this->ui->sol7->setChecked((sol & 1 << 7) != 0);
 
     // Building a gray background of the width/height of the CEL frame
     QImage celFrameBackground = QImage( celFrame.width(), celFrame.height(), QImage::Format_ARGB32 );
