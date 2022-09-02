@@ -25,6 +25,7 @@ jobs:
         for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
         dir %Qt6_DIR%\lib\cmake
         qmake source/D1GraphicsTool.pro
+      shell: cmd
 
     - name: Build
       run: make -j $(nproc)
