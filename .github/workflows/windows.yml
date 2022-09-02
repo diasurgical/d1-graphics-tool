@@ -21,7 +21,10 @@ jobs:
         version: '6.2.4'
 
     - name: Configure
-      run: qmake source/D1GraphicsTool.pro
+      run: |
+        for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
+        dir %Qt6_DIR%\lib\cmake
+        qmake source/D1GraphicsTool.pro
 
     - name: Build
       run: make -j $(nproc)
