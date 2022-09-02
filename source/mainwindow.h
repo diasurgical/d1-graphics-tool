@@ -19,6 +19,7 @@
 #include "d1cl2.h"
 #include "d1min.h"
 #include "d1til.h"
+#include "d1sol.h"
 #include "d1palhits.h"
 
 #include "palettewidget.h"
@@ -78,6 +79,10 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionAbout_Qt_triggered();
 
+    void openFile( QString openFilePath );
+
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 private:
     Ui::MainWindow *ui;
     QJsonObject *configuration;
@@ -102,6 +107,7 @@ private:
     QPointer<D1CelBase> cel;
     QPointer<D1Min> min;
     QPointer<D1Til> til;
+    QPointer<D1Sol> sol;
 
     QMap<QString,D1Pal*> pals; // key: path, value: pointer to palette
     QMap<QString,D1Trn*> trn1s; // key: path, value: pointer to translation
