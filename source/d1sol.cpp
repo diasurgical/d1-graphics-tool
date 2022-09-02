@@ -1,11 +1,11 @@
 #include "d1sol.h"
 
 D1Sol::D1Sol() :
-    file( new QFile )
+    file( )
 {}
 
 D1Sol::D1Sol( QString path ) :
-    file( new QFile )
+    file( )
 {
     this->load( path );
 }
