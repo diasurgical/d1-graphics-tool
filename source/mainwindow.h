@@ -1,28 +1,16 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QFile>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QGraphicsScene>
-#include <QJsonDocument>
-#include <QJsonObject>
 #include <QMainWindow>
-#include <QMessageBox>
-#include <QTextStream>
-#include <QUndoCommand>
-#include <QUndoStack>
 
-#include "d1cel.h"
-#include "d1cl2.h"
+#include "celview.h"
+#include "d1celbase.h"
 #include "d1min.h"
 #include "d1pal.h"
 #include "d1palhits.h"
 #include "d1sol.h"
 #include "d1til.h"
 #include "d1trn.h"
-
-#include "celview.h"
 #include "exportdialog.h"
 #include "levelcelview.h"
 #include "palettewidget.h"

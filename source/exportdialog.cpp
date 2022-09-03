@@ -1,4 +1,9 @@
 #include "exportdialog.h"
+
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QProgressDialog>
+
 #include "ui_exportdialog.h"
 
 ExportDialog::ExportDialog(QWidget *parent)

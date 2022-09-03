@@ -1,13 +1,11 @@
 #ifndef LEVELCELVIEW_H
 #define LEVELCELVIEW_H
 
-#include <QFileInfo>
-#include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QWidget>
 
-#include "d1cel.h"
+#include "d1celbase.h"
 #include "d1min.h"
 #include "d1sol.h"
 #include "d1til.h"
@@ -36,7 +34,7 @@ public:
     explicit LevelCelView(QWidget *parent = nullptr);
     ~LevelCelView();
 
-    void initialize(D1CelBase *, D1Min *, D1Til *, D1Sol *);
+    void initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s);
     D1CelBase *getCel();
     QString getCelPath();
     D1Min *getMin();

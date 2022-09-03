@@ -1,20 +1,20 @@
 #ifndef D1CELCORE_H
 #define D1CELCORE_H
 
-#include "d1pal.h"
 #include <QBuffer>
 #include <QFile>
 #include <QImage>
-#include <QMap>
 #include <QPointer>
+
+#include "d1pal.h"
 
 class D1CelPixel {
 public:
     D1CelPixel();
     D1CelPixel(bool, quint8);
-    ~D1CelPixel();
+    ~D1CelPixel() = default;
 
-    bool isTransparent();
+    bool isTransparent() const;
     quint8 getPaletteIndex();
 
 private:
@@ -27,7 +27,7 @@ class D1CelFrameBase : public QObject {
 
 public:
     D1CelFrameBase();
-    ~D1CelFrameBase();
+    ~D1CelFrameBase() = default;
 
     virtual quint16 computeWidthFromHeader(QByteArray &) = 0;
     virtual bool load(QByteArray) = 0;
@@ -56,7 +56,7 @@ class D1CelBase : public QObject {
 
 public:
     D1CelBase();
-    D1CelBase(D1Pal *);
+    D1CelBase(D1Pal *pal);
     ~D1CelBase();
 
     virtual bool load(QString) = 0;
@@ -67,7 +67,7 @@ public:
     QString getFilePath();
     bool isFileOpen();
     D1Pal *getPalette();
-    void setPalette(D1Pal *);
+    void setPalette(D1Pal *pal);
     quint16 getGroupCount();
     QPair<quint16, quint16> getGroupFrameIndices(quint16);
     quint32 getFrameCount();

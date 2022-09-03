@@ -1,14 +1,9 @@
 #ifndef PALETTEWIDGET_H
 #define PALETTEWIDGET_H
 
-#include <QColorDialog>
-#include <QComboBox>
 #include <QDirIterator>
-#include <QFileInfo>
 #include <QGraphicsScene>
 #include <QJsonObject>
-#include <QMessageBox>
-#include <QMouseEvent>
 #include <QUndoCommand>
 #include <QWidget>
 
@@ -34,7 +29,7 @@ class EditColorsCommand : public QObject, public QUndoCommand {
 
 public:
     explicit EditColorsCommand(D1Pal *, quint8, quint8, QColor, QUndoCommand *parent = nullptr);
-    ~EditColorsCommand();
+    ~EditColorsCommand() = default;
 
     void undo() override;
     void redo() override;
@@ -55,7 +50,7 @@ class EditTranslationsCommand : public QObject, public QUndoCommand {
 
 public:
     explicit EditTranslationsCommand(D1Trn *, quint8, quint8, QList<quint8>, QUndoCommand *parent = nullptr);
-    ~EditTranslationsCommand();
+    ~EditTranslationsCommand() = default;
 
     void undo() override;
     void redo() override;
@@ -76,7 +71,7 @@ class ClearTranslationsCommand : public QObject, public QUndoCommand {
 
 public:
     explicit ClearTranslationsCommand(D1Trn *, quint8, quint8, QUndoCommand *parent = nullptr);
-    ~ClearTranslationsCommand();
+    ~ClearTranslationsCommand() = default;
 
     void undo() override;
     void redo() override;
@@ -98,14 +93,14 @@ public:
     explicit PaletteWidget(QJsonObject *configuration, QWidget *parent = nullptr, QString title = "Palette");
     ~PaletteWidget();
 
-    void setPal(D1Pal *);
-    void setTrn(D1Trn *);
+    void setPal(D1Pal *p);
+    void setTrn(D1Trn *t);
 
-    void initialize(D1Pal *, CelView *, D1PalHits *);
-    void initialize(D1Pal *, LevelCelView *, D1PalHits *);
+    void initialize(D1Pal *p, CelView *c, D1PalHits *ph);
+    void initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph);
 
-    void initialize(D1Pal *, D1Trn *, CelView *, D1PalHits *);
-    void initialize(D1Pal *, D1Trn *, LevelCelView *, D1PalHits *);
+    void initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph);
+    void initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *ph);
 
     void initializeUi();
     void initializePathComboBox();

@@ -8,8 +8,7 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "d1cel.h"
-#include "d1cl2.h"
+#include "d1celbase.h"
 
 #define CEL_SCENE_SPACING 8
 
@@ -35,7 +34,7 @@ public:
     explicit CelView(QWidget *parent = nullptr);
     ~CelView();
 
-    void initialize(D1CelBase *);
+    void initialize(D1CelBase *c);
     D1CelBase *getCel();
     QString getCelPath();
     quint32 getCurrentFrameIndex();

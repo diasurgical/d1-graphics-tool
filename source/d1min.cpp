@@ -1,5 +1,9 @@
 #include "d1min.h"
 
+#include <QBuffer>
+#include <QMap>
+#include <QPointer>
+
 D1Min::D1Min()
     : type(D1MIN_TYPE::REGULAR_HEIGHT)
     , file()

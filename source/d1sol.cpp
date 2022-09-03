@@ -1,5 +1,7 @@
 #include "d1sol.h"
 
+#include <QBuffer>
+
 D1Sol::D1Sol()
     : file()
 {

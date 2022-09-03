@@ -1,7 +1,6 @@
 #ifndef D1SOL_H
 #define D1SOL_H
 
-#include <QBuffer>
 #include <QFile>
 #include <QList>
 

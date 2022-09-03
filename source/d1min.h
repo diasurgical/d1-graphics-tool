@@ -1,13 +1,11 @@
 #ifndef D1MIN_H
 #define D1MIN_H
 
-#include "d1cel.h"
-#include <QBuffer>
 #include <QFile>
 #include <QImage>
-#include <QMap>
 #include <QPainter>
-#include <QPointer>
+
+#include "d1cel.h"
 
 enum class D1MIN_TYPE {
     REGULAR_HEIGHT,
@@ -29,7 +27,7 @@ public:
     QString getFilePath();
     bool isFileOpen();
     D1CelBase *getCel();
-    void setCel(D1CelBase *);
+    void setCel(D1CelBase *c);
     quint16 getSubtileWidth();
     quint16 getSubtileHeight();
     quint16 getSubtileCount();

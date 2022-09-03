@@ -1,8 +1,9 @@
 #ifndef D1TRN
 #define D1TRN
 
-#include "d1pal.h"
 #include <QPointer>
+
+#include "d1pal.h"
 
 #define D1TRN_TRANSLATIONS 256
 #define D1TRN_TRANSLATIONS_BYTES 256

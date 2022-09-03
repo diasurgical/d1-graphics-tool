@@ -2,14 +2,8 @@
 #define EXPORTDIALOG_H
 
 #include <QDialog>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QProgressDialog>
 
-#include <QThread>
-
-#include "d1cel.h"
-#include "d1cl2.h"
+#include "d1celbase.h"
 #include "d1min.h"
 #include "d1til.h"
 
@@ -24,9 +18,9 @@ public:
     explicit ExportDialog(QWidget *parent = nullptr);
     ~ExportDialog();
 
-    void setCel(D1CelBase *);
-    void setMin(D1Min *);
-    void setTil(D1Til *);
+    void setCel(D1CelBase *c);
+    void setMin(D1Min *m);
+    void setTil(D1Til *t);
 
     void setCurrentFrame(quint16);
 

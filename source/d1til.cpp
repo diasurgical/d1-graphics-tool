@@ -1,5 +1,8 @@
 #include "d1til.h"
 
+#include <QBuffer>
+#include <QPainter>
+
 D1Til::D1Til()
     : type(D1TIL_TYPE::REGULAR_HEIGHT)
     , file()

@@ -5,7 +5,6 @@
 #include <QFile>
 #include <QObject>
 #include <QString>
-#include <QTextStream>
 
 #define D1PAL_COLORS 256
 #define D1PAL_COLOR_BITS 8

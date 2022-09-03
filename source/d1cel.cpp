@@ -170,7 +170,7 @@ D1CelPixelGroup::D1CelPixelGroup(bool t, quint16 c)
 {
 }
 
-bool D1CelPixelGroup::isTransparent()
+bool D1CelPixelGroup::isTransparent() const
 {
     return this->transparent;
 }

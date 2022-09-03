@@ -12,11 +12,7 @@ D1CelPixel::D1CelPixel(bool t, quint8 pi)
 {
 }
 
-D1CelPixel::~D1CelPixel()
-{
-}
-
-bool D1CelPixel::isTransparent()
+bool D1CelPixel::isTransparent() const
 {
     return this->transparent;
 }
@@ -29,10 +25,6 @@ quint8 D1CelPixel::getPaletteIndex()
 D1CelFrameBase::D1CelFrameBase()
     : width(0)
     , height(0)
-{
-}
-
-D1CelFrameBase::~D1CelFrameBase()
 {
 }
 
@@ -51,7 +43,7 @@ D1CelPixel D1CelFrameBase::getPixel(quint16 x, quint16 y)
     if (x < this->width && y < this->height)
         return this->pixels[y][x];
 
-    return D1CelPixel();
+    return {};
 }
 
 D1CelBase::D1CelBase()

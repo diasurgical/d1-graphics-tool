@@ -1,5 +1,7 @@
 #include "d1pal.h"
 
+#include <QTextStream>
+
 D1Pal::D1Pal()
     : type(D1PAL_TYPE::REGULAR)
     , modified(false)

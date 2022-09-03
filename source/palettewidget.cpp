@@ -1,4 +1,10 @@
 #include "palettewidget.h"
+
+#include <QColorDialog>
+#include <QComboBox>
+#include <QMessageBox>
+#include <QMouseEvent>
+
 #include "ui_palettewidget.h"
 
 EditColorsCommand::EditColorsCommand(D1Pal *p, quint8 sci, quint8 eci, QColor nc, QUndoCommand *parent)
@@ -11,10 +17,6 @@ EditColorsCommand::EditColorsCommand(D1Pal *p, quint8 sci, quint8 eci, QColor nc
     // Get the initial color values before doing any modification
     for (int i = startColorIndex; i <= endColorIndex; i++)
         initialColors.append(this->pal->getColor(i));
-}
-
-EditColorsCommand::~EditColorsCommand()
-{
 }
 
 void EditColorsCommand::undo()
@@ -55,10 +57,6 @@ EditTranslationsCommand::EditTranslationsCommand(D1Trn *t, quint8 sci, quint8 ec
         initialTranslations.append(this->trn->getTranslation(i));
 }
 
-EditTranslationsCommand::~EditTranslationsCommand()
-{
-}
-
 void EditTranslationsCommand::undo()
 {
     if (this->trn.isNull()) {
@@ -94,10 +92,6 @@ ClearTranslationsCommand::ClearTranslationsCommand(D1Trn *t, quint8 sci, quint8 
     // Get the initial color values before doing any modification
     for (int i = startColorIndex; i <= endColorIndex; i++)
         initialTranslations.append(this->trn->getTranslation(i));
-}
-
-ClearTranslationsCommand::~ClearTranslationsCommand()
-{
 }
 
 void ClearTranslationsCommand::undo()
@@ -781,7 +775,7 @@ void PaletteWidget::on_colorClearPushButton_clicked()
 {
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
-    EditColorsCommand *command = new EditColorsCommand(
+    auto *command = new EditColorsCommand(
         this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, this->paletteDefaultColor);
     QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
@@ -820,7 +814,7 @@ void PaletteWidget::on_translationClearPushButton_clicked()
 {
     // Build translation clearing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
-    ClearTranslationsCommand *command = new ClearTranslationsCommand(
+    auto *command = new ClearTranslationsCommand(
         this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex);
     QObject::connect(command, &ClearTranslationsCommand::modified, this, &PaletteWidget::modify);
 

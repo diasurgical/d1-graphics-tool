@@ -1,13 +1,10 @@
 #ifndef D1TIL_H
 #define D1TIL_H
 
-#include "d1min.h"
-#include <QBuffer>
 #include <QFile>
 #include <QImage>
-#include <QMap>
-#include <QPainter>
-#include <QPointer>
+
+#include "d1min.h"
 
 enum class D1TIL_TYPE {
     REGULAR_HEIGHT,
@@ -29,7 +26,7 @@ public:
     QString getFilePath();
     bool isFileOpen();
     D1Min *getMin();
-    void setMin(D1Min *);
+    void setMin(D1Min *m);
     quint16 getTileCount();
     quint16 getTileWidth();
     quint16 getTileHeight();

@@ -1,4 +1,9 @@
 #include "settingsdialog.h"
+
+#include <QColorDialog>
+#include <QFileDialog>
+#include <QJsonDocument>
+
 #include "ui_settingsdialog.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent)

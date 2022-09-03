@@ -1,4 +1,5 @@
 #include "celview.h"
+
 #include "ui_celview.h"
 
 void CelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)

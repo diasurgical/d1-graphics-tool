@@ -5,7 +5,7 @@ D1PalHits::D1PalHits(D1CelBase *c)
     , mode(D1PALHITS_MODE::ALL_COLORS)
     , cel(c)
 {
-    this->buildPalHits();
+    D1PalHits::buildPalHits();
 }
 
 D1PalHits::D1PalHits(D1CelBase *c, D1Min *m, D1Til *t)
@@ -15,7 +15,7 @@ D1PalHits::D1PalHits(D1CelBase *c, D1Min *m, D1Til *t)
     , min(m)
     , til(t)
 {
-    this->buildPalHits();
+    D1PalHits::buildPalHits();
     this->buildSubtilePalHits();
     this->buildTilePalHits();
 }

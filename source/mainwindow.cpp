@@ -1,9 +1,21 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 #include <QDragEnterEvent>
+#include <QFile>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QGraphicsScene>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QMessageBox>
 #include <QMimeData>
+#include <QTextStream>
 #include <QTime>
+#include <QUndoCommand>
+#include <QUndoStack>
+
+#include "d1cl2.h"
+#include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)

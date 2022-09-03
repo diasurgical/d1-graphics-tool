@@ -19,7 +19,7 @@ public:
     D1CelPixelGroup();
     D1CelPixelGroup(bool, quint16);
 
-    bool isTransparent();
+    bool isTransparent() const;
     quint16 getPixelCount();
 
 private:

@@ -3,10 +3,7 @@
 
 #include <QMap>
 
-#include "d1cel.h"
-#include "d1cl2.h"
 #include "d1min.h"
-#include "d1pal.h"
 #include "d1til.h"
 
 enum class D1PALHITS_MODE {
@@ -22,10 +19,10 @@ class D1PalHits : public QObject {
 
 public:
     D1PalHits(D1CelBase *);
-    D1PalHits(D1CelBase *, D1Min *, D1Til *);
+    D1PalHits(D1CelBase *c, D1Min *m, D1Til *t);
 
     D1PALHITS_MODE getMode();
-    void setMode(D1PALHITS_MODE);
+    void setMode(D1PALHITS_MODE m);
 
     void buildPalHits();
     void buildSubtilePalHits();

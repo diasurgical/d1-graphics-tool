@@ -1,4 +1,8 @@
 #include "levelcelview.h"
+
+#include <QFileInfo>
+#include <QGraphicsPixmapItem>
+
 #include "ui_levelcelview.h"
 
 void LevelCelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)

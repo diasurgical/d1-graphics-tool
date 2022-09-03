@@ -1,10 +1,7 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
-#include <QColorDialog>
 #include <QDialog>
-#include <QFileDialog>
-#include <QJsonDocument>
 #include <QJsonObject>
 
 namespace Ui {
