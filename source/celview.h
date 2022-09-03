@@ -74,9 +74,9 @@ private:
     CelScene *celScene;
 
     D1CelBase *cel;
-    quint16 currentGroupIndex;
-    quint32 currentFrameIndex;
-    quint8 currentZoomFactor;
+    quint16 currentGroupIndex = 0;
+    quint32 currentFrameIndex = 0;
+    quint8 currentZoomFactor = 1;
 
     QTimer playTimer;
 };

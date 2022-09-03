@@ -16,9 +16,6 @@ CelView::CelView(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::CelView)
     , celScene(new CelScene)
-    , currentGroupIndex(0)
-    , currentFrameIndex(0)
-    , currentZoomFactor(1)
 {
     ui->setupUi(this);
     ui->celGraphicsView->setScene(this->celScene);

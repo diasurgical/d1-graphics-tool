@@ -114,11 +114,6 @@ QString D1Trn::getFilePath()
     return this->file.fileName();
 }
 
-bool D1Trn::isFileOpen()
-{
-    return this->file.isOpen();
-}
-
 quint8 D1Trn::getTranslation(quint8 index)
 {
     return this->translations[index];

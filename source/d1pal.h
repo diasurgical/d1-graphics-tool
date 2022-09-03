@@ -19,7 +19,7 @@ class D1Pal : public QObject {
     Q_OBJECT
 
 public:
-    D1Pal();
+    D1Pal() = default;
     D1Pal(QString);
     ~D1Pal();
 
@@ -31,16 +31,15 @@ public:
     bool isModified();
 
     QString getFilePath();
-    bool isFileOpen();
 
     QColor getColor(quint8);
     void setColor(quint8, QColor);
 
 private:
-    D1PAL_TYPE type;
-    bool modified;
+    D1PAL_TYPE type = D1PAL_TYPE::REGULAR;
+    bool modified = false;
     QFile file;
-    QColor *colors;
+    QColor *colors = new QColor[D1PAL_COLORS];
 };
 
 #endif // D1PAL

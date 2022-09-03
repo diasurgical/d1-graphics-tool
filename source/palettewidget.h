@@ -171,29 +171,29 @@ private:
     QJsonObject *configuration;
 
     Ui::PaletteWidget *ui;
-    bool isLevelCel;
-    bool isTrn;
+    bool isLevelCel = false;
+    bool isTrn = false;
 
     CelView *celView;
     LevelCelView *levelCelView;
 
-    QGraphicsScene *scene;
+    QGraphicsScene *scene = new QGraphicsScene(0, 0, PALETTE_WIDTH, PALETTE_WIDTH);
 
-    QColor paletteDefaultColor;
+    QColor paletteDefaultColor = Qt::magenta;
 
-    QColor selectionBorderColor;
-    quint8 selectedFirstColorIndex;
-    quint8 selectedLastColorIndex;
+    QColor selectionBorderColor = Qt::red;
+    quint8 selectedFirstColorIndex = 0;
+    quint8 selectedLastColorIndex = 0;
 
-    bool pickingTranslationColor;
-    bool temporarilyDisplayingAllColors;
+    bool pickingTranslationColor = false;
+    bool temporarilyDisplayingAllColors = false;
 
     QPointer<D1Pal> pal;
     QPointer<D1Trn> trn;
 
     D1PalHits *palHits;
 
-    bool buildingPathComboBox;
+    bool buildingPathComboBox = false;
     QMap<QString, QString> paths;
 
     bool buildingDisplayComboBox;

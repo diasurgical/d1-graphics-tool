@@ -18,11 +18,6 @@ void LevelCelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 LevelCelView::LevelCelView(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::LevelCelView)
-    , celScene(new LevelCelScene)
-    , currentFrameIndex(0)
-    , currentSubtileIndex(0)
-    , currentTileIndex(0)
-    , currentZoomFactor(1)
 {
     ui->setupUi(this);
     ui->celGraphicsView->setScene(this->celScene);

@@ -16,15 +16,15 @@ extern const quint16 D1CEL_LEVEL_FRAME_TYPE_5_ZEROED_BYTES[16];
 // Class used only for CEL frame width calculation
 class D1CelPixelGroup {
 public:
-    D1CelPixelGroup();
+    D1CelPixelGroup() = default;
     D1CelPixelGroup(bool, quint16);
 
     bool isTransparent() const;
     quint16 getPixelCount();
 
 private:
-    bool transparent;
-    quint16 pixelCount;
+    bool transparent = false;
+    quint16 pixelCount = 0;
 };
 
 enum class D1CEL_FRAME_TYPE {
@@ -38,7 +38,7 @@ enum class D1CEL_FRAME_TYPE {
 
 class D1CelFrame : public D1CelFrameBase {
 public:
-    D1CelFrame();
+    D1CelFrame() = default;
     D1CelFrame(QByteArray, quint16, quint16, D1CEL_FRAME_TYPE);
 
     static D1CEL_FRAME_TYPE getLevelFrame220Type(QByteArray &);
@@ -49,7 +49,7 @@ public:
     bool load(QByteArray);
 
 private:
-    D1CEL_FRAME_TYPE frameType;
+    D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::REGULAR;
 };
 
 class D1Cel : public D1CelBase {

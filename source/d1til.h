@@ -24,7 +24,6 @@ public:
 
     D1TIL_TYPE getType();
     QString getFilePath();
-    bool isFileOpen();
     D1Min *getMin();
     void setMin(D1Min *m);
     quint16 getTileCount();

@@ -124,16 +124,6 @@ PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title
     : QWidget(parent)
     , configuration(config)
     , ui(new Ui::PaletteWidget)
-    , isLevelCel(false)
-    , isTrn(false)
-    , scene(new QGraphicsScene(0, 0, PALETTE_WIDTH, PALETTE_WIDTH))
-    , paletteDefaultColor(Qt::magenta)
-    , selectionBorderColor(Qt::red)
-    , selectedFirstColorIndex(0)
-    , selectedLastColorIndex(0)
-    , pickingTranslationColor(false)
-    , temporarilyDisplayingAllColors(false)
-    , buildingPathComboBox(false)
 {
     // Load selection border color from JSON config file
     this->reloadConfig();

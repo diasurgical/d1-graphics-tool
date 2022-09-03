@@ -25,7 +25,6 @@ public:
     QColor getResultingColor(quint8);
 
     QString getFilePath();
-    bool isFileOpen();
     quint8 getTranslation(quint8);
     void setTranslation(quint8, quint8);
     D1Pal *getPalette();

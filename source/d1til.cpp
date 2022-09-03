@@ -122,11 +122,6 @@ QString D1Til::getFilePath()
     return this->file.fileName();
 }
 
-bool D1Til::isFileOpen()
-{
-    return this->file.isOpen();
-}
-
 D1Min *D1Til::getMin()
 {
     return this->min;

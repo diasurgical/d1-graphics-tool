@@ -35,9 +35,9 @@ private slots:
 private:
     Ui::ExportDialog *ui;
 
-    D1CelBase *cel;
-    D1Min *min;
-    D1Til *til;
+    D1CelBase *cel = nullptr;
+    D1Min *min = nullptr;
+    D1Til *til = nullptr;
 
     QString outputFolder;
 };

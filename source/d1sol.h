@@ -8,15 +8,13 @@ class D1Sol : public QObject {
     Q_OBJECT
 
 public:
-    D1Sol();
+    D1Sol() = default;
     D1Sol(QString path);
     ~D1Sol();
 
     bool load(QString);
 
     QString getFilePath();
-    bool isFileOpen();
-    quint16 getTileCount();
     quint8 getSubtileProperties(quint16);
 
 private:

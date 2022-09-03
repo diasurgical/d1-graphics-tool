@@ -10,7 +10,7 @@
 
 class D1CelPixel {
 public:
-    D1CelPixel();
+    D1CelPixel() = default;
     D1CelPixel(bool, quint8);
     ~D1CelPixel() = default;
 
@@ -18,15 +18,15 @@ public:
     quint8 getPaletteIndex();
 
 private:
-    bool transparent;
-    quint8 paletteIndex;
+    bool transparent = false;
+    quint8 paletteIndex = 0;
 };
 
 class D1CelFrameBase : public QObject {
     Q_OBJECT
 
 public:
-    D1CelFrameBase();
+    D1CelFrameBase() = default;
     ~D1CelFrameBase() = default;
 
     virtual quint16 computeWidthFromHeader(QByteArray &) = 0;
@@ -37,8 +37,8 @@ public:
     D1CelPixel getPixel(quint16, quint16);
 
 protected:
-    quint16 width;
-    quint16 height;
+    quint16 width = 0;
+    quint16 height = 0;
     QList<QList<D1CelPixel>> pixels;
 };
 
@@ -55,7 +55,7 @@ class D1CelBase : public QObject {
     Q_OBJECT
 
 public:
-    D1CelBase();
+    D1CelBase() = default;
     D1CelBase(D1Pal *pal);
     ~D1CelBase();
 
@@ -65,7 +65,6 @@ public:
 
     D1CEL_TYPE getType();
     QString getFilePath();
-    bool isFileOpen();
     D1Pal *getPalette();
     void setPalette(D1Pal *pal);
     quint16 getGroupCount();
@@ -76,12 +75,12 @@ public:
     quint16 getFrameHeight(quint16);
 
 protected:
-    D1CEL_TYPE type;
+    D1CEL_TYPE type = D1CEL_TYPE::NONE;
     QFile file;
-    D1Pal *palette;
-    quint16 groupCount;
+    D1Pal *palette = nullptr;
+    quint16 groupCount = 0;
     QList<QPair<quint16, quint16>> groupFrameIndices;
-    quint32 frameCount;
+    quint32 frameCount = 0;
     QList<QPair<quint32, quint32>> frameOffsets;
     QList<QPointer<D1CelFrameBase>> frames;
 };

@@ -72,7 +72,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QJsonObject *configuration;
+    QJsonObject *configuration = new QJsonObject;
 
     QUndoStack *undoStack;
     QAction *undoAction;
@@ -85,15 +85,15 @@ private:
     QPointer<PaletteWidget> trn1Widget;
     QPointer<PaletteWidget> trn2Widget;
 
-    QPointer<SettingsDialog> settingsDialog;
-    QPointer<ExportDialog> exportDialog;
+    QPointer<SettingsDialog> settingsDialog = new SettingsDialog(this);
+    QPointer<ExportDialog> exportDialog = new ExportDialog(this);
 
-    QPointer<D1Pal> pal;
-    QPointer<D1Trn> trn1;
-    QPointer<D1Trn> trn2;
-    QPointer<D1CelBase> cel;
-    QPointer<D1Min> min;
-    QPointer<D1Til> til;
+    QPointer<D1Pal> pal = new D1Pal;
+    QPointer<D1Trn> trn1 = new D1Trn;
+    QPointer<D1Trn> trn2 = new D1Trn;
+    QPointer<D1CelBase> cel = new D1Cel;
+    QPointer<D1Min> min = new D1Min;
+    QPointer<D1Til> til = new D1Til;
     QPointer<D1Sol> sol;
 
     QMap<QString, D1Pal *> pals;  // key: path, value: pointer to palette

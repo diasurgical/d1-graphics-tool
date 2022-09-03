@@ -2,11 +2,6 @@
 
 #include <QBuffer>
 
-D1Sol::D1Sol()
-    : file()
-{
-}
-
 D1Sol::D1Sol(QString path)
     : file()
 {
@@ -61,16 +56,6 @@ QString D1Sol::getFilePath()
         return QString();
 
     return this->file.fileName();
-}
-
-bool D1Sol::isFileOpen()
-{
-    return this->file.isOpen();
-}
-
-quint16 D1Sol::getTileCount()
-{
-    return this->tileCount;
 }
 
 quint8 D1Sol::getSubtileProperties(quint16 tileIndex)

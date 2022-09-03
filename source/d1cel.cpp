@@ -158,12 +158,6 @@ const quint16 D1CEL_LEVEL_FRAME_TYPE_5_ZEROED_BYTES[16] = {
     2, 3, 14, 15, 34, 35, 62, 63, 98, 99, 142, 143, 194, 195, 254, 255
 };
 
-D1CelPixelGroup::D1CelPixelGroup()
-    : transparent(false)
-    , pixelCount(0)
-{
-}
-
 D1CelPixelGroup::D1CelPixelGroup(bool t, quint16 c)
     : transparent(t)
     , pixelCount(c)
@@ -180,15 +174,8 @@ quint16 D1CelPixelGroup::getPixelCount()
     return this->pixelCount;
 }
 
-D1CelFrame::D1CelFrame()
-    : D1CelFrameBase()
-    , frameType(D1CEL_FRAME_TYPE::REGULAR)
-{
-}
-
 D1CelFrame::D1CelFrame(QByteArray rawData, quint16 w, quint16 h, D1CEL_FRAME_TYPE type)
-    : D1CelFrameBase()
-    , frameType(type)
+    : frameType(type)
 {
     this->width = w;
     this->height = h;
@@ -582,13 +569,11 @@ bool D1CelFrame::load(QByteArray rawData)
 }
 
 D1Cel::D1Cel()
-    : D1CelBase()
 {
     this->type = D1CEL_TYPE::V1_REGULAR;
 }
 
 D1Cel::D1Cel(QString path, D1Pal *pal)
-    : D1CelBase(pal)
 {
     this->type = D1CEL_TYPE::V1_REGULAR;
     this->load(path);

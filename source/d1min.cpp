@@ -4,23 +4,8 @@
 #include <QMap>
 #include <QPointer>
 
-D1Min::D1Min()
-    : type(D1MIN_TYPE::REGULAR_HEIGHT)
-    , file()
-    , cel(nullptr)
-    , subtileWidth(2)
-    , subtileHeight(5)
-    , subtileCount(0)
-{
-}
-
 D1Min::D1Min(QString path, D1Cel *c)
-    : type(D1MIN_TYPE::REGULAR_HEIGHT)
-    , file()
-    , cel(c)
-    , subtileWidth(2)
-    , subtileHeight(5)
-    , subtileCount(0)
+    : cel(c)
 {
     this->load(path);
 }
@@ -155,11 +140,6 @@ QString D1Min::getFilePath()
         return QString();
 
     return this->file.fileName();
-}
-
-bool D1Min::isFileOpen()
-{
-    return this->file.isOpen();
 }
 
 D1CelBase *D1Min::getCel()

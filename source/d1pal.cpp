@@ -2,19 +2,7 @@
 
 #include <QTextStream>
 
-D1Pal::D1Pal()
-    : type(D1PAL_TYPE::REGULAR)
-    , modified(false)
-    , file()
-    , colors(new QColor[D1PAL_COLORS])
-{
-}
-
 D1Pal::D1Pal(QString path)
-    : type(D1PAL_TYPE::REGULAR)
-    , modified(false)
-    , file()
-    , colors(new QColor[D1PAL_COLORS])
 {
     this->load(path);
 }
@@ -160,11 +148,6 @@ QString D1Pal::getFilePath()
         return QString();
 
     return this->file.fileName();
-}
-
-bool D1Pal::isFileOpen()
-{
-    return this->file.isOpen();
 }
 
 QColor D1Pal::getColor(quint8 index)

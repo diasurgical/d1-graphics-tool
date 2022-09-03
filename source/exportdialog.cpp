@@ -9,9 +9,6 @@
 ExportDialog::ExportDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::ExportDialog)
-    , cel(nullptr)
-    , min(nullptr)
-    , til(nullptr)
 {
     ui->setupUi(this);
 }

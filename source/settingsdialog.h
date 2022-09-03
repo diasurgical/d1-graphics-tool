@@ -33,7 +33,7 @@ private:
     Ui::SettingsDialog *ui;
     QJsonObject *configuration;
 
-    bool configurationChanged;
+    bool configurationChanged = false;
     QString workingDirectory;
 };
 

@@ -1,11 +1,5 @@
 #include "d1celbase.h"
 
-D1CelPixel::D1CelPixel()
-    : transparent(false)
-    , paletteIndex(0)
-{
-}
-
 D1CelPixel::D1CelPixel(bool t, quint8 pi)
     : transparent(t)
     , paletteIndex(pi)
@@ -20,12 +14,6 @@ bool D1CelPixel::isTransparent() const
 quint8 D1CelPixel::getPaletteIndex()
 {
     return this->paletteIndex;
-}
-
-D1CelFrameBase::D1CelFrameBase()
-    : width(0)
-    , height(0)
-{
 }
 
 quint16 D1CelFrameBase::getWidth()
@@ -46,21 +34,8 @@ D1CelPixel D1CelFrameBase::getPixel(quint16 x, quint16 y)
     return {};
 }
 
-D1CelBase::D1CelBase()
-    : type(D1CEL_TYPE::NONE)
-    , file()
-    , palette(nullptr)
-    , groupCount(0)
-    , frameCount(0)
-{
-}
-
 D1CelBase::D1CelBase(D1Pal *pal)
-    : type(D1CEL_TYPE::NONE)
-    , file()
-    , palette(pal)
-    , groupCount(0)
-    , frameCount(0)
+    : palette(pal)
 {
 }
 
@@ -130,11 +105,6 @@ QString D1CelBase::getFilePath()
         return QString();
 
     return this->file.fileName();
-}
-
-bool D1CelBase::isFileOpen()
-{
-    return this->file.isOpen();
 }
 
 D1Pal *D1CelBase::getPalette()

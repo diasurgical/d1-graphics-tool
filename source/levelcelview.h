@@ -76,16 +76,16 @@ private slots:
 
 private:
     Ui::LevelCelView *ui;
-    LevelCelScene *celScene;
+    LevelCelScene *celScene = new LevelCelScene;
 
     D1CelBase *cel;
     D1Min *min;
     D1Til *til;
     D1Sol *sol;
-    quint32 currentFrameIndex;
-    quint16 currentSubtileIndex;
-    quint16 currentTileIndex;
-    quint8 currentZoomFactor;
+    quint32 currentFrameIndex = 0;
+    quint16 currentSubtileIndex = 0;
+    quint16 currentTileIndex = 0;
+    quint8 currentZoomFactor = 1;
 };
 
 #endif // LEVELCELVIEW_H

@@ -1,12 +1,6 @@
 #include "d1cl2.h"
 
-D1Cl2Frame::D1Cl2Frame()
-    : D1CelFrameBase()
-{
-}
-
 D1Cl2Frame::D1Cl2Frame(QByteArray rawData)
-    : D1CelFrameBase()
 {
     this->load(rawData);
 }

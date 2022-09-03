@@ -20,15 +20,6 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , configuration(new QJsonObject)
-    , settingsDialog(new SettingsDialog(this))
-    , exportDialog(new ExportDialog(this))
-    , pal(new D1Pal)
-    , trn1(new D1Trn)
-    , trn2(new D1Trn)
-    , cel(new D1Cel)
-    , min(new D1Min)
-    , til(new D1Til)
 {
     // QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling, true );
 
