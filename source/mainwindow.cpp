@@ -162,7 +162,7 @@ void MainWindow::dropEvent(QDropEvent *event)
     event->acceptProposedAction();
 
     for (const QUrl &url : event->mimeData()->urls())
-        this->openFile(url.path());
+        this->openFile(url.toLocalFile());
 }
 
 void MainWindow::openFile(QString openFilePath)
