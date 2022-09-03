@@ -23,14 +23,18 @@ jobs:
     - name: Build
       run: |
         for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
-        dir %Qt6_DIR%\lib\cmake
+        dir %Qt6_DIR%\lib\cmake -config release
         qmake source/D1GraphicsTool.pro
         nmake
+        releases/release.ps1
       shell: cmd
+
+    - name: Package
+      run: releases/release.ps1
 
     - name: Upload
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v2
       with:
-        name: D1GraphicsTool.exe
-        path: release\D1GraphicsTool.exe
+        name: D1GraphicsTool.zip
+        path: release
