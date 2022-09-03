@@ -7,7 +7,7 @@ $ReleaseArchitecture = 'x64'
 $ReleaseZipFileName = "$ReleaseName-$ReleaseVersion-$ReleaseOs-$ReleaseArchitecture.zip"
 
 $QtPath = 'D:\a\d1-graphics-tool\Qt\6.2.4\msvc2019_64\bin'
-$ReleaseExePath = '..\release\D1GraphicsTool.exe'
+$ReleaseExePath = 'release\D1GraphicsTool.exe'
 
 if( Test-Path -Path .\$ReleaseZipFileName ) {
     Remove-Item -Path .\$ReleaseZipFileName -Confirm:$false -Force
