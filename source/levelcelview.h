@@ -1,5 +1,4 @@
-#ifndef LEVELCELVIEW_H
-#define LEVELCELVIEW_H
+#pragma once
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
@@ -87,5 +86,3 @@ private:
     quint16 currentTileIndex = 0;
     quint8 currentZoomFactor = 1;
 };
-
-#endif // LEVELCELVIEW_H

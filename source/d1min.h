@@ -1,5 +1,4 @@
-#ifndef D1MIN_H
-#define D1MIN_H
+#pragma once
 
 #include <QFile>
 #include <QImage>
@@ -42,5 +41,3 @@ private:
     QList<QList<quint16>> celFrameIndices;
     QList<QList<quint8>> celFrameTypes;
 };
-
-#endif // D1MIN_H

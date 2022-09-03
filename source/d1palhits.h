@@ -1,5 +1,4 @@
-#ifndef D1PALHITS_H
-#define D1PALHITS_H
+#pragma once
 
 #include <QMap>
 
@@ -47,5 +46,3 @@ private:
     QMap<quint32, QMap<quint8, quint32>> tilePalHits;
     QMap<quint32, QMap<quint8, quint32>> subtilePalHits;
 };
-
-#endif // D1PALHITS_H

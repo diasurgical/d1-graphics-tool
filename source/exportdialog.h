@@ -1,5 +1,4 @@
-#ifndef EXPORTDIALOG_H
-#define EXPORTDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -41,5 +40,3 @@ private:
 
     QString outputFolder;
 };
-
-#endif // EXPORTDIALOG_H

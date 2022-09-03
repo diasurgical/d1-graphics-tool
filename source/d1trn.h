@@ -1,5 +1,4 @@
-#ifndef D1TRN
-#define D1TRN
+#pragma once
 
 #include <QPointer>
 
@@ -38,5 +37,3 @@ private:
     QPointer<D1Pal> palette;
     QPointer<D1Pal> resultingPalette;
 };
-
-#endif // D1TRN

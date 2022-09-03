@@ -1,5 +1,4 @@
-#ifndef PALETTEWIDGET_H
-#define PALETTEWIDGET_H
+#pragma once
 
 #include <QDirIterator>
 #include <QGraphicsScene>
@@ -198,5 +197,3 @@ private:
 
     bool buildingDisplayComboBox;
 };
-
-#endif // PALETTEWIDGET_H

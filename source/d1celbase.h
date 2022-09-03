@@ -1,5 +1,4 @@
-#ifndef D1CELCORE_H
-#define D1CELCORE_H
+#pragma once
 
 #include <QBuffer>
 #include <QFile>
@@ -84,5 +83,3 @@ protected:
     QList<QPair<quint32, quint32>> frameOffsets;
     QList<QPointer<D1CelFrameBase>> frames;
 };
-
-#endif // D1CELCORE_H

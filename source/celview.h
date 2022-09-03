@@ -1,5 +1,4 @@
-#ifndef CELVIEW_H
-#define CELVIEW_H
+#pragma once
 
 #include <QFileInfo>
 #include <QGraphicsPixmapItem>
@@ -80,5 +79,3 @@ private:
 
     QTimer playTimer;
 };
-
-#endif // CELVIEW_H

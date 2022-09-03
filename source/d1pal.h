@@ -1,5 +1,4 @@
-#ifndef D1PAL
-#define D1PAL
+#pragma once
 
 #include <QColor>
 #include <QFile>
@@ -41,5 +40,3 @@ private:
     QFile file;
     QColor *colors = new QColor[D1PAL_COLORS];
 };
-
-#endif // D1PAL

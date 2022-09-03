@@ -1,5 +1,4 @@
-#ifndef D1TIL_H
-#define D1TIL_H
+#pragma once
 
 #include <QFile>
 #include <QImage>
@@ -44,5 +43,3 @@ private:
     quint16 tilePixelHeight;
     QList<QList<quint16>> subtileIndices;
 };
-
-#endif // D1TIL_H

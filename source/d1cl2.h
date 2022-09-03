@@ -1,5 +1,4 @@
-#ifndef D1CL2
-#define D1CL2
+#pragma once
 
 #include "d1celbase.h"
 
@@ -19,5 +18,3 @@ public:
 
     bool load(QString);
 };
-
-#endif // D1CL2

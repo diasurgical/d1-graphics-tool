@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include <QMainWindow>
 
@@ -103,5 +102,3 @@ private:
     // Palette hits are instantiated in main window to make them available to the three PaletteWidgets
     QPointer<D1PalHits> palHits;
 };
-
-#endif // MAINWINDOW_H

@@ -1,5 +1,4 @@
-#ifndef D1SOL_H
-#define D1SOL_H
+#pragma once
 
 #include <QFile>
 #include <QList>
@@ -22,5 +21,3 @@ private:
     quint16 tileCount;
     QList<quint8> subProperties;
 };
-
-#endif // D1SOL_H

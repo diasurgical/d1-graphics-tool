@@ -1,5 +1,4 @@
-#ifndef SETTINGSDIALOG_H
-#define SETTINGSDIALOG_H
+#pragma once
 
 #include <QDialog>
 #include <QJsonObject>
@@ -36,5 +35,3 @@ private:
     bool configurationChanged = false;
     QString workingDirectory;
 };
-
-#endif // SETTINGSDIALOG_H
