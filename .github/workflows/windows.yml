@@ -26,9 +26,9 @@ jobs:
         qmake source/D1GraphicsTool.pro
         nmake
         mkdir dist
-        copy release/D1GraphicsTool.exe dist/D1GraphicsTool.exe
+        copy release\D1GraphicsTool.exe dist
         cd dist
-        windeployqt D1GraphicsTool.exe --no-translations --no-system-d3d-compiler --no-virtualkeyboard --no-opengl-sw --no-plugins --no-libraries --no-quick-import
+        windeployqt D1GraphicsTool.exe --no-compiler-runtime --no-opengl-sw --no-system-d3d-compiler --no-virtualkeyboard --no-translations --no-quick-import
       shell: cmd
 
     - name: Upload
@@ -36,4 +36,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: D1GraphicsTool.zip
-        path: dist/*
+        path: dist
