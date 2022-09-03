@@ -3,8 +3,8 @@
 
 #include <QDialog>
 #include <QFileDialog>
-#include <QProgressDialog>
 #include <QMessageBox>
+#include <QProgressDialog>
 
 #include <QThread>
 
@@ -17,19 +17,18 @@ namespace Ui {
 class ExportDialog;
 }
 
-class ExportDialog : public QDialog
-{
+class ExportDialog : public QDialog {
     Q_OBJECT
 
 public:
-    explicit ExportDialog( QWidget *parent = 0 );
+    explicit ExportDialog(QWidget *parent = 0);
     ~ExportDialog();
 
-    void setCel( D1CelBase* );
-    void setMin( D1Min* );
-    void setTil( D1Til* );
+    void setCel(D1CelBase *);
+    void setMin(D1Min *);
+    void setTil(D1Til *);
 
-    void setCurrentFrame( quint16 );
+    void setCurrentFrame(quint16);
 
     QString getFileFormatExtension();
 
@@ -37,14 +36,14 @@ private slots:
     void on_outputFolderBrowseButton_clicked();
     void on_exportButton_clicked();
     void on_exportCancelButton_clicked();
-    void on_oneFileForAllFramesRadioButton_toggled( bool checked );
+    void on_oneFileForAllFramesRadioButton_toggled(bool checked);
 
 private:
     Ui::ExportDialog *ui;
 
-    D1CelBase* cel;
-    D1Min* min;
-    D1Til* til;
+    D1CelBase *cel;
+    D1Min *min;
+    D1Til *til;
 
     QString outputFolder;
 };

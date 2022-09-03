@@ -1,36 +1,35 @@
 #ifndef D1TRN
 #define D1TRN
 
-#include <QPointer>
 #include "d1pal.h"
+#include <QPointer>
 
 #define D1TRN_TRANSLATIONS 256
 #define D1TRN_TRANSLATIONS_BYTES 256
 
-class D1Trn : public QObject
-{
+class D1Trn : public QObject {
     Q_OBJECT
 
 public:
     D1Trn();
-    D1Trn( QString, D1Pal* );
+    D1Trn(QString, D1Pal *);
     ~D1Trn();
 
-    bool load( QString );
-    bool save( QString );
+    bool load(QString);
+    bool save(QString);
 
     bool isModified();
 
     void refreshResultingPalette();
-    QColor getResultingColor( quint8 );
+    QColor getResultingColor(quint8);
 
     QString getFilePath();
     bool isFileOpen();
-    quint8 getTranslation( quint8 );
-    void setTranslation( quint8, quint8 );
-    D1Pal* getPalette();
-    void setPalette( D1Pal* );
-    D1Pal* getResultingPalette();
+    quint8 getTranslation(quint8);
+    void setTranslation(quint8, quint8);
+    D1Pal *getPalette();
+    void setPalette(D1Pal *);
+    D1Pal *getResultingPalette();
 
 private:
     bool modified;
@@ -41,4 +40,3 @@ private:
 };
 
 #endif // D1TRN
-

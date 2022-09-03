@@ -1,18 +1,17 @@
 #ifndef D1CELCORE_H
 #define D1CELCORE_H
 
-#include <QPointer>
-#include <QFile>
+#include "d1pal.h"
 #include <QBuffer>
+#include <QFile>
 #include <QImage>
 #include <QMap>
-#include "d1pal.h"
+#include <QPointer>
 
-class D1CelPixel
-{
+class D1CelPixel {
 public:
     D1CelPixel();
-    D1CelPixel( bool, quint8 );
+    D1CelPixel(bool, quint8);
     ~D1CelPixel();
 
     bool isTransparent();
@@ -23,29 +22,27 @@ private:
     quint8 paletteIndex;
 };
 
-class D1CelFrameBase : public QObject
-{
+class D1CelFrameBase : public QObject {
     Q_OBJECT
 
 public:
     D1CelFrameBase();
     ~D1CelFrameBase();
 
-    virtual quint16 computeWidthFromHeader( QByteArray & ) = 0;
-    virtual bool load( QByteArray ) = 0;
+    virtual quint16 computeWidthFromHeader(QByteArray &) = 0;
+    virtual bool load(QByteArray) = 0;
 
     quint16 getWidth();
     quint16 getHeight();
-    D1CelPixel getPixel( quint16, quint16 );
+    D1CelPixel getPixel(quint16, quint16);
 
 protected:
     quint16 width;
     quint16 height;
-    QList< QList<D1CelPixel> > pixels;
+    QList<QList<D1CelPixel>> pixels;
 };
 
-enum class D1CEL_TYPE
-{
+enum class D1CEL_TYPE {
     NONE,
     V1_REGULAR,
     V1_COMPILATION,
@@ -54,40 +51,39 @@ enum class D1CEL_TYPE
     V2_MULTIPLE_GROUPS
 };
 
-class D1CelBase : public QObject
-{
+class D1CelBase : public QObject {
     Q_OBJECT
 
 public:
     D1CelBase();
-    D1CelBase( D1Pal* );
+    D1CelBase(D1Pal *);
     ~D1CelBase();
 
-    virtual bool load( QString ) = 0;
+    virtual bool load(QString) = 0;
     bool isFrameSizeConstant();
-    QImage getFrameImage( quint16 );
+    QImage getFrameImage(quint16);
 
     D1CEL_TYPE getType();
     QString getFilePath();
     bool isFileOpen();
-    D1Pal* getPalette();
-    void setPalette( D1Pal* );
+    D1Pal *getPalette();
+    void setPalette(D1Pal *);
     quint16 getGroupCount();
-    QPair<quint16,quint16> getGroupFrameIndices( quint16 );
+    QPair<quint16, quint16> getGroupFrameIndices(quint16);
     quint32 getFrameCount();
-    D1CelFrameBase* getFrame( quint16 );
-    quint16 getFrameWidth( quint16 );
-    quint16 getFrameHeight( quint16 );
+    D1CelFrameBase *getFrame(quint16);
+    quint16 getFrameWidth(quint16);
+    quint16 getFrameHeight(quint16);
 
 protected:
     D1CEL_TYPE type;
     QFile file;
-    D1Pal* palette;
+    D1Pal *palette;
     quint16 groupCount;
-    QList< QPair<quint16,quint16> > groupFrameIndices;
+    QList<QPair<quint16, quint16>> groupFrameIndices;
     quint32 frameCount;
-    QList< QPair<quint32,quint32> > frameOffsets;
-    QList< QPointer<D1CelFrameBase> > frames;
+    QList<QPair<quint32, quint32>> frameOffsets;
+    QList<QPointer<D1CelFrameBase>> frames;
 };
 
 #endif // D1CELCORE_H

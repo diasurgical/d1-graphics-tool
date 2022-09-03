@@ -1,25 +1,24 @@
 #ifndef SETTINGSDIALOG_H
 #define SETTINGSDIALOG_H
 
+#include <QColorDialog>
 #include <QDialog>
 #include <QFileDialog>
-#include <QColorDialog>
-#include <QJsonObject>
 #include <QJsonDocument>
+#include <QJsonObject>
 
 namespace Ui {
 class SettingsDialog;
 }
 
-class SettingsDialog : public QDialog
-{
+class SettingsDialog : public QDialog {
     Q_OBJECT
 
 public:
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
-    void initialize( QJsonObject* );
+    void initialize(QJsonObject *);
 
     void saveConfiguration();
 

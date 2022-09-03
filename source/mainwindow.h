@@ -1,55 +1,53 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QGraphicsScene>
 #include <QFile>
+#include <QFileDialog>
 #include <QFileInfo>
-#include <QTextStream>
+#include <QGraphicsScene>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QUndoStack>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QTextStream>
 #include <QUndoCommand>
+#include <QUndoStack>
 
-#include "d1pal.h"
-#include "d1trn.h"
 #include "d1cel.h"
 #include "d1cl2.h"
 #include "d1min.h"
-#include "d1til.h"
-#include "d1sol.h"
+#include "d1pal.h"
 #include "d1palhits.h"
+#include "d1sol.h"
+#include "d1til.h"
+#include "d1trn.h"
 
-#include "palettewidget.h"
 #include "celview.h"
-#include "levelcelview.h"
-#include "settingsdialog.h"
 #include "exportdialog.h"
+#include "levelcelview.h"
+#include "palettewidget.h"
+#include "settingsdialog.h"
 
 #define D1_GRAPHICS_TOOL_VERSION "0.5.0"
 
-namespace Ui
-{
-    class MainWindow;
+namespace Ui {
+class MainWindow;
 }
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow( QWidget *parent = nullptr );
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void setPal( QString );
-    void setTrn1( QString );
-    void setTrn2( QString );
+    void setPal(QString);
+    void setTrn1(QString);
+    void setTrn2(QString);
 
     void loadConfiguration();
 
-    void pushCommandToUndoStack( QUndoCommand* );
+    void pushCommandToUndoStack(QUndoCommand *);
 
 private slots:
     void on_actionOpen_triggered();
@@ -79,10 +77,11 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionAbout_Qt_triggered();
 
-    void openFile( QString openFilePath );
+    void openFile(QString openFilePath);
 
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
+
 private:
     Ui::MainWindow *ui;
     QJsonObject *configuration;
@@ -109,9 +108,9 @@ private:
     QPointer<D1Til> til;
     QPointer<D1Sol> sol;
 
-    QMap<QString,D1Pal*> pals; // key: path, value: pointer to palette
-    QMap<QString,D1Trn*> trn1s; // key: path, value: pointer to translation
-    QMap<QString,D1Trn*> trn2s; // key: path, value: pointer to translation
+    QMap<QString, D1Pal *> pals;  // key: path, value: pointer to palette
+    QMap<QString, D1Trn *> trn1s; // key: path, value: pointer to translation
+    QMap<QString, D1Trn *> trn2s; // key: path, value: pointer to translation
 
     // Palette hits are instantiated in main window to make them available to the three PaletteWidgets
     QPointer<D1PalHits> palHits;
