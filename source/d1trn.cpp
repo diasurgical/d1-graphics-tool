@@ -108,10 +108,10 @@ QColor D1Trn::getResultingColor(quint8 index)
 
 QString D1Trn::getFilePath()
 {
-    if (this->file.isOpen())
-        return this->file.fileName();
-    else
+    if (!this->file.isOpen())
         return QString();
+
+    return this->file.fileName();
 }
 
 bool D1Trn::isFileOpen()

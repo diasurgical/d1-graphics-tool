@@ -4,9 +4,9 @@
 ExportDialog::ExportDialog(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::ExportDialog)
-    , cel(NULL)
-    , min(NULL)
-    , til(NULL)
+    , cel(nullptr)
+    , min(nullptr)
+    , til(nullptr)
 {
     ui->setupUi(this);
 }
@@ -42,7 +42,7 @@ void ExportDialog::setCel(D1CelBase *c)
     }
 
     // If it's a CEL level file
-    if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL && this->min && this->til)
+    if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL && this->min != nullptr && this->til != nullptr)
         ui->levelFramesSettingsWidget->setEnabled(true);
     else
         ui->levelFramesSettingsWidget->setEnabled(false);
@@ -100,10 +100,10 @@ void ExportDialog::on_exportButton_clicked()
         progress.show();
 
         // If it's a CEL/CL2 file
-        if (this->cel) {
+        if (this->cel != nullptr) {
             // If it's a CEL level file
             if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL
-                && this->min && this->til && !ui->exportLevelFrames->isChecked()) {
+                && this->min != nullptr && this->til != nullptr && !ui->exportLevelFrames->isChecked()) {
                 if (ui->exportLevelTiles->isChecked()) {
                     progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " level tiles...");
 

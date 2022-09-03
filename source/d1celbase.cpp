@@ -50,14 +50,14 @@ D1CelPixel D1CelFrameBase::getPixel(quint16 x, quint16 y)
 {
     if (x < this->width && y < this->height)
         return this->pixels[y][x];
-    else
-        return D1CelPixel();
+
+    return D1CelPixel();
 }
 
 D1CelBase::D1CelBase()
     : type(D1CEL_TYPE::NONE)
     , file()
-    , palette(NULL)
+    , palette(nullptr)
     , groupCount(0)
     , frameCount(0)
 {
@@ -100,7 +100,7 @@ bool D1CelBase::isFrameSizeConstant()
 // builds QImage from a D1CelFrame of given index
 QImage D1CelBase::getFrameImage(quint16 frameIndex)
 {
-    if (this->palette == NULL || frameIndex >= this->frames.size())
+    if (this->palette == nullptr || frameIndex >= this->frames.size())
         return QImage();
 
     QPointer<D1CelFrameBase> frame = this->frames[frameIndex];
@@ -134,10 +134,10 @@ D1CEL_TYPE D1CelBase::getType()
 
 QString D1CelBase::getFilePath()
 {
-    if (this->file.isOpen())
-        return this->file.fileName();
-    else
+    if (!this->file.isOpen())
         return QString();
+
+    return this->file.fileName();
 }
 
 bool D1CelBase::isFileOpen()
@@ -164,8 +164,8 @@ QPair<quint16, quint16> D1CelBase::getGroupFrameIndices(quint16 groupIndex)
 {
     if (!this->groupFrameIndices.empty() && groupIndex < this->groupCount)
         return this->groupFrameIndices[groupIndex];
-    else
-        return qMakePair(0, 0);
+
+    return qMakePair(0, 0);
 }
 
 quint32 D1CelBase::getFrameCount()
@@ -175,24 +175,24 @@ quint32 D1CelBase::getFrameCount()
 
 D1CelFrameBase *D1CelBase::getFrame(quint16 frameIndex)
 {
-    if (frameIndex < this->frameCount)
-        return this->frames[frameIndex];
-    else
-        return NULL;
+    if (frameIndex >= this->frameCount)
+        return nullptr;
+
+    return this->frames[frameIndex];
 }
 
 quint16 D1CelBase::getFrameWidth(quint16 frameIndex)
 {
-    if (frameIndex < this->frameCount)
-        return this->frames[frameIndex]->getWidth();
-    else
+    if (frameIndex >= this->frameCount)
         return 0;
+
+    return this->frames[frameIndex]->getWidth();
 }
 
 quint16 D1CelBase::getFrameHeight(quint16 frameIndex)
 {
-    if (frameIndex < this->frameCount)
-        return this->frames[frameIndex]->getHeight();
-    else
+    if (frameIndex >= this->frameCount)
         return 0;
+
+    return this->frames[frameIndex]->getHeight();
 }

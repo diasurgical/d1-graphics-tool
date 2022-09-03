@@ -283,8 +283,8 @@ D1CEL_FRAME_TYPE D1CelFrame::getLevelFrame400Type(QByteArray &rawFrameData)
 
     if (globalPixelCount == 32 * 32)
         return D1CEL_FRAME_TYPE::REGULAR;
-    else
-        return D1CEL_FRAME_TYPE::LEVEL_TYPE_0;
+
+    return D1CEL_FRAME_TYPE::LEVEL_TYPE_0;
 }
 
 quint16 D1CelFrame::computeWidthFromHeader(QByteArray &rawFrameData)
@@ -299,8 +299,8 @@ quint16 D1CelFrame::computeWidthFromHeader(QByteArray &rawFrameData)
     quint8 readByte = 0;
 
     // Read the {CEL FRAME HEADER}
-    for (int i = 0; i < 5; i++)
-        in >> celFrameHeader[i];
+    for (quint16 &header : celFrameHeader)
+        in >> header;
 
     // Read the five 32 pixel-lines block to calculate the image width
     for (int i = 0; i < 4; i++) {
@@ -414,24 +414,22 @@ quint16 D1CelFrame::computeWidthFromData(QByteArray &rawFrameData)
         qDeleteAll(pixelGroups);
         return width;
     }
-    // If width is inconsistent
-    else {
-        // Try to find  relevant width by adding pixel groups' pixel counts iteratively
-        pixelCount = 0;
-        for (int i = 0; i < pixelGroups.size(); i++) {
-            pixelCount += pixelGroups[i]->getPixelCount();
-            if (pixelCount > 1
-                && globalPixelCount % pixelCount == 0
-                && pixelCount >= biggestGroupPixelCount) {
-                qDeleteAll(pixelGroups);
-                return pixelCount;
-            }
-        }
 
-        qDeleteAll(pixelGroups);
-        // If still no width found return 0
-        return 0;
+    // Try to find  relevant width by adding pixel groups' pixel counts iteratively
+    pixelCount = 0;
+    for (int i = 0; i < pixelGroups.size(); i++) {
+        pixelCount += pixelGroups[i]->getPixelCount();
+        if (pixelCount > 1
+            && globalPixelCount % pixelCount == 0
+            && pixelCount >= biggestGroupPixelCount) {
+            qDeleteAll(pixelGroups);
+            return pixelCount;
+        }
     }
+
+    qDeleteAll(pixelGroups);
+    // If still no width found return 0
+    return 0;
 }
 
 bool D1CelFrame::load(QByteArray rawData)
@@ -478,8 +476,8 @@ bool D1CelFrame::load(QByteArray rawData)
         }
         // 0x220 or 0x320 frame
         else {
-            const bool *dataPattern = NULL;
-            const quint16 *dataPatternZeroedBytes = NULL;
+            const bool *dataPattern = nullptr;
+            const quint16 *dataPatternZeroedBytes = nullptr;
 
             switch (this->frameType) {
             case D1CEL_FRAME_TYPE::LEVEL_TYPE_2:
@@ -748,18 +746,18 @@ bool D1Cel::load(QString celFilePath)
             this->type = D1CEL_TYPE::V1_LEVEL;
     }
 
-    if (!this->frameOffsets.empty())
-        this->frameCount = this->frameOffsets.size();
-    else
+    if (this->frameOffsets.empty())
         return false;
+
+    this->frameCount = this->frameOffsets.size();
 
     // BUILDING {CEL FRAMES}
 
     qDeleteAll(this->frames);
     this->frames.clear();
-    for (int i = 0; i < this->frameOffsets.size(); i++) {
-        celFrameSize = this->frameOffsets[i].second - this->frameOffsets[i].first;
-        fileBuffer.seek(this->frameOffsets[i].first);
+    for (const auto &offset : this->frameOffsets) {
+        celFrameSize = offset.second - offset.first;
+        fileBuffer.seek(offset.first);
         celFrameRawData = fileBuffer.read(celFrameSize);
 
         // If it's not a level CEL

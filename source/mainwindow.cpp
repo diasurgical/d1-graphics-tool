@@ -43,36 +43,16 @@ MainWindow::~MainWindow()
     delete configuration;
     delete settingsDialog;
     delete exportDialog;
-
-    if (this->undoStack)
-        delete this->undoStack;
-
-    if (this->undoAction)
-        delete this->undoAction;
-
-    if (this->redoAction)
-        delete this->redoAction;
-
-    if (this->pal)
-        delete this->pal;
-
-    if (this->trn1)
-        delete this->trn1;
-
-    if (this->trn2)
-        delete this->trn2;
-
-    if (this->cel)
-        delete this->cel;
-
-    if (this->min)
-        delete this->min;
-
-    if (this->til)
-        delete this->til;
-
-    if (this->palHits)
-        delete this->palHits;
+    delete this->undoStack;
+    delete this->undoAction;
+    delete this->redoAction;
+    delete this->pal;
+    delete this->trn1;
+    delete this->trn2;
+    delete this->cel;
+    delete this->min;
+    delete this->til;
+    delete this->palHits;
 }
 
 void MainWindow::setPal(QString path)
@@ -181,7 +161,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 
     event->acceptProposedAction();
 
-    for (auto url : event->mimeData()->urls())
+    for (const QUrl &url : event->mimeData()->urls())
         this->openFile(url.path());
 }
 
@@ -397,7 +377,7 @@ void MainWindow::openFile(QString openFilePath)
         this->palWidget->selectPath(firstPaletteFound);
 
     // Adding the CelView to the main frame
-    if (this->celView)
+    if (this->celView != nullptr)
         this->ui->mainFrame->layout()->addWidget(this->celView);
     else
         this->ui->mainFrame->layout()->addWidget(this->levelCelView);
@@ -415,21 +395,12 @@ void MainWindow::on_actionClose_triggered()
 {
     this->undoStack->clear();
 
-    if (this->celView)
-        delete this->celView;
-
-    if (this->levelCelView)
-        delete this->levelCelView;
-
-    if (this->palWidget)
-        delete this->palWidget;
-    if (this->trn1Widget)
-        delete this->trn1Widget;
-    if (this->trn2Widget)
-        delete this->trn2Widget;
-
-    if (this->cel)
-        delete this->cel;
+    delete this->celView;
+    delete this->levelCelView;
+    delete this->palWidget;
+    delete this->trn1Widget;
+    delete this->trn2Widget;
+    delete this->cel;
 
     qDeleteAll(this->pals);
     this->pals = QMap<QString, D1Pal *>();
@@ -440,14 +411,9 @@ void MainWindow::on_actionClose_triggered()
     qDeleteAll(this->trn2s);
     this->trn2s = QMap<QString, D1Trn *>();
 
-    if (this->min)
-        delete this->min;
-
-    if (this->til)
-        delete this->til;
-
-    if (this->palHits)
-        delete this->palHits;
+    delete this->min;
+    delete this->til;
+    delete this->palHits;
 
     ui->menuPalette->setEnabled(false);
     ui->actionExport->setEnabled(false);
@@ -461,13 +427,13 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::on_actionExport_triggered()
 {
-    if (this->min)
+    if (this->min != nullptr)
         this->exportDialog->setMin(this->min);
 
-    if (this->til)
+    if (this->til != nullptr)
         this->exportDialog->setTil(this->til);
 
-    if (this->cel)
+    if (this->cel != nullptr)
         this->exportDialog->setCel(this->cel);
 
     this->exportDialog->show();

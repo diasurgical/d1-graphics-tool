@@ -23,8 +23,8 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
     quint8 readByte = 0;
 
     // Read the {CEL FRAME HEADER}
-    for (int i = 0; i < 5; i++)
-        in >> celFrameHeader[i];
+    for (quint16 &header : celFrameHeader)
+        in >> header;
 
     // Read the five 32 pixel-lines block to calculate the image width
     for (int i = 0; i < 4; i++) {
@@ -242,7 +242,7 @@ bool D1Cl2::load(QString cl2FilePath)
     this->frameOffsets.clear();
     if (this->type == D1CEL_TYPE::V2_MULTIPLE_GROUPS) {
         // Going through all groups
-        for (unsigned int i = 0; i * 4 < firstDword; i++) {
+        for (unsigned i = 0; i * 4 < firstDword; i++) {
             fileBuffer.seek(i * 4);
             in >> cl2GroupOffset;
 
@@ -254,7 +254,7 @@ bool D1Cl2::load(QString cl2FilePath)
                     this->frameOffsets.size() + cl2GroupFrameCount - 1));
 
             // Going through all frames of the group
-            for (unsigned int j = 1; j <= cl2GroupFrameCount; j++) {
+            for (unsigned j = 1; j <= cl2GroupFrameCount; j++) {
                 cl2FrameStartOffset = 0;
                 cl2FrameEndOffset = 0;
 
@@ -269,7 +269,7 @@ bool D1Cl2::load(QString cl2FilePath)
         }
     } else {
         // Going through all frames of the only group
-        for (unsigned int i = 1; i <= firstDword; i++) {
+        for (unsigned i = 1; i <= firstDword; i++) {
             cl2FrameStartOffset = 0;
             cl2FrameEndOffset = 0;
 
@@ -291,9 +291,9 @@ bool D1Cl2::load(QString cl2FilePath)
 
     qDeleteAll(this->frames);
     this->frames.clear();
-    for (int i = 0; i < this->frameOffsets.size(); i++) {
-        cl2FrameSize = this->frameOffsets[i].second - this->frameOffsets[i].first;
-        fileBuffer.seek(this->frameOffsets[i].first);
+    for (const auto &offset : this->frameOffsets) {
+        cl2FrameSize = offset.second - offset.first;
+        fileBuffer.seek(offset.first);
         cl2FrameRawData = fileBuffer.read(cl2FrameSize);
 
         this->frames.append(

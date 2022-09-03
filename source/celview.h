@@ -32,7 +32,7 @@ class CelView : public QWidget {
     Q_OBJECT
 
 public:
-    explicit CelView(QWidget *parent = 0);
+    explicit CelView(QWidget *parent = nullptr);
     ~CelView();
 
     void initialize(D1CelBase *);

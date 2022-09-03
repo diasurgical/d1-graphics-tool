@@ -552,7 +552,6 @@ void PaletteWidget::displayColors()
 
 void PaletteWidget::displaySelection()
 {
-    QBrush brush(Qt::NoBrush);
     QPen pen(this->selectionBorderColor);
     pen.setStyle(Qt::SolidLine);
     pen.setJoinStyle(Qt::MiterJoin);

@@ -187,7 +187,7 @@ void LevelCelView::displayFrame()
     quint16 minPosX = 0;
     quint16 tilPosX = 0;
 
-    if (!this->cel)
+    if (this->cel == nullptr)
         return;
 
     this->celScene->clear();

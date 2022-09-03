@@ -96,7 +96,7 @@ void CelView::framePixelClicked(quint16 x, quint16 y)
 
 void CelView::displayFrame()
 {
-    if (!this->cel)
+    if (this->cel == nullptr)
         return;
 
     this->celScene->clear();
@@ -144,11 +144,8 @@ bool CelView::checkGroupNumber()
 
     QPair<quint16, quint16> groupFrameIndices = this->cel->getGroupFrameIndices(this->currentGroupIndex);
 
-    if (this->currentFrameIndex >= groupFrameIndices.first
-        && this->currentFrameIndex <= groupFrameIndices.second)
-        return true;
-    else
-        return false;
+    return this->currentFrameIndex >= groupFrameIndices.first
+        && this->currentFrameIndex <= groupFrameIndices.second;
 }
 
 void CelView::setGroupNumber()

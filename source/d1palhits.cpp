@@ -32,7 +32,7 @@ void D1PalHits::setMode(D1PALHITS_MODE m)
 
 void D1PalHits::buildPalHits()
 {
-    D1CelFrameBase *frame = NULL;
+    D1CelFrameBase *frame = nullptr;
     quint8 paletteIndex = 0;
 
     // Go through all frames
@@ -125,16 +125,17 @@ void D1PalHits::buildTilePalHits()
 
 quint32 D1PalHits::getIndexHits(quint8 colorIndex)
 {
-    if (this->mode == D1PALHITS_MODE::ALL_COLORS) {
+    if (this->mode == D1PALHITS_MODE::ALL_COLORS)
         return 1;
-    } else if (this->mode == D1PALHITS_MODE::ALL_FRAMES) {
+
+    if (this->mode == D1PALHITS_MODE::ALL_FRAMES) {
         if (!this->allFramesPalHits.contains(colorIndex))
             return 0;
-        else
-            return this->allFramesPalHits[colorIndex];
-    } else {
-        return 0;
+
+        return this->allFramesPalHits[colorIndex];
     }
+
+    return 0;
 }
 
 quint32 D1PalHits::getIndexHits(quint8 colorIndex, quint32 itemIndex)
@@ -142,19 +143,19 @@ quint32 D1PalHits::getIndexHits(quint8 colorIndex, quint32 itemIndex)
     if (this->mode == D1PALHITS_MODE::CURRENT_TILE) {
         if (!this->tilePalHits[itemIndex].contains(colorIndex))
             return 0;
-        else
-            return this->tilePalHits[itemIndex][colorIndex];
+
+        return this->tilePalHits[itemIndex][colorIndex];
     } else if (this->mode == D1PALHITS_MODE::CURRENT_SUBTILE) {
         if (!this->subtilePalHits[itemIndex].contains(colorIndex))
             return 0;
-        else
-            return this->subtilePalHits[itemIndex][colorIndex];
+
+        return this->subtilePalHits[itemIndex][colorIndex];
     } else if (this->mode == D1PALHITS_MODE::CURRENT_FRAME) {
         if (!this->framePalHits[itemIndex].contains(colorIndex))
             return 0;
-        else
-            return this->framePalHits[itemIndex][colorIndex];
-    } else {
-        return 0;
+
+        return this->framePalHits[itemIndex][colorIndex];
     }
+
+    return 0;
 }

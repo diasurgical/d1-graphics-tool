@@ -55,10 +55,10 @@ bool D1Sol::load(QString solFilePath)
 
 QString D1Sol::getFilePath()
 {
-    if (this->file.isOpen())
-        return this->file.fileName();
-    else
+    if (!this->file.isOpen())
         return QString();
+
+    return this->file.fileName();
 }
 
 bool D1Sol::isFileOpen()
@@ -73,8 +73,8 @@ quint16 D1Sol::getTileCount()
 
 quint8 D1Sol::getSubtileProperties(quint16 tileIndex)
 {
-    if (tileIndex < this->tileCount)
-        return this->subProperties.at(tileIndex);
-    else
+    if (tileIndex >= this->tileCount)
         return 0;
+
+    return this->subProperties.at(tileIndex);
 }

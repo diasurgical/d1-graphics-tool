@@ -3,7 +3,7 @@
 D1Min::D1Min()
     : type(D1MIN_TYPE::REGULAR_HEIGHT)
     , file()
-    , cel(NULL)
+    , cel(nullptr)
     , subtileWidth(2)
     , subtileHeight(5)
     , subtileCount(0)
@@ -111,7 +111,7 @@ QImage D1Min::getSubtileImage(quint16 subtileIndex)
     quint16 dx = 0, dy = 0;
     QImage subtile;
 
-    if (this->cel == NULL || subtileIndex >= this->celFrameIndices.size())
+    if (this->cel == nullptr || subtileIndex >= this->celFrameIndices.size())
         return QImage();
 
     // QList<quint16> test = this->celFrameIndices.at( subtileIndex );
@@ -147,10 +147,10 @@ D1MIN_TYPE D1Min::getType()
 
 QString D1Min::getFilePath()
 {
-    if (this->file.isOpen())
-        return this->file.fileName();
-    else
+    if (!this->file.isOpen())
         return QString();
+
+    return this->file.fileName();
 }
 
 bool D1Min::isFileOpen()
@@ -185,8 +185,8 @@ quint16 D1Min::getSubtileCount()
 
 QList<quint16> D1Min::getCelFrameIndices(quint16 subTileIndex)
 {
-    if (subTileIndex < this->subtileCount)
-        return this->celFrameIndices.at(subTileIndex);
-    else
+    if (subTileIndex >= this->subtileCount)
         return QList<quint16>();
+
+    return this->celFrameIndices.at(subTileIndex);
 }

@@ -3,7 +3,7 @@
 D1Til::D1Til()
     : type(D1TIL_TYPE::REGULAR_HEIGHT)
     , file()
-    , min(NULL)
+    , min(nullptr)
     , tileCount(0)
     , tileWidth(0)
     , tileHeight(0)
@@ -78,7 +78,7 @@ bool D1Til::load(QString tilFilePath)
 
 QImage D1Til::getTileImage(quint16 tileIndex)
 {
-    if (this->min == NULL || tileIndex >= this->subtileIndices.size())
+    if (this->min == nullptr || tileIndex >= this->subtileIndices.size())
         return QImage();
 
     QImage tile = QImage(this->tilePixelWidth,
@@ -113,10 +113,10 @@ D1TIL_TYPE D1Til::getType()
 
 QString D1Til::getFilePath()
 {
-    if (this->file.isOpen())
-        return this->file.fileName();
-    else
+    if (!this->file.isOpen())
         return QString();
+
+    return this->file.fileName();
 }
 
 bool D1Til::isFileOpen()
@@ -167,8 +167,8 @@ quint16 D1Til::getTilePixelHeight()
 
 QList<quint16> D1Til::getSubtileIndices(quint16 tileIndex)
 {
-    if (tileIndex < this->tileCount)
-        return this->subtileIndices.at(tileIndex);
-    else
+    if (tileIndex >= this->tileCount)
         return QList<quint16>();
+
+    return this->subtileIndices.at(tileIndex);
 }

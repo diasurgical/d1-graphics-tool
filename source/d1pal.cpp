@@ -99,12 +99,12 @@ bool D1Pal::loadJascPalette()
 
             if (lineParts.size() != 3) {
                 return false;
-            } else {
-                quint8 red = lineParts[0].toInt();
-                quint8 green = lineParts[1].toInt();
-                quint8 blue = lineParts[2].toInt();
-                this->colors[lineNumber - 4] = QColor(red, green, blue);
             }
+
+            quint8 red = lineParts[0].toInt();
+            quint8 green = lineParts[1].toInt();
+            quint8 blue = lineParts[2].toInt();
+            this->colors[lineNumber - 4] = QColor(red, green, blue);
         }
     }
 
@@ -154,10 +154,10 @@ bool D1Pal::isModified()
 
 QString D1Pal::getFilePath()
 {
-    if (this->file.isOpen())
-        return this->file.fileName();
-    else
+    if (!this->file.isOpen())
         return QString();
+
+    return this->file.fileName();
 }
 
 bool D1Pal::isFileOpen()
