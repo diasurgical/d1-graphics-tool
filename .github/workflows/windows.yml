@@ -28,7 +28,7 @@ jobs:
         mkdir dist
         copy release\D1GraphicsTool.exe dist
         cd dist
-        windeployqt D1GraphicsTool.exe --no-translations --no-system-d3d-compiler --no-virtualkeyboard --no-opengl-sw --no-plugins
+        windeployqt D1GraphicsTool.exe --no-translations --no-system-d3d-compiler --no-virtualkeyboard --no-opengl-sw --no-libraries
       shell: cmd
 
     - name: Upload
