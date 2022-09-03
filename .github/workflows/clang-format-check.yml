@@ -22,10 +22,3 @@ jobs:
         clang-format-version: '13'
         check-path: 'source'
         fallback-style: 'webkit'
-
-    - name: Formatting Check (test)
-      uses: jidicula/clang-format-action@v4.3.1
-      with:
-        clang-format-version: '13'
-        check-path: 'test'
-        fallback-style: 'webkit'
