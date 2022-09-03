@@ -1,13 +1,13 @@
 #Requires -Version 7
 
 $ReleaseName = 'd1-graphics-tool'
-$ReleaseVersion = '0.5.0'
+$ReleaseVersion = 'beta'
 $ReleaseOs = 'windows'
 $ReleaseArchitecture = 'x64'
 $ReleaseZipFileName = "$ReleaseName-$ReleaseVersion-$ReleaseOs-$ReleaseArchitecture.zip"
 
-$QtPath = 'C:\Qt\6.1.2\mingw81_64\bin'
-$ReleaseExePath = '..\build-D1GraphicsTool-Desktop_Qt_6_1_2_MinGW_64_bit-Release\release\D1GraphicsTool.exe'
+$QtPath = 'D:\a\d1-graphics-tool\Qt\6.2.4\msvc2019_64\bin'
+$ReleaseExePath = '..\release\D1GraphicsTool.exe'
 
 if( Test-Path -Path .\$ReleaseZipFileName ) {
     Remove-Item -Path .\$ReleaseZipFileName -Confirm:$false -Force
