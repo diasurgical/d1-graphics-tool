@@ -20,7 +20,7 @@ jobs:
       uses: jidicula/clang-format-action@v4.3.1
       with:
         clang-format-version: '13'
-        check-path: 'Source'
+        check-path: 'source'
         fallback-style: 'webkit'
 
     - name: Formatting Check (test)
