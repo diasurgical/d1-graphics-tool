@@ -26,6 +26,8 @@ jobs:
         dir %Qt6_DIR%\lib\cmake -config release
         qmake source/D1GraphicsTool.pro
         nmake
+        dir
+        dir release
       shell: cmd
 
     - name: Package
