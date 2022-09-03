@@ -26,16 +26,15 @@ jobs:
         dir %Qt6_DIR%\lib\cmake -config release
         qmake source/D1GraphicsTool.pro
         nmake
-        dir
-        dir release
+        mkdir dist
+        copy release/D1GraphicsTool.exe dist
+        cd dist
+        windeployqt D1GraphicsTool.exe
       shell: cmd
-
-    - name: Package
-      run: releases/release.ps1
 
     - name: Upload
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v2
       with:
         name: D1GraphicsTool.zip
-        path: release
+        path: dist
