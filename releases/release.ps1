@@ -28,11 +28,6 @@ Copy-Item -Path $ReleaseExePath -Destination .\$ReleaseName
 
 # Copy Qt binaries
 windeployqt .\$ReleaseName
-# Copy other dependencies
-Copy-Item -Path $QtPath\libgcc_s_seh-1.dll -Destination .\$ReleaseName
-Copy-Item -Path $QtPath\libstdc++-6.dll -Destination .\$ReleaseName
-Copy-Item -Path $QtPath\libwinpthread-1.dll -Destination .\$ReleaseName
-
 
 Compress-Archive -Path .\$ReleaseName -DestinationPath $ReleaseZipFileName
 
