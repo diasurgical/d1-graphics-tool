@@ -437,6 +437,7 @@ bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
 
         return true;
     }
+
     if (event->type() == QEvent::MouseMove) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         if (mouseEvent->position().x() < 0 || mouseEvent->position().x() > PALETTE_WIDTH
@@ -456,6 +457,7 @@ bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
 
         return true;
     }
+
     if (event->type() == QEvent::MouseButtonRelease) {
         // QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
         // qDebug() << "MouseButtonRelease: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
@@ -468,13 +470,13 @@ bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
 
         return true;
     }
-    if (event->type() == QEvent::MouseButtonDblClick) {
 
+    if (event->type() == QEvent::MouseButtonDblClick) {
         return true;
-    } else {
-        // standard event processing
-        return QObject::eventFilter(obj, event);
     }
+
+    // standard event processing
+    return QObject::eventFilter(obj, event);
 }
 
 void PaletteWidget::displayColors()
