@@ -23,7 +23,6 @@ jobs:
     - name: Build
       run: |
         for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
-        dir %Qt6_DIR%\lib\cmake -config release
         qmake source/D1GraphicsTool.pro
         nmake
         mkdir dist
