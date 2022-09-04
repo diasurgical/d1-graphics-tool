@@ -441,3 +441,127 @@ void LevelCelView::on_zoomEdit_returnPressed()
     ui->celGraphicsView->show();
     ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
 }
+
+void LevelCelView::on_ampType_activated(int index)
+{
+    this->amp->setTileType(this->currentTileIndex, index);
+}
+
+void LevelCelView::updateAmpProperty()
+{
+    quint8 flags = 0;
+    if (this->ui->amp0->checkState())
+        flags |= 1 << 0;
+    if (this->ui->amp1->checkState())
+        flags |= 1 << 1;
+    if (this->ui->amp2->checkState())
+        flags |= 1 << 2;
+    if (this->ui->amp3->checkState())
+        flags |= 1 << 3;
+    if (this->ui->amp4->checkState())
+        flags |= 1 << 4;
+    if (this->ui->amp5->checkState())
+        flags |= 1 << 5;
+    if (this->ui->amp6->checkState())
+        flags |= 1 << 6;
+    if (this->ui->amp7->checkState())
+        flags |= 1 << 7;
+
+    this->amp->setTileProperties(this->currentTileIndex, flags);
+}
+
+void LevelCelView::on_amp0_clicked()
+{
+    this->updateAmpProperty();
+}
+
+void LevelCelView::on_amp1_clicked()
+{
+    this->updateAmpProperty();
+}
+
+void LevelCelView::on_amp2_clicked()
+{
+    this->updateAmpProperty();
+}
+
+void LevelCelView::on_amp3_clicked()
+{
+    this->updateAmpProperty();
+}
+
+void LevelCelView::on_amp4_clicked()
+{
+    this->updateAmpProperty();
+}
+
+void LevelCelView::on_amp5_clicked()
+{
+    this->updateAmpProperty();
+}
+
+void LevelCelView::on_amp6_clicked()
+{
+    this->updateAmpProperty();
+}
+
+void LevelCelView::on_amp7_clicked()
+{
+    this->updateAmpProperty();
+}
+
+void LevelCelView::updateSolProperty()
+{
+    quint8 flags = 0;
+    if (this->ui->sol0->checkState())
+        flags |= 1 << 0;
+    if (this->ui->sol1->checkState())
+        flags |= 1 << 1;
+    if (this->ui->sol2->checkState())
+        flags |= 1 << 2;
+    if (this->ui->sol3->checkState())
+        flags |= 1 << 3;
+    if (this->ui->sol4->checkState())
+        flags |= 1 << 4;
+    if (this->ui->sol5->checkState())
+        flags |= 1 << 5;
+    if (this->ui->sol7->checkState())
+        flags |= 1 << 7;
+
+    this->sol->setSubtileProperties(this->currentSubtileIndex, flags);
+}
+
+void LevelCelView::on_sol0_clicked()
+{
+    this->updateSolProperty();
+}
+
+void LevelCelView::on_sol1_clicked()
+{
+    this->updateSolProperty();
+}
+
+void LevelCelView::on_sol2_clicked()
+{
+    this->updateSolProperty();
+}
+
+void LevelCelView::on_sol3_clicked()
+{
+    this->updateSolProperty();
+}
+
+void LevelCelView::on_sol4_clicked()
+{
+    this->updateSolProperty();
+}
+
+void LevelCelView::on_sol5_clicked()
+{
+    this->updateSolProperty();
+}
+
+void LevelCelView::on_sol7_clicked()
+{
+    this->updateSolProperty();
+}

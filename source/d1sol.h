@@ -15,9 +15,9 @@ public:
 
     QString getFilePath();
     quint8 getSubtileProperties(quint16);
+    void setSubtileProperties(quint16 tileIndex, quint8 value);
 
 private:
     QFile file;
-    quint16 tileCount = 0;
     QList<quint8> subProperties;
 };

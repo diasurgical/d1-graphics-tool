@@ -55,6 +55,8 @@ MainWindow::~MainWindow()
     delete this->cel;
     delete this->min;
     delete this->til;
+    delete this->amp;
+    delete this->sol;
     delete this->palHits;
 }
 
@@ -441,6 +443,12 @@ void MainWindow::on_actionExport_triggered()
 
     if (this->cel != nullptr)
         this->exportDialog->setCel(this->cel);
+
+    if (this->amp != nullptr)
+        this->exportDialog->setAmp(this->amp);
+
+    if (this->sol != nullptr)
+        this->exportDialog->setSol(this->sol);
 
     this->exportDialog->show();
 }

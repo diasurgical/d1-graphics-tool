@@ -3,7 +3,6 @@
 #include <QBuffer>
 
 D1Sol::D1Sol(QString path)
-    : file()
 {
     this->load(path);
 }
@@ -38,11 +37,9 @@ bool D1Sol::load(QString solFilePath)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->tileCount = this->file.size();
-
     quint8 readBytr;
     this->subProperties.clear();
-    for (int i = 0; i < this->tileCount; i++) {
+    for (int i = 0; i < this->file.size(); i++) {
         in >> readBytr;
         this->subProperties.append(readBytr);
     }
@@ -60,8 +57,13 @@ QString D1Sol::getFilePath()
 
 quint8 D1Sol::getSubtileProperties(quint16 tileIndex)
 {
-    if (tileIndex >= this->tileCount)
+    if (tileIndex >= this->subProperties.count())
         return 0;
 
     return this->subProperties.at(tileIndex);
+}
+
+void D1Sol::setSubtileProperties(quint16 tileIndex, quint8 value)
+{
+    this->subProperties[tileIndex] = value;
 }

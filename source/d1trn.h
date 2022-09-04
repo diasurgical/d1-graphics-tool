@@ -11,7 +11,7 @@ class D1Trn : public QObject {
     Q_OBJECT
 
 public:
-    D1Trn();
+    D1Trn() = default;
     D1Trn(QString, D1Pal *);
     ~D1Trn();
 
@@ -31,9 +31,9 @@ public:
     D1Pal *getResultingPalette();
 
 private:
-    bool modified;
+    bool modified = false;
     QFile file;
-    quint8 *translations;
+    quint8 *translations = new quint8[D1TRN_TRANSLATIONS];
     QPointer<D1Pal> palette;
-    QPointer<D1Pal> resultingPalette;
+    QPointer<D1Pal> resultingPalette = new D1Pal;
 };

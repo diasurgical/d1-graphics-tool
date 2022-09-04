@@ -3,7 +3,6 @@
 #include <QBuffer>
 
 D1Amp::D1Amp(QString path)
-    : file()
 {
     this->load(path);
 }
@@ -38,12 +37,10 @@ bool D1Amp::load(QString ampFilePath)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->tileCount = this->file.size();
-
     quint8 readBytr;
     this->properties.clear();
     this->types.clear();
-    for (int i = 0; i < this->tileCount; i++) {
+    for (int i = 0; i < this->file.size() / 2; i++) {
         in >> readBytr;
         this->types.append(readBytr);
         in >> readBytr;
@@ -63,7 +60,7 @@ QString D1Amp::getFilePath()
 
 quint8 D1Amp::getTileType(quint16 tileIndex)
 {
-    if (tileIndex >= this->tileCount)
+    if (tileIndex >= this->properties.count())
         return 0;
 
     return this->types.at(tileIndex);
@@ -71,8 +68,18 @@ quint8 D1Amp::getTileType(quint16 tileIndex)
 
 quint8 D1Amp::getTileProperties(quint16 tileIndex)
 {
-    if (tileIndex >= this->tileCount)
+    if (tileIndex >= this->properties.count())
         return 0;
 
     return this->properties.at(tileIndex);
+}
+
+void D1Amp::setTileType(quint16 tileIndex, quint8 value)
+{
+    this->types[tileIndex] = value;
+}
+
+void D1Amp::setTileProperties(quint16 tileIndex, quint8 value)
+{
+    this->properties[tileIndex] = value;
 }

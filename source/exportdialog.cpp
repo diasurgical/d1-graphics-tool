@@ -2,7 +2,6 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
-#include <QProgressDialog>
 
 #include "ui_exportdialog.h"
 
@@ -60,6 +59,16 @@ void ExportDialog::setTil(D1Til *t)
     this->til = t;
 }
 
+void ExportDialog::setAmp(D1Amp *a)
+{
+    this->amp = a;
+}
+
+void ExportDialog::setSol(D1Sol *s)
+{
+    this->sol = s;
+}
+
 QString ExportDialog::getFileFormatExtension()
 {
     if (ui->pngRadioButton->isChecked())
@@ -78,6 +87,269 @@ void ExportDialog::on_outputFolderBrowseButton_clicked()
     ui->outputFolderEdit->setText(selectedFolder);
 }
 
+void ExportDialog::exportLevelDiablo(QProgressDialog &progress)
+{
+    if (this->min == nullptr || this->til == nullptr || this->amp == nullptr || this->sol == nullptr) {
+        return;
+    }
+
+    QString outputFilePathBase = ui->outputFolderEdit->text() + "/" + QFileInfo(this->til->getFilePath()).baseName();
+
+    progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " automap...");
+
+    QFile ampFile(outputFilePathBase + ".amp");
+    if (!ampFile.open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, "Unable to open file", ampFile.errorString());
+        return;
+    }
+    QDataStream ampStream(&ampFile);
+
+    for (unsigned int i = 0; i < this->til->getTileCount(); i++) {
+        if (progress.wasCanceled())
+            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+
+        progress.setValue(100 * i / this->til->getTileCount());
+
+        ampStream << this->amp->getTileType(i);
+        ampStream << this->amp->getTileProperties(i);
+    }
+
+    progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " sub tile properties...");
+
+    QFile solFile(outputFilePathBase + ".sol");
+    if (!solFile.open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, "Unable to open file", solFile.errorString());
+        return;
+    }
+    QDataStream solStream(&solFile);
+
+    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
+        if (progress.wasCanceled())
+            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+
+        progress.setValue(100 * i / this->min->getSubtileCount());
+
+        solStream << this->sol->getSubtileProperties(i);
+    }
+}
+
+void ExportDialog::exportLevelTiles(QProgressDialog &progress)
+{
+    if (this->min == nullptr || this->til == nullptr) {
+        return;
+    }
+
+    progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " level tiles...");
+
+    QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
+        + QFileInfo(this->til->getFilePath()).fileName().replace(".", "_");
+
+    quint16 tileWidth = this->min->getSubtileWidth() * 2 * 32;
+    quint16 tileHeight = this->min->getSubtileHeight() * 32 + 32;
+
+    // If only one file will contain all tiles
+    QImage tempOutputImage;
+    quint16 tempOutputImageWidth = 0;
+    quint16 tempOutputImageHeight = 0;
+    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+        tempOutputImageWidth = tileWidth * 8;
+        tempOutputImageHeight = tileHeight * (quint32)(this->til->getTileCount() / 8);
+        if (this->til->getTileCount() % 8 != 0)
+            tempOutputImageHeight += tileHeight;
+        tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
+        tempOutputImage.fill(Qt::transparent);
+    }
+
+    QPainter painter(&tempOutputImage);
+    quint8 tileXIndex = 0;
+    quint8 tileYIndex = 0;
+    for (unsigned int i = 0; i < this->til->getTileCount(); i++) {
+        if (progress.wasCanceled())
+            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+
+        progress.setValue(100 * i / this->til->getTileCount());
+
+        // If only one file will contain all tiles
+        if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+            painter.drawImage(tileXIndex * tileWidth,
+                tileYIndex * tileHeight, this->til->getTileImage(i));
+
+            tileXIndex++;
+            if (tileXIndex >= 8) {
+                tileXIndex = 0;
+                tileYIndex++;
+            }
+        } else {
+            QString outputFilePath = outputFilePathBase + "_tile"
+                + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
+
+            this->til->getTileImage(i).save(outputFilePath);
+        }
+    }
+
+    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+        painter.end();
+        QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
+        tempOutputImage.save(outputFilePath);
+    }
+}
+
+void ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
+{
+    if (this->min == nullptr) {
+        return;
+    }
+
+    progress.setLabelText("Exporting " + QFileInfo(this->min->getFilePath()).fileName() + " level sub-tiles...");
+
+    QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
+        + QFileInfo(this->min->getFilePath()).fileName().replace(".", "_");
+
+    quint16 subtileWidth = this->min->getSubtileWidth() * 32;
+    quint16 subtileHeight = this->min->getSubtileHeight() * 32;
+
+    // If only one file will contain all sub-tiles
+    QImage tempOutputImage;
+    quint16 tempOutputImageWidth = 0;
+    quint16 tempOutputImageHeight = 0;
+    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+        tempOutputImageWidth = subtileWidth * 16;
+        tempOutputImageHeight = subtileHeight * (quint32)(this->min->getSubtileCount() / 16);
+        if (this->min->getSubtileCount() % 16 != 0)
+            tempOutputImageHeight += subtileHeight;
+        tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
+        tempOutputImage.fill(Qt::transparent);
+    }
+
+    QPainter painter(&tempOutputImage);
+    quint8 subtileXIndex = 0;
+    quint8 subtileYIndex = 0;
+    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
+        if (progress.wasCanceled())
+            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+
+        progress.setValue(100 * i / this->min->getSubtileCount());
+
+        // If only one file will contain all sub-tiles
+        if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+            painter.drawImage(subtileXIndex * subtileWidth,
+                subtileYIndex * subtileHeight, this->min->getSubtileImage(i));
+
+            subtileXIndex++;
+            if (subtileXIndex >= 16) {
+                subtileXIndex = 0;
+                subtileYIndex++;
+            }
+        } else {
+            QString outputFilePath = outputFilePathBase + "_sub-tile"
+                + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
+
+            this->min->getSubtileImage(i).save(outputFilePath);
+        }
+    }
+
+    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+        painter.end();
+        QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
+        tempOutputImage.save(outputFilePath);
+    }
+}
+
+void ExportDialog::exportLevel(QProgressDialog &progress)
+{
+    if (ui->diabloButton->isChecked()) {
+        this->exportLevelDiablo(progress);
+    } else if (ui->exportLevelTiles->isChecked()) {
+        this->exportLevelTiles(progress);
+    } else if (ui->exportLevelSubtiles->isChecked()) {
+        this->exportLevelSubtiles(progress);
+    }
+}
+
+void ExportDialog::exportSprites(QProgressDialog &progress)
+{
+    progress.setLabelText("Exporting " + QFileInfo(this->cel->getFilePath()).fileName() + " frames...");
+
+    QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
+        + QFileInfo(this->cel->getFilePath()).fileName().replace(".", "_");
+
+    // If only one file will contain all frames
+    QImage tempOutputImage;
+    quint16 tempOutputImageWidth = 0;
+    quint16 tempOutputImageHeight = 0;
+    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+        if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
+            tempOutputImageWidth = this->cel->getFrameWidth(0) * (this->cel->getGroupFrameIndices(0).second - this->cel->getGroupFrameIndices(0).first + 1);
+            tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getGroupCount();
+        } else if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
+            tempOutputImageWidth = this->cel->getFrameWidth(0);
+            tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getFrameCount();
+        } else if (ui->allFramesOnOneLineRadioButton->isChecked()) {
+            tempOutputImageWidth = this->cel->getFrameWidth(0) * this->cel->getFrameCount();
+            tempOutputImageHeight = this->cel->getFrameHeight(0);
+        }
+        tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
+        tempOutputImage.fill(Qt::transparent);
+    }
+
+    if (this->cel->getFrameCount() == 1) {
+        QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
+        this->cel->getFrameImage(0).save(outputFilePath);
+    } else {
+        // If only one file will contain all frames
+        if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+            QPainter painter(&tempOutputImage);
+
+            if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
+                for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+                    quint8 groupFrameIndex = 0;
+
+                    for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
+                         j <= this->cel->getGroupFrameIndices(i).second; j++) {
+                        if (progress.wasCanceled())
+                            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+
+                        progress.setValue(100 * j / this->cel->getFrameCount());
+
+                        painter.drawImage(groupFrameIndex * this->cel->getFrameWidth(0),
+                            i * this->cel->getFrameHeight(0), this->cel->getFrameImage(j));
+                        groupFrameIndex++;
+                    }
+                }
+            } else {
+                for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
+                    if (progress.wasCanceled())
+                        QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+
+                    progress.setValue(100 * i / this->cel->getFrameCount());
+
+                    if (ui->allFramesOnOneColumnRadioButton->isChecked())
+                        painter.drawImage(0, i * this->cel->getFrameHeight(0), this->cel->getFrameImage(i));
+                    else
+                        painter.drawImage(i * this->cel->getFrameWidth(0), 0, this->cel->getFrameImage(i));
+                }
+            }
+
+            painter.end();
+
+            QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
+            tempOutputImage.save(outputFilePath);
+        } else {
+            for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
+                if (progress.wasCanceled())
+                    QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+
+                progress.setValue(100 * i / this->cel->getFrameCount());
+
+                QString outputFilePath = outputFilePathBase + "_frame"
+                    + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
+
+                this->cel->getFrameImage(i).save(outputFilePath);
+            }
+        }
+    }
+}
+
 void ExportDialog::on_exportButton_clicked()
 {
     if (ui->outputFolderEdit->text() == "") {
@@ -85,11 +357,10 @@ void ExportDialog::on_exportButton_clicked()
         return;
     }
 
-    QString outputFilePathBase;
-    QImage tempOutputImage;
-    quint16 tempOutputImageWidth = 0;
-    quint16 tempOutputImageHeight = 0;
-    bool exportSuccess = true;
+    if (this->cel == nullptr) {
+        QMessageBox::critical(this, "Warning", "No graphics loaded.");
+        return;
+    }
 
     try {
         // Displaying the progress dialog box
@@ -101,205 +372,18 @@ void ExportDialog::on_exportButton_clicked()
         progress.setValue(0);
         progress.show();
 
-        // If it's a CEL/CL2 file
-        if (this->cel != nullptr) {
-            // If it's a CEL level file
-            if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL
-                && this->min != nullptr && this->til != nullptr && !ui->exportLevelFrames->isChecked()) {
-                if (ui->exportLevelTiles->isChecked()) {
-                    progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " level tiles...");
-
-                    outputFilePathBase = ui->outputFolderEdit->text() + "/"
-                        + QFileInfo(this->til->getFilePath()).fileName().replace(".", "_");
-
-                    quint16 tileWidth = this->min->getSubtileWidth() * 2 * 32;
-                    quint16 tileHeight = this->min->getSubtileHeight() * 32 + 32;
-
-                    // If only one file will contain all tiles
-                    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-                        tempOutputImageWidth = tileWidth * 8;
-                        tempOutputImageHeight = tileHeight * (quint32)(this->til->getTileCount() / 8);
-                        if (this->til->getTileCount() % 8 != 0)
-                            tempOutputImageHeight += tileHeight;
-                        tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
-                        tempOutputImage.fill(Qt::transparent);
-                    }
-
-                    QPainter painter(&tempOutputImage);
-                    quint8 tileXIndex = 0;
-                    quint8 tileYIndex = 0;
-                    for (unsigned int i = 0; i < this->til->getTileCount(); i++) {
-                        if (progress.wasCanceled())
-                            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
-                        progress.setValue(100 * i / this->til->getTileCount());
-
-                        // If only one file will contain all tiles
-                        if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-                            painter.drawImage(tileXIndex * tileWidth,
-                                tileYIndex * tileHeight, this->til->getTileImage(i));
-
-                            tileXIndex++;
-                            if (tileXIndex >= 8) {
-                                tileXIndex = 0;
-                                tileYIndex++;
-                            }
-                        } else {
-                            QString outputFilePath = outputFilePathBase + "_tile"
-                                + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
-
-                            this->til->getTileImage(i).save(outputFilePath);
-                        }
-                    }
-
-                    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-                        painter.end();
-                        QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
-                        tempOutputImage.save(outputFilePath);
-                    }
-                } else if (ui->exportLevelSubtiles->isChecked()) {
-                    progress.setLabelText("Exporting " + QFileInfo(this->min->getFilePath()).fileName() + " level sub-tiles...");
-
-                    outputFilePathBase = ui->outputFolderEdit->text() + "/"
-                        + QFileInfo(this->min->getFilePath()).fileName().replace(".", "_");
-
-                    quint16 subtileWidth = this->min->getSubtileWidth() * 32;
-                    quint16 subtileHeight = this->min->getSubtileHeight() * 32;
-
-                    // If only one file will contain all sub-tiles
-                    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-                        tempOutputImageWidth = subtileWidth * 16;
-                        tempOutputImageHeight = subtileHeight * (quint32)(this->min->getSubtileCount() / 16);
-                        if (this->min->getSubtileCount() % 16 != 0)
-                            tempOutputImageHeight += subtileHeight;
-                        tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
-                        tempOutputImage.fill(Qt::transparent);
-                    }
-
-                    QPainter painter(&tempOutputImage);
-                    quint8 subtileXIndex = 0;
-                    quint8 subtileYIndex = 0;
-                    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
-                        if (progress.wasCanceled())
-                            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
-                        progress.setValue(100 * i / this->min->getSubtileCount());
-
-                        // If only one file will contain all sub-tiles
-                        if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-                            painter.drawImage(subtileXIndex * subtileWidth,
-                                subtileYIndex * subtileHeight, this->min->getSubtileImage(i));
-
-                            subtileXIndex++;
-                            if (subtileXIndex >= 16) {
-                                subtileXIndex = 0;
-                                subtileYIndex++;
-                            }
-                        } else {
-                            QString outputFilePath = outputFilePathBase + "_sub-tile"
-                                + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
-
-                            this->min->getSubtileImage(i).save(outputFilePath);
-                        }
-                    }
-
-                    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-                        painter.end();
-                        QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
-                        tempOutputImage.save(outputFilePath);
-                    }
-                }
-            }
-            // If it's a standard CEL/CL2 file
-            else {
-                progress.setLabelText("Exporting " + QFileInfo(this->cel->getFilePath()).fileName() + " frames...");
-
-                outputFilePathBase = ui->outputFolderEdit->text() + "/"
-                    + QFileInfo(this->cel->getFilePath()).fileName().replace(".", "_");
-
-                // If only one file will contain all frames
-                if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-                    if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
-                        tempOutputImageWidth = this->cel->getFrameWidth(0) * (this->cel->getGroupFrameIndices(0).second - this->cel->getGroupFrameIndices(0).first + 1);
-                        tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getGroupCount();
-                    } else if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
-                        tempOutputImageWidth = this->cel->getFrameWidth(0);
-                        tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getFrameCount();
-                    } else if (ui->allFramesOnOneLineRadioButton->isChecked()) {
-                        tempOutputImageWidth = this->cel->getFrameWidth(0) * this->cel->getFrameCount();
-                        tempOutputImageHeight = this->cel->getFrameHeight(0);
-                    }
-                    tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
-                    tempOutputImage.fill(Qt::transparent);
-                }
-
-                if (this->cel->getFrameCount() == 1) {
-                    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
-                    this->cel->getFrameImage(0).save(outputFilePath);
-                } else {
-                    // If only one file will contain all frames
-                    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-                        QPainter painter(&tempOutputImage);
-
-                        if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
-                            for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
-                                quint8 groupFrameIndex = 0;
-
-                                for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
-                                     j <= this->cel->getGroupFrameIndices(i).second; j++) {
-                                    if (progress.wasCanceled())
-                                        QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
-                                    progress.setValue(100 * j / this->cel->getFrameCount());
-
-                                    painter.drawImage(groupFrameIndex * this->cel->getFrameWidth(0),
-                                        i * this->cel->getFrameHeight(0), this->cel->getFrameImage(j));
-                                    groupFrameIndex++;
-                                }
-                            }
-                        } else {
-                            for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
-                                if (progress.wasCanceled())
-                                    QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
-                                progress.setValue(100 * i / this->cel->getFrameCount());
-
-                                if (ui->allFramesOnOneColumnRadioButton->isChecked())
-                                    painter.drawImage(0, i * this->cel->getFrameHeight(0), this->cel->getFrameImage(i));
-                                else
-                                    painter.drawImage(i * this->cel->getFrameWidth(0), 0, this->cel->getFrameImage(i));
-                            }
-                        }
-
-                        painter.end();
-
-                        QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
-                        tempOutputImage.save(outputFilePath);
-                    } else {
-                        for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
-                            if (progress.wasCanceled())
-                                QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
-                            progress.setValue(100 * i / this->cel->getFrameCount());
-
-                            QString outputFilePath = outputFilePathBase + "_frame"
-                                + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
-
-                            this->cel->getFrameImage(i).save(outputFilePath);
-                        }
-                    }
-                }
-            }
+        if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL && !ui->exportLevelFrames->isChecked()) {
+            this->exportLevel(progress);
+        } else {
+            this->exportSprites(progress);
         }
     } catch (...) {
-        exportSuccess = false;
+        QMessageBox::critical(this, "Error", "Export Failed.");
+        return;
     }
 
-    if (exportSuccess) {
-        QMessageBox::information(this, "Information", "Export successful.");
-        this->close();
-    } else
-        QMessageBox::critical(this, "Error", "Export Failed.");
+    QMessageBox::information(this, "Information", "Export successful.");
+    this->close();
 }
 
 void ExportDialog::on_exportCancelButton_clicked()
@@ -313,4 +397,10 @@ void ExportDialog::on_oneFileForAllFramesRadioButton_toggled(bool checked)
         ui->spritesSettingsWidget->setEnabled(true);
     else
         ui->spritesSettingsWidget->setEnabled(false);
+}
+
+void ExportDialog::on_diabloButton_toggled(bool checked)
+{
+    ui->filesFormatWidget->setEnabled(!checked);
+    ui->levelFramesSettingsWidget->setEnabled(!checked);
 }
