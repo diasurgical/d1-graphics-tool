@@ -40,10 +40,11 @@ bool D1Sol::load(QString solFilePath, int allocate)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
+    this->subProperties.fill(0, this->file.size());
     quint8 readBytr;
     for (int i = 0; i < this->file.size(); i++) {
         in >> readBytr;
-        this->subProperties.append(readBytr);
+        this->subProperties[i] = readBytr;
     }
 
     return true;

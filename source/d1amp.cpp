@@ -42,12 +42,14 @@ bool D1Amp::load(QString ampFilePath, int allocate)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
+    this->types.fill(0, this->file.size());
+    this->properties.fill(0, this->file.size());
     quint8 readBytr;
     for (int i = 0; i < this->file.size() / 2; i++) {
         in >> readBytr;
-        this->types.append(readBytr);
+        this->types[i] = readBytr;
         in >> readBytr;
-        this->properties.append(readBytr);
+        this->properties[i] = readBytr;
     }
 
     return true;
