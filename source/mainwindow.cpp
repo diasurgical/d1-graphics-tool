@@ -321,13 +321,13 @@ void MainWindow::openFile(QString openFilePath)
         }
         this->til->setMin(this->min);
 
-        // Loading SOL
-        this->sol = new D1Sol;
-        this->sol->load(solFilePath);
-
         // Loading AMP
         this->amp = new D1Amp;
-        this->amp->load(ampFilePath);
+        this->amp->load(ampFilePath, this->min->getSubtileCount());
+
+        // Loading SOL
+        this->sol = new D1Sol;
+        this->sol->load(solFilePath, this->til->getTileCount());
 
         this->levelCelView = new LevelCelView;
         this->levelCelView->initialize(this->cel, this->min, this->til, this->sol, this->amp);

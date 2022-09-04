@@ -11,7 +11,7 @@ public:
     D1Sol(QString path);
     ~D1Sol();
 
-    bool load(QString);
+    bool load(QString, int allocate = 0);
 
     QString getFilePath();
     quint8 getSubtileProperties(quint16);
