@@ -93,7 +93,8 @@ private:
     QPointer<D1CelBase> cel = new D1Cel;
     QPointer<D1Min> min = new D1Min;
     QPointer<D1Til> til = new D1Til;
-    QPointer<D1Sol> sol;
+    QPointer<D1Sol> sol = new D1Sol;
+    QPointer<D1Amp> amp = new D1Amp;
 
     QMap<QString, D1Pal *> pals;  // key: path, value: pointer to palette
     QMap<QString, D1Trn *> trn1s; // key: path, value: pointer to translation

@@ -33,19 +33,21 @@ LevelCelView::~LevelCelView()
     delete celScene;
 }
 
-void LevelCelView::initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s)
+void LevelCelView::initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
 {
     this->cel = c;
     this->min = m;
     this->til = t;
     this->sol = s;
+    this->amp = a;
 
     // Displaying CEL file path information
     QFileInfo celFileInfo(this->cel->getFilePath());
     QFileInfo minFileInfo(this->min->getFilePath());
     QFileInfo tilFileInfo(this->til->getFilePath());
     QFileInfo solFileInfo(this->sol->getFilePath());
-    ui->celLabel->setText(celFileInfo.fileName() + ", " + minFileInfo.fileName() + ", " + tilFileInfo.fileName() + ", " + solFileInfo.fileName());
+    QFileInfo ampFileInfo(this->amp->getFilePath());
+    ui->celLabel->setText(celFileInfo.fileName() + ", " + minFileInfo.fileName() + ", " + tilFileInfo.fileName() + ", " + solFileInfo.fileName() + ", " + ampFileInfo.fileName());
 
     ui->frameNumberEdit->setText(
         QString::number(this->cel->getFrameCount()));
@@ -196,6 +198,8 @@ void LevelCelView::displayFrame()
     QImage subtile = this->min->getSubtileImage(this->currentSubtileIndex);
     QImage tile = this->til->getTileImage(this->currentTileIndex);
     quint8 sol = this->sol->getSubtileProperties(this->currentSubtileIndex);
+    quint8 ampType = this->amp->getTileType(this->currentTileIndex);
+    quint8 ampProperty = this->amp->getTileProperties(this->currentTileIndex);
 
     this->ui->sol0->setChecked((sol & 1 << 0) != 0);
     this->ui->sol1->setChecked((sol & 1 << 1) != 0);
@@ -204,6 +208,17 @@ void LevelCelView::displayFrame()
     this->ui->sol4->setChecked((sol & 1 << 4) != 0);
     this->ui->sol5->setChecked((sol & 1 << 5) != 0);
     this->ui->sol7->setChecked((sol & 1 << 7) != 0);
+
+    this->ui->ampType->setCurrentIndex(ampType);
+
+    this->ui->amp0->setChecked((ampProperty & 1 << 0) != 0);
+    this->ui->amp1->setChecked((ampProperty & 1 << 1) != 0);
+    this->ui->amp2->setChecked((ampProperty & 1 << 2) != 0);
+    this->ui->amp3->setChecked((ampProperty & 1 << 3) != 0);
+    this->ui->amp4->setChecked((ampProperty & 1 << 4) != 0);
+    this->ui->amp5->setChecked((ampProperty & 1 << 5) != 0);
+    this->ui->amp6->setChecked((ampProperty & 1 << 6) != 0);
+    this->ui->amp7->setChecked((ampProperty & 1 << 7) != 0);
 
     // Building a gray background of the width/height of the CEL frame
     QImage celFrameBackground = QImage(celFrame.width(), celFrame.height(), QImage::Format_ARGB32);

@@ -14,7 +14,7 @@ class D1Til : public QObject {
     Q_OBJECT
 
 public:
-    D1Til();
+    D1Til() = default;
     D1Til(QString, D1Min *);
     ~D1Til();
 
@@ -33,13 +33,13 @@ public:
     QList<quint16> getSubtileIndices(quint16);
 
 private:
-    D1TIL_TYPE type;
+    D1TIL_TYPE type = D1TIL_TYPE::REGULAR_HEIGHT;
     QFile file;
-    D1Min *min;
-    quint16 tileCount;
-    quint16 tileWidth;
-    quint16 tileHeight;
-    quint16 tilePixelWidth;
-    quint16 tilePixelHeight;
+    D1Min *min = nullptr;
+    quint16 tileCount = 0;
+    quint16 tileWidth = 0;
+    quint16 tileHeight = 0;
+    quint16 tilePixelWidth = 0;
+    quint16 tilePixelHeight = 0;
     QList<QList<quint16>> subtileIndices;
 };

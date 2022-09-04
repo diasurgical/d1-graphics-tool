@@ -4,6 +4,7 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QWidget>
 
+#include "d1amp.h"
 #include "d1celbase.h"
 #include "d1min.h"
 #include "d1sol.h"
@@ -33,7 +34,7 @@ public:
     explicit LevelCelView(QWidget *parent = nullptr);
     ~LevelCelView();
 
-    void initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s);
+    void initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a);
     D1CelBase *getCel();
     QString getCelPath();
     D1Min *getMin();
@@ -81,6 +82,7 @@ private:
     D1Min *min;
     D1Til *til;
     D1Sol *sol;
+    D1Amp *amp;
     quint32 currentFrameIndex = 0;
     quint16 currentSubtileIndex = 0;
     quint16 currentTileIndex = 0;

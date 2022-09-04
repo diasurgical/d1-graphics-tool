@@ -177,6 +177,7 @@ void MainWindow::openFile(QString openFilePath)
     QString minFilePath;
     QString tilFilePath;
     QString solFilePath;
+    QString ampFilePath;
 
     // Check file extension
     if (!openFilePath.toLower().endsWith(".cel") && !openFilePath.toLower().endsWith(".cl2")) {
@@ -292,6 +293,7 @@ void MainWindow::openFile(QString openFilePath)
         minFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel", ".min");
         tilFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel", ".til");
         solFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel", ".sol");
+        ampFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel", ".amp");
 
         if (QFileInfo::exists(minFilePath)
             && QFileInfo::exists(tilFilePath))
@@ -319,13 +321,14 @@ void MainWindow::openFile(QString openFilePath)
 
         // Loading SOL
         this->sol = new D1Sol;
-        if (!this->sol->load(solFilePath)) {
-            QMessageBox::critical(this, "Error", "Failed loading SOL file: " + solFilePath);
-            return;
-        }
+        this->sol->load(solFilePath);
+
+        // Loading AMP
+        this->amp = new D1Amp;
+        this->amp->load(ampFilePath);
 
         this->levelCelView = new LevelCelView;
-        this->levelCelView->initialize(this->cel, this->min, this->til, this->sol);
+        this->levelCelView->initialize(this->cel, this->min, this->til, this->sol, this->amp);
 
         // Refresh CEL view if a PAL or TRN is modified
         QObject::connect(this->palWidget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame);

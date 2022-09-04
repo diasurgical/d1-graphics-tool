@@ -23,6 +23,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += main.cpp \
+    d1amp.cpp \
     d1palhits.cpp \
     d1sol.cpp \
     mainwindow.cpp \
@@ -40,6 +41,7 @@ SOURCES += main.cpp \
     settingsdialog.cpp
 
 HEADERS  += mainwindow.h \
+    d1amp.h \
     d1cel.h \
     d1cl2.h \
     d1pal.h \

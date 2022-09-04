@@ -3,27 +3,8 @@
 #include <QBuffer>
 #include <QPainter>
 
-D1Til::D1Til()
-    : type(D1TIL_TYPE::REGULAR_HEIGHT)
-    , file()
-    , min(nullptr)
-    , tileCount(0)
-    , tileWidth(0)
-    , tileHeight(0)
-    , tilePixelWidth(0)
-    , tilePixelHeight(0)
-{
-}
-
 D1Til::D1Til(QString path, D1Min *m)
-    : type(D1TIL_TYPE::REGULAR_HEIGHT)
-    , file()
-    , min(m)
-    , tileCount(0)
-    , tileWidth(0)
-    , tileHeight(0)
-    , tilePixelWidth(0)
-    , tilePixelHeight(0)
+    : min(m)
 {
     this->load(path);
 }

@@ -18,6 +18,6 @@ public:
 
 private:
     QFile file;
-    quint16 tileCount;
+    quint16 tileCount = 0;
     QList<quint8> subProperties;
 };
