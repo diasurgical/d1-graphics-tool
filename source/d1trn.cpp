@@ -76,7 +76,7 @@ bool D1Trn::save(QString trnFilePath)
     return true;
 }
 
-bool D1Trn::isModified()
+bool D1Trn::isModified() const
 {
     return this->modified;
 }

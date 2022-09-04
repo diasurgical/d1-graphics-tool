@@ -32,9 +32,9 @@ public:
     quint32 getIndexHits(quint8, quint32);
 
 private:
-    bool isLevelCel;
+    bool isLevelCel = false;
 
-    D1PALHITS_MODE mode;
+    D1PALHITS_MODE mode = D1PALHITS_MODE::ALL_COLORS;
 
     D1CelBase *cel;
     D1Min *min;

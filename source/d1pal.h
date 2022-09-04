@@ -27,7 +27,7 @@ public:
     bool loadJascPalette();
     bool save(QString);
 
-    bool isModified();
+    bool isModified() const;
 
     QString getFilePath();
 

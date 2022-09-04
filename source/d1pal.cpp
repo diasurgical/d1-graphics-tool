@@ -137,7 +137,7 @@ bool D1Pal::save(QString palFilePath)
     return true;
 }
 
-bool D1Pal::isModified()
+bool D1Pal::isModified() const
 {
     return this->modified;
 }

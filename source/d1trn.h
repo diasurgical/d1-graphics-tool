@@ -18,7 +18,7 @@ public:
     bool load(QString);
     bool save(QString);
 
-    bool isModified();
+    bool isModified() const;
 
     void refreshResultingPalette();
     QColor getResultingColor(quint8);
@@ -27,7 +27,7 @@ public:
     quint8 getTranslation(quint8);
     void setTranslation(quint8, quint8);
     D1Pal *getPalette();
-    void setPalette(D1Pal *);
+    void setPalette(D1Pal *pal);
     D1Pal *getResultingPalette();
 
 private:

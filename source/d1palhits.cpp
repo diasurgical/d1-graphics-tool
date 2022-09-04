@@ -1,16 +1,13 @@
 #include "d1palhits.h"
 
 D1PalHits::D1PalHits(D1CelBase *c)
-    : isLevelCel(false)
-    , mode(D1PALHITS_MODE::ALL_COLORS)
-    , cel(c)
+    : cel(c)
 {
     D1PalHits::buildPalHits();
 }
 
 D1PalHits::D1PalHits(D1CelBase *c, D1Min *m, D1Til *t)
     : isLevelCel(true)
-    , mode(D1PALHITS_MODE::ALL_COLORS)
     , cel(c)
     , min(m)
     , til(t)
