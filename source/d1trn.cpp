@@ -1,19 +1,7 @@
 #include "d1trn.h"
 
-D1Trn::D1Trn()
-    : modified(false)
-    , file()
-    , translations(new quint8[D1TRN_TRANSLATIONS])
-    , resultingPalette(new D1Pal)
-{
-}
-
 D1Trn::D1Trn(QString path, D1Pal *pal)
-    : modified(false)
-    , file()
-    , translations(new quint8[D1TRN_TRANSLATIONS])
-    , palette(QPointer<D1Pal>(pal))
-    , resultingPalette(new D1Pal)
+    : palette(QPointer<D1Pal>(pal))
 {
     this->load(path);
 }

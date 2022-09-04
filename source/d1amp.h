@@ -16,10 +16,11 @@ public:
     QString getFilePath();
     quint8 getTileType(quint16);
     quint8 getTileProperties(quint16);
+    void setTileType(quint16 tileIndex, quint8 value);
+    void setTileProperties(quint16 tileIndex, quint8 value);
 
 private:
     QFile file;
-    quint16 tileCount = 0;
     QList<quint8> types;
     QList<quint8> properties;
 };

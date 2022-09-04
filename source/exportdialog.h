@@ -1,9 +1,12 @@
 #pragma once
 
 #include <QDialog>
+#include <QProgressDialog>
 
+#include "d1amp.h"
 #include "d1celbase.h"
 #include "d1min.h"
+#include "d1sol.h"
 #include "d1til.h"
 
 namespace Ui {
@@ -20,6 +23,8 @@ public:
     void setCel(D1CelBase *c);
     void setMin(D1Min *m);
     void setTil(D1Til *t);
+    void setAmp(D1Amp *a);
+    void setSol(D1Sol *s);
 
     void setCurrentFrame(quint16);
 
@@ -31,12 +36,22 @@ private slots:
     void on_exportCancelButton_clicked();
     void on_oneFileForAllFramesRadioButton_toggled(bool checked);
 
+    void on_diabloButton_toggled(bool checked);
+
 private:
+    void exportLevelDiablo(QProgressDialog &progress);
+    void exportLevelTiles(QProgressDialog &progress);
+    void exportLevelSubtiles(QProgressDialog &progress);
+    void exportLevel(QProgressDialog &progress);
+    void exportSprites(QProgressDialog &progress);
+
     Ui::ExportDialog *ui;
 
     D1CelBase *cel = nullptr;
     D1Min *min = nullptr;
     D1Til *til = nullptr;
+    D1Amp *amp = nullptr;
+    D1Sol *sol = nullptr;
 
     QString outputFolder;
 };

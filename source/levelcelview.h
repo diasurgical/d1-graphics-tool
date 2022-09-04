@@ -74,7 +74,29 @@ private slots:
     void on_zoomInButton_clicked();
     void on_zoomEdit_returnPressed();
 
+    void on_ampType_activated(int index);
+
+    void on_amp0_clicked();
+    void on_amp1_clicked();
+    void on_amp2_clicked();
+    void on_amp3_clicked();
+    void on_amp4_clicked();
+    void on_amp5_clicked();
+    void on_amp6_clicked();
+    void on_amp7_clicked();
+
+    void on_sol0_clicked();
+    void on_sol1_clicked();
+    void on_sol2_clicked();
+    void on_sol3_clicked();
+    void on_sol4_clicked();
+    void on_sol5_clicked();
+    void on_sol7_clicked();
+
 private:
+    void updateAmpProperty();
+    void updateSolProperty();
+
     Ui::LevelCelView *ui;
     LevelCelScene *celScene = new LevelCelScene;
 
