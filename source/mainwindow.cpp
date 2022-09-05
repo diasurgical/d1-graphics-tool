@@ -15,6 +15,7 @@
 #include <QUndoStack>
 
 #include "d1cl2.h"
+#include "d1clx.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -139,7 +140,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     QString openFilePath = QFileDialog::getOpenFileName(
         this, "Open Graphics", this->configuration->value("WorkingDirectory").toString(),
-        "CEL/CL2 Files (*.cel *.CEL *.cl2 *.CL2);;PCX Files (*.pcx *.PCX);;GIF Files (*.gif)");
+        "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx);;PCX Files (*.pcx *.PCX);;GIF Files (*.gif)");
 
     if (!openFilePath.isEmpty()) {
         this->openFile(openFilePath);
@@ -182,7 +183,8 @@ void MainWindow::openFile(QString openFilePath)
     QString ampFilePath;
 
     // Check file extension
-    if (!openFilePath.toLower().endsWith(".cel") && !openFilePath.toLower().endsWith(".cl2")) {
+    if (!openFilePath.toLower().endsWith(".cel") && !openFilePath.toLower().endsWith(".cl2")
+        && !openFilePath.endsWith(".clx")) {
         return;
     }
 
@@ -204,9 +206,12 @@ void MainWindow::openFile(QString openFilePath)
     if (openFilePath.toLower().endsWith(".cel")) {
         this->cel = new D1Cel;
         errorMessage = "Could not open CEL file.";
-    } else {
+    } else if (openFilePath.toLower().endsWith(".cl2")) {
         this->cel = new D1Cl2;
         errorMessage = "Could not open CL2 file.";
+    } else {
+        this->cel = new D1Clx;
+        errorMessage = "Could not open CLX file.";
     }
 
     if (!this->cel->load(openFilePath)) {

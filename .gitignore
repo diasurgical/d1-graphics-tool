@@ -57,3 +57,5 @@ releases/temp/*
 *.zip
 /debian/opt/d1-graphics-tool/icon.svg
 /debian/usr/bin/D1GraphicsTool
+/source/D1GraphicsTool
+/source/D1GraphicsTool.config.json
