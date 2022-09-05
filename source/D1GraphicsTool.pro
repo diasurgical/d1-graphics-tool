@@ -29,6 +29,7 @@ SOURCES += main.cpp \
     mainwindow.cpp \
     d1cel.cpp \
     d1cl2.cpp \
+    d1clx.cpp \
     d1pal.cpp \
     d1trn.cpp \
     celview.cpp \
@@ -44,6 +45,7 @@ HEADERS  += mainwindow.h \
     d1amp.h \
     d1cel.h \
     d1cl2.h \
+    d1clx.h \
     d1pal.h \
     d1palhits.h \
     d1sol.h \

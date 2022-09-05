@@ -1,9 +1,6 @@
 #include "d1cl2.h"
 
-D1Cl2Frame::D1Cl2Frame(QByteArray rawData)
-{
-    this->load(rawData);
-}
+#include <memory>
 
 quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
 {
@@ -51,8 +48,6 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
     }
 
     return celFrameWidth[0];
-
-    return 0;
 }
 
 bool D1Cl2Frame::load(QByteArray rawData)
@@ -290,9 +285,15 @@ bool D1Cl2::load(QString cl2FilePath)
         fileBuffer.seek(offset.first);
         cl2FrameRawData = fileBuffer.read(cl2FrameSize);
 
-        this->frames.append(
-            new D1Cl2Frame(cl2FrameRawData));
+        std::unique_ptr<D1CelFrameBase> frame { createFrame() };
+        frame->load(cl2FrameRawData);
+        this->frames.append(frame.release());
     }
 
     return true;
+}
+
+D1Cl2Frame *D1Cl2::createFrame()
+{
+    return new D1Cl2Frame;
 }
