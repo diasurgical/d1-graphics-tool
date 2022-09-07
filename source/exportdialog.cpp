@@ -123,11 +123,11 @@ void ExportDialog::exportLevelDiablo(QProgressDialog &progress)
     }
     QDataStream solStream(&solFile);
 
-    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
+    for (unsigned int i = 0; i < this->sol->getSubtileCount(); i++) {
         if (progress.wasCanceled())
             QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
 
-        progress.setValue(100 * i / this->min->getSubtileCount());
+        progress.setValue(100 * i / this->sol->getSubtileCount());
 
         solStream << this->sol->getSubtileProperties(i);
     }
@@ -196,7 +196,7 @@ void ExportDialog::exportLevelTiles(QProgressDialog &progress)
 
 void ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
 {
-    if (this->min == nullptr) {
+    if (this->min == nullptr || this->sol == nullptr) {
         return;
     }
 
@@ -214,8 +214,8 @@ void ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
     quint16 tempOutputImageHeight = 0;
     if (ui->oneFileForAllFramesRadioButton->isChecked()) {
         tempOutputImageWidth = subtileWidth * 16;
-        tempOutputImageHeight = subtileHeight * (quint32)(this->min->getSubtileCount() / 16);
-        if (this->min->getSubtileCount() % 16 != 0)
+        tempOutputImageHeight = subtileHeight * (quint32)(this->sol->getSubtileCount() / 16);
+        if (this->sol->getSubtileCount() % 16 != 0)
             tempOutputImageHeight += subtileHeight;
         tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
         tempOutputImage.fill(Qt::transparent);
@@ -224,11 +224,11 @@ void ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
     QPainter painter(&tempOutputImage);
     quint8 subtileXIndex = 0;
     quint8 subtileYIndex = 0;
-    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
+    for (unsigned int i = 0; i < this->sol->getSubtileCount(); i++) {
         if (progress.wasCanceled())
             QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
 
-        progress.setValue(100 * i / this->min->getSubtileCount());
+        progress.setValue(100 * i / this->sol->getSubtileCount());
 
         // If only one file will contain all sub-tiles
         if (ui->oneFileForAllFramesRadioButton->isChecked()) {

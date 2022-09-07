@@ -14,6 +14,8 @@
 #include <QUndoCommand>
 #include <QUndoStack>
 
+#include "d1cel.h"
+#include "d1celtileset.h"
 #include "d1cl2.h"
 #include "d1clx.h"
 #include "ui_mainwindow.h"
@@ -173,17 +175,9 @@ void MainWindow::dropEvent(QDropEvent *event)
 
 void MainWindow::openFile(QString openFilePath)
 {
-    bool minTilFound = false;
-    QString errorMessage;
-    QString celDirectory;
-    QString celFileName;
-    QString minFilePath;
-    QString tilFilePath;
-    QString solFilePath;
-    QString ampFilePath;
-
     // Check file extension
-    if (!openFilePath.toLower().endsWith(".cel") && !openFilePath.toLower().endsWith(".cl2")
+    if (!openFilePath.toLower().endsWith(".cel")
+        && !openFilePath.toLower().endsWith(".cl2")
         && !openFilePath.endsWith(".clx")) {
         return;
     }
@@ -203,19 +197,54 @@ void MainWindow::openFile(QString openFilePath)
     this->trn2s[":/null.trn"] = new D1Trn(":/null.trn", this->trn1->getResultingPalette());
     this->trn2 = this->trn2s[":/null.trn"];
 
-    if (openFilePath.toLower().endsWith(".cel")) {
-        this->cel = new D1Cel;
-        errorMessage = "Could not open CEL file.";
-    } else if (openFilePath.toLower().endsWith(".cl2")) {
+    QFileInfo celFileInfo = QFileInfo(openFilePath);
+
+    // If a SOL, MIN and TIL files exists then build a LevelCelView
+    QString basePath = celFileInfo.absolutePath() + "/" + celFileInfo.completeBaseName();
+    QString solFilePath = basePath + ".sol";
+    QString minFilePath = basePath + ".min";
+    QString tilFilePath = basePath + ".til";
+    bool isTileset = QFileInfo::exists(solFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(tilFilePath);
+
+    QString extension = celFileInfo.suffix();
+    if (QString::compare(extension, "cel", Qt::CaseInsensitive) == 0) {
+        if (isTileset) {
+            // Loading SOL
+            this->sol = new D1Sol;
+            this->sol->load(solFilePath);
+
+            // Loading MIN
+            this->min = new D1Min;
+            if (!this->min->load(minFilePath, this->sol->getSubtileCount())) {
+                QMessageBox::critical(this, "Error", "Failed loading MIN file: " + minFilePath);
+                return;
+            }
+            this->cel = new D1CelTileset(this->min);
+            this->min->setCel(this->cel);
+
+            // Loading TIL
+            this->til = new D1Til;
+            if (!this->til->load(tilFilePath)) {
+                QMessageBox::critical(this, "Error", "Failed loading TIL file: " + tilFilePath);
+                return;
+            }
+            this->til->setMin(this->min);
+
+            // Loading AMP
+            this->amp = new D1Amp;
+            QString ampFilePath = basePath + ".amp";
+            this->amp->load(ampFilePath, this->sol->getSubtileCount());
+        } else {
+            this->cel = new D1Cel;
+        }
+    } else if (QString::compare(extension, "cl2", Qt::CaseInsensitive) == 0) {
         this->cel = new D1Cl2;
-        errorMessage = "Could not open CL2 file.";
-    } else {
+    } else if (QString::compare(extension, "clx", Qt::CaseInsensitive) == 0) {
         this->cel = new D1Clx;
-        errorMessage = "Could not open CLX file.";
     }
 
     if (!this->cel->load(openFilePath)) {
-        QMessageBox::critical(this, "Error", errorMessage);
+        QMessageBox::critical(this, "Error", "Could not open " + extension.toUpper() + " file.");
         return;
     }
 
@@ -265,7 +294,6 @@ void MainWindow::openFile(QString openFilePath)
     QObject::connect(this->trn2Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack);
 
     // Look for all palettes in the same folder as the CEL/CL2 file
-    QFileInfo celFileInfo(openFilePath);
     QDirIterator it(celFileInfo.absolutePath(), QStringList() << "*.pal", QDir::Files);
     QString firstPaletteFound = QString();
     while (it.hasNext()) {
@@ -291,49 +319,7 @@ void MainWindow::openFile(QString openFilePath)
         }
     }
 
-    // If the CEL file is a level CEL file, then look for
-    // associated MIN and TIL files
-    if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL) {
-        QFileInfo celFileInfo = QFileInfo(openFilePath);
-        celDirectory = celFileInfo.absolutePath();
-        celFileName = celFileInfo.fileName();
-        minFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel", ".min");
-        tilFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel", ".til");
-        solFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel", ".sol");
-        ampFilePath = celDirectory + "/" + celFileName.toLower().replace(".cel", ".amp");
-
-        if (QFileInfo::exists(minFilePath)
-            && QFileInfo::exists(tilFilePath))
-            minTilFound = true;
-    }
-
-    // If the CEL file is a level file and the required MIN and TIL
-    // were found then build a LevelCelView
-    if (minTilFound) {
-        // Loading MIN
-        this->min = new D1Min;
-        if (!this->min->load(minFilePath)) {
-            QMessageBox::critical(this, "Error", "Failed loading MIN file: " + minFilePath);
-            return;
-        }
-        this->min->setCel(this->cel);
-
-        // Loading TIL
-        this->til = new D1Til;
-        if (!this->til->load(tilFilePath)) {
-            QMessageBox::critical(this, "Error", "Failed loading TIL file: " + tilFilePath);
-            return;
-        }
-        this->til->setMin(this->min);
-
-        // Loading AMP
-        this->amp = new D1Amp;
-        this->amp->load(ampFilePath, this->min->getSubtileCount());
-
-        // Loading SOL
-        this->sol = new D1Sol;
-        this->sol->load(solFilePath, this->til->getTileCount());
-
+    if (isTileset) {
         this->levelCelView = new LevelCelView;
         this->levelCelView->initialize(this->cel, this->min, this->til, this->sol, this->amp);
 
@@ -351,7 +337,7 @@ void MainWindow::openFile(QString openFilePath)
         QObject::connect(this->levelCelView, &LevelCelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh);
 
         // Initialize palette widgets
-        this->palHits = new D1PalHits(this->cel, this->min, this->til);
+        this->palHits = new D1PalHits(this->cel, this->min, this->til, this->sol);
         this->palWidget->initialize(this->pal, this->levelCelView, this->palHits);
         this->trn1Widget->initialize(this->pal, this->trn1, this->levelCelView, this->palHits);
         this->trn2Widget->initialize(this->trn1->getResultingPalette(), this->trn2, this->levelCelView, this->palHits);

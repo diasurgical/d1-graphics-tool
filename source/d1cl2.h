@@ -6,7 +6,7 @@ class D1Cl2Frame : public D1CelFrameBase {
 public:
     D1Cl2Frame() = default;
 
-    quint16 computeWidthFromHeader(QByteArray &) override;
+    virtual quint16 computeWidthFromHeader(QByteArray &);
     bool load(QByteArray);
 };
 

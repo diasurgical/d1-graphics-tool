@@ -3,6 +3,7 @@
 #include <QMap>
 
 #include "d1min.h"
+#include "d1sol.h"
 #include "d1til.h"
 
 enum class D1PALHITS_MODE {
@@ -18,7 +19,7 @@ class D1PalHits : public QObject {
 
 public:
     D1PalHits(D1CelBase *);
-    D1PalHits(D1CelBase *c, D1Min *m, D1Til *t);
+    D1PalHits(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s);
 
     D1PALHITS_MODE getMode();
     void setMode(D1PALHITS_MODE m);
@@ -39,6 +40,7 @@ private:
     D1CelBase *cel;
     D1Min *min;
     D1Til *til;
+    D1Sol *sol;
 
     // Palette hits are stored with a palette index key and a hit count value
     QMap<quint8, quint32> allFramesPalHits;

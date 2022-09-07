@@ -13,10 +13,9 @@ D1Sol::~D1Sol()
         this->file.close();
 }
 
-bool D1Sol::load(QString solFilePath, int allocate)
+bool D1Sol::load(QString solFilePath)
 {
-    this->subProperties.clear();
-    this->subProperties.fill(0, allocate);
+    this->subProperties.fill(0, 1);
 
     // Opening SOL file with a QBuffer to load it in RAM
     if (!QFile::exists(solFilePath))
@@ -30,6 +29,9 @@ bool D1Sol::load(QString solFilePath, int allocate)
     if (!this->file.open(QIODevice::ReadOnly))
         return false;
 
+    if (this->file.size() == 0)
+        return false;
+
     QByteArray fileData = this->file.readAll();
     QBuffer fileBuffer(&fileData);
 
@@ -40,11 +42,11 @@ bool D1Sol::load(QString solFilePath, int allocate)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->subProperties.fill(0, this->file.size());
+    this->subProperties.clear();
     quint8 readBytr;
     for (int i = 0; i < this->file.size(); i++) {
         in >> readBytr;
-        this->subProperties[i] = readBytr;
+        this->subProperties.append(readBytr);
     }
 
     return true;
@@ -56,6 +58,11 @@ QString D1Sol::getFilePath()
         return QString();
 
     return this->file.fileName();
+}
+
+quint16 D1Sol::getSubtileCount()
+{
+    return this->subProperties.count();
 }
 
 quint8 D1Sol::getSubtileProperties(quint16 tileIndex)

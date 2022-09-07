@@ -3,8 +3,10 @@
 #include <QFile>
 #include <QImage>
 #include <QPainter>
+#include <map>
 
 #include "d1cel.h"
+#include "d1celtilesetframe.h"
 
 enum class D1MIN_TYPE {
     REGULAR_HEIGHT,
@@ -16,10 +18,9 @@ class D1Min : public QObject {
 
 public:
     D1Min() = default;
-    D1Min(QString, D1Cel *);
     ~D1Min();
 
-    bool load(QString);
+    bool load(QString minFilePath, quint16 subtileCount);
     QImage getSubtileImage(quint16);
 
     D1MIN_TYPE getType();
@@ -28,7 +29,7 @@ public:
     void setCel(D1CelBase *c);
     quint16 getSubtileWidth();
     quint16 getSubtileHeight();
-    quint16 getSubtileCount();
+    D1CEL_FRAME_TYPE getFrameType(quint16 id);
     QList<quint16> getCelFrameIndices(quint16);
 
 private:
@@ -37,7 +38,7 @@ private:
     D1CelBase *cel = nullptr;
     quint8 subtileWidth = 2;
     quint8 subtileHeight = 5;
-    quint16 subtileCount = 0;
+    quint16 subtileCount = 1;
     QList<QList<quint16>> celFrameIndices;
-    QList<QList<quint8>> celFrameTypes;
+    std::map<unsigned, D1CEL_FRAME_TYPE> celFrameTypes;
 };

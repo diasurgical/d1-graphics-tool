@@ -24,6 +24,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp \
     d1amp.cpp \
+    d1celframe.cpp \
+    d1celtileset.cpp \
+    d1celtilesetframe.cpp \
     d1palhits.cpp \
     d1sol.cpp \
     mainwindow.cpp \
@@ -43,7 +46,10 @@ SOURCES += main.cpp \
 
 HEADERS  += mainwindow.h \
     d1amp.h \
+    d1celframe.h \
+    d1celtileset.h \
     d1cel.h \
+    d1celtilesetframe.h \
     d1cl2.h \
     d1clx.h \
     d1pal.h \

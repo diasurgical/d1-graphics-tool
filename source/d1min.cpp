@@ -4,25 +4,14 @@
 #include <QMap>
 #include <QPointer>
 
-D1Min::D1Min(QString path, D1Cel *c)
-    : cel(c)
-{
-    this->load(path);
-}
-
 D1Min::~D1Min()
 {
     if (this->file.isOpen())
         this->file.close();
 }
 
-bool D1Min::load(QString minFilePath)
+bool D1Min::load(QString minFilePath, quint16 subtileCount)
 {
-    quint8 subtileNumberOfCelFrames = 0;
-    quint16 readWord;
-    QList<quint16> celFrameIndicesList;
-    QList<quint8> celFrameTypesList;
-
     // Opening MIN file with a QBuffer to load it in RAM
     if (!QFile::exists(minFilePath))
         return false;
@@ -35,7 +24,7 @@ bool D1Min::load(QString minFilePath)
     if (!this->file.open(QIODevice::ReadOnly))
         return false;
 
-    if (this->file.size() < 64)
+    if (this->file.size() == 0)
         return false;
 
     QByteArray fileData = this->file.readAll();
@@ -48,47 +37,27 @@ bool D1Min::load(QString minFilePath)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    // Determine MIN type by checking if ground CEL frames
-    // of the first 2 sub-tiles are empty or not
-    for (int i = 0; i < 2; i++) {
-        fileBuffer.seek(18 + i * 20);
-        in >> readWord;
+    this->subtileHeight = this->file.size() / 2 / subtileCount / 2;
 
-        if (readWord == 0x0000) {
-            this->type = D1MIN_TYPE::EXTENDED_HEIGHT;
-            break;
-        }
-    }
-
-    // File size checks
-    if (this->type == D1MIN_TYPE::REGULAR_HEIGHT) {
-        if (this->file.size() % 20 != 0)
-            return false;
-        this->subtileHeight = 5;
-        this->subtileCount = this->file.size() / 20;
-    }
-    if (this->type == D1MIN_TYPE::EXTENDED_HEIGHT) {
-        if (this->file.size() % 32 != 0)
-            return false;
-        this->subtileHeight = 8;
-        this->subtileCount = this->file.size() / 32;
-    }
+    // File size check
+    if (this->file.size() % this->subtileHeight != 0)
+        return false;
 
     // Read sub-tile data
-    subtileNumberOfCelFrames = this->subtileWidth * this->subtileHeight;
+    quint8 subtileNumberOfCelFrames = this->subtileWidth * this->subtileHeight;
     fileBuffer.seek(0);
     this->celFrameIndices.clear();
     this->celFrameTypes.clear();
-    for (int i = 0; i < this->subtileCount; i++) {
-        celFrameIndicesList.clear();
-        celFrameTypesList.clear();
+    for (int i = 0; i < subtileCount; i++) {
+        QList<quint16> celFrameIndicesList;
         for (int j = 0; j < subtileNumberOfCelFrames; j++) {
+            quint16 readWord;
             in >> readWord;
-            celFrameIndicesList.append(readWord & 0x0FFF);
-            celFrameTypesList.append((readWord & 0xF000) >> 12);
+            quint16 id = readWord & 0x0FFF;
+            celFrameIndicesList.append(id);
+            this->celFrameTypes[id] = static_cast<D1CEL_FRAME_TYPE>((readWord & 0x7000) >> 12);
         }
         this->celFrameIndices.append(celFrameIndicesList);
-        this->celFrameTypes.append(celFrameTypesList);
     }
 
     return true;
@@ -96,22 +65,17 @@ bool D1Min::load(QString minFilePath)
 
 QImage D1Min::getSubtileImage(quint16 subtileIndex)
 {
-    quint16 celFrameIndex = 0;
-    quint16 dx = 0, dy = 0;
-    QImage subtile;
-
     if (this->cel == nullptr || subtileIndex >= this->celFrameIndices.size())
         return QImage();
 
-    // QList<quint16> test = this->celFrameIndices.at( subtileIndex );
-
-    subtile = QImage(this->subtileWidth * 32,
+    QImage subtile = QImage(this->subtileWidth * 32,
         this->subtileHeight * 32, QImage::Format_ARGB32);
     subtile.fill(Qt::transparent);
     QPainter subtilePainter(&subtile);
 
+    quint16 dx = 0, dy = 0;
     for (int i = 0; i < this->subtileWidth * this->subtileHeight; i++) {
-        celFrameIndex = this->celFrameIndices.at(subtileIndex).at(i);
+        quint16 celFrameIndex = this->celFrameIndices.at(subtileIndex).at(i);
 
         if (celFrameIndex > 0)
             subtilePainter.drawImage(dx, dy,
@@ -152,6 +116,11 @@ void D1Min::setCel(D1CelBase *c)
     this->cel = c;
 }
 
+D1CEL_FRAME_TYPE D1Min::getFrameType(quint16 id)
+{
+    return this->celFrameTypes[id];
+}
+
 quint16 D1Min::getSubtileWidth()
 {
     return this->subtileWidth;
@@ -162,14 +131,9 @@ quint16 D1Min::getSubtileHeight()
     return this->subtileHeight;
 }
 
-quint16 D1Min::getSubtileCount()
-{
-    return this->subtileCount;
-}
-
 QList<quint16> D1Min::getCelFrameIndices(quint16 subTileIndex)
 {
-    if (subTileIndex >= this->subtileCount)
+    if (subTileIndex >= this->celFrameIndices.count())
         return QList<quint16>();
 
     return this->celFrameIndices.at(subTileIndex);

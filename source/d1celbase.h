@@ -28,7 +28,6 @@ public:
     D1CelFrameBase() = default;
     ~D1CelFrameBase() = default;
 
-    virtual quint16 computeWidthFromHeader(QByteArray &) = 0;
     virtual bool load(QByteArray) = 0;
 
     quint16 getWidth();
@@ -77,7 +76,7 @@ protected:
     D1CEL_TYPE type = D1CEL_TYPE::NONE;
     QFile file;
     D1Pal *palette = nullptr;
-    quint16 groupCount = 0;
+    quint16 groupCount = 1;
     QList<QPair<quint16, quint16>> groupFrameIndices;
     quint32 frameCount = 0;
     QList<QPair<quint32, quint32>> frameOffsets;

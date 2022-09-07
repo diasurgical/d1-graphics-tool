@@ -45,7 +45,7 @@ bool D1Til::load(QString tilFilePath)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->tileCount = this->file.size() / 8;
+    this->tileCount = this->file.size() / 2 / 4;
 
     this->subtileIndices.clear();
     for (int i = 0; i < this->tileCount; i++) {

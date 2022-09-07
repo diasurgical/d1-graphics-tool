@@ -192,7 +192,9 @@ bool D1Cl2::load(QString cl2FilePath)
 
     // If the dword is not equal to the file size then
     // check if it's a CL2 with multiple groups
-    if (fileBuffer.size() != fileSizeDword) {
+    if (fileBuffer.size() == fileSizeDword) {
+        this->type = D1CEL_TYPE::V2_MONO_GROUP;
+    } else {
         // Read offset of the last CL2 group header
         fileBuffer.seek(firstDword - 4);
         in >> lastCl2GroupHeaderOffset;
@@ -221,9 +223,6 @@ bool D1Cl2::load(QString cl2FilePath)
             this->groupCount = firstDword / 4;
         } else
             return false;
-    } else {
-        this->type = D1CEL_TYPE::V2_MONO_GROUP;
-        this->groupCount = 1;
     }
 
     // CL2 FRAMES OFFSETS CALCULATION

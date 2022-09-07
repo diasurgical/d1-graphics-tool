@@ -11,9 +11,10 @@ public:
     D1Sol(QString path);
     ~D1Sol();
 
-    bool load(QString, int allocate = 0);
+    bool load(QString);
 
     QString getFilePath();
+    quint16 getSubtileCount();
     quint8 getSubtileProperties(quint16);
     void setSubtileProperties(quint16 tileIndex, quint8 value);
 

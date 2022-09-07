@@ -6,11 +6,12 @@ D1PalHits::D1PalHits(D1CelBase *c)
     D1PalHits::buildPalHits();
 }
 
-D1PalHits::D1PalHits(D1CelBase *c, D1Min *m, D1Til *t)
+D1PalHits::D1PalHits(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s)
     : isLevelCel(true)
     , cel(c)
     , min(m)
     , til(t)
+    , sol(s)
 {
     D1PalHits::buildPalHits();
     this->buildSubtilePalHits();
@@ -68,7 +69,7 @@ void D1PalHits::buildSubtilePalHits()
     quint16 frameIndex;
 
     // Go through all sub-tiles
-    for (int i = 0; i < this->min->getSubtileCount(); i++) {
+    for (int i = 0; i < this->sol->getSubtileCount(); i++) {
         QMap<quint8, quint32> subtileHits;
 
         // Retrieve the CEL frame indices of the current sub-tile
