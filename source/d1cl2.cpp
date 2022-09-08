@@ -4,26 +4,24 @@
 
 quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
 {
-    // Reading the frame header
     QDataStream in(rawFrameData);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    quint16 celFrameHeader[5];
-    quint16 celFrameWidth[4] = { 0, 0, 0, 0 };
-    quint16 pixelCount = 0;
-    quint8 readByte = 0;
-
     // Read the {CEL FRAME HEADER}
+    quint16 celFrameHeader[5];
     for (quint16 &header : celFrameHeader)
         in >> header;
 
-    // Read the five 32 pixel-lines block to calculate the image width
+    quint16 celFrameWidth = 0;
+
+    // Decode the 32 pixel-lines blocks to calculate the image width
     for (int i = 0; i < 4; i++) {
+        quint16 pixelCount = 0;
         if (celFrameHeader[i + 1] == 0)
             break;
 
         for (int j = celFrameHeader[i]; j < celFrameHeader[i + 1]; j++) {
-            readByte = rawFrameData[j];
+            quint8 readByte = rawFrameData[j];
 
             if (readByte > 0x00 && readByte < 0x80) {
                 pixelCount += readByte;
@@ -36,28 +34,22 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
             }
         }
 
-        celFrameWidth[i] = pixelCount / 32;
-        pixelCount = 0;
-    }
-
-    // The calculated width has to be the identical for each 32 pixel-line block
-    // If it's not the case, 0 is returned
-    for (int i = 0; i < 3; i++) {
-        if (celFrameWidth[i + 1] != 0 && celFrameWidth[i] != celFrameWidth[i + 1])
+        quint16 width = pixelCount / 32;
+        if (celFrameWidth != 0 && celFrameWidth != width)
             return 0;
+
+        celFrameWidth = width;
     }
 
-    return celFrameWidth[0];
+    return celFrameWidth;
 }
 
 bool D1Cl2Frame::load(QByteArray rawData)
 {
-    quint32 frameDataStartOffset = 0;
-    quint8 readByte = 0;
-    QList<D1CelPixel> pixelLine;
-
     if (rawData.size() == 0)
         return false;
+
+    quint32 frameDataStartOffset = 0;
 
     // Checking the presence of the {CL2 FRAME HEADER}
     if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
@@ -72,9 +64,9 @@ bool D1Cl2Frame::load(QByteArray rawData)
 
     // READ {CL2 FRAME DATA}
 
-    pixelLine.clear();
+    QList<D1CelPixel> pixelLine;
     for (int o = frameDataStartOffset; o < rawData.size(); o++) {
-        readByte = rawData[o];
+        quint8 readByte = rawData[o];
 
         // Transparent pixels
         if (readByte > 0x00 && readByte < 0x80) {
@@ -142,20 +134,6 @@ D1Cl2::D1Cl2(QString path, D1Pal *pal)
 
 bool D1Cl2::load(QString cl2FilePath)
 {
-    quint32 firstDword = 0;
-    quint32 fileSizeDword = 0;
-    quint32 lastCl2GroupHeaderOffset = 0;
-    quint32 lastCl2GroupFrameCount = 0;
-
-    quint32 cl2GroupOffset = 0;
-    quint32 cl2GroupFrameCount = 0;
-    quint32 cl2FrameStartOffset = 0;
-    quint32 cl2FrameEndOffset = 0;
-
-    quint32 cl2FrameSize = 0;
-
-    QByteArray cl2FrameRawData;
-
     // Opening CL2 file with a QBuffer to load it in RAM
     if (!QFile::exists(cl2FilePath))
         return false;
@@ -180,7 +158,7 @@ bool D1Cl2::load(QString cl2FilePath)
 
     // CL2 HEADER CHECKS
 
-    // Read first DWORD
+    quint32 firstDword;
     in >> firstDword;
 
     // Trying to find file size in CL2 header
@@ -188,6 +166,7 @@ bool D1Cl2::load(QString cl2FilePath)
         return false;
 
     fileBuffer.seek(firstDword * 4 + 4);
+    quint32 fileSizeDword;
     in >> fileSizeDword;
 
     // If the dword is not equal to the file size then
@@ -197,6 +176,7 @@ bool D1Cl2::load(QString cl2FilePath)
     } else {
         // Read offset of the last CL2 group header
         fileBuffer.seek(firstDword - 4);
+        quint32 lastCl2GroupHeaderOffset;
         in >> lastCl2GroupHeaderOffset;
 
         // Read the number of frames of the last CL2 group
@@ -204,6 +184,7 @@ bool D1Cl2::load(QString cl2FilePath)
             return false;
 
         fileBuffer.seek(lastCl2GroupHeaderOffset);
+        quint32 lastCl2GroupFrameCount;
         in >> lastCl2GroupFrameCount;
 
         // Read the last frame offset corresponding to the file size
@@ -232,9 +213,11 @@ bool D1Cl2::load(QString cl2FilePath)
         // Going through all groups
         for (unsigned i = 0; i * 4 < firstDword; i++) {
             fileBuffer.seek(i * 4);
+            quint32 cl2GroupOffset;
             in >> cl2GroupOffset;
 
             fileBuffer.seek(cl2GroupOffset);
+            quint32 cl2GroupFrameCount;
             in >> cl2GroupFrameCount;
 
             this->groupFrameIndices.append(
@@ -243,11 +226,10 @@ bool D1Cl2::load(QString cl2FilePath)
 
             // Going through all frames of the group
             for (unsigned j = 1; j <= cl2GroupFrameCount; j++) {
-                cl2FrameStartOffset = 0;
-                cl2FrameEndOffset = 0;
-
                 fileBuffer.seek(cl2GroupOffset + j * 4);
+                quint32 cl2FrameStartOffset;
                 in >> cl2FrameStartOffset;
+                quint32 cl2FrameEndOffset;
                 in >> cl2FrameEndOffset;
 
                 this->frameOffsets.append(
@@ -258,11 +240,10 @@ bool D1Cl2::load(QString cl2FilePath)
     } else {
         // Going through all frames of the only group
         for (unsigned i = 1; i <= firstDword; i++) {
-            cl2FrameStartOffset = 0;
-            cl2FrameEndOffset = 0;
-
             fileBuffer.seek(i * 4);
+            quint32 cl2FrameStartOffset;
             in >> cl2FrameStartOffset;
+            quint32 cl2FrameEndOffset;
             in >> cl2FrameEndOffset;
 
             this->frameOffsets.append(
@@ -280,9 +261,10 @@ bool D1Cl2::load(QString cl2FilePath)
     qDeleteAll(this->frames);
     this->frames.clear();
     for (const auto &offset : this->frameOffsets) {
-        cl2FrameSize = offset.second - offset.first;
+        quint32 cl2FrameSize = offset.second - offset.first;
         fileBuffer.seek(offset.first);
-        cl2FrameRawData = fileBuffer.read(cl2FrameSize);
+
+        QByteArray cl2FrameRawData = fileBuffer.read(cl2FrameSize);
 
         std::unique_ptr<D1CelFrameBase> frame { createFrame() };
         frame->load(cl2FrameRawData);

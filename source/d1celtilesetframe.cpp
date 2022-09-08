@@ -36,12 +36,13 @@ bool D1CelTilesetFrame::load(QByteArray rawData)
     return true;
 }
 
-void D1CelTilesetFrame::LoadSquare(QByteArray rawData)
+void D1CelTilesetFrame::LoadSquare(QByteArray &rawData)
 {
+    int offset = 0;
     for (int i = 0; i < this->height; i++) {
         QList<D1CelPixel> pixelLine;
         for (int j = 0; j < this->width; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[i * this->width + j]));
+            pixelLine.append(D1CelPixel(false, rawData[offset++]));
         }
         this->pixels.insert(0, pixelLine);
     }
@@ -52,25 +53,20 @@ void D1CelTilesetFrame::LoadTransparentSquare(QByteArray &rawData)
     int offset = 0;
     for (int i = 0; i < this->height; i++) {
         QList<D1CelPixel> pixelLine;
-        int width = this->width;
-        while (width > 0) {
+        int width = 0;
+        for (int j = 0; j < this->width; j += width) {
             qint8 readByte = rawData[offset++];
-            if (readByte > 0) {
-                for (int j = 0; j < readByte; j++) {
-                    pixelLine.append(D1CelPixel(false, rawData[offset++]));
-                }
-            } else {
-                readByte = -readByte;
-                for (int j = 0; j < readByte; j++)
-                    pixelLine.append(D1CelPixel(true, 0));
+            width = std::abs(readByte);
+            bool isTransparent = readByte < 0;
+            for (int j = 0; j < width; j++) {
+                pixelLine.append(D1CelPixel(isTransparent, isTransparent ? 0 : rawData[offset++]));
             }
-            width -= readByte;
         }
         this->pixels.insert(0, pixelLine);
     }
 }
 
-void D1CelTilesetFrame::LoadLeftTriangle(QByteArray &rawData)
+void D1CelTilesetFrame::LoadBottomLeftTriangle(QByteArray &rawData)
 {
     int offset = 0;
     for (int i = 1; i <= this->height / 2; i++) {
@@ -84,6 +80,28 @@ void D1CelTilesetFrame::LoadLeftTriangle(QByteArray &rawData)
         }
         this->pixels.insert(0, pixelLine);
     }
+}
+
+void D1CelTilesetFrame::LoadBottomRightTriangle(QByteArray &rawData)
+{
+    int offset = 0;
+    for (int i = 1; i <= this->height / 2; i++) {
+        QList<D1CelPixel> pixelLine;
+        for (int j = 0; j < 2 * i; j++) {
+            pixelLine.append(D1CelPixel(false, rawData[offset++]));
+        }
+        for (int j = 0; j < this->width - 2 * i; j++) {
+            pixelLine.append(D1CelPixel(true, 0));
+        }
+        offset += 2 * (i % 2);
+        this->pixels.insert(0, pixelLine);
+    }
+}
+
+void D1CelTilesetFrame::LoadLeftTriangle(QByteArray &rawData)
+{
+    this->LoadBottomLeftTriangle(rawData);
+    int offset = 288;
     for (int i = 1; i <= this->height / 2; i++) {
         offset += 2 * (i % 2);
         QList<D1CelPixel> pixelLine;
@@ -99,73 +117,41 @@ void D1CelTilesetFrame::LoadLeftTriangle(QByteArray &rawData)
 
 void D1CelTilesetFrame::LoadRightTriangle(QByteArray &rawData)
 {
-    int offset = 0;
+    this->LoadBottomRightTriangle(rawData);
+    int offset = 288;
     for (int i = 1; i <= this->height / 2; i++) {
         QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < 2 * i; j++) {
+        for (int j = 0; j < this->width - 2 * i; j++) {
             pixelLine.append(D1CelPixel(false, rawData[offset++]));
         }
-        for (int j = 0; j < this->width - 2 * i; j++) {
+        for (int j = 0; j < 2 * i; j++) {
             pixelLine.append(D1CelPixel(true, 0));
         }
         offset += 2 * (i % 2);
         this->pixels.insert(0, pixelLine);
     }
+}
+
+void D1CelTilesetFrame::LoadTopHalfSquare(QByteArray &rawData)
+{
+    int offset = 288;
     for (int i = 1; i <= this->height / 2; i++) {
         QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < this->width - 2 * i; j++) {
+        for (int j = 0; j < this->width; j++) {
             pixelLine.append(D1CelPixel(false, rawData[offset++]));
         }
-        for (int j = 0; j < 2 * i; j++) {
-            pixelLine.append(D1CelPixel(true, 0));
-        }
-        offset += 2 * (i % 2);
         this->pixels.insert(0, pixelLine);
     }
 }
 
 void D1CelTilesetFrame::LoadLeftTrapezoid(QByteArray &rawData)
 {
-    int offset = 0;
-    for (int i = 1; i <= this->height / 2; i++) {
-        offset += 2 * (i % 2);
-        QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < this->width - 2 * i; j++) {
-            pixelLine.append(D1CelPixel(true, 0));
-        }
-        for (int j = 0; j < 2 * i; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
-        }
-        this->pixels.insert(0, pixelLine);
-    }
-    for (int i = 1; i <= this->height / 2; i++) {
-        QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < this->width; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
-        }
-        this->pixels.insert(0, pixelLine);
-    }
+    this->LoadBottomLeftTriangle(rawData);
+    this->LoadTopHalfSquare(rawData);
 }
 
 void D1CelTilesetFrame::LoadRightTrapezoid(QByteArray &rawData)
 {
-    int offset = 0;
-    for (int i = 1; i <= this->height / 2; i++) {
-        QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < 2 * i; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
-        }
-        for (int j = 0; j < this->width - 2 * i; j++) {
-            pixelLine.append(D1CelPixel(true, 0));
-        }
-        offset += 2 * (i % 2);
-        this->pixels.insert(0, pixelLine);
-    }
-    for (int i = 1; i <= this->height / 2; i++) {
-        QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < this->width; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
-        }
-        this->pixels.insert(0, pixelLine);
-    }
+    this->LoadBottomRightTriangle(rawData);
+    this->LoadTopHalfSquare(rawData);
 }

@@ -14,15 +14,18 @@ enum class D1CEL_FRAME_TYPE {
 class D1CelTilesetFrame : public D1CelFrameBase {
 public:
     D1CelTilesetFrame() = default;
-    D1CelTilesetFrame(D1CEL_FRAME_TYPE);
+    D1CelTilesetFrame(D1CEL_FRAME_TYPE type);
 
     bool load(QByteArray rawData);
 
 private:
-    void LoadSquare(QByteArray rawData);
+    void LoadSquare(QByteArray &rawData);
     void LoadTransparentSquare(QByteArray &rawData);
+    void LoadBottomLeftTriangle(QByteArray &rawData);
+    void LoadBottomRightTriangle(QByteArray &rawData);
     void LoadLeftTriangle(QByteArray &rawData);
     void LoadRightTriangle(QByteArray &rawData);
+    void LoadTopHalfSquare(QByteArray &rawData);
     void LoadLeftTrapezoid(QByteArray &rawData);
     void LoadRightTrapezoid(QByteArray &rawData);
 
