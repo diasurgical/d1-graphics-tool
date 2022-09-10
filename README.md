@@ -7,7 +7,7 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/savagesteel/d1-graphics-tool/badge)](https://www.codefactor.io/repository/github/savagesteel/d1-graphics-tool)
 
 Diablo 1 Graphics Tool can open CEL/CL2 graphics files and display them with chosen color palette (PAL) and color translation (TRN) files.  
-The tool now also supports PAL/TRN editing.
+The tool now also supports PAL/TRN/SOL/AMP editing.
 
 ![Screenshot 1](/images/demo001.gif)
 
