@@ -51,13 +51,8 @@ bool D1Cl2Frame::load(QByteArray rawData)
 
     quint32 frameDataStartOffset = 0;
 
-    // Checking the presence of the {CL2 FRAME HEADER}
-    if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
-        frameDataStartOffset += 0x0A;
-        // If header is present, try to compute frame width from frame header
-        this->width = this->computeWidthFromHeader(rawData);
-    } else
-        return false;
+    frameDataStartOffset += (quint16)rawData[0];
+    this->width = this->computeWidthFromHeader(rawData);
 
     if (this->width == 0)
         return false;
