@@ -20,6 +20,7 @@ CelView::CelView(QWidget *parent)
     ui->setupUi(this);
     ui->celGraphicsView->setScene(this->celScene);
     ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
+    ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
     this->playTimer.connect(&this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()));
 
     // If a pixel of the frame was clicked get pixel color index and notify the palette widgets
@@ -315,9 +316,20 @@ void CelView::on_zoomEdit_returnPressed()
     ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
 }
 
+void CelView::on_playDelayEdit_returnPressed()
+{
+    quint16 playDelay = this->ui->playDelayEdit->text().toUInt();
+
+    this->currentPlayDelay = playDelay;
+    if (this->playTimer.isActive()) {
+        this->playTimer.stop();
+        this->playTimer.start(this->currentPlayDelay);
+    }
+}
+
 void CelView::on_playButton_clicked()
 {
-    this->playTimer.start(50);
+    this->playTimer.start(this->currentPlayDelay);
 }
 
 void CelView::on_stopButton_clicked()

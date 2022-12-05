@@ -64,6 +64,7 @@ private slots:
     void on_zoomInButton_clicked();
     void on_zoomEdit_returnPressed();
 
+    void on_playDelayEdit_returnPressed();
     void on_playButton_clicked();
     void on_stopButton_clicked();
     void playGroup();
@@ -76,6 +77,7 @@ private:
     quint16 currentGroupIndex = 0;
     quint32 currentFrameIndex = 0;
     quint8 currentZoomFactor = 1;
+    quint16 currentPlayDelay = 50;
 
     QTimer playTimer;
 };

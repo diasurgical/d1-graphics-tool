@@ -747,6 +747,38 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="10">
+         <widget class="QLineEdit" name="playDelayEdit">
+          <property name="minimumSize">
+           <size>
+            <width>48</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>48</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="toolTip">
+           <string>Current playback delay</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeft</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="11">
+         <widget class="QLabel" name="playDelayLabel">
+          <property name="text">
+            <string>ms</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeft</set>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>
