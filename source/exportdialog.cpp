@@ -272,82 +272,83 @@ void ExportDialog::exportSprites(QProgressDialog &progress)
 
     QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
         + QFileInfo(this->cel->getFilePath()).fileName().replace(".", "_");
+    // single frame
+    if (this->cel->getFrameCount() == 1) {
+        // one file for each frame (not indexed)
+        QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
+        this->cel->getFrameImage(0).save(outputFilePath);
+        return;
+    }
+    // multiple frames
+    if (!ui->oneFileForAllFramesRadioButton->isChecked()) {
+        // one file for each frame (indexed)
+        for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
+            if (progress.wasCanceled())
+                QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
 
-    // If only one file will contain all frames
+            progress.setValue(100 * i / this->cel->getFrameCount());
+
+            QString outputFilePath = outputFilePathBase + "_frame"
+                + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
+
+            this->cel->getFrameImage(i).save(outputFilePath);
+        }
+        return;
+    }
+    // one file for all frames
     QImage tempOutputImage;
     quint16 tempOutputImageWidth = 0;
     quint16 tempOutputImageHeight = 0;
-    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-        if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
-            tempOutputImageWidth = this->cel->getFrameWidth(0) * (this->cel->getGroupFrameIndices(0).second - this->cel->getGroupFrameIndices(0).first + 1);
-            tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getGroupCount();
-        } else if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
-            tempOutputImageWidth = this->cel->getFrameWidth(0);
-            tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getFrameCount();
-        } else if (ui->allFramesOnOneLineRadioButton->isChecked()) {
-            tempOutputImageWidth = this->cel->getFrameWidth(0) * this->cel->getFrameCount();
-            tempOutputImageHeight = this->cel->getFrameHeight(0);
-        }
-        tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
-        tempOutputImage.fill(Qt::transparent);
+    // If only one file will contain all frames
+    if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
+        tempOutputImageWidth = this->cel->getFrameWidth(0) * (this->cel->getGroupFrameIndices(0).second - this->cel->getGroupFrameIndices(0).first + 1);
+        tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getGroupCount();
+    } else if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
+        tempOutputImageWidth = this->cel->getFrameWidth(0);
+        tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getFrameCount();
+    } else if (ui->allFramesOnOneLineRadioButton->isChecked()) {
+        tempOutputImageWidth = this->cel->getFrameWidth(0) * this->cel->getFrameCount();
+        tempOutputImageHeight = this->cel->getFrameHeight(0);
     }
+    tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
+    tempOutputImage.fill(Qt::transparent);
 
-    if (this->cel->getFrameCount() == 1) {
-        QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
-        this->cel->getFrameImage(0).save(outputFilePath);
-    } else {
-        // If only one file will contain all frames
-        if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-            QPainter painter(&tempOutputImage);
+    QPainter painter(&tempOutputImage);
 
-            if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
-                for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
-                    quint8 groupFrameIndex = 0;
+    if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
+        for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+            quint8 groupFrameIndex = 0;
 
-                    for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
-                         j <= this->cel->getGroupFrameIndices(i).second; j++) {
-                        if (progress.wasCanceled())
-                            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
-                        progress.setValue(100 * j / this->cel->getFrameCount());
-
-                        painter.drawImage(groupFrameIndex * this->cel->getFrameWidth(0),
-                            i * this->cel->getFrameHeight(0), this->cel->getFrameImage(j));
-                        groupFrameIndex++;
-                    }
-                }
-            } else {
-                for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
-                    if (progress.wasCanceled())
-                        QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
-                    progress.setValue(100 * i / this->cel->getFrameCount());
-
-                    if (ui->allFramesOnOneColumnRadioButton->isChecked())
-                        painter.drawImage(0, i * this->cel->getFrameHeight(0), this->cel->getFrameImage(i));
-                    else
-                        painter.drawImage(i * this->cel->getFrameWidth(0), 0, this->cel->getFrameImage(i));
-                }
-            }
-
-            painter.end();
-
-            QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
-            tempOutputImage.save(outputFilePath);
-        } else {
-            for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
+            for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
+                 j <= this->cel->getGroupFrameIndices(i).second; j++) {
                 if (progress.wasCanceled())
                     QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
 
-                progress.setValue(100 * i / this->cel->getFrameCount());
+                progress.setValue(100 * j / this->cel->getFrameCount());
 
-                QString outputFilePath = outputFilePathBase + "_frame"
-                    + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
-
-                this->cel->getFrameImage(i).save(outputFilePath);
+                painter.drawImage(groupFrameIndex * this->cel->getFrameWidth(0),
+                    i * this->cel->getFrameHeight(0), this->cel->getFrameImage(j));
+                groupFrameIndex++;
             }
         }
+    } else {
+        for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
+            if (progress.wasCanceled())
+                QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+
+            progress.setValue(100 * i / this->cel->getFrameCount());
+
+            if (ui->allFramesOnOneColumnRadioButton->isChecked())
+                painter.drawImage(0, i * this->cel->getFrameHeight(0), this->cel->getFrameImage(i));
+            else
+                painter.drawImage(i * this->cel->getFrameWidth(0), 0, this->cel->getFrameImage(i));
+        }
     }
+
+    painter.end();
+
+    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
+    tempOutputImage.save(outputFilePath);
 }
 
 void ExportDialog::on_exportButton_clicked()
