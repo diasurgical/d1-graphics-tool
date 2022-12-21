@@ -44,18 +44,31 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
     return celFrameWidth;
 }
 
-bool D1Cl2Frame::load(QByteArray rawData)
+bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
 {
     if (rawData.size() == 0)
         return false;
 
     quint32 frameDataStartOffset = 0;
 
-    this->width = 0;
-    if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
-        frameDataStartOffset += 0x0A;
-        this->width = this->computeWidthFromHeader(rawData);
+    quint16 width = 0;
+    if (params == nullptr || params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
+        // Checking the presence of the {CEL FRAME HEADER}
+        if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
+            frameDataStartOffset += 0x0A;
+            // If header is present, try to compute frame width from frame header
+            width = this->computeWidthFromHeader(rawData);
+        }
+    } else {
+        if (params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
+            QDataStream in(rawData);
+            in.setByteOrder(QDataStream::LittleEndian);
+            quint16 offset;
+            in >> offset;
+            frameDataStartOffset += offset;
+        }
     }
+    this->width = (params == nullptr || params->width == 0) ? width : params->width;
 
     if (this->width == 0)
         return false;
@@ -123,14 +136,7 @@ D1Cl2::D1Cl2()
     this->type = D1CEL_TYPE::V2_MULTIPLE_GROUPS;
 }
 
-D1Cl2::D1Cl2(QString path, D1Pal *pal)
-    : D1CelBase(pal)
-{
-    this->type = D1CEL_TYPE::V2_MULTIPLE_GROUPS;
-    this->load(path);
-}
-
-bool D1Cl2::load(QString cl2FilePath)
+bool D1Cl2::load(QString cl2FilePath, OpenAsParam *params)
 {
     // Opening CL2 file with a QBuffer to load it in RAM
     if (!QFile::exists(cl2FilePath))
@@ -265,7 +271,7 @@ bool D1Cl2::load(QString cl2FilePath)
         QByteArray cl2FrameRawData = fileBuffer.read(cl2FrameSize);
 
         std::unique_ptr<D1CelFrameBase> frame { createFrame() };
-        frame->load(cl2FrameRawData);
+        frame->load(cl2FrameRawData, params);
         this->frames.append(frame.release());
     }
 

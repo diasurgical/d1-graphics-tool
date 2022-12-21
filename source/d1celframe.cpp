@@ -16,20 +16,30 @@ quint16 D1CelPixelGroup::getPixelCount()
     return this->pixelCount;
 }
 
-bool D1CelFrame::load(QByteArray rawData)
+bool D1CelFrame::load(QByteArray rawData, OpenAsParam *params)
 {
     if (rawData.size() == 0)
         return false;
 
     quint32 frameDataStartOffset = 0;
-
-    // Checking the presence of the {CEL FRAME HEADER}
-    this->width = 0;
-    if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
-        frameDataStartOffset += 0x0A;
-        // If header is present, try to compute frame width from frame header
-        this->width = this->computeWidthFromHeader(rawData);
+    quint16 width = 0;
+    if (params == nullptr || params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
+        // Checking the presence of the {CEL FRAME HEADER}
+        if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
+            frameDataStartOffset += 0x0A;
+            // If header is present, try to compute frame width from frame header
+            width = this->computeWidthFromHeader(rawData);
+        }
+    } else {
+        if (params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
+            QDataStream in(rawData);
+            in.setByteOrder(QDataStream::LittleEndian);
+            quint16 offset;
+            in >> offset;
+            frameDataStartOffset += offset;
+        }
     }
+    this->width = (params == nullptr || params->width == 0) ? width : params->width;
 
     // If width could not be calculated with frame header,
     // attempt to calculate it from the frame data (by identifying pixel groups line wraps)

@@ -12,6 +12,7 @@
 #include "d1trn.h"
 #include "exportdialog.h"
 #include "levelcelview.h"
+#include "openasdialog.h"
 #include "palettewidget.h"
 #include "settingsdialog.h"
 
@@ -36,8 +37,11 @@ public:
 
     void pushCommandToUndoStack(QUndoCommand *);
 
+    void openFile(QString openFilePath, OpenAsParam *params = nullptr);
+
 private slots:
     void on_actionOpen_triggered();
+    void on_actionOpenAs_triggered();
     void on_actionClose_triggered();
     void on_actionExport_triggered();
     void on_actionSettings_triggered();
@@ -64,8 +68,6 @@ private slots:
     void on_actionAbout_triggered();
     void on_actionAbout_Qt_triggered();
 
-    void openFile(QString openFilePath);
-
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
 
@@ -84,6 +86,7 @@ private:
     QPointer<PaletteWidget> trn1Widget;
     QPointer<PaletteWidget> trn2Widget;
 
+    QPointer<OpenAsDialog> openAsDialog = new OpenAsDialog(this);
     QPointer<SettingsDialog> settingsDialog = new SettingsDialog(this);
     QPointer<ExportDialog> exportDialog = new ExportDialog(this);
 

@@ -136,6 +136,7 @@
      <string>File</string>
     </property>
     <addaction name="actionOpen"/>
+    <addaction name="actionOpenAs"/>
     <addaction name="actionClose"/>
     <addaction name="actionExport"/>
     <addaction name="separator"/>
@@ -237,6 +238,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionOpenAs">
+   <property name="text">
+    <string>Open As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+O</string>
    </property>
   </action>
   <action name="actionOpen_Translation_1">

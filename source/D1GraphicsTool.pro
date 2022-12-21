@@ -41,6 +41,7 @@ SOURCES += main.cpp \
     d1til.cpp \
     levelcelview.cpp \
     d1celbase.cpp \
+    openasdialog.cpp \
     exportdialog.cpp \
     settingsdialog.cpp
 
@@ -62,6 +63,7 @@ HEADERS  += mainwindow.h \
     d1til.h \
     levelcelview.h \
     d1celbase.h \
+    openasdialog.h \
     exportdialog.h \
     settingsdialog.h
 
@@ -69,6 +71,7 @@ FORMS += mainwindow.ui \
     celview.ui \
     palettewidget.ui \
     levelcelview.ui \
+    openasdialog.ui \
     exportdialog.ui \
     settingsdialog.ui
 
