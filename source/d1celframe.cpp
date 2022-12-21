@@ -24,6 +24,7 @@ bool D1CelFrame::load(QByteArray rawData)
     quint32 frameDataStartOffset = 0;
 
     // Checking the presence of the {CEL FRAME HEADER}
+    this->width = 0;
     if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
         frameDataStartOffset += 0x0A;
         // If header is present, try to compute frame width from frame header
