@@ -51,8 +51,11 @@ bool D1Cl2Frame::load(QByteArray rawData)
 
     quint32 frameDataStartOffset = 0;
 
-    frameDataStartOffset += (quint16)rawData[0];
-    this->width = this->computeWidthFromHeader(rawData);
+    this->width = 0;
+    if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
+        frameDataStartOffset += 0x0A;
+        this->width = this->computeWidthFromHeader(rawData);
+    }
 
     if (this->width == 0)
         return false;
