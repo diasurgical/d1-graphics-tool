@@ -6,6 +6,7 @@
 #include <QPointer>
 
 #include "d1pal.h"
+#include "openasdialog.h"
 
 class D1CelPixel {
 public:
@@ -28,7 +29,7 @@ public:
     D1CelFrameBase() = default;
     ~D1CelFrameBase() = default;
 
-    virtual bool load(QByteArray) = 0;
+    virtual bool load(QByteArray rawData, OpenAsParam *params = nullptr) = 0;
 
     quint16 getWidth();
     quint16 getHeight();
@@ -57,7 +58,7 @@ public:
     D1CelBase(D1Pal *pal);
     ~D1CelBase();
 
-    virtual bool load(QString) = 0;
+    virtual bool load(QString filePath, OpenAsParam *params = nullptr) = 0;
     bool isFrameSizeConstant();
     QImage getFrameImage(quint16);
 

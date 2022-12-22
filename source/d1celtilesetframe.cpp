@@ -7,8 +7,10 @@ D1CelTilesetFrame::D1CelTilesetFrame(D1CEL_FRAME_TYPE type)
     this->height = 32;
 }
 
-bool D1CelTilesetFrame::load(QByteArray rawData)
+bool D1CelTilesetFrame::load(QByteArray rawData, OpenAsParam *params)
 {
+    (void)params; // unused
+
     if (rawData.size() == 0)
         return false;
 

@@ -20,7 +20,7 @@ class D1CelFrame : public D1CelFrameBase {
 public:
     D1CelFrame() = default;
 
-    bool load(QByteArray);
+    bool load(QByteArray rawData, OpenAsParam *params = nullptr);
 
 private:
     quint16 computeWidthFromHeader(QByteArray &);

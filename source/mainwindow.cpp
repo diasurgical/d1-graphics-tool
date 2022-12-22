@@ -173,10 +173,10 @@ void MainWindow::dropEvent(QDropEvent *event)
         this->openFile(url.toLocalFile());
 }
 
-void MainWindow::openFile(QString openFilePath)
+void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
 {
     // Check file extension
-    if (!openFilePath.toLower().endsWith(".cel")
+    if (params == nullptr && !openFilePath.toLower().endsWith(".cel")
         && !openFilePath.toLower().endsWith(".cl2")
         && !openFilePath.endsWith(".clx")) {
         return;
@@ -204,7 +204,7 @@ void MainWindow::openFile(QString openFilePath)
     QString solFilePath = basePath + ".sol";
     QString minFilePath = basePath + ".min";
     QString tilFilePath = basePath + ".til";
-    bool isTileset = QFileInfo::exists(solFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(tilFilePath);
+    bool isTileset = params == nullptr && QFileInfo::exists(solFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(tilFilePath);
 
     QString extension = celFileInfo.suffix();
     if (QString::compare(extension, "cel", Qt::CaseInsensitive) == 0) {
@@ -243,7 +243,7 @@ void MainWindow::openFile(QString openFilePath)
         this->cel = new D1Clx;
     }
 
-    if (!this->cel->load(openFilePath)) {
+    if (!this->cel->load(openFilePath, params)) {
         QMessageBox::critical(this, "Error", "Could not open " + extension.toUpper() + " file.");
         return;
     }
@@ -388,6 +388,12 @@ void MainWindow::openFile(QString openFilePath)
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::on_actionOpenAs_triggered()
+{
+    this->openAsDialog->initialize(this->configuration);
+    this->openAsDialog->show();
 }
 
 void MainWindow::on_actionClose_triggered()

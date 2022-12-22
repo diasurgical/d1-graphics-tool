@@ -8,7 +8,7 @@ public:
     D1CelTileset() = default;
     D1CelTileset(D1Min *);
 
-    bool load(QString);
+    bool load(QString celFilePath, OpenAsParam *params = nullptr);
 
 private:
     D1Min *min;

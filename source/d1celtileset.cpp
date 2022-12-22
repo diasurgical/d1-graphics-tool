@@ -9,7 +9,7 @@ D1CelTileset::D1CelTileset(D1Min *min)
     this->type = D1CEL_TYPE::V1_LEVEL;
 }
 
-bool D1CelTileset::load(QString celFilePath)
+bool D1CelTileset::load(QString celFilePath, OpenAsParam *params)
 {
     // Opening CEL file with a QBuffer to load it in RAM
     if (!QFile::exists(celFilePath))
@@ -80,7 +80,7 @@ bool D1CelTileset::load(QString celFilePath)
         QByteArray celFrameRawData = fileBuffer.read(offset.second - offset.first);
         D1CEL_FRAME_TYPE frameType = this->min->getFrameType(this->frames.count() + 1);
         std::unique_ptr<D1CelFrameBase> frame { new D1CelTilesetFrame(frameType) };
-        frame->load(celFrameRawData);
+        frame->load(celFrameRawData, params);
         this->frames.append(frame.release());
     }
 

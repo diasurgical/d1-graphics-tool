@@ -16,7 +16,7 @@ public:
     D1CelTilesetFrame() = default;
     D1CelTilesetFrame(D1CEL_FRAME_TYPE type);
 
-    bool load(QByteArray rawData);
+    bool load(QByteArray rawData, OpenAsParam *params = nullptr);
 
 private:
     void LoadSquare(QByteArray &rawData);

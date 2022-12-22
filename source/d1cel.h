@@ -6,7 +6,6 @@
 class D1Cel : public D1CelBase {
 public:
     D1Cel() = default;
-    D1Cel(QString, D1Pal *);
 
-    bool load(QString);
+    bool load(QString celFilePath, OpenAsParam *params = nullptr);
 };

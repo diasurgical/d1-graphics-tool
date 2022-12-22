@@ -54,6 +54,9 @@ set(PROJECT_SOURCES
         source/mainwindow.cpp
         source/mainwindow.h
         source/mainwindow.ui
+        source/openasdialog.cpp
+        source/openasdialog.h
+        source/openasdialog.ui
         source/palettewidget.cpp
         source/palettewidget.h
         source/palettewidget.ui
