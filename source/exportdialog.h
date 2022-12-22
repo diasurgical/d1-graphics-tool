@@ -39,11 +39,11 @@ private slots:
     void on_diabloButton_toggled(bool checked);
 
 private:
-    void exportLevelDiablo(QProgressDialog &progress);
-    void exportLevelTiles(QProgressDialog &progress);
-    void exportLevelSubtiles(QProgressDialog &progress);
-    void exportLevel(QProgressDialog &progress);
-    void exportSprites(QProgressDialog &progress);
+    bool exportLevelDiablo(QProgressDialog &progress);
+    bool exportLevelTiles(QProgressDialog &progress);
+    bool exportLevelSubtiles(QProgressDialog &progress);
+    bool exportLevel(QProgressDialog &progress);
+    bool exportSprites(QProgressDialog &progress);
 
     Ui::ExportDialog *ui;
 
