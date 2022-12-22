@@ -59,6 +59,7 @@ set(PROJECT_SOURCES
         source/palettewidget.ui
         source/settingsdialog.cpp
         source/settingsdialog.h
+        source/D1GraphicsTool.rc
 )
 
 qt_add_executable(D1GraphicsTool
