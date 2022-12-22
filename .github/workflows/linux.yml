@@ -14,14 +14,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get install qmake6 qt6-base-dev
+      run: sudo apt-get install cmake qt6-base-dev libgl1-mesa-dev
     - name: configure
-      run: qmake6 source/D1GraphicsTool.pro
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo
     - name: make
-      run: make -j $(nproc)
+      run: cmake --build build -j $(nproc)
     - name: Upload-Package
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v2
       with:
         name: D1GraphicsTool.zip
-        path: D1GraphicsTool
+        path: build/D1GraphicsTool
