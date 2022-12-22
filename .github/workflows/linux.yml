@@ -23,5 +23,5 @@ jobs:
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v2
       with:
-        name: D1GraphicsTool.zip
+        name: D1GraphicsTool-Linux-x64
         path: build/D1GraphicsTool
