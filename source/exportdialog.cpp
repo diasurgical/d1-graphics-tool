@@ -2,6 +2,7 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <algorithm>
 
 #include "ui_exportdialog.h"
 
@@ -310,11 +311,15 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
         tempOutputImageWidth = this->cel->getFrameWidth(0) * (this->cel->getGroupFrameIndices(0).second - this->cel->getGroupFrameIndices(0).first + 1);
         tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getGroupCount();
     } else if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
-        tempOutputImageWidth = this->cel->getFrameWidth(0);
-        tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getFrameCount();
+        for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+            tempOutputImageWidth = std::max(this->cel->getFrameWidth(i), tempOutputImageWidth);
+            tempOutputImageHeight += this->cel->getFrameHeight(i);
+        }
     } else if (ui->allFramesOnOneLineRadioButton->isChecked()) {
-        tempOutputImageWidth = this->cel->getFrameWidth(0) * this->cel->getFrameCount();
-        tempOutputImageHeight = this->cel->getFrameHeight(0);
+        for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+            tempOutputImageWidth += this->cel->getFrameWidth(i);
+            tempOutputImageHeight = std::max(this->cel->getFrameHeight(i), tempOutputImageHeight);
+        }
     }
     tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
     tempOutputImage.fill(Qt::transparent);
@@ -338,16 +343,20 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
             }
         }
     } else {
+        quint32 cursor = 0;
         for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
             if (progress.wasCanceled()) {
                 return false;
             }
             progress.setValue(100 * i / this->cel->getFrameCount());
 
-            if (ui->allFramesOnOneColumnRadioButton->isChecked())
-                painter.drawImage(0, i * this->cel->getFrameHeight(0), this->cel->getFrameImage(i));
-            else
-                painter.drawImage(i * this->cel->getFrameWidth(0), 0, this->cel->getFrameImage(i));
+            if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
+                painter.drawImage(0, cursor, this->cel->getFrameImage(i));
+                cursor += this->cel->getFrameHeight(i);
+            } else {
+                painter.drawImage(cursor, 0, this->cel->getFrameImage(i));
+                cursor += this->cel->getFrameWidth(i);
+            }
         }
     }
 
