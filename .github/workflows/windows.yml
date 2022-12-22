@@ -38,5 +38,5 @@ jobs:
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v2
       with:
-        name: D1GraphicsTool.zip
+        name: D1GraphicsTool-Windows-x64
         path: dist
