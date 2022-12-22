@@ -7,20 +7,23 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
     QDataStream in(rawFrameData);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    // Read the {CEL FRAME HEADER}
-    quint16 celFrameHeader[5];
-    for (quint16 &header : celFrameHeader)
-        in >> header;
+    quint16 celFrameHeaderSize;
+    in >> celFrameHeaderSize;
 
-    quint16 celFrameWidth = 0;
+    if (celFrameHeaderSize & 1)
+        return 0; // invalid header
 
     // Decode the 32 pixel-lines blocks to calculate the image width
-    for (int i = 0; i < 4; i++) {
+    quint16 celFrameWidth = 0;
+    quint16 lastFrameOffset = celFrameHeaderSize;
+    for (int i = 0; i < (celFrameHeaderSize / 2) - 1; i++) {
         quint16 pixelCount = 0;
-        if (celFrameHeader[i + 1] == 0)
+        quint16 nextFrameOffset;
+        in >> nextFrameOffset;
+        if (nextFrameOffset == 0)
             break;
 
-        for (int j = celFrameHeader[i]; j < celFrameHeader[i + 1]; j++) {
+        for (int j = lastFrameOffset; j < nextFrameOffset; j++) {
             quint8 readByte = rawFrameData[j];
 
             if (readByte > 0x00 && readByte < 0x80) {
@@ -39,6 +42,7 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
             return 0;
 
         celFrameWidth = width;
+        lastFrameOffset = nextFrameOffset;
     }
 
     return celFrameWidth;
@@ -53,12 +57,14 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
 
     quint16 width = 0;
     if (params == nullptr || params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
-        // Checking the presence of the {CEL FRAME HEADER}
-        if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
-            frameDataStartOffset += 0x0A;
-            // If header is present, try to compute frame width from frame header
-            width = this->computeWidthFromHeader(rawData);
-        }
+        // Assume the presence of the {CEL FRAME HEADER}
+        QDataStream in(rawData);
+        in.setByteOrder(QDataStream::LittleEndian);
+        quint16 offset;
+        in >> offset;
+        frameDataStartOffset += offset;
+        // If header is present, try to compute frame width from frame header
+        width = this->computeWidthFromHeader(rawData);
     } else {
         if (params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
             QDataStream in(rawData);
