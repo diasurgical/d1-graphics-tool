@@ -452,7 +452,7 @@ void MainWindow::on_actionQuit_triggered()
 void MainWindow::on_actionNew_PAL_triggered()
 {
     QString palFilePath = QFileDialog::getSaveFileName(
-        this, "New palette file", QString(), "PAL Files (*.pal)");
+        this, "New palette file", QString(), "PAL Files (*.pal *.PAL)");
 
     if (palFilePath.isEmpty())
         return;
@@ -479,7 +479,7 @@ void MainWindow::on_actionNew_PAL_triggered()
 void MainWindow::on_actionOpen_PAL_triggered()
 {
     QString palFilePath = QFileDialog::getOpenFileName(
-        this, "Load Palette File", QString(), "PAL Files (*.pal)");
+        this, "Load Palette File", QString(), "PAL Files (*.pal *.PAL)");
 
     if (palFilePath.isEmpty())
         return;
@@ -518,7 +518,7 @@ void MainWindow::on_actionSave_PAL_triggered()
 void MainWindow::on_actionSave_PAL_as_triggered()
 {
     QString palFilePath = QFileDialog::getSaveFileName(
-        this, "Save palette file as...", QString(), "PAL Files (*.pal)");
+        this, "Save palette file as...", QString(), "PAL Files (*.pal *.PAL)");
 
     if (!palFilePath.isEmpty()) {
         if (!this->pal->save(palFilePath)) {
@@ -561,7 +561,7 @@ void MainWindow::on_actionClose_PAL_triggered()
 void MainWindow::on_actionNew_Translation_1_triggered()
 {
     QString trnFilePath = QFileDialog::getSaveFileName(
-        this, "New translation", QString(), "TRN Files (*.trn)");
+        this, "New translation", QString(), "TRN Files (*.trn *.TRN)");
 
     if (trnFilePath.isEmpty())
         return;
@@ -589,7 +589,7 @@ void MainWindow::on_actionNew_Translation_1_triggered()
 void MainWindow::on_actionOpen_Translation_1_triggered()
 {
     QString trnFilePath = QFileDialog::getOpenFileName(
-        this, "Load Palette Translation File", QString(), "TRN Files (*.trn)");
+        this, "Load Palette Translation File", QString(), "TRN Files (*.trn *.TRN)");
 
     if (trnFilePath.isEmpty())
         return;
@@ -629,7 +629,7 @@ void MainWindow::on_actionSave_Translation_1_triggered()
 void MainWindow::on_actionSave_Translation_1_as_triggered()
 {
     QString trnFilePath = QFileDialog::getSaveFileName(
-        this, "Save translation file as...", QString(), "TRN Files (*.trn)");
+        this, "Save translation file as...", QString(), "TRN Files (*.trn *.TRN)");
 
     if (!trnFilePath.isEmpty()) {
         if (!this->trn1->save(trnFilePath)) {
@@ -672,7 +672,7 @@ void MainWindow::on_actionClose_Translation_1_triggered()
 void MainWindow::on_actionNew_Translation_2_triggered()
 {
     QString trnFilePath = QFileDialog::getSaveFileName(
-        this, "New translation", QString(), "TRN Files (*.trn)");
+        this, "New translation", QString(), "TRN Files (*.trn *.TRN)");
 
     if (trnFilePath.isEmpty())
         return;
@@ -700,7 +700,7 @@ void MainWindow::on_actionNew_Translation_2_triggered()
 void MainWindow::on_actionOpen_Translation_2_triggered()
 {
     QString trnFilePath = QFileDialog::getOpenFileName(
-        this, "Load Palette Translation File", QString(), "TRN Files (*.trn)");
+        this, "Load Palette Translation File", QString(), "TRN Files (*.trn *.TRN)");
 
     if (trnFilePath.isEmpty())
         return;
@@ -740,7 +740,7 @@ void MainWindow::on_actionSave_Translation_2_triggered()
 void MainWindow::on_actionSave_Translation_2_as_triggered()
 {
     QString trnFilePath = QFileDialog::getSaveFileName(
-        this, "Save translation file as...", QString(), "TRN Files (*.trn)");
+        this, "Save translation file as...", QString(), "TRN Files (*.trn *.TRN)");
 
     if (!trnFilePath.isEmpty()) {
         if (!this->trn2->save(trnFilePath)) {
