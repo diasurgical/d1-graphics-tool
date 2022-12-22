@@ -20,13 +20,13 @@ jobs:
       with:
         version: '6.2.4'
 
-    - name: configure
+    - name: Configure
       run: cmake -S. -Bbuild
 
-    - name: make
+    - name: Make
       run: cmake --build build -j $(nproc)
 
-    - name: Build
+    - name: Package
       run: |
         mkdir dist
         copy build\Debug\D1GraphicsTool.exe dist
