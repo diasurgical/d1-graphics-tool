@@ -39,6 +39,7 @@ protected:
     quint16 width = 0;
     quint16 height = 0;
     QList<QList<D1CelPixel>> pixels;
+    bool clipped;
 };
 
 enum class D1CEL_TYPE {
