@@ -87,10 +87,10 @@ void ExportDialog::on_outputFolderBrowseButton_clicked()
     ui->outputFolderEdit->setText(selectedFolder);
 }
 
-void ExportDialog::exportLevelDiablo(QProgressDialog &progress)
+bool ExportDialog::exportLevelDiablo(QProgressDialog &progress)
 {
     if (this->min == nullptr || this->til == nullptr || this->amp == nullptr || this->sol == nullptr) {
-        return;
+        return true;
     }
 
     QString outputFilePathBase = ui->outputFolderEdit->text() + "/" + QFileInfo(this->til->getFilePath()).baseName();
@@ -100,13 +100,14 @@ void ExportDialog::exportLevelDiablo(QProgressDialog &progress)
     QFile ampFile(outputFilePathBase + ".amp");
     if (!ampFile.open(QIODevice::WriteOnly)) {
         QMessageBox::information(this, "Unable to open file", ampFile.errorString());
-        return;
+        return true;
     }
     QDataStream ampStream(&ampFile);
 
     for (unsigned int i = 0; i < this->til->getTileCount(); i++) {
-        if (progress.wasCanceled())
-            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+        if (progress.wasCanceled()) {
+            return false;
+        }
 
         progress.setValue(100 * i / this->til->getTileCount());
 
@@ -119,24 +120,25 @@ void ExportDialog::exportLevelDiablo(QProgressDialog &progress)
     QFile solFile(outputFilePathBase + ".sol");
     if (!solFile.open(QIODevice::WriteOnly)) {
         QMessageBox::information(this, "Unable to open file", solFile.errorString());
-        return;
+        return true;
     }
     QDataStream solStream(&solFile);
 
     for (unsigned int i = 0; i < this->sol->getSubtileCount(); i++) {
-        if (progress.wasCanceled())
-            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
+        if (progress.wasCanceled()) {
+            return false;
+        }
         progress.setValue(100 * i / this->sol->getSubtileCount());
 
         solStream << this->sol->getSubtileProperties(i);
     }
+    return true;
 }
 
-void ExportDialog::exportLevelTiles(QProgressDialog &progress)
+bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
 {
     if (this->min == nullptr || this->til == nullptr) {
-        return;
+        return true;
     }
 
     progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " level tiles...");
@@ -164,9 +166,9 @@ void ExportDialog::exportLevelTiles(QProgressDialog &progress)
     quint8 tileXIndex = 0;
     quint8 tileYIndex = 0;
     for (unsigned int i = 0; i < this->til->getTileCount(); i++) {
-        if (progress.wasCanceled())
-            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
+        if (progress.wasCanceled()) {
+            return false;
+        }
         progress.setValue(100 * i / this->til->getTileCount());
 
         // If only one file will contain all tiles
@@ -192,12 +194,13 @@ void ExportDialog::exportLevelTiles(QProgressDialog &progress)
         QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
         tempOutputImage.save(outputFilePath);
     }
+    return true;
 }
 
-void ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
+bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
 {
     if (this->min == nullptr || this->sol == nullptr) {
-        return;
+        return true;
     }
 
     progress.setLabelText("Exporting " + QFileInfo(this->min->getFilePath()).fileName() + " level sub-tiles...");
@@ -225,9 +228,9 @@ void ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
     quint8 subtileXIndex = 0;
     quint8 subtileYIndex = 0;
     for (unsigned int i = 0; i < this->sol->getSubtileCount(); i++) {
-        if (progress.wasCanceled())
-            QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
+        if (progress.wasCanceled()) {
+            return false;
+        }
         progress.setValue(100 * i / this->sol->getSubtileCount());
 
         // If only one file will contain all sub-tiles
@@ -253,20 +256,22 @@ void ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
         QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
         tempOutputImage.save(outputFilePath);
     }
+    return true;
 }
 
-void ExportDialog::exportLevel(QProgressDialog &progress)
+bool ExportDialog::exportLevel(QProgressDialog &progress)
 {
     if (ui->diabloButton->isChecked()) {
-        this->exportLevelDiablo(progress);
+        return this->exportLevelDiablo(progress);
     } else if (ui->exportLevelTiles->isChecked()) {
-        this->exportLevelTiles(progress);
+        return this->exportLevelTiles(progress);
     } else if (ui->exportLevelSubtiles->isChecked()) {
-        this->exportLevelSubtiles(progress);
+        return this->exportLevelSubtiles(progress);
     }
+    return true;
 }
 
-void ExportDialog::exportSprites(QProgressDialog &progress)
+bool ExportDialog::exportSprites(QProgressDialog &progress)
 {
     progress.setLabelText("Exporting " + QFileInfo(this->cel->getFilePath()).fileName() + " frames...");
 
@@ -277,14 +282,15 @@ void ExportDialog::exportSprites(QProgressDialog &progress)
         // one file for each frame (not indexed)
         QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
         this->cel->getFrameImage(0).save(outputFilePath);
-        return;
+        return true;
     }
     // multiple frames
     if (!ui->oneFileForAllFramesRadioButton->isChecked()) {
         // one file for each frame (indexed)
         for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
-            if (progress.wasCanceled())
-                QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+            if (progress.wasCanceled()) {
+                return false;
+            }
 
             progress.setValue(100 * i / this->cel->getFrameCount());
 
@@ -293,7 +299,7 @@ void ExportDialog::exportSprites(QProgressDialog &progress)
 
             this->cel->getFrameImage(i).save(outputFilePath);
         }
-        return;
+        return true;
     }
     // one file for all frames
     QImage tempOutputImage;
@@ -321,9 +327,9 @@ void ExportDialog::exportSprites(QProgressDialog &progress)
 
             for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
                  j <= this->cel->getGroupFrameIndices(i).second; j++) {
-                if (progress.wasCanceled())
-                    QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
+                if (progress.wasCanceled()) {
+                    return false;
+                }
                 progress.setValue(100 * j / this->cel->getFrameCount());
 
                 painter.drawImage(groupFrameIndex * this->cel->getFrameWidth(0),
@@ -333,9 +339,9 @@ void ExportDialog::exportSprites(QProgressDialog &progress)
         }
     } else {
         for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
-            if (progress.wasCanceled())
-                QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
-
+            if (progress.wasCanceled()) {
+                return false;
+            }
             progress.setValue(100 * i / this->cel->getFrameCount());
 
             if (ui->allFramesOnOneColumnRadioButton->isChecked())
@@ -349,6 +355,7 @@ void ExportDialog::exportSprites(QProgressDialog &progress)
 
     QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
     tempOutputImage.save(outputFilePath);
+    return true;
 }
 
 void ExportDialog::on_exportButton_clicked()
@@ -363,6 +370,7 @@ void ExportDialog::on_exportButton_clicked()
         return;
     }
 
+    bool result;
     try {
         // Displaying the progress dialog box
         QProgressDialog progress("Exporting...", "Cancel", 0, 100, this);
@@ -374,17 +382,20 @@ void ExportDialog::on_exportButton_clicked()
         progress.show();
 
         if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL && !ui->exportLevelFrames->isChecked()) {
-            this->exportLevel(progress);
+            result = this->exportLevel(progress);
         } else {
-            this->exportSprites(progress);
+            result = this->exportSprites(progress);
         }
     } catch (...) {
         QMessageBox::critical(this, "Error", "Export Failed.");
         return;
     }
-
-    QMessageBox::information(this, "Information", "Export successful.");
-    this->close();
+    if (result) {
+        QMessageBox::information(this, "Information", "Export successful.");
+        this->close();
+    } else {
+        QMessageBox::warning(this, "Export Canceled", "Export was canceled.");
+    }
 }
 
 void ExportDialog::on_exportCancelButton_clicked()
