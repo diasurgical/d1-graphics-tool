@@ -60,6 +60,7 @@ bool D1Cel::load(QString celFilePath)
 
             this->frameOffsets.append(qMakePair(celFrameStartOffset, celFrameEndOffset));
         }
+        this->type = D1CEL_TYPE::V1_REGULAR;
     } else {
         // Read offset of the last CEL of the CEL compilation
         fileBuffer.seek(firstDword - 4);
