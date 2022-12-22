@@ -89,7 +89,7 @@ class PaletteWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PaletteWidget(QJsonObject *configuration, QWidget *parent = nullptr, QString title = "Palette");
+    explicit PaletteWidget(QJsonObject *configuration, QWidget *parent, QString title, bool isTrn);
     ~PaletteWidget();
 
     void setPal(D1Pal *p);

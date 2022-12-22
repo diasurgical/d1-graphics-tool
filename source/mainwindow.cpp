@@ -251,9 +251,9 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->cel->setPalette(this->trn2->getResultingPalette());
 
     // Add palette widgets for PAL and TRNs
-    this->palWidget = new PaletteWidget(this->configuration, nullptr, "Palette");
-    this->trn2Widget = new PaletteWidget(this->configuration, nullptr, "Translation");
-    this->trn1Widget = new PaletteWidget(this->configuration, nullptr, "Unique translation");
+    this->palWidget = new PaletteWidget(this->configuration, nullptr, "Palette", false);
+    this->trn2Widget = new PaletteWidget(this->configuration, nullptr, "Translation", true);
+    this->trn1Widget = new PaletteWidget(this->configuration, nullptr, "Unique translation", true);
     this->ui->palFrame->layout()->addWidget(this->palWidget);
     this->ui->palFrame->layout()->addWidget(this->trn2Widget);
     this->ui->palFrame->layout()->addWidget(this->trn1Widget);

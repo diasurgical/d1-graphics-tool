@@ -120,7 +120,7 @@ void ClearTranslationsCommand::redo()
     emit this->modified();
 }
 
-PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title)
+PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title, bool isTrn)
     : QWidget(parent)
     , configuration(config)
     , ui(new Ui::PaletteWidget)
@@ -130,7 +130,7 @@ PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title
 
     ui->setupUi(this);
     ui->graphicsView->setScene(this->scene);
-
+    ui->monsterTrnPushButton->setVisible(isTrn);
     ui->groupBox->setTitle(title);
 
     // When there is a modification to the PAL or TRNs then UI must be refreshed
