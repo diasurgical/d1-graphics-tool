@@ -59,3 +59,5 @@ releases/temp/*
 /debian/usr/bin/D1GraphicsTool
 /source/D1GraphicsTool
 /source/D1GraphicsTool.config.json
+
+/build

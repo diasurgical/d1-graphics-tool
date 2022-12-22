@@ -20,13 +20,16 @@ jobs:
       with:
         version: '6.2.4'
 
+    - name: configure
+      run: cmake -S. -Bbuild
+
+    - name: make
+      run: cmake --build build -j $(nproc)
+
     - name: Build
       run: |
-        for /f "delims=" %%d in ( 'vswhere.exe -latest -property installationPath' ) do @( call "%%d\VC\Auxiliary\Build\vcvars64.bat" )
-        qmake source/D1GraphicsTool.pro
-        nmake
         mkdir dist
-        copy release\D1GraphicsTool.exe dist
+        copy build\D1GraphicsTool.exe dist
         cd dist
         windeployqt D1GraphicsTool.exe --no-compiler-runtime --no-opengl-sw --no-system-d3d-compiler --no-virtualkeyboard --no-translations --no-quick-import
       shell: cmd
