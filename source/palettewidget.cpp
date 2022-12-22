@@ -3,7 +3,6 @@
 #include <QColorDialog>
 #include <QComboBox>
 #include <QMessageBox>
-#include <QMouseEvent>
 
 #include "ui_palettewidget.h"
 
@@ -392,6 +391,15 @@ QRectF PaletteWidget::getColorCoordinates(quint8 index)
     return coordinates;
 }
 
+QPointF PaletteWidget::getMousePosition(QMouseEvent *mouseEvent)
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    return mouseEvent->position();
+#else
+    return mouseEvent->pos();
+#endif
+}
+
 quint8 PaletteWidget::getColorIndexFromCoordinates(QPointF coordinates)
 {
     quint8 index = 0;
@@ -410,11 +418,10 @@ quint8 PaletteWidget::getColorIndexFromCoordinates(QPointF coordinates)
 bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonPress) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        qDebug() << "MouseButtonPress: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
-
+        QPointF position = getMousePosition(static_cast<QMouseEvent *>(event));
+        qDebug() << "MouseButtonPress: " << position.x() << "," << position.y();
         // Check if selected color has changed
-        quint8 colorIndex = getColorIndexFromCoordinates(mouseEvent->position());
+        quint8 colorIndex = getColorIndexFromCoordinates(position);
 
         this->selectedFirstColorIndex = colorIndex;
         this->selectedLastColorIndex = colorIndex;
@@ -423,11 +430,11 @@ bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
     }
 
     if (event->type() == QEvent::MouseMove) {
-        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        if (mouseEvent->position().x() < 0 || mouseEvent->position().x() > PALETTE_WIDTH
-            || mouseEvent->position().y() < 0 || mouseEvent->position().y() > PALETTE_WIDTH)
+        QPointF position = getMousePosition(static_cast<QMouseEvent *>(event));
+        if (position.x() < 0 || position.x() > PALETTE_WIDTH
+            || position.y() < 0 || position.y() > PALETTE_WIDTH)
             return true;
-        quint8 colorIndex = getColorIndexFromCoordinates(mouseEvent->position());
+        quint8 colorIndex = getColorIndexFromCoordinates(position);
 
         if (colorIndex == this->selectedLastColorIndex)
             return true;
@@ -443,11 +450,11 @@ bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
     }
 
     if (event->type() == QEvent::MouseButtonRelease) {
-        // QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-        // qDebug() << "MouseButtonRelease: " << mouseEvent->position().x() << "," << mouseEvent->position().y();
+        // QPointF position = getMousePosition(static_cast<QMouseEvent *>(event));
+        // qDebug() << "MouseButtonRelease: " << position.x() << "," << position.y();
 
         // Check if selected color has changed
-        // quint8 colorIndex = getColorIndexFromCoordinates( mouseEvent->position() );
+        // quint8 colorIndex = getColorIndexFromCoordinates( position );
 
         // this->selectedLastColorIndex = colorIndex;
         this->selectColors();
@@ -777,7 +784,9 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
     quint8 index = ui->translationIndexLineEdit->text().toUInt();
 
     // New translations
-    QList<quint8> newTranslations(this->selectedLastColorIndex - this->selectedFirstColorIndex + 1, index);
+    QList<quint8> newTranslations;
+    newTranslations.reserve(index);
+    std::fill(newTranslations.begin(), newTranslations.end(), this->selectedLastColorIndex - this->selectedFirstColorIndex + 1);
 
     // Build translation editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
