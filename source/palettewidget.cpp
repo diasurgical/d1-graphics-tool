@@ -810,3 +810,19 @@ void PaletteWidget::on_translationClearPushButton_clicked()
 
     emit this->sendEditingCommand(command);
 }
+
+void PaletteWidget::on_monsterTrnPushButton_clicked()
+{
+    bool trnModified = false;
+
+    for (int i = 0; i < D1PAL_COLORS; i++) {
+        if (this->trn->getTranslation(i) == 0xFF) {
+            this->trn->setTranslation(i, 0);
+            trnModified = true;
+        }
+    }
+
+    if (trnModified) {
+        emit this->modified();
+    }
+}

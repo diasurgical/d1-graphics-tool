@@ -165,6 +165,7 @@ private slots:
     void on_translationIndexLineEdit_returnPressed();
     void on_translationPickPushButton_clicked();
     void on_translationClearPushButton_clicked();
+    void on_monsterTrnPushButton_clicked();
 
 private:
     QJsonObject *configuration;
