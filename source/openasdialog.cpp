@@ -92,8 +92,11 @@ void OpenAsDialog::on_openButton_clicked()
     //  clx: ?
     //  til: ? sol + min + amp + cel path ?
 
-    ((MainWindow *)this->parentWidget())->openFile(ui->inputFileEdit->text(), &params);
+    QString filePath = ui->inputFileEdit->text();
+    MainWindow *qw = (MainWindow *)this->parentWidget();
     this->close();
+
+    qw->openFile(filePath, &params);
 }
 
 void OpenAsDialog::on_openCancelButton_clicked()
