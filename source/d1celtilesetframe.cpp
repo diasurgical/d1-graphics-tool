@@ -14,6 +14,7 @@ bool D1CelTilesetFrame::load(QByteArray rawData, OpenAsParam *params)
     if (rawData.size() == 0)
         return false;
 
+    this->clipped = false;
     switch (this->frameType) {
     case D1CEL_FRAME_TYPE::Square:
         this->LoadSquare(rawData);

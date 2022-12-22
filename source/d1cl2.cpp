@@ -55,6 +55,7 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
 
     quint32 frameDataStartOffset = 0;
 
+    this->clipped = false;
     quint16 width = 0;
     if (params == nullptr || params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
         // Assume the presence of the {CEL FRAME HEADER}
@@ -65,6 +66,7 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
         frameDataStartOffset += offset;
         // If header is present, try to compute frame width from frame header
         width = this->computeWidthFromHeader(rawData);
+        this->clipped = true;
     } else {
         if (params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
             QDataStream in(rawData);
@@ -72,6 +74,7 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
             quint16 offset;
             in >> offset;
             frameDataStartOffset += offset;
+            this->clipped = true;
         }
     }
     this->width = (params == nullptr || params->width == 0) ? width : params->width;
