@@ -356,6 +356,34 @@
               </property>
              </widget>
             </item>
+            <item row="2" column="4" colspan="2">
+             <widget class="QPushButton" name="monsterTrnPushButton">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>100</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Monster TRN</string>
+              </property>
+              <property name="toolTip">
+               <string>Apply in-game TRN adjustment</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
