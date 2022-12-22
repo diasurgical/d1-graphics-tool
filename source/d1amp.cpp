@@ -1,6 +1,7 @@
 #include "d1amp.h"
 
 #include <QBuffer>
+#include <QDataStream>
 
 D1Amp::D1Amp(QString path)
 {
@@ -16,9 +17,11 @@ D1Amp::~D1Amp()
 bool D1Amp::load(QString ampFilePath, int allocate)
 {
     this->properties.clear();
-    this->properties.fill(0, allocate);
+    this->properties.reserve(allocate);
+    std::fill(this->properties.begin(), this->properties.end(), 0);
     this->types.clear();
-    this->types.fill(0, allocate);
+    this->types.reserve(allocate);
+    std::fill(this->types.begin(), this->types.end(), 0);
 
     // Opening AMP file with a QBuffer to load it in RAM
     if (!QFile::exists(ampFilePath))
@@ -42,8 +45,10 @@ bool D1Amp::load(QString ampFilePath, int allocate)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->types.fill(0, this->file.size());
-    this->properties.fill(0, this->file.size());
+    this->types.reserve(this->file.size());
+    std::fill(this->types.begin(), this->types.end(), 0);
+    this->properties.reserve(this->file.size());
+    std::fill(this->properties.begin(), this->properties.end(), 0);
     quint8 readBytr;
     for (int i = 0; i < this->file.size() / 2; i++) {
         in >> readBytr;

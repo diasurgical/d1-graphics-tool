@@ -1,6 +1,7 @@
 #include "d1sol.h"
 
 #include <QBuffer>
+#include <QDataStream>
 
 D1Sol::D1Sol(QString path)
 {
@@ -15,7 +16,8 @@ D1Sol::~D1Sol()
 
 bool D1Sol::load(QString solFilePath)
 {
-    this->subProperties.fill(0, 1);
+    this->subProperties.reserve(1);
+    std::fill(this->subProperties.begin(), this->subProperties.end(), 0);
 
     // Opening SOL file with a QBuffer to load it in RAM
     if (!QFile::exists(solFilePath))

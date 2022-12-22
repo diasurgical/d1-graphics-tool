@@ -9,8 +9,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets)
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
         source/celview.cpp
@@ -65,13 +65,20 @@ set(PROJECT_SOURCES
         source/D1GraphicsTool.rc
 )
 
-qt_add_executable(D1GraphicsTool
-	source/d1files.qrc
-	MANUAL_FINALIZATION
-	${PROJECT_SOURCES}
-)
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(D1GraphicsTool
+        source/d1files.qrc
+        MANUAL_FINALIZATION
+        ${PROJECT_SOURCES}
+    )
+else()
+    add_executable(D1GraphicsTool
+        source/d1files.qrc
+        ${PROJECT_SOURCES}
+    )
+endif()
 
-target_link_libraries(D1GraphicsTool PRIVATE Qt6::Widgets)
+target_link_libraries(D1GraphicsTool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 set_target_properties(D1GraphicsTool PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER d1-graphics-tool.savagesteel.net
@@ -85,4 +92,6 @@ install(TARGETS D1GraphicsTool
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-qt_finalize_executable(D1GraphicsTool)
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(D1GraphicsTool)
+endif()

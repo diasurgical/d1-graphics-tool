@@ -3,6 +3,7 @@
 #include <QDirIterator>
 #include <QGraphicsScene>
 #include <QJsonObject>
+#include <QMouseEvent>
 #include <QUndoCommand>
 #include <QWidget>
 
@@ -119,6 +120,7 @@ public:
 
     // Coordinates functions
     QRectF getColorCoordinates(quint8);
+    QPointF getMousePosition(QMouseEvent *mouseEvent);
     quint8 getColorIndexFromCoordinates(QPointF);
 
     // Mouse event filter
