@@ -1,11 +1,13 @@
 #!/bin/bash
 
 # Copy latest release build
-cp build-D1GraphicsTool-Desktop_Qt_6_2_4_GCC_64bit-Release/D1GraphicsTool debian/usr/bin/
+mkdir -p debian/usr/bin/
+cp build/D1GraphicsTool debian/usr/bin/
 # Strip symbols
 strip -s debian/usr/bin/D1GraphicsTool
 
 # Copy short cut icon
+mkdir -p debian/opt/d1-graphics-tool/
 cp source/icon.svg debian/opt/d1-graphics-tool/
 
 # Build .deb package

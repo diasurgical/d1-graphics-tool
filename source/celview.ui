@@ -155,7 +155,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="14">
+        <item row="3" column="14">
          <widget class="QLineEdit" name="celFrameWidthEdit">
           <property name="minimumSize">
            <size>
@@ -206,7 +206,7 @@
           </property>
          </spacer>
         </item>
-        <item row="0" column="16">
+        <item row="3" column="16">
          <widget class="QLineEdit" name="celFrameHeightEdit">
           <property name="minimumSize">
            <size>
@@ -285,14 +285,14 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="15">
+        <item row="3" column="15">
          <widget class="QLabel" name="celFrameWidthLabel">
           <property name="text">
            <string>px *</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="17">
+        <item row="3" column="17">
          <widget class="QLabel" name="celFrameHeightLabel">
           <property name="text">
            <string>px</string>
@@ -747,7 +747,7 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="10">
+        <item row="0" column="11">
          <widget class="QLineEdit" name="playDelayEdit">
           <property name="minimumSize">
            <size>
@@ -765,17 +765,17 @@
            <string>Current playback delay</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignLeft</set>
+           <set>Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
-        <item row="0" column="11">
+        <item row="0" column="12">
          <widget class="QLabel" name="playDelayLabel">
           <property name="text">
             <string>ms</string>
           </property>
           <property name="alignment">
-           <set>Qt::AlignLeft</set>
+           <set>Qt::AlignLeft|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
