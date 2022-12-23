@@ -11,7 +11,7 @@ The tool now also supports PAL/TRN/SOL/AMP editing.
 
 ![Screenshot 1](/images/demo001.gif)
 
-This tool is cross-platform, it can be compiled on Windows, Linux, or macOS (using Qt Framework 6.1.2).  
+This tool is cross-platform, it can be compiled on Windows, Linux, or macOS (using the Qt5/6 Framework).  
 Go to the [releases page](https://github.com/savagesteel/d1-graphics-tool/releases) to download the latest build.
 
 ## Features
