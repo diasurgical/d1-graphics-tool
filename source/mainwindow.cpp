@@ -251,9 +251,9 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->cel->setPalette(this->trn2->getResultingPalette());
 
     // Add palette widgets for PAL and TRNs
-    this->palWidget = new PaletteWidget(this->configuration, nullptr, "Palette", false);
-    this->trn2Widget = new PaletteWidget(this->configuration, nullptr, "Translation", true);
-    this->trn1Widget = new PaletteWidget(this->configuration, nullptr, "Unique translation", true);
+    this->palWidget = new PaletteWidget(this->configuration, nullptr, "Palette");
+    this->trn2Widget = new PaletteWidget(this->configuration, nullptr, "Translation");
+    this->trn1Widget = new PaletteWidget(this->configuration, nullptr, "Unique translation");
     this->ui->palFrame->layout()->addWidget(this->palWidget);
     this->ui->palFrame->layout()->addWidget(this->trn2Widget);
     this->ui->palFrame->layout()->addWidget(this->trn1Widget);
@@ -292,32 +292,6 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     QObject::connect(this->palWidget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack);
     QObject::connect(this->trn1Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack);
     QObject::connect(this->trn2Widget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack);
-
-    // Look for all palettes in the same folder as the CEL/CL2 file
-    QDirIterator it(celFileInfo.absolutePath(), QStringList() << "*.pal", QDir::Files);
-    QString firstPaletteFound = QString();
-    while (it.hasNext()) {
-        QString sPath = it.next();
-
-        if (sPath != "1") {
-            QFileInfo palFileInfo(sPath);
-            QString path = palFileInfo.absoluteFilePath();
-            QString name = palFileInfo.fileName();
-            this->pals[path] = new D1Pal();
-
-            if (!this->pals[path]->load(path)) {
-                delete this->pals[path];
-                this->pals.remove(path);
-                QMessageBox::critical(this, "Error", "Could not load PAL file.");
-                return;
-            }
-
-            this->palWidget->addPath(path, name);
-
-            if (firstPaletteFound.isEmpty())
-                firstPaletteFound = path;
-        }
-    }
 
     if (isTileset) {
         this->levelCelView = new LevelCelView;
@@ -371,6 +345,31 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
         this->celView->displayFrame();
     }
 
+    // Look for all palettes in the same folder as the CEL/CL2 file
+    QDirIterator it(celFileInfo.absolutePath(), QStringList() << "*.pal", QDir::Files);
+    QString firstPaletteFound = QString();
+    while (it.hasNext()) {
+        QString sPath = it.next();
+
+        if (sPath != "1") {
+            QFileInfo palFileInfo(sPath);
+            QString path = palFileInfo.absoluteFilePath();
+            QString name = palFileInfo.fileName();
+            this->pals[path] = new D1Pal();
+
+            if (!this->pals[path]->load(path)) {
+                delete this->pals[path];
+                this->pals.remove(path);
+                QMessageBox::warning(this, "Warning", "Could not load PAL file.");
+                continue;
+            }
+
+            this->palWidget->addPath(path, name);
+
+            if (firstPaletteFound.isEmpty())
+                firstPaletteFound = path;
+        }
+    }
     // Select the first palette found in the same folder as the CEL/CL2 if it exists
     if (!firstPaletteFound.isEmpty())
         this->palWidget->selectPath(firstPaletteFound);
