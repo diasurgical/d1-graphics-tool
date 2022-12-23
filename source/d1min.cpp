@@ -118,7 +118,11 @@ void D1Min::setCel(D1CelBase *c)
 
 D1CEL_FRAME_TYPE D1Min::getFrameType(quint16 id)
 {
-    return this->celFrameTypes[id];
+    if (this->celFrameTypes.find(id) == this->celFrameTypes.end()) {
+        return D1CEL_FRAME_TYPE::Unknown;
+    } else {
+        return this->celFrameTypes[id];
+    }
 }
 
 quint16 D1Min::getSubtileWidth()
