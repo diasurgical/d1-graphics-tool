@@ -38,6 +38,8 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
         }
 
         quint16 width = pixelCount / 32;
+        // The calculated width has to be the identical for each 32 pixel-line block
+        // If it's not the case, 0 is returned
         if (celFrameWidth != 0 && celFrameWidth != width)
             return 0;
 
@@ -74,6 +76,8 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
             quint16 offset;
             in >> offset;
             frameDataStartOffset += offset;
+            // If header is present, try to compute frame width from frame header
+            width = this->computeWidthFromHeader(rawData);
             this->clipped = true;
         }
     }
