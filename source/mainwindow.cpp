@@ -526,11 +526,12 @@ void MainWindow::on_actionSave_PAL_as_triggered()
     QString palFilePath = QFileDialog::getSaveFileName(
         this, "Save palette file as...", QString(), "PAL Files (*.pal *.PAL)");
 
-    if (!palFilePath.isEmpty()) {
-        if (!this->pal->save(palFilePath)) {
-            QMessageBox::critical(this, "Error", "Could not save PAL file.");
-            return;
-        }
+    if (palFilePath.isEmpty()) {
+        return;
+    }
+    if (!this->pal->save(palFilePath)) {
+        QMessageBox::critical(this, "Error", "Could not save PAL file.");
+        return;
     }
 
     QFileInfo palFileInfo(palFilePath);
@@ -637,11 +638,12 @@ void MainWindow::on_actionSave_Translation_1_as_triggered()
     QString trnFilePath = QFileDialog::getSaveFileName(
         this, "Save translation file as...", QString(), "TRN Files (*.trn *.TRN)");
 
-    if (!trnFilePath.isEmpty()) {
-        if (!this->trn1->save(trnFilePath)) {
-            QMessageBox::critical(this, "Error", "Could not save TRN file.");
-            return;
-        }
+    if (trnFilePath.isEmpty()) {
+        return;
+    }
+    if (!this->trn1->save(trnFilePath)) {
+        QMessageBox::critical(this, "Error", "Could not save TRN file.");
+        return;
     }
 
     QFileInfo trnFileInfo(trnFilePath);
@@ -748,11 +750,12 @@ void MainWindow::on_actionSave_Translation_2_as_triggered()
     QString trnFilePath = QFileDialog::getSaveFileName(
         this, "Save translation file as...", QString(), "TRN Files (*.trn *.TRN)");
 
-    if (!trnFilePath.isEmpty()) {
-        if (!this->trn2->save(trnFilePath)) {
-            QMessageBox::critical(this, "Error", "Could not save TRN file.");
-            return;
-        }
+    if (trnFilePath.isEmpty()) {
+        return;
+    }
+    if (!this->trn2->save(trnFilePath)) {
+        QMessageBox::critical(this, "Error", "Could not save TRN file.");
+        return;
     }
 
     QFileInfo trnFileInfo(trnFilePath);
