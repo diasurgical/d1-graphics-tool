@@ -53,7 +53,7 @@ void LevelCelView::initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp 
         QString::number(this->cel->getFrameCount()));
 
     ui->subtileNumberEdit->setText(
-        QString::number(this->sol->getSubtileCount()));
+        QString::number(this->min->getSubtileCount()));
 
     ui->tileNumberEdit->setText(
         QString::number(this->til->getTileCount()));
@@ -337,14 +337,14 @@ void LevelCelView::on_previousSubtileButton_clicked()
     if (this->currentSubtileIndex >= 1)
         this->currentSubtileIndex--;
     else
-        this->currentSubtileIndex = this->sol->getSubtileCount() - 1;
+        this->currentSubtileIndex = this->min->getSubtileCount() - 1;
 
     this->displayFrame();
 }
 
 void LevelCelView::on_nextSubtileButton_clicked()
 {
-    if (this->currentSubtileIndex < this->sol->getSubtileCount() - 1)
+    if (this->currentSubtileIndex < this->min->getSubtileCount() - 1)
         this->currentSubtileIndex++;
     else
         this->currentSubtileIndex = 0;
@@ -354,7 +354,7 @@ void LevelCelView::on_nextSubtileButton_clicked()
 
 void LevelCelView::on_lastSubtileButton_clicked()
 {
-    this->currentSubtileIndex = this->sol->getSubtileCount() - 1;
+    this->currentSubtileIndex = this->min->getSubtileCount() - 1;
     this->displayFrame();
 }
 
@@ -362,7 +362,7 @@ void LevelCelView::on_subtileIndexEdit_returnPressed()
 {
     quint16 subtileIndex = this->ui->subtileIndexEdit->text().toUShort() - 1;
 
-    if (subtileIndex < this->sol->getSubtileCount()) {
+    if (subtileIndex < this->min->getSubtileCount()) {
         this->currentSubtileIndex = subtileIndex;
         this->displayFrame();
     }

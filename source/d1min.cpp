@@ -38,6 +38,10 @@ bool D1Min::load(QString minFilePath, quint16 subtileCount)
     in.setByteOrder(QDataStream::LittleEndian);
 
     this->subtileHeight = this->file.size() / 2 / subtileCount / 2;
+    if ((this->file.size() / 2) % (this->subtileHeight * 2) == 0) {
+        qDebug() << "The size of sol-file does not align with min-file";
+        subtileCount = this->file.size() / 2 / this->subtileHeight / 2;
+    }
 
     // File size check
     if (this->file.size() % this->subtileHeight != 0)
@@ -123,6 +127,11 @@ D1CEL_FRAME_TYPE D1Min::getFrameType(quint16 id)
     } else {
         return this->celFrameTypes[id];
     }
+}
+
+quint16 D1Min::getSubtileCount()
+{
+    return this->celFrameIndices.count();
 }
 
 quint16 D1Min::getSubtileWidth()

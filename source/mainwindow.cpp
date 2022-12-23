@@ -233,7 +233,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
             // Loading AMP
             this->amp = new D1Amp;
             QString ampFilePath = basePath + ".amp";
-            this->amp->load(ampFilePath, this->sol->getSubtileCount());
+            this->amp->load(ampFilePath, this->min->getSubtileCount());
         } else {
             this->cel = new D1Cel;
         }

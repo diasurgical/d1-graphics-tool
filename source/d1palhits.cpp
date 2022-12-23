@@ -69,7 +69,7 @@ void D1PalHits::buildSubtilePalHits()
     quint16 frameIndex;
 
     // Go through all sub-tiles
-    for (int i = 0; i < this->sol->getSubtileCount(); i++) {
+    for (int i = 0; i < this->min->getSubtileCount(); i++) {
         QMap<quint8, quint32> subtileHits;
 
         // Retrieve the CEL frame indices of the current sub-tile
