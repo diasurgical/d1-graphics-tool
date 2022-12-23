@@ -63,6 +63,9 @@ void OpenAsDialog::on_inputFileBrowseButton_clicked()
         // "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX);;TIL Files (*.til *.TIL)");
         "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2)");
 
+    if (selectedFile.isEmpty())
+        return;
+
     ui->inputFileEdit->setText(selectedFile);
 
     this->initialize(this->configuration);

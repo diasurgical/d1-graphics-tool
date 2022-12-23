@@ -51,7 +51,7 @@ void SettingsDialog::on_workingDirectoryBrowseButton_clicked()
         this, "Select Working Directory", QString(), QFileDialog::ShowDirsOnly);
 
     // If cancel button has been clicked in the file dialog
-    if (selectedDirectory == "")
+    if (selectedDirectory.isEmpty())
         return;
 
     this->workingDirectory = selectedDirectory;

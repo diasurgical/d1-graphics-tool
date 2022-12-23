@@ -82,10 +82,13 @@ QString ExportDialog::getFileFormatExtension()
 
 void ExportDialog::on_outputFolderBrowseButton_clicked()
 {
-    QString selectedFolder = QFileDialog::getExistingDirectory(
+    QString selectedDirectory = QFileDialog::getExistingDirectory(
         this, "Select Output Folder", QString(), QFileDialog::ShowDirsOnly);
 
-    ui->outputFolderEdit->setText(selectedFolder);
+    if (selectedDirectory.isEmpty())
+        return;
+
+    ui->outputFolderEdit->setText(selectedDirectory);
 }
 
 bool ExportDialog::exportLevelDiablo(QProgressDialog &progress)
