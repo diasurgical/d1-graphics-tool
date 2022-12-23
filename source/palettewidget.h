@@ -90,7 +90,7 @@ class PaletteWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PaletteWidget(QJsonObject *configuration, QWidget *parent, QString title, bool isTrn);
+    explicit PaletteWidget(QJsonObject *configuration, QWidget *parent, QString title);
     ~PaletteWidget();
 
     void setPal(D1Pal *p);
@@ -173,8 +173,8 @@ private:
     QJsonObject *configuration;
 
     Ui::PaletteWidget *ui;
-    bool isLevelCel = false;
-    bool isTrn = false;
+    bool isLevelCel;
+    bool isTrn;
 
     CelView *celView;
     LevelCelView *levelCelView;

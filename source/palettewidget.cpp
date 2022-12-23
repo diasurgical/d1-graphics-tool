@@ -119,7 +119,7 @@ void ClearTranslationsCommand::redo()
     emit this->modified();
 }
 
-PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title, bool isTrn)
+PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title)
     : QWidget(parent)
     , configuration(config)
     , ui(new Ui::PaletteWidget)
@@ -129,7 +129,6 @@ PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title
 
     ui->setupUi(this);
     ui->graphicsView->setScene(this->scene);
-    ui->monsterTrnPushButton->setVisible(isTrn);
     ui->groupBox->setTitle(title);
 
     // When there is a modification to the PAL or TRNs then UI must be refreshed
@@ -171,8 +170,12 @@ void PaletteWidget::setTrn(D1Trn *t)
 
 void PaletteWidget::initialize(D1Pal *p, CelView *c, D1PalHits *ph)
 {
+    this->isTrn = false;
+    this->isLevelCel = false;
     this->pal = p;
+    this->trn = nullptr;
     this->celView = c;
+    this->levelCelView = nullptr;
     this->palHits = ph;
 
     this->initializeUi();
@@ -180,8 +183,11 @@ void PaletteWidget::initialize(D1Pal *p, CelView *c, D1PalHits *ph)
 
 void PaletteWidget::initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph)
 {
-    this->pal = p;
+    this->isTrn = false;
     this->isLevelCel = true;
+    this->pal = p;
+    this->trn = nullptr;
+    this->celView = nullptr;
     this->levelCelView = lc;
     this->palHits = ph;
 
@@ -191,9 +197,11 @@ void PaletteWidget::initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph)
 void PaletteWidget::initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph)
 {
     this->isTrn = true;
+    this->isLevelCel = false;
     this->pal = p;
     this->trn = t;
     this->celView = c;
+    this->levelCelView = nullptr;
     this->palHits = ph;
 
     this->initializeUi();
@@ -202,9 +210,10 @@ void PaletteWidget::initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph)
 void PaletteWidget::initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *ph)
 {
     this->isTrn = true;
+    this->isLevelCel = true;
     this->pal = p;
     this->trn = t;
-    this->isLevelCel = true;
+    this->celView = nullptr;
     this->levelCelView = lc;
     this->palHits = ph;
 
@@ -213,6 +222,7 @@ void PaletteWidget::initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *
 
 void PaletteWidget::initializeUi()
 {
+    ui->monsterTrnPushButton->setVisible(this->isTrn);
     if (this->isTrn) {
         this->ui->translationPickPushButton->setEnabled(true);
         this->ui->translationClearPushButton->setEnabled(true);
