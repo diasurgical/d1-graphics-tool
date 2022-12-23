@@ -1,11 +1,11 @@
 name: clang-format check
 
-on:
-  push:
-    branches:
-      - master
-  pull_request:
-    types: [ opened, synchronize ]
+#on:
+#  push:
+#    branches: [ "master" ]
+#  pull_request:
+#    types: [ opened, synchronize ]
+on: [push, pull_request]
 
 jobs:
   formatting-check:
