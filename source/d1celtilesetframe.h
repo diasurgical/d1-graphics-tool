@@ -9,6 +9,7 @@ enum class D1CEL_FRAME_TYPE {
     RightTriangle,
     LeftTrapezoid,
     RightTrapezoid,
+    Unknown = -1,
 };
 
 class D1CelTilesetFrame : public D1CelFrameBase {
