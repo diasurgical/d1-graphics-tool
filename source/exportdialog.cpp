@@ -128,11 +128,11 @@ bool ExportDialog::exportLevelDiablo(QProgressDialog &progress)
     }
     QDataStream solStream(&solFile);
 
-    for (unsigned int i = 0; i < this->sol->getSubtileCount(); i++) {
+    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
         if (progress.wasCanceled()) {
             return false;
         }
-        progress.setValue(100 * i / this->sol->getSubtileCount());
+        progress.setValue(100 * i / this->min->getSubtileCount());
 
         solStream << this->sol->getSubtileProperties(i);
     }
@@ -221,8 +221,8 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
     quint16 tempOutputImageHeight = 0;
     if (ui->oneFileForAllFramesRadioButton->isChecked()) {
         tempOutputImageWidth = subtileWidth * 16;
-        tempOutputImageHeight = subtileHeight * (quint32)(this->sol->getSubtileCount() / 16);
-        if (this->sol->getSubtileCount() % 16 != 0)
+        tempOutputImageHeight = subtileHeight * (quint32)(this->min->getSubtileCount() / 16);
+        if (this->min->getSubtileCount() % 16 != 0)
             tempOutputImageHeight += subtileHeight;
         tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
         tempOutputImage.fill(Qt::transparent);
@@ -231,11 +231,11 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
     QPainter painter(&tempOutputImage);
     quint8 subtileXIndex = 0;
     quint8 subtileYIndex = 0;
-    for (unsigned int i = 0; i < this->sol->getSubtileCount(); i++) {
+    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
         if (progress.wasCanceled()) {
             return false;
         }
-        progress.setValue(100 * i / this->sol->getSubtileCount());
+        progress.setValue(100 * i / this->min->getSubtileCount());
 
         // If only one file will contain all sub-tiles
         if (ui->oneFileForAllFramesRadioButton->isChecked()) {

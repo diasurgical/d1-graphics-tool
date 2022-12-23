@@ -27,6 +27,7 @@ public:
     QString getFilePath();
     D1CelBase *getCel();
     void setCel(D1CelBase *c);
+    quint16 getSubtileCount();
     quint16 getSubtileWidth();
     quint16 getSubtileHeight();
     D1CEL_FRAME_TYPE getFrameType(quint16 id);
@@ -38,7 +39,6 @@ private:
     D1CelBase *cel = nullptr;
     quint8 subtileWidth = 2;
     quint8 subtileHeight = 5;
-    quint16 subtileCount = 1;
     QList<QList<quint16>> celFrameIndices;
     std::map<unsigned, D1CEL_FRAME_TYPE> celFrameTypes;
 };
