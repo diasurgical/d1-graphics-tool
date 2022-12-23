@@ -39,6 +39,8 @@ bool D1CelFrame::load(QByteArray rawData, OpenAsParam *params)
             quint16 offset;
             in >> offset;
             frameDataStartOffset += offset;
+            // If header is present, try to compute frame width from frame header
+            width = this->computeWidthFromHeader(rawData);
             this->clipped = true;
         }
     }
@@ -96,20 +98,23 @@ quint16 D1CelFrame::computeWidthFromHeader(QByteArray &rawFrameData)
     QDataStream in(rawFrameData);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    quint16 celFrameHeader[5];
-    quint16 celFrameWidth[4] = { 0, 0, 0, 0 };
+    quint16 celFrameHeaderSize;
+    in >> celFrameHeaderSize;
 
-    // Read the {CEL FRAME HEADER}
-    for (quint16 &header : celFrameHeader)
-        in >> header;
+    if (celFrameHeaderSize & 1)
+        return 0; // invalid header
 
-    // Read the five 32 pixel-lines block to calculate the image width
-    for (int i = 0; i < 4; i++) {
-        if (celFrameHeader[i + 1] == 0)
+    // Decode the 32 pixel-lines blocks to calculate the image width
+    quint16 celFrameWidth = 0;
+    quint16 lastFrameOffset = celFrameHeaderSize;
+    for (int i = 0; i < (celFrameHeaderSize / 2) - 1; i++) {
+        quint16 nextFrameOffset;
+        in >> nextFrameOffset;
+        if (nextFrameOffset == 0)
             break;
 
         quint16 pixelCount = 0;
-        for (int j = celFrameHeader[i]; j < celFrameHeader[i + 1]; j++) {
+        for (int j = lastFrameOffset; j < nextFrameOffset; j++) {
             quint8 readByte = rawFrameData[j];
 
             if (readByte > 0x7F) {
@@ -120,17 +125,17 @@ quint16 D1CelFrame::computeWidthFromHeader(QByteArray &rawFrameData)
             }
         }
 
-        celFrameWidth[i] = pixelCount / 32;
-    }
-
-    // The calculated width has to be the identical for each 32 pixel-line block
-    // If it's not the case, 0 is returned
-    for (int i = 0; i < 3; i++) {
-        if (celFrameWidth[i + 1] != 0 && celFrameWidth[i] != celFrameWidth[i + 1])
+        quint16 width = pixelCount / 32;
+        // The calculated width has to be the identical for each 32 pixel-line block
+        // If it's not the case, 0 is returned
+        if (celFrameWidth != 0 && celFrameWidth != width)
             return 0;
+
+        celFrameWidth = width;
+        lastFrameOffset = nextFrameOffset;
     }
 
-    return celFrameWidth[0];
+    return celFrameWidth;
 }
 
 quint16 D1CelFrame::computeWidthFromData(QByteArray &rawFrameData)
