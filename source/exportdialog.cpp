@@ -311,8 +311,18 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
     quint16 tempOutputImageHeight = 0;
     // If only one file will contain all frames
     if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
-        tempOutputImageWidth = this->cel->getFrameWidth(0) * (this->cel->getGroupFrameIndices(0).second - this->cel->getGroupFrameIndices(0).first + 1);
-        tempOutputImageHeight = this->cel->getFrameHeight(0) * this->cel->getGroupCount();
+        for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+            quint16 groupImageWidth = 0;
+            quint16 groupImageHeight = 0;
+            for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
+                 j <= this->cel->getGroupFrameIndices(i).second; j++) {
+                groupImageWidth += this->cel->getFrameWidth(j);
+                groupImageHeight = std::max(this->cel->getFrameHeight(j), groupImageHeight);
+            }
+            tempOutputImageWidth = std::max(groupImageWidth, tempOutputImageWidth);
+            tempOutputImageHeight += groupImageHeight;
+        }
+
     } else if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
         for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
             tempOutputImageWidth = std::max(this->cel->getFrameWidth(i), tempOutputImageWidth);
@@ -330,9 +340,10 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
     QPainter painter(&tempOutputImage);
 
     if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
+        quint32 cursorY = 0;
         for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
-            quint8 groupFrameIndex = 0;
-
+            quint32 cursorX = 0;
+            quint16 groupImageHeight = 0;
             for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
                  j <= this->cel->getGroupFrameIndices(i).second; j++) {
                 if (progress.wasCanceled()) {
@@ -340,10 +351,11 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
                 }
                 progress.setValue(100 * j / this->cel->getFrameCount());
 
-                painter.drawImage(groupFrameIndex * this->cel->getFrameWidth(0),
-                    i * this->cel->getFrameHeight(0), this->cel->getFrameImage(j));
-                groupFrameIndex++;
+                painter.drawImage(cursorX, cursorY, this->cel->getFrameImage(j));
+                cursorX += this->cel->getFrameWidth(j);
+                groupImageHeight = std::max(this->cel->getFrameHeight(j), groupImageHeight);
             }
+            cursorY += groupImageHeight;
         }
     } else {
         quint32 cursor = 0;
