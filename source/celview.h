@@ -64,7 +64,7 @@ private slots:
     void on_zoomInButton_clicked();
     void on_zoomEdit_returnPressed();
 
-    void on_playDelayEdit_returnPressed();
+    void on_playDelayEdit_textChanged(const QString &text);
     void on_playButton_clicked();
     void on_stopButton_clicked();
     void playGroup();

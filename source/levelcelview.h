@@ -2,6 +2,7 @@
 
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QTimer>
 #include <QWidget>
 
 #include "d1amp.h"
@@ -93,6 +94,11 @@ private slots:
     void on_sol5_clicked();
     void on_sol7_clicked();
 
+    void on_playDelayEdit_textChanged(const QString &text);
+    void on_playButton_clicked();
+    void on_stopButton_clicked();
+    void playGroup();
+
 private:
     void updateAmpProperty();
     void updateSolProperty();
@@ -109,4 +115,7 @@ private:
     quint16 currentSubtileIndex = 0;
     quint16 currentTileIndex = 0;
     quint8 currentZoomFactor = 1;
+    quint16 currentPlayDelay = 50;
+
+    QTimer playTimer;
 };

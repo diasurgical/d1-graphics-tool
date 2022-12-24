@@ -155,3 +155,67 @@ void D1Pal::setColor(quint8 index, QColor color)
     this->colors[index] = color;
     this->modified = true;
 }
+
+void D1Pal::cycleColors(D1PAL_CYCLE_TYPE type)
+{
+    QColor celColor;
+    int i;
+
+    switch (type) {
+    case D1PAL_CYCLE_TYPE::CAVES:
+        // celColor = this->getColor(1);
+        celColor = this->colors[1];
+        for (i = 1; i < 31; i++) {
+            // this->setColor(i, this->getColor(i + 1));
+            this->colors[i] = this->colors[i + 1];
+        }
+        // this->setColor(i, celColor);
+        this->colors[i] = celColor;
+        break;
+    case D1PAL_CYCLE_TYPE::NEST:
+        if (--this->currentCycleCounter != 0)
+            break;
+        this->currentCycleCounter = 3;
+        // celColor = this->getColor(8);
+        celColor = this->colors[8];
+        for (i = 8; i > 1; i--) {
+            // this->setColor(i, this->getColor(i - 1));
+            this->colors[i] = this->colors[i - 1];
+        }
+        // this->setColor(i, celColor);
+        this->colors[i] = celColor;
+
+        // celColor = this->getColor(15);
+        celColor = this->colors[15];
+        for (i = 15; i > 9; i--) {
+            // this->setColor(i, this->getColor(i - 1));
+            this->colors[i] = this->colors[i - 1];
+        }
+        // this->setColor(i, celColor);
+        this->colors[i] = celColor;
+        break;
+    case D1PAL_CYCLE_TYPE::CRYPT:
+        if (--this->currentCycleCounter == 0) {
+            this->currentCycleCounter = 3;
+
+            // celColor = this->getColor(15);
+            celColor = this->colors[15];
+            for (i = 15; i > 1; i--) {
+                // this->setColor(i, this->getColor(i - 1));
+                this->colors[i] = this->colors[i - 1];
+            }
+            // this->setColor(i, celColor);
+            this->colors[i] = celColor;
+        }
+
+        // celColor = this->getColor(31);
+        celColor = this->colors[31];
+        for (i = 31; i > 16; i--) {
+            // this->setColor(i, this->getColor(i - 1));
+            this->colors[i] = this->colors[i - 1];
+        }
+        // this->setColor(i, celColor);
+        this->colors[i] = celColor;
+        break;
+    }
+}

@@ -779,6 +779,30 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="13" colspan="3">
+         <widget class="QComboBox" name="playComboBox">
+          <item>
+           <property name="text">
+            <string>Normal</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Caves</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Nest</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Crypt</string>
+           </property>
+          </item>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>

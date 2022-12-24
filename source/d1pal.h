@@ -14,6 +14,12 @@ enum class D1PAL_TYPE {
     JASC
 };
 
+enum class D1PAL_CYCLE_TYPE {
+    CAVES,
+    NEST,
+    CRYPT
+};
+
 class D1Pal : public QObject {
     Q_OBJECT
 
@@ -36,9 +42,12 @@ public:
     QColor getColor(quint8);
     void setColor(quint8, QColor);
 
+    void cycleColors(D1PAL_CYCLE_TYPE type);
+
 private:
     D1PAL_TYPE type = D1PAL_TYPE::REGULAR;
     bool modified = false;
     QFile file;
     QColor *colors = new QColor[D1PAL_COLORS];
+    quint8 currentCycleCounter = 3;
 };
