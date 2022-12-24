@@ -11,8 +11,11 @@ class D1Trn : public QObject {
     Q_OBJECT
 
 public:
+    static constexpr const char *IDENTITY_PATH = ":/null.trn";
+    static constexpr const char *IDENTITY_NAME = "_null.trn";
+
     D1Trn() = default;
-    D1Trn(QString, D1Pal *);
+    D1Trn(D1Pal *pal);
     ~D1Trn();
 
     bool load(QString);

@@ -1,9 +1,8 @@
 #include "d1trn.h"
 
-D1Trn::D1Trn(QString path, D1Pal *pal)
+D1Trn::D1Trn(D1Pal *pal)
     : palette(QPointer<D1Pal>(pal))
 {
-    this->load(path);
 }
 
 D1Trn::~D1Trn()
