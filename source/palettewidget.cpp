@@ -795,8 +795,8 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
 
     // New translations
     QList<quint8> newTranslations;
-    newTranslations.reserve(index);
-    std::fill(newTranslations.begin(), newTranslations.end(), this->selectedLastColorIndex - this->selectedFirstColorIndex + 1);
+    for (int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++)
+        newTranslations.append(index);
 
     // Build translation editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
