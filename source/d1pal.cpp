@@ -2,11 +2,6 @@
 
 #include <QTextStream>
 
-D1Pal::D1Pal(QString path)
-{
-    this->load(path);
-}
-
 D1Pal::~D1Pal()
 {
     delete[] colors;

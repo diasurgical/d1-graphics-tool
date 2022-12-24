@@ -18,8 +18,10 @@ class D1Pal : public QObject {
     Q_OBJECT
 
 public:
+    static constexpr const char *DEFAULT_PATH = ":/default.pal";
+    static constexpr const char *DEFAULT_NAME = "_default.pal";
+
     D1Pal() = default;
-    D1Pal(QString);
     ~D1Pal();
 
     bool load(QString);

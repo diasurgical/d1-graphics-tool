@@ -90,14 +90,14 @@ private:
     QPointer<SettingsDialog> settingsDialog = new SettingsDialog(this);
     QPointer<ExportDialog> exportDialog = new ExportDialog(this);
 
-    QPointer<D1Pal> pal = new D1Pal;
-    QPointer<D1Trn> trn1 = new D1Trn;
-    QPointer<D1Trn> trn2 = new D1Trn;
-    QPointer<D1CelBase> cel = new D1Cel;
-    QPointer<D1Min> min = new D1Min;
-    QPointer<D1Til> til = new D1Til;
-    QPointer<D1Sol> sol = new D1Sol;
-    QPointer<D1Amp> amp = new D1Amp;
+    QPointer<D1Pal> pal;
+    QPointer<D1Trn> trn1;
+    QPointer<D1Trn> trn2;
+    QPointer<D1CelBase> cel;
+    QPointer<D1Min> min;
+    QPointer<D1Til> til;
+    QPointer<D1Sol> sol;
+    QPointer<D1Amp> amp;
 
     QMap<QString, D1Pal *> pals;  // key: path, value: pointer to palette
     QMap<QString, D1Trn *> trn1s; // key: path, value: pointer to translation
