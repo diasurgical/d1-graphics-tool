@@ -275,18 +275,18 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     QObject::connect(this->trn1Widget, &PaletteWidget::refreshed, this->trn2Widget, &PaletteWidget::refresh);
 
     // Translation color selection
-    QObject::connect(this->palWidget, &PaletteWidget::colorsSelected, this->trn1Widget, &PaletteWidget::checkTranslationsSelection);
-    QObject::connect(this->trn1Widget, &PaletteWidget::colorsSelected, this->trn2Widget, &PaletteWidget::checkTranslationsSelection);
-    QObject::connect(this->trn1Widget, &PaletteWidget::displayAllRootColors, this->palWidget, &PaletteWidget::temporarilyDisplayAllColors);
-    QObject::connect(this->trn2Widget, &PaletteWidget::displayAllRootColors, this->trn1Widget, &PaletteWidget::temporarilyDisplayAllColors);
-    QObject::connect(this->trn1Widget, &PaletteWidget::displayRootInformation, this->palWidget, &PaletteWidget::displayInfo);
-    QObject::connect(this->trn2Widget, &PaletteWidget::displayRootInformation, this->trn1Widget, &PaletteWidget::displayInfo);
-    QObject::connect(this->trn1Widget, &PaletteWidget::displayRootBorder, this->palWidget, &PaletteWidget::displayBorder);
-    QObject::connect(this->trn2Widget, &PaletteWidget::displayRootBorder, this->trn1Widget, &PaletteWidget::displayBorder);
-    QObject::connect(this->trn1Widget, &PaletteWidget::clearRootInformation, this->palWidget, &PaletteWidget::clearInfo);
-    QObject::connect(this->trn2Widget, &PaletteWidget::clearRootInformation, this->trn1Widget, &PaletteWidget::clearInfo);
-    QObject::connect(this->trn1Widget, &PaletteWidget::clearRootBorder, this->palWidget, &PaletteWidget::clearBorder);
-    QObject::connect(this->trn2Widget, &PaletteWidget::clearRootBorder, this->trn1Widget, &PaletteWidget::clearBorder);
+    QObject::connect(this->palWidget, &PaletteWidget::colorsSelected, this->trn2Widget, &PaletteWidget::checkTranslationsSelection);
+    QObject::connect(this->trn2Widget, &PaletteWidget::colorsSelected, this->trn1Widget, &PaletteWidget::checkTranslationsSelection);
+    QObject::connect(this->trn2Widget, &PaletteWidget::displayAllRootColors, this->palWidget, &PaletteWidget::temporarilyDisplayAllColors);
+    QObject::connect(this->trn1Widget, &PaletteWidget::displayAllRootColors, this->trn2Widget, &PaletteWidget::temporarilyDisplayAllColors);
+    QObject::connect(this->trn2Widget, &PaletteWidget::displayRootInformation, this->palWidget, &PaletteWidget::displayInfo);
+    QObject::connect(this->trn1Widget, &PaletteWidget::displayRootInformation, this->trn2Widget, &PaletteWidget::displayInfo);
+    QObject::connect(this->trn2Widget, &PaletteWidget::displayRootBorder, this->palWidget, &PaletteWidget::displayBorder);
+    QObject::connect(this->trn1Widget, &PaletteWidget::displayRootBorder, this->trn2Widget, &PaletteWidget::displayBorder);
+    QObject::connect(this->trn2Widget, &PaletteWidget::clearRootInformation, this->palWidget, &PaletteWidget::clearInfo);
+    QObject::connect(this->trn1Widget, &PaletteWidget::clearRootInformation, this->trn2Widget, &PaletteWidget::clearInfo);
+    QObject::connect(this->trn2Widget, &PaletteWidget::clearRootBorder, this->palWidget, &PaletteWidget::clearBorder);
+    QObject::connect(this->trn1Widget, &PaletteWidget::clearRootBorder, this->trn2Widget, &PaletteWidget::clearBorder);
 
     // Send editing actions to the undo/redo stack
     QObject::connect(this->palWidget, &PaletteWidget::sendEditingCommand, this, &MainWindow::pushCommandToUndoStack);
