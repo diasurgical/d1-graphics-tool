@@ -16,8 +16,7 @@ D1Sol::~D1Sol()
 
 bool D1Sol::load(QString solFilePath)
 {
-    this->subProperties.reserve(1);
-    std::fill(this->subProperties.begin(), this->subProperties.end(), 0);
+    this->subProperties.clear();
 
     // Opening SOL file with a QBuffer to load it in RAM
     if (!QFile::exists(solFilePath))
@@ -44,7 +43,6 @@ bool D1Sol::load(QString solFilePath)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->subProperties.clear();
     quint8 readBytr;
     for (int i = 0; i < this->file.size(); i++) {
         in >> readBytr;

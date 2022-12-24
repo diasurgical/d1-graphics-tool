@@ -23,4 +23,6 @@ private:
     QFile file;
     QList<quint8> types;
     QList<quint8> properties;
+
+    bool clear(int allocate);
 };

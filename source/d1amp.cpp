@@ -14,18 +14,23 @@ D1Amp::~D1Amp()
         this->file.close();
 }
 
+bool D1Amp::clear(int allocate)
+{
+    for (int i = 0; i < allocate; i++) {
+        this->types.append(0);
+        this->properties.append(0);
+    }
+    return false;
+}
+
 bool D1Amp::load(QString ampFilePath, int allocate)
 {
     this->properties.clear();
-    this->properties.reserve(allocate);
-    std::fill(this->properties.begin(), this->properties.end(), 0);
     this->types.clear();
-    this->types.reserve(allocate);
-    std::fill(this->types.begin(), this->types.end(), 0);
 
     // Opening AMP file with a QBuffer to load it in RAM
     if (!QFile::exists(ampFilePath))
-        return false;
+        return this->clear(allocate);
 
     if (this->file.isOpen())
         this->file.close();
@@ -33,28 +38,29 @@ bool D1Amp::load(QString ampFilePath, int allocate)
     this->file.setFileName(ampFilePath);
 
     if (!this->file.open(QIODevice::ReadOnly))
-        return false;
+        return this->clear(allocate);
 
     QByteArray fileData = this->file.readAll();
     QBuffer fileBuffer(&fileData);
 
     if (!fileBuffer.open(QIODevice::ReadOnly))
-        return false;
+        return this->clear(allocate);
 
     // Read AMP binary data
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->types.reserve(this->file.size());
-    std::fill(this->types.begin(), this->types.end(), 0);
-    this->properties.reserve(this->file.size());
-    std::fill(this->properties.begin(), this->properties.end(), 0);
     quint8 readBytr;
     for (int i = 0; i < this->file.size() / 2; i++) {
         in >> readBytr;
-        this->types[i] = readBytr;
+        this->types.append(readBytr);
         in >> readBytr;
-        this->properties[i] = readBytr;
+        this->properties.append(readBytr);
+    }
+
+    while (this->types.size() < allocate) {
+        this->types.append(0);
+        this->properties.append(0);
     }
 
     return true;
