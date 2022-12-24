@@ -3,6 +3,7 @@
 #include <QFileInfo>
 #include <QGraphicsPixmapItem>
 
+#include "mainwindow.h"
 #include "ui_levelcelview.h"
 
 void LevelCelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -22,6 +23,9 @@ LevelCelView::LevelCelView(QWidget *parent)
     ui->setupUi(this);
     ui->celGraphicsView->setScene(this->celScene);
     ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
+    ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
+    ui->stopButton->setEnabled(false);
+    this->playTimer.connect(&this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()));
 
     // If a pixel of the frame, subtile or tile was clicked get pixel color index and notify the palette widgets
     QObject::connect(this->celScene, &LevelCelScene::framePixelClicked, this, &LevelCelView::framePixelClicked);
@@ -282,6 +286,25 @@ void LevelCelView::displayFrame()
 
     // Notify PalView that the frame changed (used to refresh palette hits)
     emit frameRefreshed();
+}
+
+void LevelCelView::playGroup()
+{
+    MainWindow *mw = (MainWindow *)this->window();
+
+    switch (this->ui->playComboBox->currentIndex()) {
+    case 0: // caves
+        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::CAVES);
+        break;
+    case 1: // nest
+        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::NEST);
+        break;
+    case 2: // crypt
+        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::CRYPT);
+        break;
+    }
+
+    // this->displayFrame();
 }
 
 void LevelCelView::on_firstFrameButton_clicked()
@@ -564,4 +587,40 @@ void LevelCelView::on_sol5_clicked()
 void LevelCelView::on_sol7_clicked()
 {
     this->updateSolProperty();
+}
+
+void LevelCelView::on_playDelayEdit_textChanged(const QString &text)
+{
+    quint16 playDelay = text.toUInt();
+
+    if (playDelay != 0)
+        this->currentPlayDelay = playDelay;
+}
+
+void LevelCelView::on_playButton_clicked()
+{
+    // disable the related fields
+    this->ui->playButton->setEnabled(false);
+    this->ui->playDelayEdit->setEnabled(false);
+    this->ui->playComboBox->setEnabled(false);
+    // enable the stop button
+    this->ui->stopButton->setEnabled(true);
+    // preserve the palette
+    ((MainWindow *)this->window())->initPaletteCycle();
+
+    this->playTimer.start(this->currentPlayDelay);
+}
+
+void LevelCelView::on_stopButton_clicked()
+{
+    this->playTimer.stop();
+
+    // restore palette
+    ((MainWindow *)this->window())->resetPaletteCycle();
+    // disable the stop button
+    this->ui->stopButton->setEnabled(false);
+    // enable the related fields
+    this->ui->playButton->setEnabled(true);
+    this->ui->playDelayEdit->setEnabled(true);
+    this->ui->playComboBox->setEnabled(true);
 }

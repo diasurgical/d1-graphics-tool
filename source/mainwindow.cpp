@@ -454,6 +454,26 @@ void MainWindow::paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_
     }
 }
 
+void MainWindow::initPaletteCycle()
+{
+    for (int i = 0; i < 32; i++)
+        this->origCyclePalette[i] = this->pal->getColor(i);
+}
+
+void MainWindow::resetPaletteCycle()
+{
+    for (int i = 0; i < 32; i++)
+        this->pal->setColor(i, this->origCyclePalette[i]);
+
+    this->palWidget->modify();
+}
+
+void MainWindow::nextPaletteCycle(D1PAL_CYCLE_TYPE type)
+{
+    this->pal->cycleColors(type);
+    this->palWidget->modify();
+}
+
 void MainWindow::on_actionOpenAs_triggered()
 {
     this->openAsDialog->initialize(this->configuration);

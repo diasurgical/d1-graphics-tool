@@ -41,6 +41,10 @@ public:
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
 
+    void initPaletteCycle();
+    void nextPaletteCycle(D1PAL_CYCLE_TYPE type);
+    void resetPaletteCycle();
+
 private slots:
     void on_actionOpen_triggered();
     void on_actionOpenAs_triggered();
@@ -107,4 +111,6 @@ private:
 
     // Palette hits are instantiated in main window to make them available to the three PaletteWidgets
     QPointer<D1PalHits> palHits;
+    // buffer to store the original colors in case of color cycling
+    QColor origCyclePalette[32];
 };

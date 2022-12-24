@@ -1,5 +1,6 @@
 #include "celview.h"
 
+#include "mainwindow.h"
 #include "ui_celview.h"
 
 void CelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -21,6 +22,7 @@ CelView::CelView(QWidget *parent)
     ui->celGraphicsView->setScene(this->celScene);
     ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
     ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
+    ui->stopButton->setEnabled(false);
     this->playTimer.connect(&this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()));
 
     // If a pixel of the frame was clicked get pixel color index and notify the palette widgets
@@ -46,11 +48,6 @@ void CelView::initialize(D1CelBase *c)
     {
     }
     */
-
-    if (this->cel->getFrameCount() == 1) {
-        ui->stopButton->setDisabled(true);
-        ui->playButton->setDisabled(true);
-    }
 
     ui->groupNumberEdit->setText(
         QString::number(this->cel->getGroupCount()));
@@ -178,7 +175,23 @@ void CelView::playGroup()
             this->currentFrameIndex = groupFrameIndices.first;
     }
 
-    this->displayFrame();
+    MainWindow *mw = (MainWindow *)this->window();
+    switch (this->ui->playComboBox->currentIndex()) {
+    case 0: // normal
+        this->displayFrame();
+        break;
+    case 1:
+        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::CAVES);
+        break;
+    case 2:
+        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::NEST);
+        break;
+    case 3:
+        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::CRYPT);
+        break;
+    }
+
+    // this->displayFrame();
 }
 
 void CelView::on_firstFrameButton_clicked()
@@ -316,23 +329,38 @@ void CelView::on_zoomEdit_returnPressed()
     ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
 }
 
-void CelView::on_playDelayEdit_returnPressed()
+void CelView::on_playDelayEdit_textChanged(const QString &text)
 {
-    quint16 playDelay = this->ui->playDelayEdit->text().toUInt();
+    quint16 playDelay = text.toUInt();
 
-    this->currentPlayDelay = playDelay;
-    if (this->playTimer.isActive()) {
-        this->playTimer.stop();
-        this->playTimer.start(this->currentPlayDelay);
-    }
+    if (playDelay != 0)
+        this->currentPlayDelay = playDelay;
 }
 
 void CelView::on_playButton_clicked()
 {
+    // disable the related fields
+    this->ui->playButton->setEnabled(false);
+    this->ui->playDelayEdit->setEnabled(false);
+    this->ui->playComboBox->setEnabled(false);
+    // enable the stop button
+    this->ui->stopButton->setEnabled(true);
+    // preserve the palette
+    ((MainWindow *)this->window())->initPaletteCycle();
+
     this->playTimer.start(this->currentPlayDelay);
 }
 
 void CelView::on_stopButton_clicked()
 {
     this->playTimer.stop();
+
+    // restore palette
+    ((MainWindow *)this->window())->resetPaletteCycle();
+    // disable the stop button
+    this->ui->stopButton->setEnabled(false);
+    // enable the related fields
+    this->ui->playButton->setEnabled(true);
+    this->ui->playDelayEdit->setEnabled(true);
+    this->ui->playComboBox->setEnabled(true);
 }
