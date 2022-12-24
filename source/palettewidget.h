@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include <QJsonObject>
 #include <QMouseEvent>
+#include <QStyle>
 #include <QUndoCommand>
 #include <QWidget>
 
@@ -17,6 +18,14 @@
 #define PALETTE_COLORS_PER_LINE 16
 #define PALETTE_COLOR_SPACING 1
 #define PALETTE_SELECTION_WIDTH 2
+
+enum class PWIDGET_CALLBACK_TYPE {
+    PWIDGET_CALLBACK_NEW,
+    PWIDGET_CALLBACK_OPEN,
+    PWIDGET_CALLBACK_SAVE,
+    PWIDGET_CALLBACK_SAVEAS,
+    PWIDGET_CALLBACK_CLOSE,
+};
 
 namespace Ui {
 class PaletteWidget;
@@ -158,7 +167,17 @@ signals:
     void modified();
     void refreshed();
 
+private:
+    QPushButton *addButton(QStyle::StandardPixmap type, QString tooltip, void (PaletteWidget::*callback)(void));
+
 private slots:
+    // Due to a bug in Qt these functions can not follow the naming conventions
+    // if they follow, the application is going to vomit warnings in the background (maybe only in debug mode)
+    void on_newPushButtonClicked();
+    void on_openPushButtonClicked();
+    void on_savePushButtonClicked();
+    void on_saveAsPushButtonClicked();
+    void on_closePushButtonClicked();
     void pathComboBox_currentTextChanged(const QString &arg1);
     void displayComboBox_currentTextChanged(const QString &arg1);
     void on_colorLineEdit_returnPressed();

@@ -39,6 +39,8 @@ public:
 
     void openFile(QString openFilePath, OpenAsParam *params = nullptr);
 
+    void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
+
 private slots:
     void on_actionOpen_triggered();
     void on_actionOpenAs_triggered();
