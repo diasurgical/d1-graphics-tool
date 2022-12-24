@@ -395,6 +395,65 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->ui->statusBar->clearMessage();
 }
 
+void MainWindow::paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type)
+{
+    if (widget == this->palWidget) {
+        switch (type) {
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_NEW:
+            this->on_actionNew_PAL_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_OPEN:
+            this->on_actionOpen_PAL_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVE:
+            this->on_actionSave_PAL_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVEAS:
+            this->on_actionSave_PAL_as_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_CLOSE:
+            this->on_actionClose_PAL_triggered();
+            break;
+        }
+    } else if (widget == this->trn1Widget) {
+        switch (type) {
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_NEW:
+            this->on_actionNew_Translation_1_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_OPEN:
+            this->on_actionOpen_Translation_1_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVE:
+            this->on_actionSave_Translation_1_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVEAS:
+            this->on_actionSave_Translation_1_as_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_CLOSE:
+            this->on_actionClose_Translation_1_triggered();
+            break;
+        }
+    } else if (widget == this->trn2Widget) {
+        switch (type) {
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_NEW:
+            this->on_actionNew_Translation_2_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_OPEN:
+            this->on_actionOpen_Translation_2_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVE:
+            this->on_actionSave_Translation_2_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVEAS:
+            this->on_actionSave_Translation_2_as_triggered();
+            break;
+        case PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_CLOSE:
+            this->on_actionClose_Translation_2_triggered();
+            break;
+        }
+    }
+}
+
 void MainWindow::on_actionOpenAs_triggered()
 {
     this->openAsDialog->initialize(this->configuration);

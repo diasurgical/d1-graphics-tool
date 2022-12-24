@@ -4,6 +4,7 @@
 #include <QComboBox>
 #include <QMessageBox>
 
+#include "mainwindow.h"
 #include "ui_palettewidget.h"
 
 EditColorsCommand::EditColorsCommand(D1Pal *p, quint8 sci, quint8 eci, QColor nc, QUndoCommand *parent)
@@ -119,6 +120,20 @@ void ClearTranslationsCommand::redo()
     emit this->modified();
 }
 
+QPushButton *PaletteWidget::addButton(QStyle::StandardPixmap type, QString tooltip, void (PaletteWidget::*callback)(void))
+{
+    QPushButton *button = new QPushButton(this->style()->standardIcon(type), tr(""), nullptr);
+    constexpr int iconSize = 16;
+    button->setToolTip(tooltip);
+    button->setIconSize(QSize(iconSize, iconSize));
+    button->setMinimumSize(iconSize, iconSize);
+    button->setMaximumSize(iconSize, iconSize);
+    ((QBoxLayout *)ui->groupHeader->layout())->addWidget(button, Qt::AlignLeft);
+
+    QObject::connect(button, &QPushButton::clicked, this, callback);
+    return button;
+}
+
 PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title)
     : QWidget(parent)
     , configuration(config)
@@ -129,7 +144,13 @@ PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title
 
     ui->setupUi(this);
     ui->graphicsView->setScene(this->scene);
-    ui->groupBox->setTitle(title);
+    ui->groupLabel->setText(title);
+
+    this->addButton(QStyle::SP_FileDialogNewFolder, "New", &PaletteWidget::on_newPushButtonClicked); // use SP_FileIcon ?
+    this->addButton(QStyle::SP_DialogOpenButton, "Open", &PaletteWidget::on_openPushButtonClicked);
+    this->addButton(QStyle::SP_DialogSaveButton, "Save", &PaletteWidget::on_savePushButtonClicked);
+    this->addButton(QStyle::SP_DialogSaveButton, "Save As", &PaletteWidget::on_saveAsPushButtonClicked);
+    this->addButton(QStyle::SP_DialogCloseButton, "Close", &PaletteWidget::on_closePushButtonClicked); // use SP_DialogDiscardButton ?
 
     // When there is a modification to the PAL or TRNs then UI must be refreshed
     QObject::connect(this, &PaletteWidget::modified, this, &PaletteWidget::refresh);
@@ -714,6 +735,31 @@ void PaletteWidget::refresh()
         this->refreshTranslationIndexLineEdit();
 
     emit refreshed();
+}
+
+void PaletteWidget::on_newPushButtonClicked()
+{
+    ((MainWindow *)this->window())->paletteWidget_callback(this, PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_NEW);
+}
+
+void PaletteWidget::on_openPushButtonClicked()
+{
+    ((MainWindow *)this->window())->paletteWidget_callback(this, PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_OPEN);
+}
+
+void PaletteWidget::on_savePushButtonClicked()
+{
+    ((MainWindow *)this->window())->paletteWidget_callback(this, PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVE);
+}
+
+void PaletteWidget::on_saveAsPushButtonClicked()
+{
+    ((MainWindow *)this->window())->paletteWidget_callback(this, PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVEAS);
+}
+
+void PaletteWidget::on_closePushButtonClicked()
+{
+    ((MainWindow *)this->window())->paletteWidget_callback(this, PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_CLOSE);
 }
 
 void PaletteWidget::pathComboBox_currentTextChanged(const QString &arg1)
