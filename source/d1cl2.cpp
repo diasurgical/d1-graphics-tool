@@ -293,5 +293,5 @@ bool D1Cl2::load(QString cl2FilePath, OpenAsParam *params)
 
 D1Cl2Frame *D1Cl2::createFrame()
 {
-    return new D1Cl2Frame;
+    return new D1Cl2Frame();
 }

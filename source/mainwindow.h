@@ -79,7 +79,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QJsonObject *configuration = new QJsonObject;
+    QJsonObject *configuration = new QJsonObject();
 
     QUndoStack *undoStack;
     QAction *undoAction;

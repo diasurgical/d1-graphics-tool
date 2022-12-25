@@ -133,7 +133,7 @@ bool D1Cel::load(QString celFilePath, OpenAsParam *params)
         fileBuffer.seek(offset.first);
         QByteArray celFrameRawData = fileBuffer.read(offset.second - offset.first);
 
-        std::unique_ptr<D1CelFrameBase> frame { new D1CelFrame };
+        std::unique_ptr<D1CelFrameBase> frame { new D1CelFrame() };
         frame->load(celFrameRawData, params);
         this->frames.append(frame.release());
     }
