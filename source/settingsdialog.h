@@ -16,13 +16,15 @@ public:
 
     void initialize(QJsonObject *);
 
+    static void storeConfiguration(QJsonObject *cfg);
+
+private:
     void saveConfiguration();
 
 signals:
     void configurationSaved();
 
 private slots:
-    void on_workingDirectoryBrowseButton_clicked();
     void on_defaultPaletteColorPushButton_clicked();
     void on_paletteSelectionBorderColorPushButton_clicked();
     void on_settingsOkButton_clicked();
@@ -31,7 +33,4 @@ private slots:
 private:
     Ui::SettingsDialog *ui;
     QJsonObject *configuration;
-
-    bool configurationChanged = false;
-    QString workingDirectory;
 };

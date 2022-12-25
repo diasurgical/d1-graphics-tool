@@ -22,9 +22,6 @@ void SettingsDialog::initialize(QJsonObject *cfg)
 {
     this->configuration = cfg;
 
-    this->workingDirectory = this->configuration->value("WorkingDirectory").toString();
-    this->ui->workingDirectoryEdit->setText(this->workingDirectory);
-
     QColor palDefaultColor = QColor(this->configuration->value("PaletteDefaultColor").toString());
     this->ui->defaultPaletteColorLineEdit->setText(palDefaultColor.name());
 
@@ -32,32 +29,22 @@ void SettingsDialog::initialize(QJsonObject *cfg)
     this->ui->paletteSelectionBorderColorLineEdit->setText(palSelectionBorderColor.name());
 }
 
-void SettingsDialog::saveConfiguration()
+void SettingsDialog::storeConfiguration(QJsonObject *cfg)
 {
     QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
 
     QFile saveJson(jsonFilePath);
     saveJson.open(QIODevice::WriteOnly);
-    QJsonDocument saveDoc(*this->configuration);
+    QJsonDocument saveDoc(*cfg);
     saveJson.write(saveDoc.toJson());
     saveJson.close();
-
-    emit this->configurationSaved();
 }
 
-void SettingsDialog::on_workingDirectoryBrowseButton_clicked()
+void SettingsDialog::saveConfiguration()
 {
-    QString selectedDirectory = QFileDialog::getExistingDirectory(
-        this, "Select Working Directory", QString(), QFileDialog::ShowDirsOnly);
+    SettingsDialog::storeConfiguration(this->configuration);
 
-    // If cancel button has been clicked in the file dialog
-    if (selectedDirectory.isEmpty())
-        return;
-
-    this->workingDirectory = selectedDirectory;
-    this->configurationChanged = true;
-
-    this->ui->workingDirectoryEdit->setText(this->workingDirectory);
+    emit this->configurationSaved();
 }
 
 void SettingsDialog::on_defaultPaletteColorPushButton_clicked()
@@ -74,9 +61,6 @@ void SettingsDialog::on_paletteSelectionBorderColorPushButton_clicked()
 
 void SettingsDialog::on_settingsOkButton_clicked()
 {
-    // WorkingDirectory
-    this->configuration->insert("WorkingDirectory", this->workingDirectory);
-
     // PaletteDefaultColor
     QColor palDefaultColor = QColor(ui->defaultPaletteColorLineEdit->text());
     this->configuration->insert("PaletteDefaultColor", palDefaultColor.name());
@@ -86,7 +70,6 @@ void SettingsDialog::on_settingsOkButton_clicked()
     this->configuration->insert("PaletteSelectionBorderColor", palSelectionBorderColor.name());
 
     this->saveConfiguration();
-    this->configurationChanged = false;
 
     this->close();
 }

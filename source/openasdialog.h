@@ -28,6 +28,9 @@ public:
 
     void initialize(QJsonObject *);
 
+private:
+    void update();
+
 private slots:
     void on_inputFileBrowseButton_clicked();
     void on_openButton_clicked();

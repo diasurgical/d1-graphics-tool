@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
     // QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling, true );
 
     this->loadConfiguration();
+    this->lastFilePath = this->configuration->value("LastFilePath").toString();
 
     ui->setupUi(this);
 
@@ -45,8 +46,12 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    // close modal windows
     this->on_actionClose_triggered();
-
+    // store last path
+    this->configuration->insert("LastFilePath", this->lastFilePath);
+    this->settingsDialog->storeConfiguration(configuration);
+    // cleanup memory
     delete ui;
     delete configuration;
     delete openAsDialog;
@@ -90,6 +95,11 @@ void MainWindow::setTrn2(QString path)
     this->trn2Widget->setTrn(this->trn2);
 }
 
+QString MainWindow::getLastFilePath()
+{
+    return this->lastFilePath;
+}
+
 void MainWindow::loadConfiguration()
 {
     QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
@@ -104,6 +114,10 @@ void MainWindow::loadConfiguration()
         this->configuration = new QJsonObject(loadJsonDoc.object());
         loadJson.close();
 
+        if (!this->configuration->contains("LastFilePath")) {
+            this->configuration->insert("LastFilePath", jsonFilePath);
+            configurationModified = true;
+        }
         if (!this->configuration->contains("PaletteDefaultColor")) {
             this->configuration->insert("PaletteDefaultColor", "#FF00FF");
             configurationModified = true;
@@ -113,7 +127,7 @@ void MainWindow::loadConfiguration()
             configurationModified = true;
         }
     } else {
-        this->configuration->insert("WorkingDirectory", QCoreApplication::applicationDirPath());
+        this->configuration->insert("LastFilePath", jsonFilePath);
         this->configuration->insert("PaletteDefaultColor", "#FF00FF");
         this->configuration->insert("PaletteSelectionBorderColor", "#FF0000");
         configurationModified = true;
@@ -212,11 +226,29 @@ void MainWindow::nextPaletteCycle(D1PAL_CYCLE_TYPE type)
     this->palWidget->modify();
 }
 
+QString MainWindow::fileDialog(bool save, const char *title, const char *filter)
+{
+    QString filePath;
+
+    if (!this->lastFilePath.isEmpty()) {
+        QFileInfo fi(this->lastFilePath);
+        filePath = fi.absolutePath();
+    }
+    if (save) {
+        filePath = QFileDialog::getSaveFileName(this, title, filePath, filter);
+    } else {
+        filePath = QFileDialog::getOpenFileName(this, title, filePath, filter);
+    }
+
+    if (!filePath.isEmpty()) {
+        this->lastFilePath = filePath;
+    }
+    return filePath;
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
-    QString openFilePath = QFileDialog::getOpenFileName(
-        this, "Open Graphics", this->configuration->value("WorkingDirectory").toString(),
-        "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX)");
+    QString openFilePath = this->fileDialog(false, "Open Graphics", "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX)");
 
     if (!openFilePath.isEmpty()) {
         this->openFile(openFilePath);
@@ -545,11 +577,11 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionNew_PAL_triggered()
 {
-    QString palFilePath = QFileDialog::getSaveFileName(
-        this, "New palette file", QString(), "PAL Files (*.pal *.PAL)");
+    QString palFilePath = this->fileDialog(true, "New Palette File", "PAL Files (*.pal *.PAL)");
 
-    if (palFilePath.isEmpty())
+    if (palFilePath.isEmpty()) {
         return;
+    }
 
     QFileInfo palFileInfo(palFilePath);
     QString path = palFileInfo.absoluteFilePath();
@@ -576,11 +608,11 @@ void MainWindow::on_actionNew_PAL_triggered()
 
 void MainWindow::on_actionOpen_PAL_triggered()
 {
-    QString palFilePath = QFileDialog::getOpenFileName(
-        this, "Load Palette File", QString(), "PAL Files (*.pal *.PAL)");
+    QString palFilePath = this->fileDialog(false, "Load Palette File", "PAL Files (*.pal *.PAL)");
 
-    if (palFilePath.isEmpty())
+    if (palFilePath.isEmpty()) {
         return;
+    }
 
     QFileInfo palFileInfo(palFilePath);
     QString path = palFileInfo.absoluteFilePath();
@@ -615,12 +647,12 @@ void MainWindow::on_actionSave_PAL_triggered()
 
 void MainWindow::on_actionSave_PAL_as_triggered()
 {
-    QString palFilePath = QFileDialog::getSaveFileName(
-        this, "Save palette file as...", QString(), "PAL Files (*.pal *.PAL)");
+    QString palFilePath = this->fileDialog(true, "Save Palette File as...", "PAL Files (*.pal *.PAL)");
 
     if (palFilePath.isEmpty()) {
         return;
     }
+
     if (!this->pal->save(palFilePath)) {
         QMessageBox::critical(this, "Error", "Could not save PAL file.");
         return;
@@ -661,11 +693,11 @@ void MainWindow::on_actionClose_PAL_triggered()
 
 void MainWindow::on_actionNew_Translation_1_triggered()
 {
-    QString trnFilePath = QFileDialog::getSaveFileName(
-        this, "New translation", QString(), "TRN Files (*.trn *.TRN)");
+    QString trnFilePath = this->fileDialog(true, "New Translation File", "TRN Files (*.trn *.TRN)");
 
-    if (trnFilePath.isEmpty())
+    if (trnFilePath.isEmpty()) {
         return;
+    }
 
     QFileInfo trnFileInfo(trnFilePath);
     QString path = trnFileInfo.absoluteFilePath();
@@ -692,11 +724,11 @@ void MainWindow::on_actionNew_Translation_1_triggered()
 
 void MainWindow::on_actionOpen_Translation_1_triggered()
 {
-    QString trnFilePath = QFileDialog::getOpenFileName(
-        this, "Load Palette Translation File", QString(), "TRN Files (*.trn *.TRN)");
+    QString trnFilePath = this->fileDialog(false, "Load Translation File", "TRN Files (*.trn *.TRN)");
 
-    if (trnFilePath.isEmpty())
+    if (trnFilePath.isEmpty()) {
         return;
+    }
 
     QFileInfo trnFileInfo(trnFilePath);
     QString path = trnFileInfo.absoluteFilePath();
@@ -731,12 +763,12 @@ void MainWindow::on_actionSave_Translation_1_triggered()
 
 void MainWindow::on_actionSave_Translation_1_as_triggered()
 {
-    QString trnFilePath = QFileDialog::getSaveFileName(
-        this, "Save translation file as...", QString(), "TRN Files (*.trn *.TRN)");
+    QString trnFilePath = this->fileDialog(true, "Save Translation File as...", "TRN Files (*.trn *.TRN)");
 
     if (trnFilePath.isEmpty()) {
         return;
     }
+
     if (!this->trn1->save(trnFilePath)) {
         QMessageBox::critical(this, "Error", "Could not save TRN file.");
         return;
@@ -777,11 +809,11 @@ void MainWindow::on_actionClose_Translation_1_triggered()
 
 void MainWindow::on_actionNew_Translation_2_triggered()
 {
-    QString trnFilePath = QFileDialog::getSaveFileName(
-        this, "New translation", QString(), "TRN Files (*.trn *.TRN)");
+    QString trnFilePath = this->fileDialog(true, "New Translation File", "TRN Files (*.trn *.TRN)");
 
-    if (trnFilePath.isEmpty())
+    if (trnFilePath.isEmpty()) {
         return;
+    }
 
     QFileInfo trnFileInfo(trnFilePath);
     QString path = trnFileInfo.absoluteFilePath();
@@ -808,11 +840,11 @@ void MainWindow::on_actionNew_Translation_2_triggered()
 
 void MainWindow::on_actionOpen_Translation_2_triggered()
 {
-    QString trnFilePath = QFileDialog::getOpenFileName(
-        this, "Load Palette Translation File", QString(), "TRN Files (*.trn *.TRN)");
+    QString trnFilePath = this->fileDialog(false, "Load Translation File", "TRN Files (*.trn *.TRN)");
 
-    if (trnFilePath.isEmpty())
+    if (trnFilePath.isEmpty()) {
         return;
+    }
 
     QFileInfo trnFileInfo(trnFilePath);
     QString path = trnFileInfo.absoluteFilePath();
@@ -847,12 +879,12 @@ void MainWindow::on_actionSave_Translation_2_triggered()
 
 void MainWindow::on_actionSave_Translation_2_as_triggered()
 {
-    QString trnFilePath = QFileDialog::getSaveFileName(
-        this, "Save translation file as...", QString(), "TRN Files (*.trn *.TRN)");
+    QString trnFilePath = this->fileDialog(true, "Save Translation File as...", "TRN Files (*.trn *.TRN)");
 
     if (trnFilePath.isEmpty()) {
         return;
     }
+
     if (!this->trn2->save(trnFilePath)) {
         QMessageBox::critical(this, "Error", "Could not save TRN file.");
         return;
