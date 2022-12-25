@@ -104,7 +104,7 @@ private:
     void updateSolProperty();
 
     Ui::LevelCelView *ui;
-    LevelCelScene *celScene = new LevelCelScene;
+    LevelCelScene *celScene = new LevelCelScene();
 
     D1CelBase *cel;
     D1Min *min;

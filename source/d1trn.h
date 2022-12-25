@@ -38,5 +38,5 @@ private:
     QFile file;
     quint8 *translations = new quint8[D1TRN_TRANSLATIONS];
     QPointer<D1Pal> palette;
-    QPointer<D1Pal> resultingPalette = new D1Pal;
+    QPointer<D1Pal> resultingPalette = new D1Pal();
 };
