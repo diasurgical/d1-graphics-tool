@@ -24,11 +24,18 @@ void OpenAsDialog::initialize(QJsonObject *cfg)
     // initialize the configuration pointer
     this->configuration = cfg;
 
-    // setup dialog ui
-    QString filePath = ui->inputFileEdit->text();
-    // TODO: precalculate these fields if filePath is set?
+    // clear the input fields
+    ui->inputFileEdit->setText("");
+    // - celSettingsGroupBox
     ui->celWidthEdit->setText("0");
     ui->celClippedAutoRadioButton->setChecked(true);
+
+    this->update();
+}
+
+void OpenAsDialog::update()
+{
+    QString filePath = ui->inputFileEdit->text();
 
     // activate optional fields based on the extension
     if (filePath.toLower().endsWith(".cel") || filePath.toLower().endsWith(".cl2")) {
@@ -37,13 +44,13 @@ void OpenAsDialog::initialize(QJsonObject *cfg)
         // ui->tilSettingsWidget->setEnabled(false);
         return;
     }
-    /*if (filePath.endsWith(".clx")) {
+    /*if (filePath.toLower().endsWith(".clx")) {
         ui->celSettingsGroupBox->setEnabled(false);
         ui->clxSettingsWidget->setEnabled(true);
         ui->tilSettingsWidget->setEnabled(false);
         return;
     }
-    if (filePath.endsWith(".til")) {
+    if (filePath.toLower().endsWith(".til")) {
         ui->celSettingsGroupBox->setEnabled(false);
         ui->clxSettingsWidget->setEnabled(false);
         ui->tilSettingsWidget->setEnabled(true);
@@ -58,17 +65,15 @@ void OpenAsDialog::initialize(QJsonObject *cfg)
 
 void OpenAsDialog::on_inputFileBrowseButton_clicked()
 {
-    QString selectedFile = QFileDialog::getOpenFileName(
-        this, "Open Graphics", this->configuration->value("WorkingDirectory").toString(),
-        // "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX);;TIL Files (*.til *.TIL)");
-        "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2)");
+    MainWindow *qw = (MainWindow *)this->parentWidget();
+    QString openFilePath = qw->fileDialog(false, "Open Graphics", "CEL/CL2 Files (*.cel *.CEL *.cl2 *.CL2)"); // "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX);;TIL Files (*.til *.TIL)");
 
-    if (selectedFile.isEmpty())
+    if (openFilePath.isEmpty())
         return;
 
-    ui->inputFileEdit->setText(selectedFile);
+    ui->inputFileEdit->setText(openFilePath);
 
-    this->initialize(this->configuration);
+    this->update();
 }
 
 void OpenAsDialog::on_openButton_clicked()

@@ -33,8 +33,6 @@ public:
     void setTrn1(QString);
     void setTrn2(QString);
 
-    void loadConfiguration();
-
     void pushCommandToUndoStack(QUndoCommand *);
 
     void openFile(QString openFilePath, OpenAsParam *params = nullptr);
@@ -44,6 +42,12 @@ public:
     void initPaletteCycle();
     void nextPaletteCycle(D1PAL_CYCLE_TYPE type);
     void resetPaletteCycle();
+
+    QString getLastFilePath();
+    QString fileDialog(bool save, const char *title, const char *filter);
+
+private:
+    void loadConfiguration();
 
 private slots:
     void on_actionOpen_triggered();
@@ -80,6 +84,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QJsonObject *configuration = new QJsonObject();
+    QString lastFilePath;
 
     QUndoStack *undoStack;
     QAction *undoAction;
