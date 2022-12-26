@@ -61,8 +61,13 @@ bool D1Trn::save(QString filePath)
     if (file.size() != D1TRN_TRANSLATIONS_BYTES)
         return false;
 
-    this->modified = false;
-    this->trnFilePath = filePath;
+    if (this->trnFilePath == filePath) {
+        this->modified = false;
+    } else {
+        // -- do not update, the user is creating a new one and the original needs to be preserved
+        // this->modified = false;
+        // this->trnFilePath = filePath;
+    }
     return true;
 }
 
