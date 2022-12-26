@@ -18,7 +18,7 @@ class D1Min : public QObject {
 
 public:
     D1Min() = default;
-    ~D1Min();
+    ~D1Min() = default;
 
     bool load(QString minFilePath, quint16 subtileCount);
     QImage getSubtileImage(quint16);
@@ -35,7 +35,7 @@ public:
 
 private:
     D1MIN_TYPE type = D1MIN_TYPE::REGULAR_HEIGHT;
-    QFile file;
+    QString minFilePath;
     D1CelBase *cel = nullptr;
     quint8 subtileWidth = 2;
     quint8 subtileHeight = 5;

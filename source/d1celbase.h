@@ -76,7 +76,7 @@ public:
 
 protected:
     D1CEL_TYPE type = D1CEL_TYPE::NONE;
-    QFile file;
+    QString celFilePath;
     D1Pal *palette = nullptr;
     quint16 groupCount = 1;
     QList<QPair<quint16, quint16>> groupFrameIndices;

@@ -50,21 +50,18 @@ D1CEL_FRAME_TYPE guessFrameType(QByteArray &rawFrameData)
     return D1CEL_FRAME_TYPE::TransparentSquare;
 }
 
-bool D1CelTileset::load(QString celFilePath, OpenAsParam *params)
+bool D1CelTileset::load(QString filePath, OpenAsParam *params)
 {
     // Opening CEL file with a QBuffer to load it in RAM
-    if (!QFile::exists(celFilePath))
+    if (!QFile::exists(filePath))
         return false;
 
-    if (this->file.isOpen())
-        this->file.close();
+    QFile file = QFile(filePath);
 
-    this->file.setFileName(celFilePath);
-
-    if (!this->file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
 
-    QByteArray fileData = this->file.readAll();
+    QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
     if (!fileBuffer.open(QIODevice::ReadOnly))
@@ -128,6 +125,6 @@ bool D1CelTileset::load(QString celFilePath, OpenAsParam *params)
         frame->load(celFrameRawData, params);
         this->frames.append(frame.release());
     }
-
+    this->celFilePath = filePath;
     return true;
 }

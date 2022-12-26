@@ -16,7 +16,7 @@ class D1Til : public QObject {
 public:
     D1Til() = default;
     D1Til(QString, D1Min *);
-    ~D1Til();
+    ~D1Til() = default;
 
     bool load(QString);
     QImage getTileImage(quint16);
@@ -34,7 +34,7 @@ public:
 
 private:
     D1TIL_TYPE type = D1TIL_TYPE::REGULAR_HEIGHT;
-    QFile file;
+    QString tilFilePath;
     D1Min *min = nullptr;
     quint16 tileCount = 0;
     quint16 tileWidth = 0;

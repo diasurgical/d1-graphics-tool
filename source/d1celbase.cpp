@@ -42,9 +42,6 @@ D1CelBase::D1CelBase(D1Pal *pal)
 D1CelBase::~D1CelBase()
 {
     qDeleteAll(this->frames);
-
-    if (this->file.isOpen())
-        this->file.close();
 }
 
 bool D1CelBase::isFrameSizeConstant()
@@ -101,10 +98,7 @@ D1CEL_TYPE D1CelBase::getType()
 
 QString D1CelBase::getFilePath()
 {
-    if (!this->file.isOpen())
-        return QString();
-
-    return this->file.fileName();
+    return this->celFilePath;
 }
 
 D1Pal *D1CelBase::getPalette()

@@ -9,33 +9,24 @@ D1Til::D1Til(QString path, D1Min *m)
     this->load(path);
 }
 
-D1Til::~D1Til()
-{
-    if (this->file.isOpen())
-        this->file.close();
-}
-
-bool D1Til::load(QString tilFilePath)
+bool D1Til::load(QString filePath)
 {
     quint16 readWord;
     QList<quint16> subtileIndicesList;
 
     // Opening MIN file with a QBuffer to load it in RAM
-    if (!QFile::exists(tilFilePath))
+    if (!QFile::exists(filePath))
         return false;
 
-    if (this->file.isOpen())
-        this->file.close();
+    QFile file = QFile(filePath);
 
-    this->file.setFileName(tilFilePath);
-
-    if (!this->file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
 
-    if (this->file.size() < 16)
+    if (file.size() < 16)
         return false;
 
-    QByteArray fileData = this->file.readAll();
+    QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
     if (!fileBuffer.open(QIODevice::ReadOnly))
@@ -45,7 +36,7 @@ bool D1Til::load(QString tilFilePath)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->tileCount = this->file.size() / 2 / 4;
+    this->tileCount = file.size() / 2 / 4;
 
     this->subtileIndices.clear();
     for (int i = 0; i < this->tileCount; i++) {
@@ -56,7 +47,7 @@ bool D1Til::load(QString tilFilePath)
         }
         this->subtileIndices.append(subtileIndicesList);
     }
-
+    this->tilFilePath = filePath;
     return true;
 }
 
@@ -97,10 +88,7 @@ D1TIL_TYPE D1Til::getType()
 
 QString D1Til::getFilePath()
 {
-    if (!this->file.isOpen())
-        return QString();
-
-    return this->file.fileName();
+    return this->tilFilePath;
 }
 
 D1Min *D1Til::getMin()

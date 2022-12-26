@@ -149,21 +149,18 @@ D1Cl2::D1Cl2()
     this->type = D1CEL_TYPE::V2_MULTIPLE_GROUPS;
 }
 
-bool D1Cl2::load(QString cl2FilePath, OpenAsParam *params)
+bool D1Cl2::load(QString filePath, OpenAsParam *params)
 {
     // Opening CL2 file with a QBuffer to load it in RAM
-    if (!QFile::exists(cl2FilePath))
+    if (!QFile::exists(filePath))
         return false;
 
-    if (this->file.isOpen())
-        this->file.close();
+    QFile file = QFile(filePath);
 
-    this->file.setFileName(cl2FilePath);
-
-    if (!this->file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
 
-    QByteArray fileData = this->file.readAll();
+    QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
     if (!fileBuffer.open(QIODevice::ReadOnly))
@@ -288,6 +285,7 @@ bool D1Cl2::load(QString cl2FilePath, OpenAsParam *params)
         this->frames.append(frame.release());
     }
 
+    this->celFilePath = filePath;
     return true;
 }
 

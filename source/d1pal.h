@@ -31,8 +31,8 @@ public:
     ~D1Pal();
 
     bool load(QString);
-    bool loadRegularPalette();
-    bool loadJascPalette();
+    bool loadRegularPalette(QFile &file);
+    bool loadJascPalette(QFile &file);
     bool save(QString);
 
     bool isModified() const;
@@ -47,7 +47,7 @@ public:
 private:
     D1PAL_TYPE type = D1PAL_TYPE::REGULAR;
     bool modified = false;
-    QFile file;
+    QString palFilePath;
     QColor *colors = new QColor[D1PAL_COLORS];
     quint8 currentCycleCounter = 3;
 };

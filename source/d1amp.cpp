@@ -8,12 +8,6 @@ D1Amp::D1Amp(QString path)
     this->load(path);
 }
 
-D1Amp::~D1Amp()
-{
-    if (this->file.isOpen())
-        this->file.close();
-}
-
 bool D1Amp::clear(int allocate)
 {
     for (int i = 0; i < allocate; i++) {
@@ -23,24 +17,21 @@ bool D1Amp::clear(int allocate)
     return false;
 }
 
-bool D1Amp::load(QString ampFilePath, int allocate)
+bool D1Amp::load(QString filePath, int allocate)
 {
     this->properties.clear();
     this->types.clear();
 
     // Opening AMP file with a QBuffer to load it in RAM
-    if (!QFile::exists(ampFilePath))
+    if (!QFile::exists(filePath))
         return this->clear(allocate);
 
-    if (this->file.isOpen())
-        this->file.close();
+    QFile file = QFile(filePath);
 
-    this->file.setFileName(ampFilePath);
-
-    if (!this->file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return this->clear(allocate);
 
-    QByteArray fileData = this->file.readAll();
+    QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
     if (!fileBuffer.open(QIODevice::ReadOnly))
@@ -51,7 +42,7 @@ bool D1Amp::load(QString ampFilePath, int allocate)
     in.setByteOrder(QDataStream::LittleEndian);
 
     quint8 readBytr;
-    for (int i = 0; i < this->file.size() / 2; i++) {
+    for (int i = 0; i < file.size() / 2; i++) {
         in >> readBytr;
         this->types.append(readBytr);
         in >> readBytr;
@@ -62,16 +53,13 @@ bool D1Amp::load(QString ampFilePath, int allocate)
         this->types.append(0);
         this->properties.append(0);
     }
-
+    this->ampFilePath = filePath;
     return true;
 }
 
 QString D1Amp::getFilePath()
 {
-    if (!this->file.isOpen())
-        return QString();
-
-    return this->file.fileName();
+    return this->ampFilePath;
 }
 
 quint8 D1Amp::getTileType(quint16 tileIndex)

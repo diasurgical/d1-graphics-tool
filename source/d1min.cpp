@@ -4,30 +4,21 @@
 #include <QMap>
 #include <QPointer>
 
-D1Min::~D1Min()
-{
-    if (this->file.isOpen())
-        this->file.close();
-}
-
-bool D1Min::load(QString minFilePath, quint16 subtileCount)
+bool D1Min::load(QString filePath, quint16 subtileCount)
 {
     // Opening MIN file with a QBuffer to load it in RAM
-    if (!QFile::exists(minFilePath))
+    if (!QFile::exists(filePath))
         return false;
 
-    if (this->file.isOpen())
-        this->file.close();
+    QFile file = QFile(filePath);
 
-    this->file.setFileName(minFilePath);
-
-    if (!this->file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
 
-    if (this->file.size() == 0)
+    if (file.size() == 0)
         return false;
 
-    QByteArray fileData = this->file.readAll();
+    QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
     if (!fileBuffer.open(QIODevice::ReadOnly))
@@ -37,14 +28,14 @@ bool D1Min::load(QString minFilePath, quint16 subtileCount)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->subtileHeight = this->file.size() / 2 / subtileCount / 2;
-    if ((this->file.size() / 2) % (this->subtileHeight * 2) == 0) {
+    this->subtileHeight = file.size() / 2 / subtileCount / 2;
+    if ((file.size() / 2) % (this->subtileHeight * 2) == 0) {
         qDebug() << "The size of sol-file does not align with min-file";
-        subtileCount = this->file.size() / 2 / this->subtileHeight / 2;
+        subtileCount = file.size() / 2 / this->subtileHeight / 2;
     }
 
     // File size check
-    if (this->file.size() % this->subtileHeight != 0)
+    if (file.size() % this->subtileHeight != 0)
         return false;
 
     // Read sub-tile data
@@ -63,7 +54,7 @@ bool D1Min::load(QString minFilePath, quint16 subtileCount)
         }
         this->celFrameIndices.append(celFrameIndicesList);
     }
-
+    this->minFilePath = filePath;
     return true;
 }
 
@@ -104,10 +95,7 @@ D1MIN_TYPE D1Min::getType()
 
 QString D1Min::getFilePath()
 {
-    if (!this->file.isOpen())
-        return QString();
-
-    return this->file.fileName();
+    return this->minFilePath;
 }
 
 D1CelBase *D1Min::getCel()

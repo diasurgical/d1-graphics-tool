@@ -9,7 +9,7 @@ class D1Sol : public QObject {
 public:
     D1Sol() = default;
     D1Sol(QString path);
-    ~D1Sol();
+    ~D1Sol() = default;
 
     bool load(QString);
 
@@ -19,6 +19,6 @@ public:
     void setSubtileProperties(quint16 tileIndex, quint8 value);
 
 private:
-    QFile file;
+    QString solFilePath;
     QList<quint8> subProperties;
 };
