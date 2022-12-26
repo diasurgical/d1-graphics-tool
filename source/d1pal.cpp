@@ -114,8 +114,13 @@ bool D1Pal::save(QString filePath)
     if (file.size() != D1PAL_SIZE_BYTES)
         return false;
 
-    this->modified = false;
-    this->palFilePath = filePath;
+    if (this->palFilePath == filePath) {
+        this->modified = false;
+    } else {
+        // -- do not update, the user is creating a new one and the original needs to be preserved
+        // this->modified = false;
+        // this->palFilePath = filePath;
+    }
     return true;
 }
 
