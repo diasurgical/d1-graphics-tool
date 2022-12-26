@@ -35,7 +35,7 @@ public:
 
 private:
     bool modified = false;
-    QFile file;
+    QString trnFilePath;
     quint8 *translations = new quint8[D1TRN_TRANSLATIONS];
     QPointer<D1Pal> palette;
     QPointer<D1Pal> resultingPalette = new D1Pal();

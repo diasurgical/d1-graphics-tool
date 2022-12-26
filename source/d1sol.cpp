@@ -8,13 +8,7 @@ D1Sol::D1Sol(QString path)
     this->load(path);
 }
 
-D1Sol::~D1Sol()
-{
-    if (this->file.isOpen())
-        this->file.close();
-}
-
-bool D1Sol::load(QString solFilePath)
+bool D1Sol::load(QString filePath)
 {
     this->subProperties.clear();
 
@@ -22,18 +16,15 @@ bool D1Sol::load(QString solFilePath)
     if (!QFile::exists(solFilePath))
         return false;
 
-    if (this->file.isOpen())
-        this->file.close();
+    QFile file = QFile(filePath);
 
-    this->file.setFileName(solFilePath);
-
-    if (!this->file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
 
-    if (this->file.size() == 0)
+    if (file.size() == 0)
         return false;
 
-    QByteArray fileData = this->file.readAll();
+    QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
     if (!fileBuffer.open(QIODevice::ReadOnly))
@@ -44,20 +35,18 @@ bool D1Sol::load(QString solFilePath)
     in.setByteOrder(QDataStream::LittleEndian);
 
     quint8 readBytr;
-    for (int i = 0; i < this->file.size(); i++) {
+    for (int i = 0; i < file.size(); i++) {
         in >> readBytr;
         this->subProperties.append(readBytr);
     }
 
+    this->solFilePath = filePath;
     return true;
 }
 
 QString D1Sol::getFilePath()
 {
-    if (!this->file.isOpen())
-        return QString();
-
-    return this->file.fileName();
+    return this->solFilePath;
 }
 
 quint16 D1Sol::getSubtileCount()

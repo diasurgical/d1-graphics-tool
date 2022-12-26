@@ -9,50 +9,41 @@ D1Trn::~D1Trn()
 {
     delete[] translations;
     delete resultingPalette;
-
-    if (this->file.isOpen())
-        this->file.close();
 }
 
-bool D1Trn::load(QString trnFilePath)
+bool D1Trn::load(QString filePath)
 {
     if (this->palette.isNull())
         return false;
 
-    if (!QFile::exists(trnFilePath))
+    if (!QFile::exists(filePath))
         return false;
 
-    if (this->file.isOpen())
-        file.close();
+    QFile file = QFile(filePath);
 
-    this->file.setFileName(trnFilePath);
-
-    if (!this->file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly))
         return false;
 
-    if (this->file.size() != D1TRN_TRANSLATIONS_BYTES)
+    if (file.size() != D1TRN_TRANSLATIONS_BYTES)
         return false;
 
     for (int i = 0; i < D1TRN_TRANSLATIONS; i++) {
-        QByteArray translationByte = this->file.read(1);
+        QByteArray translationByte = file.read(1);
         this->translations[i] = translationByte[0];
         this->resultingPalette->setColor(
             i, this->palette->getColor(this->translations[i]));
     }
 
     this->modified = false;
-
+    this->trnFilePath = filePath;
     return true;
 }
 
-bool D1Trn::save(QString trnFilePath)
+bool D1Trn::save(QString filePath)
 {
-    if (this->file.isOpen())
-        file.close();
+    QFile file = QFile(filePath);
 
-    this->file.setFileName(trnFilePath);
-
-    if (!this->file.open(QIODevice::ReadWrite))
+    if (!file.open(QIODevice::ReadWrite))
         return false;
 
     for (int i = 0; i < D1TRN_TRANSLATIONS; i++) {
@@ -60,18 +51,18 @@ bool D1Trn::save(QString trnFilePath)
         colorBytes.resize(1);
         colorBytes[0] = this->translations[i];
 
-        if (this->file.write(colorBytes) == -1)
+        if (file.write(colorBytes) == -1)
             return false;
     }
 
-    if (!this->file.flush())
+    if (!file.flush())
         return false;
 
-    if (this->file.size() != D1TRN_TRANSLATIONS_BYTES)
+    if (file.size() != D1TRN_TRANSLATIONS_BYTES)
         return false;
 
     this->modified = false;
-
+    this->trnFilePath = filePath;
     return true;
 }
 
@@ -95,10 +86,7 @@ QColor D1Trn::getResultingColor(quint8 index)
 
 QString D1Trn::getFilePath()
 {
-    if (!this->file.isOpen())
-        return QString();
-
-    return this->file.fileName();
+    return this->trnFilePath;
 }
 
 quint8 D1Trn::getTranslation(quint8 index)

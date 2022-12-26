@@ -9,7 +9,7 @@ class D1Amp : public QObject {
 public:
     D1Amp() = default;
     D1Amp(QString path);
-    ~D1Amp();
+    ~D1Amp() = default;
 
     bool load(QString, int allocate = 0);
 
@@ -20,7 +20,7 @@ public:
     void setTileProperties(quint16 tileIndex, quint8 value);
 
 private:
-    QFile file;
+    QString ampFilePath;
     QList<quint8> types;
     QList<quint8> properties;
 
