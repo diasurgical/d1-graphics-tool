@@ -2,11 +2,7 @@
 
 #include <QBuffer>
 #include <QDataStream>
-
-D1Amp::D1Amp(QString path)
-{
-    this->load(path);
-}
+#include <QFile>
 
 bool D1Amp::clear(int allocate)
 {
@@ -54,6 +50,25 @@ bool D1Amp::load(QString filePath, int allocate)
         this->properties.append(0);
     }
     this->ampFilePath = filePath;
+    return true;
+}
+
+bool D1Amp::save(SaveAsParam *params)
+{
+    QString selectedPath = params != nullptr ? params->ampFilePath : "";
+    std::optional<QFile> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
+    if (!outFile) {
+        return false;
+    }
+
+    // write to file
+    QDataStream out(&*outFile);
+    for (int i = 0; i < this->types.size(); i++) {
+        out << this->types[i];
+        out << this->properties[i];
+    }
+
+    this->ampFilePath = (&*outFile)->getFilePath(); // this->load(filePath, allocate);
     return true;
 }
 

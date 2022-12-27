@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QFile>
 #include <QImage>
 
 #include "d1min.h"
+#include "saveasdialog.h"
 
 enum class D1TIL_TYPE {
     REGULAR_HEIGHT,
@@ -15,10 +15,11 @@ class D1Til : public QObject {
 
 public:
     D1Til() = default;
-    D1Til(QString, D1Min *);
     ~D1Til() = default;
 
-    bool load(QString);
+    bool load(QString filePath);
+    bool save(SaveAsParam *params = nullptr);
+
     QImage getTileImage(quint16);
 
     D1TIL_TYPE getType();

@@ -18,9 +18,15 @@ ExportDialog::~ExportDialog()
     delete ui;
 }
 
-void ExportDialog::setCel(D1CelBase *c)
+void ExportDialog::initialize(QJsonObject *cfg, D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
 {
+    this->configuration = cfg;
+
     this->cel = c;
+    this->min = m;
+    this->til = t;
+    this->sol = s;
+    this->amp = a;
 
     // If there's only one frame
     if (this->cel->getFrameCount() == 1)
@@ -50,26 +56,6 @@ void ExportDialog::setCel(D1CelBase *c)
         ui->levelFramesSettingsWidget->setEnabled(false);
 }
 
-void ExportDialog::setMin(D1Min *m)
-{
-    this->min = m;
-}
-
-void ExportDialog::setTil(D1Til *t)
-{
-    this->til = t;
-}
-
-void ExportDialog::setAmp(D1Amp *a)
-{
-    this->amp = a;
-}
-
-void ExportDialog::setSol(D1Sol *s)
-{
-    this->sol = s;
-}
-
 QString ExportDialog::getFileFormatExtension()
 {
     if (ui->pngRadioButton->isChecked())
@@ -89,54 +75,6 @@ void ExportDialog::on_outputFolderBrowseButton_clicked()
         return;
 
     ui->outputFolderEdit->setText(selectedDirectory);
-}
-
-bool ExportDialog::exportLevelDiablo(QProgressDialog &progress)
-{
-    if (this->min == nullptr || this->til == nullptr || this->amp == nullptr || this->sol == nullptr) {
-        return true;
-    }
-
-    QString outputFilePathBase = ui->outputFolderEdit->text() + "/" + QFileInfo(this->til->getFilePath()).baseName();
-
-    progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " automap...");
-
-    QFile ampFile(outputFilePathBase + ".amp");
-    if (!ampFile.open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, "Unable to open file", ampFile.errorString());
-        return true;
-    }
-    QDataStream ampStream(&ampFile);
-
-    for (unsigned int i = 0; i < this->til->getTileCount(); i++) {
-        if (progress.wasCanceled()) {
-            return false;
-        }
-
-        progress.setValue(100 * i / this->til->getTileCount());
-
-        ampStream << this->amp->getTileType(i);
-        ampStream << this->amp->getTileProperties(i);
-    }
-
-    progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " sub tile properties...");
-
-    QFile solFile(outputFilePathBase + ".sol");
-    if (!solFile.open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, "Unable to open file", solFile.errorString());
-        return true;
-    }
-    QDataStream solStream(&solFile);
-
-    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
-        if (progress.wasCanceled()) {
-            return false;
-        }
-        progress.setValue(100 * i / this->min->getSubtileCount());
-
-        solStream << this->sol->getSubtileProperties(i);
-    }
-    return true;
 }
 
 bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
@@ -265,9 +203,7 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
 
 bool ExportDialog::exportLevel(QProgressDialog &progress)
 {
-    if (ui->diabloButton->isChecked()) {
-        return this->exportLevelDiablo(progress);
-    } else if (ui->exportLevelTiles->isChecked()) {
+    if (ui->exportLevelTiles->isChecked()) {
         return this->exportLevelTiles(progress);
     } else if (ui->exportLevelSubtiles->isChecked()) {
         return this->exportLevelSubtiles(progress);
@@ -433,10 +369,4 @@ void ExportDialog::on_oneFileForAllFramesRadioButton_toggled(bool checked)
         ui->spritesSettingsWidget->setEnabled(true);
     else
         ui->spritesSettingsWidget->setEnabled(false);
-}
-
-void ExportDialog::on_diabloButton_toggled(bool checked)
-{
-    ui->filesFormatWidget->setEnabled(!checked);
-    ui->levelFramesSettingsWidget->setEnabled(!checked);
 }

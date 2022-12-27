@@ -15,7 +15,9 @@ public:
     D1Cl2();
 
     bool load(QString cl2FilePath, OpenAsParam *params = nullptr);
+    bool save(SaveAsParam *params = nullptr);
 
 protected:
     virtual D1Cl2Frame *createFrame();
+    virtual bool writeFileData(QFile &outFile, SaveAsParam *params);
 };

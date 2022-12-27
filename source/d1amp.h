@@ -1,17 +1,18 @@
 #pragma once
 
-#include <QFile>
 #include <QList>
+
+#include "saveasdialog.h"
 
 class D1Amp : public QObject {
     Q_OBJECT
 
 public:
     D1Amp() = default;
-    D1Amp(QString path);
     ~D1Amp() = default;
 
-    bool load(QString, int allocate = 0);
+    bool load(QString filePath, int allocate = 0);
+    bool save(SaveAsParam *params = nullptr);
 
     QString getFilePath();
     quint8 getTileType(quint16);

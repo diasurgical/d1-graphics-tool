@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <QMessageBox>
+
 quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
 {
     QDataStream in(rawFrameData);
@@ -221,7 +223,7 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
     }
 
     // CL2 FRAMES OFFSETS CALCULATION
-
+    this->groupFrameIndices.clear();
     this->frameOffsets.clear();
     if (this->type == D1CEL_TYPE::V2_MULTIPLE_GROUPS) {
         // Going through all groups
@@ -287,6 +289,213 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
 
     this->celFilePath = filePath;
     return true;
+}
+
+static quint8 *writeFrameData(D1CelFrameBase *frame, quint8 *pBuf, int subHeaderSize, bool clipped)
+{
+    const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
+
+    // convert one image to cl2-data
+    quint8 *pHeader = pBuf;
+    if (clipped) {
+        // add CL2 FRAME HEADER
+        *(quint16 *)&pBuf[0] = SwapLE16(subHeaderSize); // SUB_HEADER_SIZE
+        *(quint32 *)&pBuf[2] = 0;
+        *(quint32 *)&pBuf[6] = 0;
+        pBuf += subHeaderSize;
+    }
+
+    quint8 *pHead = pBuf;
+    quint8 col, lastCol;
+    quint8 colMatches = 0;
+    bool alpha = false;
+    bool first = true;
+    for (int i = 1; i <= frame->getHeight(); i++) {
+        if (clipped && (i % CEL_BLOCK_HEIGHT) == 1 /*&& (i / CEL_BLOCK_HEIGHT) * 2 < SUB_HEADER_SIZE*/) {
+            pHead = pBuf;
+            *(quint16 *)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader); // pHead - buf - SUB_HEADER_SIZE;
+
+            colMatches = 0;
+            alpha = false;
+            // first = true;
+        }
+        first = true;
+        for (int j = 0; j < frame->getWidth(); j++) {
+            D1CelPixel pixel = frame->getPixel(j, frame->getHeight() - i);
+            if (!pixel.isTransparent()) {
+                // add opaque pixel
+                col = pixel.getPaletteIndex();
+                if (alpha || first || col != lastCol)
+                    colMatches = 1;
+                else
+                    colMatches++;
+                if (colMatches < RLE_LEN || (char)*pHead <= -127) {
+                    // bmp encoding
+                    if (alpha || (char)*pHead <= -65 || first) {
+                        pHead = pBuf;
+                        pBuf++;
+                        colMatches = 1;
+                    }
+                    *pBuf = col;
+                    pBuf++;
+                } else {
+                    // RLE encoding
+                    if (colMatches == RLE_LEN) {
+                        memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
+                        *pHead += RLE_LEN - 1;
+                        if (*pHead != 0) {
+                            pHead = pBuf - (RLE_LEN - 1);
+                        }
+                        *pHead = -65 - (RLE_LEN - 1);
+                        pBuf = pHead + 1;
+                        *pBuf = col;
+                        pBuf++;
+                    }
+                }
+                --*pHead;
+
+                lastCol = col;
+                alpha = false;
+            } else {
+                // add transparent pixel
+                if (!alpha || (char)*pHead >= 127) {
+                    pHead = pBuf;
+                    pBuf++;
+                }
+                ++*pHead;
+                alpha = true;
+            }
+            first = false;
+        }
+    }
+    return pBuf;
+}
+
+bool D1Cl2::writeFileData(QFile &outFile, SaveAsParam *params)
+{
+    const int numFrames = this->frames.count();
+
+    // prepare clipping info
+    bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    QList<bool> clipped;
+    for (int n = 0; n < numFrames; n++) {
+        QPointer<D1CelFrameBase> frame = this->frames[n];
+        clipped.append((clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped()));
+    }
+    // calculate header size
+    bool groupped = false;
+    int numGroups = 0;
+    int headerSize = 0;
+    QList<int> groupSizes;
+    if (params == nullptr || params->groupNum == 0) {
+        numGroups = this->getGroupCount();
+        groupped = numGroups > 1;
+        for (int i = 0; i < numGroups; i++) {
+            QPair<quint16, quint16> gfi = this->getGroupFrameIndices(i);
+            int ni = gfi.second - gfi.first + 1;
+            groupSizes.append(ni);
+            headerSize += 4 + 4 * (ni + 1);
+        }
+    } else {
+        numGroups = params->groupNum;
+        if (numFrames % numGroups != 0) {
+            QMessageBox::critical(nullptr, "Error", "Frames can not be split to equal groups.");
+            return false;
+        }
+        groupped = true;
+        for (int i = 0; i < numGroups; i++) {
+            int ni = numFrames / numGroups;
+            groupSizes.append(ni);
+            headerSize += 4 + 4 * (ni + 1);
+        }
+    }
+    if (groupped) {
+        headerSize += sizeof(quint32) * numGroups;
+    }
+    // calculate sub header size
+    int subHeaderSize = SUB_HEADER_SIZE;
+    for (int n = 0; n < numFrames; n++) {
+        QPointer<D1CelFrameBase> frame = this->frames[n];
+        if (clipped[n]) {
+            int hs = (frame->getHeight() - 1) / CEL_BLOCK_HEIGHT;
+            hs = (hs + 1) * sizeof(quint16);
+            subHeaderSize = std::max(subHeaderSize, hs);
+        }
+    }
+    // estimate data size
+    int maxSize = headerSize;
+    for (int n = 0; n < numFrames; n++) {
+        QPointer<D1CelFrameBase> frame = this->frames[n];
+        if (clipped[n]) {
+            maxSize += subHeaderSize; // SUB_HEADER_SIZE
+        }
+        maxSize += frame->getHeight() * (2 * frame->getWidth());
+    }
+
+    QByteArray fileData;
+    fileData.append(maxSize, 0);
+
+    quint8 *buf = (quint8 *)fileData.data();
+    quint8 *hdr = buf;
+    if (groupped) {
+        // add optional {CL2 GROUP HEADER}
+        int offset = numGroups * 4;
+        for (int i = 0; i < numGroups; i++, hdr += 4) {
+            *(quint32 *)&hdr[0] = offset;
+            quint32 ni = groupSizes[i];
+            offset += 4 + 4 * (ni + 1);
+        }
+    }
+
+    quint8 *pBuf = &buf[headerSize];
+    int idx = 0;
+    for (int ii = 0; ii < numGroups; ii++) {
+        int ni = groupSizes[ii];
+        *(quint32 *)&hdr[0] = SwapLE32(ni);
+        *(quint32 *)&hdr[4] = SwapLE32(pBuf - hdr);
+
+        for (int n = 0; n < ni; n++, idx++) {
+            pBuf = writeFrameData(this->getFrame(idx), pBuf, subHeaderSize, clipped[idx]); // TODO: what if the groups are not continuous?
+            *(quint32 *)&hdr[4 + 4 * (n + 1)] = SwapLE32(pBuf - hdr);
+        }
+        hdr += 4 + 4 * (ni + 1);
+    }
+
+    // write to file
+    QDataStream out(&outFile);
+    out.writeRawData((char *)buf, pBuf - buf);
+
+    return true;
+}
+
+bool D1Cl2::save(SaveAsParam *params)
+{
+    QString filePath = this->getFilePath();
+    if (params != nullptr && !params->celFilePath.isEmpty()) {
+        filePath = params->celFilePath;
+        /*if (QFile::exists(filePath)) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite the CL2 file?", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                return false;
+            }
+        }*/
+    }
+
+    QFile outFile = QFile(filePath);
+    if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
+        return false;
+    }
+
+    bool result = this->writeFileData(outFile, params);
+
+    outFile.close();
+
+    if (result) {
+        this->load(filePath);
+    }
+    return result;
 }
 
 D1Cl2Frame *D1Cl2::createFrame()

@@ -2,18 +2,14 @@
 
 #include <QBuffer>
 #include <QDataStream>
-
-D1Sol::D1Sol(QString path)
-{
-    this->load(path);
-}
+#include <QFile>
 
 bool D1Sol::load(QString filePath)
 {
     this->subProperties.clear();
 
     // Opening SOL file with a QBuffer to load it in RAM
-    if (!QFile::exists(solFilePath))
+    if (!QFile::exists(filePath))
         return false;
 
     QFile file = QFile(filePath);
@@ -41,6 +37,24 @@ bool D1Sol::load(QString filePath)
     }
 
     this->solFilePath = filePath;
+    return true;
+}
+
+bool D1Sol::save(SaveAsParam *params)
+{
+    QString selectedPath = params != nullptr ? params->solFilePath : "";
+    std::optional<QFile> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
+    if (!outFile) {
+        return false;
+    }
+
+    // write to file
+    QDataStream out(&*outFile);
+    for (int i = 0; i < this->subProperties.size(); i++) {
+        out << this->subProperties[i];
+    }
+
+    this->solFilePath = (&*outFile)->getFilePath(); // this->load(filePath);
     return true;
 }
 

@@ -8,4 +8,9 @@ public:
     D1Cel() = default;
 
     bool load(QString celFilePath, OpenAsParam *params = nullptr);
+    bool save(SaveAsParam *params = nullptr);
+
+private:
+    bool writeFileData(QFile &outFile, SaveAsParam *params);
+    bool writeCompFileData(QFile &outFile, SaveAsParam *params);
 };

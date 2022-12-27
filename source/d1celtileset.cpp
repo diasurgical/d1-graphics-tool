@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include <QMessageBox>
+
 D1CelTileset::D1CelTileset(D1Min *min)
     : min(min)
 {
@@ -127,4 +129,67 @@ bool D1CelTileset::load(QString filePath, OpenAsParam *params)
     }
     this->celFilePath = filePath;
     return true;
+}
+
+bool D1CelTileset::writeFileData(QFile &outFile)
+{
+    const int numFrames = this->getFrameCount();
+
+    // calculate header size
+    int headerSize = 4 + numFrames * 4 + 4;
+
+    // estimate data size
+    int maxSize = headerSize;
+    maxSize += MICRO_WIDTH * MICRO_HEIGHT * numFrames;
+
+    QByteArray fileData;
+    fileData.append(maxSize, 0);
+
+    quint8 *buf = (quint8 *)fileData.data();
+    *(quint32 *)&buf[0] = SwapLE32(numFrames);
+
+    quint8 *pBuf = &buf[headerSize];
+    for (int ii = 0; ii < numFrames; ii++) {
+        *(quint32 *)&buf[(ii + 1) * sizeof(quint32)] = SwapLE32(pBuf - buf);
+
+        pBuf = ((D1CelTilesetFrame *)this->getFrame(ii))->writeFrameData(pBuf);
+    }
+
+    *(quint32 *)&buf[(numFrames + 1) * sizeof(quint32)] = SwapLE32(pBuf - buf);
+
+    // write to file
+    QDataStream out(&outFile);
+    out.writeRawData((char *)buf, pBuf - buf);
+
+    return true;
+}
+
+bool D1CelTileset::save(SaveAsParam *params)
+{
+    QString filePath = this->getFilePath();
+    if (params != nullptr && !params->celFilePath.isEmpty()) {
+        filePath = params->celFilePath;
+        /*if (QFile::exists(filePath)) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite the (level-)CEL file?", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                return false;
+            }
+        }*/
+    }
+
+    QFile outFile = QFile(filePath);
+    if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
+        return false;
+    }
+
+    bool result = this->writeFileData(outFile);
+
+    outFile.close();
+
+    if (result) {
+        this->celFilePath = filePath; // this->load(filePath);
+    }
+    return result;
 }

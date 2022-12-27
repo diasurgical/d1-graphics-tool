@@ -34,6 +34,11 @@ D1CelPixel D1CelFrameBase::getPixel(quint16 x, quint16 y)
     return {};
 }
 
+bool D1CelFrameBase::isClipped()
+{
+    return this->clipped;
+}
+
 D1CelBase::D1CelBase(D1Pal *pal)
     : palette(pal)
 {

@@ -1,12 +1,11 @@
 #pragma once
 
-#include <QFile>
 #include <QImage>
-#include <QPainter>
 #include <map>
 
 #include "d1cel.h"
 #include "d1celtilesetframe.h"
+#include "saveasdialog.h"
 
 enum class D1MIN_TYPE {
     REGULAR_HEIGHT,
@@ -21,6 +20,8 @@ public:
     ~D1Min() = default;
 
     bool load(QString minFilePath, quint16 subtileCount);
+    bool save(SaveAsParam *params = nullptr);
+
     QImage getSubtileImage(quint16);
 
     D1MIN_TYPE getType();
