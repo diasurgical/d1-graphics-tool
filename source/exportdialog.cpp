@@ -2,6 +2,7 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QPainter>
 #include <algorithm>
 
 #include "ui_exportdialog.h"

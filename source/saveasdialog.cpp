@@ -2,12 +2,13 @@
 
 #include <QFileDialog>
 #include <QMessageBox>
+#include <optional>
 
 #include "ui_saveasdialog.h"
 
 #include "mainwindow.h"
 
-std::optional<QFile> SaveAsParam::getValidSaveOutput(QString filePath, QString selectedPath)
+std::optional<QFile *> SaveAsParam::getValidSaveOutput(QString filePath, QString selectedPath)
 {
     if (!selectedPath.isEmpty()) {
         filePath = selectedPath;
@@ -20,8 +21,8 @@ std::optional<QFile> SaveAsParam::getValidSaveOutput(QString filePath, QString s
         }
     }
 
-    QFile outFile = QFile(filePath);
-    if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
+    QFile *outFile = new QFile(filePath);
+    if (!outFile->open(QIODevice::WriteOnly | QFile::Truncate)) {
         QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
         return {};
     }

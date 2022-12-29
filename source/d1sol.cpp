@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include <QDataStream>
 #include <QFile>
+#include <QFileInfo>
 
 bool D1Sol::load(QString filePath)
 {
@@ -43,18 +44,21 @@ bool D1Sol::load(QString filePath)
 bool D1Sol::save(SaveAsParam *params)
 {
     QString selectedPath = params != nullptr ? params->solFilePath : "";
-    std::optional<QFile> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
+    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
     if (!outFile) {
         return false;
     }
 
     // write to file
-    QDataStream out(&*outFile);
+    QDataStream out(*outFile);
     for (int i = 0; i < this->subProperties.size(); i++) {
         out << this->subProperties[i];
     }
 
-    this->solFilePath = (&*outFile)->getFilePath(); // this->load(filePath);
+    QFileInfo fileinfo = QFileInfo(**outFile);
+    this->solFilePath = fileinfo.fileName(); // this->load(filePath);
+    delete *outFile;
+
     return true;
 }
 

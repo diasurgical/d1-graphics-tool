@@ -2,6 +2,7 @@
 
 #include <QBuffer>
 #include <QFile>
+#include <QFileInfo>
 #include <QPainter>
 
 bool D1Til::load(QString filePath)
@@ -49,13 +50,13 @@ bool D1Til::load(QString filePath)
 bool D1Til::save(SaveAsParam *params)
 {
     QString selectedPath = params != nullptr ? params->tilFilePath : "";
-    std::optional<QFile> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
+    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
     if (!outFile) {
         return false;
     }
 
     // write to file
-    QDataStream out(&*outFile);
+    QDataStream out(*outFile);
     out.setByteOrder(QDataStream::LittleEndian);
     for (int i = 0; i < this->tileCount; i++) {
         QList<quint16> &subtileIndicesList = this->subtileIndices[i];
@@ -65,7 +66,10 @@ bool D1Til::save(SaveAsParam *params)
         }
     }
 
-    this->tilFilePath = (&*outFile)->getFilePath(); // this->load(filePath);
+    QFileInfo fileinfo = QFileInfo(**outFile);
+    this->tilFilePath = fileinfo.fileName(); // this->load(filePath);
+    delete *outFile;
+
     return true;
 }
 

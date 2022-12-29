@@ -2,6 +2,7 @@
 
 #include <QBuffer>
 #include <QFile>
+#include <QFileInfo>
 #include <QPainter>
 
 bool D1Min::load(QString filePath, quint16 subtileCount)
@@ -61,13 +62,13 @@ bool D1Min::load(QString filePath, quint16 subtileCount)
 bool D1Min::save(SaveAsParam *params)
 {
     QString selectedPath = params != nullptr ? params->minFilePath : "";
-    std::optional<QFile> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
+    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
     if (!outFile) {
         return false;
     }
 
     // write to file
-    QDataStream out(&*outFile);
+    QDataStream out(*outFile);
     out.setByteOrder(QDataStream::LittleEndian);
     for (int i = 0; i < this->celFrameIndices.size(); i++) {
         QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
@@ -78,7 +79,10 @@ bool D1Min::save(SaveAsParam *params)
         }
     }
 
-    this->minFilePath = (&*outFile)->getFilePath(); // this->load(filePath, subtileCount);
+    QFileInfo fileinfo = QFileInfo(**outFile);
+    this->minFilePath = fileinfo.fileName(); // this->load(filePath, subtileCount);
+    delete *outFile;
+
     return true;
 }
 
