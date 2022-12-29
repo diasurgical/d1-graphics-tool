@@ -258,9 +258,9 @@ quint8 *D1CelTilesetFrame::WriteLeftTriangle(quint8 *pDst)
 {
     D1CelPixel pixel;
     int i, x, y;
-    int length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
+    // int length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
 
-    // memset(pDst, 0, length);
+    // memset(pDst, 0, length); -- unnecessary for the game, and the current user did this anyway
     y = MICRO_HEIGHT - 1;
     for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
         // check transparent pixels
@@ -312,9 +312,9 @@ quint8 *D1CelTilesetFrame::WriteRightTriangle(quint8 *pDst)
 {
     D1CelPixel pixel;
     int i, x, y;
-    int length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
+    // int length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
 
-    // memset(pDst, 0, length);
+    // memset(pDst, 0, length); -- unnecessary for the game, and the current user did this anyway
     y = MICRO_HEIGHT - 1;
     for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
         // add opaque pixels
@@ -366,9 +366,9 @@ quint8 *D1CelTilesetFrame::WriteLeftTrapezoid(quint8 *pDst)
 {
     D1CelPixel pixel;
     int i, x, y;
-    int length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
+    // int length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
 
-    // memset(pDst, 0, length);
+    // memset(pDst, 0, length); -- unnecessary for the game, and the current user did this anyway
     y = MICRO_HEIGHT - 1;
     for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
         // check transparent pixels
@@ -410,9 +410,9 @@ quint8 *D1CelTilesetFrame::WriteRightTrapezoid(quint8 *pDst)
 {
     D1CelPixel pixel;
     int i, x, y;
-    int length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
+    // int length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
 
-    // memset(pDst, 0, length);
+    // memset(pDst, 0, length); -- unnecessary for the game, and the current user did this anyway
     y = MICRO_HEIGHT - 1;
     for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
         // add opaque pixels
