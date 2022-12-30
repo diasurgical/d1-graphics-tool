@@ -14,6 +14,7 @@
 #include "levelcelview.h"
 #include "openasdialog.h"
 #include "palettewidget.h"
+#include "saveasdialog.h"
 #include "settingsdialog.h"
 
 #define D1_GRAPHICS_TOOL_VERSION "0.5.0"
@@ -36,6 +37,7 @@ public:
     void pushCommandToUndoStack(QUndoCommand *);
 
     void openFile(QString openFilePath, OpenAsParam *params = nullptr);
+    void saveFile(SaveAsParam *params = nullptr);
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
 
@@ -52,6 +54,8 @@ private:
 private slots:
     void on_actionOpen_triggered();
     void on_actionOpenAs_triggered();
+    void on_actionSave_triggered();
+    void on_actionSaveAs_triggered();
     void on_actionClose_triggered();
     void on_actionExport_triggered();
     void on_actionSettings_triggered();
@@ -98,6 +102,7 @@ private:
     QPointer<PaletteWidget> trn2Widget;
 
     QPointer<OpenAsDialog> openAsDialog = new OpenAsDialog(this);
+    QPointer<SaveAsDialog> saveAsDialog = new SaveAsDialog(this);
     QPointer<SettingsDialog> settingsDialog = new SettingsDialog(this);
     QPointer<ExportDialog> exportDialog = new ExportDialog(this);
 

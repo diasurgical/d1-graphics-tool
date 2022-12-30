@@ -1,8 +1,9 @@
 #include "d1min.h"
 
 #include <QBuffer>
-#include <QMap>
-#include <QPointer>
+#include <QFile>
+#include <QFileInfo>
+#include <QPainter>
 
 bool D1Min::load(QString filePath, quint16 subtileCount)
 {
@@ -58,6 +59,33 @@ bool D1Min::load(QString filePath, quint16 subtileCount)
     return true;
 }
 
+bool D1Min::save(SaveAsParam *params)
+{
+    QString selectedPath = params != nullptr ? params->minFilePath : "";
+    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
+    if (!outFile) {
+        return false;
+    }
+
+    // write to file
+    QDataStream out(*outFile);
+    out.setByteOrder(QDataStream::LittleEndian);
+    for (int i = 0; i < this->celFrameIndices.size(); i++) {
+        QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
+        for (int j = 0; j < celFrameIndicesList.count(); j++) {
+            quint16 writeWord = celFrameIndicesList[j];
+            writeWord |= ((quint16)this->getFrameType(writeWord)) << 12;
+            out << writeWord;
+        }
+    }
+
+    QFileInfo fileinfo = QFileInfo(**outFile);
+    this->minFilePath = fileinfo.fileName(); // this->load(filePath, subtileCount);
+    delete *outFile;
+
+    return true;
+}
+
 QImage D1Min::getSubtileImage(quint16 subtileIndex)
 {
     if (this->cel == nullptr || subtileIndex >= this->celFrameIndices.size())
@@ -76,11 +104,11 @@ QImage D1Min::getSubtileImage(quint16 subtileIndex)
             subtilePainter.drawImage(dx, dy,
                 this->cel->getFrameImage(celFrameIndex - 1));
 
-        if (dx == 32) {
-            dy += 32;
+        if (dx == MICRO_WIDTH) {
+            dy += MICRO_HEIGHT;
             dx = 0;
         } else {
-            dx = 32;
+            dx = MICRO_WIDTH;
         }
     }
 

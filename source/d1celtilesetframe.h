@@ -2,6 +2,9 @@
 
 #include "d1celbase.h"
 
+#define MICRO_WIDTH 32
+#define MICRO_HEIGHT 32
+
 enum class D1CEL_FRAME_TYPE {
     Square,
     TransparentSquare,
@@ -19,6 +22,8 @@ public:
 
     bool load(QByteArray rawData, OpenAsParam *params = nullptr);
 
+    quint8 *writeFrameData(quint8 *pBuf);
+
 private:
     void LoadSquare(QByteArray &rawData);
     void LoadTransparentSquare(QByteArray &rawData);
@@ -29,6 +34,13 @@ private:
     void LoadTopHalfSquare(QByteArray &rawData);
     void LoadLeftTrapezoid(QByteArray &rawData);
     void LoadRightTrapezoid(QByteArray &rawData);
+
+    quint8 *WriteSquare(quint8 *pBuf);
+    quint8 *WriteTransparentSquare(quint8 *pBuf);
+    quint8 *WriteLeftTriangle(quint8 *pBuf);
+    quint8 *WriteRightTriangle(quint8 *pBuf);
+    quint8 *WriteLeftTrapezoid(quint8 *pBuf);
+    quint8 *WriteRightTrapezoid(quint8 *pBuf);
 
     D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::Square;
 };

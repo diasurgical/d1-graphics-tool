@@ -55,6 +55,7 @@ MainWindow::~MainWindow()
     delete ui;
     delete configuration;
     delete openAsDialog;
+    delete saveAsDialog;
     delete settingsDialog;
     delete exportDialog;
     delete this->undoStack;
@@ -345,7 +346,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
             // Loading AMP
             this->amp = new D1Amp();
             QString ampFilePath = basePath + ".amp";
-            this->amp->load(ampFilePath, this->min->getSubtileCount());
+            this->amp->load(ampFilePath, this->til->getTileCount());
         } else {
             this->cel = new D1Cel();
         }
@@ -499,7 +500,42 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->ui->menuEdit->setEnabled(true);
     this->ui->menuPalette->setEnabled(true);
     this->ui->actionExport->setEnabled(true);
+    this->ui->actionSave->setEnabled(true);
+    this->ui->actionSaveAs->setEnabled(true);
     this->ui->actionClose->setEnabled(true);
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::saveFile(SaveAsParam *params)
+{
+    this->ui->statusBar->showMessage("Saving...");
+    this->ui->statusBar->repaint();
+
+    bool change = this->cel->save(params);
+    if (this->min != nullptr) {
+        change |= this->min->save(params);
+    }
+    if (this->til != nullptr) {
+        change |= this->til->save(params);
+    }
+    if (this->sol != nullptr) {
+        change |= this->sol->save(params);
+    }
+    if (this->amp != nullptr) {
+        change |= this->amp->save(params);
+    }
+
+    if (change) {
+        // update view
+        if (this->celView != nullptr) {
+            this->celView->initialize(this->cel);
+        }
+        if (this->levelCelView != nullptr) {
+            this->levelCelView->initialize(this->cel, this->min, this->til, this->sol, this->amp);
+        }
+    }
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -509,6 +545,17 @@ void MainWindow::on_actionOpenAs_triggered()
 {
     this->openAsDialog->initialize(this->configuration);
     this->openAsDialog->show();
+}
+
+void MainWindow::on_actionSave_triggered()
+{
+    this->saveFile();
+}
+
+void MainWindow::on_actionSaveAs_triggered()
+{
+    this->saveAsDialog->initialize(this->configuration, this->cel, this->levelCelView != nullptr);
+    this->saveAsDialog->show();
 }
 
 void MainWindow::on_actionClose_triggered()
@@ -541,6 +588,8 @@ void MainWindow::on_actionClose_triggered()
     this->ui->menuEdit->setEnabled(false);
     this->ui->menuPalette->setEnabled(false);
     this->ui->actionExport->setEnabled(false);
+    this->ui->actionSave->setEnabled(false);
+    this->ui->actionSaveAs->setEnabled(false);
     this->ui->actionClose->setEnabled(false);
 }
 
@@ -552,21 +601,7 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::on_actionExport_triggered()
 {
-    if (this->min != nullptr)
-        this->exportDialog->setMin(this->min);
-
-    if (this->til != nullptr)
-        this->exportDialog->setTil(this->til);
-
-    if (this->cel != nullptr)
-        this->exportDialog->setCel(this->cel);
-
-    if (this->amp != nullptr)
-        this->exportDialog->setAmp(this->amp);
-
-    if (this->sol != nullptr)
-        this->exportDialog->setSol(this->sol);
-
+    this->exportDialog->initialize(this->configuration, this->cel, this->min, this->til, this->sol, this->amp);
     this->exportDialog->show();
 }
 

@@ -1,13 +1,9 @@
 #include "d1til.h"
 
 #include <QBuffer>
+#include <QFile>
+#include <QFileInfo>
 #include <QPainter>
-
-D1Til::D1Til(QString path, D1Min *m)
-    : min(m)
-{
-    this->load(path);
-}
 
 bool D1Til::load(QString filePath)
 {
@@ -48,6 +44,32 @@ bool D1Til::load(QString filePath)
         this->subtileIndices.append(subtileIndicesList);
     }
     this->tilFilePath = filePath;
+    return true;
+}
+
+bool D1Til::save(SaveAsParam *params)
+{
+    QString selectedPath = params != nullptr ? params->tilFilePath : "";
+    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
+    if (!outFile) {
+        return false;
+    }
+
+    // write to file
+    QDataStream out(*outFile);
+    out.setByteOrder(QDataStream::LittleEndian);
+    for (int i = 0; i < this->tileCount; i++) {
+        QList<quint16> &subtileIndicesList = this->subtileIndices[i];
+        for (int j = 0; j < 4; j++) {
+            quint16 writeWord = subtileIndicesList[j];
+            out << writeWord;
+        }
+    }
+
+    QFileInfo fileinfo = QFileInfo(**outFile);
+    this->tilFilePath = fileinfo.fileName(); // this->load(filePath);
+    delete *outFile;
+
     return true;
 }
 

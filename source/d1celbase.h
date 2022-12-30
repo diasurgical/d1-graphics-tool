@@ -4,9 +4,17 @@
 #include <QFile>
 #include <QImage>
 #include <QPointer>
+#include <QtEndian>
 
 #include "d1pal.h"
 #include "openasdialog.h"
+#include "saveasdialog.h"
+
+#define SUB_HEADER_SIZE 0x0A
+#define CEL_BLOCK_HEIGHT 32
+
+#define SwapLE16(X) qToLittleEndian((quint16)(X))
+#define SwapLE32(X) qToLittleEndian((quint32)(X))
 
 class D1CelPixel {
 public:
@@ -34,6 +42,7 @@ public:
     quint16 getWidth();
     quint16 getHeight();
     D1CelPixel getPixel(quint16, quint16);
+    bool isClipped();
 
 protected:
     quint16 width = 0;
@@ -60,6 +69,7 @@ public:
     ~D1CelBase();
 
     virtual bool load(QString filePath, OpenAsParam *params = nullptr) = 0;
+    virtual bool save(SaveAsParam *params = nullptr) = 0;
     bool isFrameSizeConstant();
     QImage getFrameImage(quint16);
 

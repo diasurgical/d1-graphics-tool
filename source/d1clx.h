@@ -15,4 +15,5 @@ public:
 
 protected:
     D1ClxFrame *createFrame() override;
+    bool writeFileData(QFile &outFile, SaveAsParam *params) override;
 };

@@ -1,17 +1,18 @@
 #pragma once
 
-#include <QFile>
 #include <QList>
+
+#include "saveasdialog.h"
 
 class D1Sol : public QObject {
     Q_OBJECT
 
 public:
     D1Sol() = default;
-    D1Sol(QString path);
     ~D1Sol() = default;
 
-    bool load(QString);
+    bool load(QString filePath);
+    bool save(SaveAsParam *params = nullptr);
 
     QString getFilePath();
     quint16 getSubtileCount();

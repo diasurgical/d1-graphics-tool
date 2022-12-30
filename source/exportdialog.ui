@@ -145,16 +145,6 @@
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="diabloButton">
-           <property name="text">
-            <string>Diablo 1</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">outputFilesFormatButtonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
           <spacer name="filesHorizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
