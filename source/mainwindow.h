@@ -3,7 +3,7 @@
 #include <QMainWindow>
 
 #include "celview.h"
-#include "d1celbase.h"
+#include "d1gfx.h"
 #include "d1min.h"
 #include "d1pal.h"
 #include "d1palhits.h"
@@ -109,7 +109,7 @@ private:
     QPointer<D1Pal> pal;
     QPointer<D1Trn> trn1;
     QPointer<D1Trn> trn2;
-    QPointer<D1CelBase> cel;
+    QPointer<D1Gfx> gfx;
     QPointer<D1Min> min;
     QPointer<D1Til> til;
     QPointer<D1Sol> sol;

@@ -1,10 +1,14 @@
 #include "d1cel.h"
 
-#include <memory>
-
+#include <QBuffer>
+#include <QByteArray>
+#include <QDataStream>
+#include <QList>
 #include <QMessageBox>
 
-bool D1Cel::load(QString filePath, OpenAsParam *params)
+#include "d1celframe.h"
+
+bool D1Cel::load(D1Gfx &gfx, QString filePath, OpenAsParam *params)
 {
     // Opening CEL file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -39,12 +43,12 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
     quint32 fileSizeDword;
     in >> fileSizeDword;
 
-    this->groupFrameIndices.clear();
+    gfx.groupFrameIndices.clear();
 
     QList<QPair<quint32, quint32>> frameOffsets;
     if (fileBuffer.size() == fileSizeDword) {
         // Going through all frames of the CEL
-        this->groupFrameIndices.append(qMakePair(0, firstDword - 1));
+        gfx.groupFrameIndices.append(qMakePair(0, firstDword - 1));
         for (unsigned int i = 1; i <= firstDword; i++) {
             fileBuffer.seek(i * 4);
             quint32 celFrameStartOffset;
@@ -54,7 +58,7 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
 
             frameOffsets.append(qMakePair(celFrameStartOffset, celFrameEndOffset));
         }
-        this->type = D1CEL_TYPE::V1_REGULAR;
+        gfx.type = D1CEL_TYPE::V1_REGULAR;
     } else {
         // Read offset of the last CEL of the CEL compilation
         fileBuffer.seek(firstDword - 4);
@@ -85,7 +89,7 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
             return false;
         }
 
-        this->type = D1CEL_TYPE::V1_COMPILATION;
+        gfx.type = D1CEL_TYPE::V1_COMPILATION;
 
         // Going through all CELs
         for (unsigned int i = 0; i * 4 < firstDword; i++) {
@@ -97,7 +101,7 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
             quint32 celFrameCount;
             in >> celFrameCount;
 
-            this->groupFrameIndices.append(
+            gfx.groupFrameIndices.append(
                 qMakePair(frameOffsets.size(),
                     frameOffsets.size() + celFrameCount - 1));
 
@@ -121,23 +125,26 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
 
     // BUILDING {CEL FRAMES}
 
-    qDeleteAll(this->frames);
-    this->frames.clear();
+    gfx.frames.clear();
     for (const auto &offset : frameOffsets) {
         fileBuffer.seek(offset.first);
         QByteArray celFrameRawData = fileBuffer.read(offset.second - offset.first);
 
-        std::unique_ptr<D1CelFrameBase> frame { new D1CelFrame() };
-        frame->load(celFrameRawData, params);
-        this->frames.append(frame.release());
+        D1GfxFrame frame;
+        if (!D1CelFrame::load(frame, celFrameRawData, params)) {
+            // TODO: log?
+            continue;
+        }
+        gfx.frames.append(frame);
     }
 
-    this->celFilePath = filePath;
+    gfx.gfxFilePath = filePath;
     return true;
 }
 
-static quint8 *writeFrameData(D1CelFrame *frame, quint8 *pBuf, int subHeaderSize, bool clipped)
+static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, int subHeaderSize)
 {
+    bool clipped = frame->isClipped();
     // add optional {CEL FRAME HEADER}
     quint8 *pHeader = pBuf;
     if (clipped) {
@@ -156,7 +163,7 @@ static quint8 *writeFrameData(D1CelFrame *frame, quint8 *pBuf, int subHeaderSize
             *(quint16 *)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader); // pHead - buf - SUB_HEADER_SIZE;
         }
         for (int j = 0; j < frame->getWidth(); j++) {
-            D1CelPixel pixel = frame->getPixel(j, frame->getHeight() - i);
+            D1GfxPixel pixel = frame->getPixel(j, frame->getHeight() - i);
             if (!pixel.isTransparent()) {
                 // add opaque pixel
                 if (alpha || *pHead > 126) {
@@ -181,24 +188,25 @@ static quint8 *writeFrameData(D1CelFrame *frame, quint8 *pBuf, int subHeaderSize
     return pBuf;
 }
 
-bool D1Cel::writeFileData(QFile &outFile, SaveAsParam *params)
+bool D1Cel::writeFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
 {
-    const int numFrames = this->frames.count();
+    const int numFrames = gfx.frames.count();
 
-    // prepare clipping info
+    // update type
+    gfx.type = D1CEL_TYPE::V1_REGULAR;
+    // update clipped info
     bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
-    QList<bool> clipped;
     for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        clipped.append((clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped()));
+        D1GfxFrame *frame = gfx.getFrame(n);
+        frame->clipped = (clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
     }
     // calculate header size
     int HEADER_SIZE = 4 + 4 + numFrames * 4;
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
     for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        if (clipped[n]) {
+        D1GfxFrame *frame = gfx.getFrame(n);
+        if (frame->clipped) {
             int hs = (frame->getHeight() - 1) / CEL_BLOCK_HEIGHT;
             hs = (hs + 1) * sizeof(quint16);
             subHeaderSize = std::max(subHeaderSize, hs);
@@ -207,8 +215,8 @@ bool D1Cel::writeFileData(QFile &outFile, SaveAsParam *params)
     // estimate data size
     int maxSize = HEADER_SIZE;
     for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        if (clipped[n]) {
+        D1GfxFrame *frame = gfx.getFrame(n);
+        if (frame->clipped) {
             maxSize += subHeaderSize; // SUB_HEADER_SIZE
         }
         maxSize += frame->getHeight() * (2 * frame->getWidth());
@@ -222,7 +230,8 @@ bool D1Cel::writeFileData(QFile &outFile, SaveAsParam *params)
     *(quint32 *)&buf[4] = SwapLE32(HEADER_SIZE);
     quint8 *pBuf = &buf[HEADER_SIZE];
     for (int n = 0; n < numFrames; n++) {
-        pBuf = writeFrameData((D1CelFrame *)this->getFrame(n), pBuf, subHeaderSize, clipped[n]);
+        D1GfxFrame *frame = gfx.getFrame(n);
+        pBuf = writeFrameData(frame, pBuf, subHeaderSize);
         *(quint32 *)&buf[4 + 4 * (n + 1)] = SwapLE32(pBuf - buf);
     }
 
@@ -233,16 +242,17 @@ bool D1Cel::writeFileData(QFile &outFile, SaveAsParam *params)
     return true;
 }
 
-bool D1Cel::writeCompFileData(QFile &outFile, SaveAsParam *params)
+bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
 {
-    const int numFrames = this->frames.count();
+    const int numFrames = gfx.frames.count();
 
-    // prepare clipping info
+    // update type
+    gfx.type = D1CEL_TYPE::V1_COMPILATION;
+    // update clipped info
     bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
-    QList<bool> clipped;
     for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        clipped.append((clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped()));
+        D1GfxFrame *frame = gfx.getFrame(n);
+        frame->clipped = (clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
     }
 
     // calculate header size
@@ -250,9 +260,9 @@ bool D1Cel::writeCompFileData(QFile &outFile, SaveAsParam *params)
     int headerSize = 0;
     QList<int> groupSizes;
     if (params == nullptr || params->groupNum == 0) {
-        numGroups = this->getGroupCount();
+        numGroups = gfx.getGroupCount();
         for (int i = 0; i < numGroups; i++) {
-            QPair<quint16, quint16> gfi = this->getGroupFrameIndices(i);
+            QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
             int ni = gfi.second - gfi.first + 1;
             groupSizes.append(ni);
             headerSize += 4 + 4 * (ni + 1);
@@ -277,8 +287,8 @@ bool D1Cel::writeCompFileData(QFile &outFile, SaveAsParam *params)
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
     for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        if (clipped[n]) {
+        D1GfxFrame *frame = gfx.getFrame(n);
+        if (frame->clipped) {
             int hs = (frame->getHeight() - 1) / CEL_BLOCK_HEIGHT;
             hs = (hs + 1) * sizeof(quint16);
             subHeaderSize = std::max(subHeaderSize, hs);
@@ -287,8 +297,8 @@ bool D1Cel::writeCompFileData(QFile &outFile, SaveAsParam *params)
     // estimate data size
     int maxSize = headerSize;
     for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        if (clipped[n]) {
+        D1GfxFrame *frame = gfx.getFrame(n);
+        if (frame->clipped) {
             maxSize += subHeaderSize; // SUB_HEADER_SIZE
         }
         maxSize += frame->getHeight() * (2 * frame->getWidth());
@@ -310,7 +320,8 @@ bool D1Cel::writeCompFileData(QFile &outFile, SaveAsParam *params)
 
         pBuf += 4 + 4 * (ni + 1);
         for (int n = 0; n < ni; n++, idx++) {
-            pBuf = writeFrameData((D1CelFrame *)this->getFrame(idx), pBuf, subHeaderSize, clipped[idx]); // TODO: what if the groups are not continuous?
+            D1GfxFrame *frame = gfx.getFrame(idx); // TODO: what if the groups are not continuous?
+            pBuf = writeFrameData(frame, pBuf, subHeaderSize);
             *(quint32 *)&hdr[4 + 4 * (n + 1)] = SwapLE32(pBuf - hdr);
         }
     }
@@ -321,9 +332,9 @@ bool D1Cel::writeCompFileData(QFile &outFile, SaveAsParam *params)
     return true;
 }
 
-bool D1Cel::save(SaveAsParam *params)
+bool D1Cel::save(D1Gfx &gfx, SaveAsParam *params)
 {
-    QString filePath = this->getFilePath();
+    QString filePath = gfx.gfxFilePath;
     if (params != nullptr && !params->celFilePath.isEmpty()) {
         filePath = params->celFilePath;
         /*if (QFile::exists(filePath)) {
@@ -343,7 +354,7 @@ bool D1Cel::save(SaveAsParam *params)
 
     D1CEL_TYPE type;
     if (params == nullptr || params->groupNum == 0) {
-        type = this->type;
+        type = gfx.type;
     } else {
         type = params->groupNum > 1 ? D1CEL_TYPE::V1_COMPILATION : D1CEL_TYPE::V1_REGULAR;
     }
@@ -351,15 +362,15 @@ bool D1Cel::save(SaveAsParam *params)
     bool result;
     // if ((params == nullptr && this->getGroupCount() > 1) || (params != nullptr && params->groupNum != 0)) {
     if (type == D1CEL_TYPE::V1_COMPILATION) {
-        result = this->writeCompFileData(outFile, params);
+        result = D1Cel::writeCompFileData(gfx, outFile, params);
     } else {
-        result = this->writeFileData(outFile, params);
+        result = D1Cel::writeFileData(gfx, outFile, params);
     }
 
     outFile.close();
 
     if (result) {
-        this->load(filePath);
+        gfx.gfxFilePath = filePath; //  D1Cel::load(gfx, filePath);
     }
     return result;
 }

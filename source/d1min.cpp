@@ -91,8 +91,8 @@ QImage D1Min::getSubtileImage(quint16 subtileIndex)
     if (this->cel == nullptr || subtileIndex >= this->celFrameIndices.size())
         return QImage();
 
-    QImage subtile = QImage(this->subtileWidth * 32,
-        this->subtileHeight * 32, QImage::Format_ARGB32);
+    QImage subtile = QImage(this->subtileWidth * MICRO_WIDTH,
+        this->subtileHeight * MICRO_HEIGHT, QImage::Format_ARGB32);
     subtile.fill(Qt::transparent);
     QPainter subtilePainter(&subtile);
 
@@ -126,12 +126,7 @@ QString D1Min::getFilePath()
     return this->minFilePath;
 }
 
-D1CelBase *D1Min::getCel()
-{
-    return this->cel;
-}
-
-void D1Min::setCel(D1CelBase *c)
+void D1Min::setCel(D1Gfx *c)
 {
     this->cel = c;
 }

@@ -1,15 +1,11 @@
 #include "d1celtileset.h"
-#include "d1celtilesetframe.h"
 
-#include <memory>
-
+#include <QBuffer>
+#include <QByteArray>
+#include <QDataStream>
 #include <QMessageBox>
 
-D1CelTileset::D1CelTileset(D1Min *min)
-    : min(min)
-{
-    this->type = D1CEL_TYPE::V1_LEVEL;
-}
+#include "d1celtilesetframe.h"
 
 D1CEL_FRAME_TYPE guessFrameType(QByteArray &rawFrameData)
 {
@@ -52,7 +48,7 @@ D1CEL_FRAME_TYPE guessFrameType(QByteArray &rawFrameData)
     return D1CEL_FRAME_TYPE::TransparentSquare;
 }
 
-bool D1CelTileset::load(QString filePath, OpenAsParam *params)
+bool D1CelTileset::load(D1Gfx &gfx, D1Min *min, QString filePath, OpenAsParam *params)
 {
     // Opening CEL file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -87,7 +83,7 @@ bool D1CelTileset::load(QString filePath, OpenAsParam *params)
     quint32 fileSizeDword;
     in >> fileSizeDword;
 
-    this->groupFrameIndices.clear();
+    gfx.groupFrameIndices.clear();
 
     if (fileBuffer.size() != fileSizeDword)
         return false;
@@ -104,31 +100,36 @@ bool D1CelTileset::load(QString filePath, OpenAsParam *params)
         frameOffsets.append(qMakePair(celFrameStartOffset, celFrameEndOffset));
     }
 
+    gfx.type = D1CEL_TYPE::V1_LEVEL;
+
     // CEL FRAMES OFFSETS CALCULATION
 
     // BUILDING {CEL FRAMES}
 
-    qDeleteAll(this->frames);
-    this->frames.clear();
-    for (const auto &offset : frameOffsets) {
+    gfx.frames.clear();
+    for (int i = 0; i < frameOffsets.count(); i++) {
+        const auto &offset = frameOffsets[i];
         fileBuffer.seek(offset.first);
         QByteArray celFrameRawData = fileBuffer.read(offset.second - offset.first);
-        D1CEL_FRAME_TYPE frameType = this->min->getFrameType(this->frames.count() + 1);
+        D1CEL_FRAME_TYPE frameType = min->getFrameType(i + 1);
         if (frameType == D1CEL_FRAME_TYPE::Unknown) {
-            qDebug() << "Unknown frame type for frame " << this->frames.count() + 1;
+            qDebug() << "Unknown frame type for frame " << i + 1;
             frameType = guessFrameType(celFrameRawData);
         }
-        std::unique_ptr<D1CelFrameBase> frame { new D1CelTilesetFrame(frameType) };
-        frame->load(celFrameRawData, params);
-        this->frames.append(frame.release());
+        D1GfxFrame frame;
+        if (!D1CelTilesetFrame::load(frame, frameType, celFrameRawData, params)) {
+            // TODO: log?
+            continue;
+        }
+        gfx.frames.append(frame);
     }
-    this->celFilePath = filePath;
+    gfx.gfxFilePath = filePath;
     return true;
 }
 
-bool D1CelTileset::writeFileData(QFile &outFile)
+bool D1CelTileset::writeFileData(D1Gfx &gfx, QFile &outFile)
 {
-    const int numFrames = this->getFrameCount();
+    const int numFrames = gfx.getFrameCount();
 
     // calculate header size
     int headerSize = 4 + numFrames * 4 + 4;
@@ -147,7 +148,7 @@ bool D1CelTileset::writeFileData(QFile &outFile)
     for (int ii = 0; ii < numFrames; ii++) {
         *(quint32 *)&buf[(ii + 1) * sizeof(quint32)] = SwapLE32(pBuf - buf);
 
-        pBuf = ((D1CelTilesetFrame *)this->getFrame(ii))->writeFrameData(pBuf);
+        pBuf = D1CelTilesetFrame::writeFrameData(*gfx.getFrame(ii), pBuf);
     }
 
     *(quint32 *)&buf[(numFrames + 1) * sizeof(quint32)] = SwapLE32(pBuf - buf);
@@ -159,9 +160,9 @@ bool D1CelTileset::writeFileData(QFile &outFile)
     return true;
 }
 
-bool D1CelTileset::save(SaveAsParam *params)
+bool D1CelTileset::save(D1Gfx &gfx, SaveAsParam *params)
 {
-    QString filePath = this->getFilePath();
+    QString filePath = gfx.gfxFilePath;
     if (params != nullptr && !params->celFilePath.isEmpty()) {
         filePath = params->celFilePath;
         /*if (QFile::exists(filePath)) {
@@ -179,12 +180,12 @@ bool D1CelTileset::save(SaveAsParam *params)
         return false;
     }
 
-    bool result = this->writeFileData(outFile);
+    bool result = D1CelTileset::writeFileData(gfx, outFile);
 
     outFile.close();
 
     if (result) {
-        this->celFilePath = filePath; // this->load(filePath);
+        gfx.gfxFilePath = filePath; // D1CelTileset::load(gfx, filePath);
     }
     return result;
 }

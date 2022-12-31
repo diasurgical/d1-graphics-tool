@@ -16,21 +16,21 @@ quint16 D1CelPixelGroup::getPixelCount()
     return this->pixelCount;
 }
 
-bool D1CelFrame::load(QByteArray rawData, OpenAsParam *params)
+bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, OpenAsParam *params)
 {
     if (rawData.size() == 0)
         return false;
 
     quint32 frameDataStartOffset = 0;
     quint16 width = 0;
-    this->clipped = false;
+    frame.clipped = false;
     if (params == nullptr || params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
         // Checking the presence of the {CEL FRAME HEADER}
         if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
             frameDataStartOffset += 0x0A;
             // If header is present, try to compute frame width from frame header
-            width = this->computeWidthFromHeader(rawData);
-            this->clipped = true;
+            width = D1CelFrame::computeWidthFromHeader(rawData);
+            frame.clipped = true;
         }
     } else {
         if (params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
@@ -40,54 +40,53 @@ bool D1CelFrame::load(QByteArray rawData, OpenAsParam *params)
             in >> offset;
             frameDataStartOffset += offset;
             // If header is present, try to compute frame width from frame header
-            width = this->computeWidthFromHeader(rawData);
-            this->clipped = true;
+            width = D1CelFrame::computeWidthFromHeader(rawData);
+            frame.clipped = true;
         }
     }
-    this->width = (params == nullptr || params->width == 0) ? width : params->width;
+    frame.width = (params == nullptr || params->width == 0) ? width : params->width;
 
     // If width could not be calculated with frame header,
     // attempt to calculate it from the frame data (by identifying pixel groups line wraps)
-    if (this->width == 0)
-        this->width = this->computeWidthFromData(rawData);
+    if (frame.width == 0)
+        frame.width = D1CelFrame::computeWidthFromData(rawData);
 
     // if CEL width was not found, return false
-    if (this->width == 0)
+    if (frame.width == 0)
         return false;
 
     // READ {CEL FRAME DATA}
-    QList<D1CelPixel> pixelLine;
+    QList<D1GfxPixel> pixelLine;
     for (int o = frameDataStartOffset; o < rawData.size(); o++) {
         quint8 readByte = rawData[o];
 
         // Transparent pixels group
         if (readByte > 0x7F) {
             // A pixel line can't exceed the image width
-            if ((pixelLine.size() + (256 - readByte)) > this->width)
+            if ((pixelLine.size() + (256 - readByte)) > frame.width)
                 return false;
 
             for (int i = 0; i < (256 - readByte); i++)
-                pixelLine.append(D1CelPixel(true, 0));
+                pixelLine.append(D1GfxPixel(true, 0));
         } else {
             // Palette indices group
             // A pixel line can't exceed the image width
-            if ((pixelLine.size() + readByte) > this->width)
+            if ((pixelLine.size() + readByte) > frame.width)
                 return false;
 
             for (int i = 0; i < readByte; i++) {
                 o++;
-                pixelLine.append(D1CelPixel(false, rawData[o]));
+                pixelLine.append(D1GfxPixel(false, rawData[o]));
             }
         }
 
-        if (pixelLine.size() == this->width) {
-            pixels.insert(0, pixelLine);
+        if (pixelLine.size() == frame.width) {
+            frame.pixels.insert(0, pixelLine);
             pixelLine.clear();
         }
     }
 
-    if (this->height == 0)
-        this->height = pixels.size();
+    frame.height = frame.pixels.size();
 
     return true;
 }
@@ -125,7 +124,7 @@ quint16 D1CelFrame::computeWidthFromHeader(QByteArray &rawFrameData)
             }
         }
 
-        quint16 width = pixelCount / 32;
+        quint16 width = pixelCount / CEL_BLOCK_HEIGHT;
         // The calculated width has to be the identical for each 32 pixel-line block
         // If it's not the case, 0 is returned
         if (celFrameWidth != 0 && celFrameWidth != width)

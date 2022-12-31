@@ -113,11 +113,6 @@ QString D1Til::getFilePath()
     return this->tilFilePath;
 }
 
-D1Min *D1Til::getMin()
-{
-    return this->min;
-}
-
 void D1Til::setMin(D1Min *m)
 {
     this->min = m;
@@ -125,8 +120,8 @@ void D1Til::setMin(D1Min *m)
     this->tileWidth = this->min->getSubtileWidth() * 2;
     this->tileHeight = this->min->getSubtileHeight() + 1;
 
-    this->tilePixelWidth = this->tileWidth * 32;
-    this->tilePixelHeight = this->tileHeight * 32;
+    this->tilePixelWidth = this->tileWidth * MICRO_WIDTH;
+    this->tilePixelHeight = this->tileHeight * MICRO_HEIGHT;
 }
 
 int D1Til::getTileCount()

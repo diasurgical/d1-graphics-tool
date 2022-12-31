@@ -1,14 +1,14 @@
 #include "d1palhits.h"
 
-D1PalHits::D1PalHits(D1CelBase *c)
-    : cel(c)
+D1PalHits::D1PalHits(D1Gfx *g)
+    : gfx(g)
 {
     D1PalHits::buildPalHits();
 }
 
-D1PalHits::D1PalHits(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s)
+D1PalHits::D1PalHits(D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s)
     : isLevelCel(true)
-    , cel(c)
+    , gfx(g)
     , min(m)
     , til(t)
     , sol(s)
@@ -30,15 +30,15 @@ void D1PalHits::setMode(D1PALHITS_MODE m)
 
 void D1PalHits::buildPalHits()
 {
-    D1CelFrameBase *frame = nullptr;
+    D1GfxFrame *frame = nullptr;
     quint8 paletteIndex = 0;
 
     // Go through all frames
-    for (int i = 0; i < this->cel->getFrameCount(); i++) {
+    for (int i = 0; i < this->gfx->getFrameCount(); i++) {
         QMap<quint8, quint32> frameHits;
 
         // Get frame pointer
-        frame = this->cel->getFrame(i);
+        frame = this->gfx->getFrame(i);
 
         // Go through every pixels of the frame
         for (int jx = 0; jx < frame->getWidth(); jx++) {

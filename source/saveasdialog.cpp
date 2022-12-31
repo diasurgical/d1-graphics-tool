@@ -42,12 +42,12 @@ SaveAsDialog::~SaveAsDialog()
     delete ui;
 }
 
-void SaveAsDialog::initialize(QJsonObject *cfg, D1CelBase *cel, bool isTileset)
+void SaveAsDialog::initialize(QJsonObject *cfg, D1Gfx *g)
 {
     // initialize the configuration pointer
     this->configuration = cfg;
-    this->cel = cel;
-    this->isTileset = isTileset;
+    this->gfx = g;
+    this->isTileset = this->gfx->getType() == D1CEL_TYPE::V1_LEVEL;
 
     // reset fields
     this->ui->outputCelFileEdit->setText("");
@@ -76,33 +76,18 @@ void SaveAsDialog::update()
 
 void SaveAsDialog::on_outputCelFileBrowseButton_clicked()
 {
-    QString filePath = this->cel->getFilePath();
+    QString filePath = this->gfx->getFilePath();
     const char *filter;
-    if (filePath.toLower().endsWith(".cl2")) {
-        filter = "CL2 Files (*.cl2 *.CL2)";
-    } else if (filePath.toLower().endsWith(".clx")) {
-        filter = "CLX Files (*.clx *.CLX)";
-    } else {
+    if (this->isTileset) {
         filter = "CEL Files (*.cel *.CEL)";
+    } else {
+        filter = "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX)";
     }
 
     MainWindow *qw = (MainWindow *)this->parentWidget();
     QString saveFilePath = qw->fileDialog(true, "Save Graphics as...", filter);
 
     if (saveFilePath.isEmpty()) {
-        return;
-    }
-    // enforce no type conversion
-    bool invalid = false;
-    if (filePath.toLower().endsWith(".cl2")) {
-        invalid = !saveFilePath.toLower().endsWith(".cl2");
-    } else if (filePath.toLower().endsWith(".clx")) {
-        invalid = !saveFilePath.toLower().endsWith(".clx");
-    } else {
-        invalid = !saveFilePath.toLower().endsWith(".cel");
-    }
-    if (invalid) {
-        QMessageBox::warning(this, "Notification", "Type conversion is not supported.");
         return;
     }
 

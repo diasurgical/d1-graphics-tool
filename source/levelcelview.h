@@ -6,7 +6,7 @@
 #include <QWidget>
 
 #include "d1amp.h"
-#include "d1celbase.h"
+#include "d1gfx.h"
 #include "d1min.h"
 #include "d1sol.h"
 #include "d1til.h"
@@ -35,11 +35,7 @@ public:
     explicit LevelCelView(QWidget *parent = nullptr);
     ~LevelCelView();
 
-    void initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a);
-    D1CelBase *getCel();
-    QString getCelPath();
-    D1Min *getMin();
-    D1Til *getTil();
+    void initialize(D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
 
     int getCurrentFrameIndex();
     int getCurrentSubtileIndex();
@@ -106,7 +102,7 @@ private:
     Ui::LevelCelView *ui;
     LevelCelScene *celScene = new LevelCelScene();
 
-    D1CelBase *cel;
+    D1Gfx *gfx;
     D1Min *min;
     D1Til *til;
     D1Sol *sol;
