@@ -268,10 +268,6 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
         }
     }
 
-    if (frameOffsets.empty()) {
-        return false;
-    }
-
     // BUILDING {CL2 FRAMES}
 
     qDeleteAll(this->frames);

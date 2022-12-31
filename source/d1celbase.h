@@ -76,9 +76,9 @@ public:
     QString getFilePath();
     D1Pal *getPalette();
     void setPalette(D1Pal *pal);
-    quint16 getGroupCount();
+    int getGroupCount();
     QPair<quint16, quint16> getGroupFrameIndices(quint16);
-    quint32 getFrameCount();
+    int getFrameCount();
     D1CelFrameBase *getFrame(quint16);
     quint16 getFrameWidth(quint16);
     quint16 getFrameHeight(quint16);

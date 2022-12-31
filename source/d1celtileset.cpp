@@ -104,9 +104,6 @@ bool D1CelTileset::load(QString filePath, OpenAsParam *params)
         frameOffsets.append(qMakePair(celFrameStartOffset, celFrameEndOffset));
     }
 
-    if (frameOffsets.empty())
-        return false;
-
     // CEL FRAMES OFFSETS CALCULATION
 
     // BUILDING {CEL FRAMES}

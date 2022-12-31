@@ -36,16 +36,18 @@ public:
     void initialize(D1CelBase *c);
     D1CelBase *getCel();
     QString getCelPath();
-    quint32 getCurrentFrameIndex();
+    int getCurrentFrameIndex();
     void framePixelClicked(quint16, quint16);
 
     void displayFrame();
-    bool checkGroupNumber();
-    void setGroupNumber();
 
 signals:
     void frameRefreshed();
     void colorIndexClicked(quint8);
+
+private:
+    void updateGroupIndex();
+    void setGroupIndex();
 
 private slots:
     void on_firstFrameButton_clicked();
@@ -74,8 +76,8 @@ private:
     CelScene *celScene;
 
     D1CelBase *cel;
-    quint16 currentGroupIndex = 0;
-    quint32 currentFrameIndex = 0;
+    int currentGroupIndex = 0;
+    int currentFrameIndex = 0;
     quint8 currentZoomFactor = 1;
     quint16 currentPlayDelay = 50;
 
