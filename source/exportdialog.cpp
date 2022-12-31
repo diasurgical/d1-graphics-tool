@@ -108,7 +108,7 @@ bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
     QPainter painter(&tempOutputImage);
     quint8 tileXIndex = 0;
     quint8 tileYIndex = 0;
-    for (unsigned int i = 0; i < this->til->getTileCount(); i++) {
+    for (int i = 0; i < this->til->getTileCount(); i++) {
         if (progress.wasCanceled()) {
             return false;
         }
@@ -228,7 +228,7 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
     // multiple frames
     if (!ui->oneFileForAllFramesRadioButton->isChecked()) {
         // one file for each frame (indexed)
-        for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
+        for (int i = 0; i < this->cel->getFrameCount(); i++) {
             if (progress.wasCanceled()) {
                 return false;
             }
@@ -248,7 +248,7 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
     quint16 tempOutputImageHeight = 0;
     // If only one file will contain all frames
     if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
-        for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+        for (int i = 0; i < this->cel->getGroupCount(); i++) {
             quint16 groupImageWidth = 0;
             quint16 groupImageHeight = 0;
             for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
@@ -261,12 +261,12 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
         }
 
     } else if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
-        for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+        for (int i = 0; i < this->cel->getGroupCount(); i++) {
             tempOutputImageWidth = std::max(this->cel->getFrameWidth(i), tempOutputImageWidth);
             tempOutputImageHeight += this->cel->getFrameHeight(i);
         }
     } else if (ui->allFramesOnOneLineRadioButton->isChecked()) {
-        for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+        for (int i = 0; i < this->cel->getGroupCount(); i++) {
             tempOutputImageWidth += this->cel->getFrameWidth(i);
             tempOutputImageHeight = std::max(this->cel->getFrameHeight(i), tempOutputImageHeight);
         }
@@ -278,7 +278,7 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
 
     if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
         quint32 cursorY = 0;
-        for (unsigned int i = 0; i < this->cel->getGroupCount(); i++) {
+        for (int i = 0; i < this->cel->getGroupCount(); i++) {
             quint32 cursorX = 0;
             quint16 groupImageHeight = 0;
             for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
@@ -296,7 +296,7 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
         }
     } else {
         quint32 cursor = 0;
-        for (unsigned int i = 0; i < this->cel->getFrameCount(); i++) {
+        for (int i = 0; i < this->cel->getFrameCount(); i++) {
             if (progress.wasCanceled()) {
                 return false;
             }

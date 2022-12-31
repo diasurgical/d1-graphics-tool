@@ -1,5 +1,7 @@
 #include "levelcelview.h"
 
+#include <algorithm>
+
 #include <QFileInfo>
 #include <QGraphicsPixmapItem>
 
@@ -83,17 +85,17 @@ D1Til *LevelCelView::getTil()
     return this->til;
 }
 
-quint32 LevelCelView::getCurrentFrameIndex()
+int LevelCelView::getCurrentFrameIndex()
 {
     return this->currentFrameIndex;
 }
 
-quint16 LevelCelView::getCurrentSubtileIndex()
+int LevelCelView::getCurrentSubtileIndex()
 {
     return this->currentSubtileIndex;
 }
 
-quint16 LevelCelView::getCurrentTileIndex()
+int LevelCelView::getCurrentTileIndex()
 {
     return this->currentTileIndex;
 }
@@ -318,7 +320,7 @@ void LevelCelView::on_previousFrameButton_clicked()
     if (this->currentFrameIndex >= 1)
         this->currentFrameIndex--;
     else
-        this->currentFrameIndex = this->cel->getFrameCount() - 1;
+        this->currentFrameIndex = std::max(0, this->cel->getFrameCount() - 1);
 
     this->displayFrame();
 }
@@ -335,15 +337,15 @@ void LevelCelView::on_nextFrameButton_clicked()
 
 void LevelCelView::on_lastFrameButton_clicked()
 {
-    this->currentFrameIndex = this->cel->getFrameCount() - 1;
+    this->currentFrameIndex = std::max(0, this->cel->getFrameCount() - 1);
     this->displayFrame();
 }
 
 void LevelCelView::on_frameIndexEdit_returnPressed()
 {
-    quint32 frameIndex = this->ui->frameIndexEdit->text().toUInt() - 1;
+    int frameIndex = this->ui->frameIndexEdit->text().toInt() - 1;
 
-    if (frameIndex < this->cel->getFrameCount()) {
+    if (frameIndex >= 0 && frameIndex < this->cel->getFrameCount()) {
         this->currentFrameIndex = frameIndex;
         this->displayFrame();
     }
@@ -360,7 +362,7 @@ void LevelCelView::on_previousSubtileButton_clicked()
     if (this->currentSubtileIndex >= 1)
         this->currentSubtileIndex--;
     else
-        this->currentSubtileIndex = this->min->getSubtileCount() - 1;
+        this->currentSubtileIndex = std::max(0, this->min->getSubtileCount() - 1);
 
     this->displayFrame();
 }
@@ -377,15 +379,15 @@ void LevelCelView::on_nextSubtileButton_clicked()
 
 void LevelCelView::on_lastSubtileButton_clicked()
 {
-    this->currentSubtileIndex = this->min->getSubtileCount() - 1;
+    this->currentSubtileIndex = std::max(0, this->min->getSubtileCount() - 1);
     this->displayFrame();
 }
 
 void LevelCelView::on_subtileIndexEdit_returnPressed()
 {
-    quint16 subtileIndex = this->ui->subtileIndexEdit->text().toUShort() - 1;
+    int subtileIndex = this->ui->subtileIndexEdit->text().toInt() - 1;
 
-    if (subtileIndex < this->min->getSubtileCount()) {
+    if (subtileIndex >= 0 && subtileIndex < this->min->getSubtileCount()) {
         this->currentSubtileIndex = subtileIndex;
         this->displayFrame();
     }
@@ -402,7 +404,7 @@ void LevelCelView::on_previousTileButton_clicked()
     if (this->currentTileIndex >= 1)
         this->currentTileIndex--;
     else
-        this->currentTileIndex = this->til->getTileCount() - 1;
+        this->currentTileIndex = std::max(0, this->til->getTileCount() - 1);
 
     this->displayFrame();
 }
@@ -419,15 +421,15 @@ void LevelCelView::on_nextTileButton_clicked()
 
 void LevelCelView::on_lastTileButton_clicked()
 {
-    this->currentTileIndex = this->til->getTileCount() - 1;
+    this->currentTileIndex = std::max(0, this->til->getTileCount() - 1);
     this->displayFrame();
 }
 
 void LevelCelView::on_tileIndexEdit_returnPressed()
 {
-    quint16 tileIndex = this->ui->tileIndexEdit->text().toUShort() - 1;
+    int tileIndex = this->ui->tileIndexEdit->text().toInt() - 1;
 
-    if (tileIndex < this->til->getTileCount()) {
+    if (tileIndex >= 0 && tileIndex < this->til->getTileCount()) {
         this->currentTileIndex = tileIndex;
         this->displayFrame();
     }

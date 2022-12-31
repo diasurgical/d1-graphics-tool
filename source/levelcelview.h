@@ -41,9 +41,9 @@ public:
     D1Min *getMin();
     D1Til *getTil();
 
-    quint32 getCurrentFrameIndex();
-    quint16 getCurrentSubtileIndex();
-    quint16 getCurrentTileIndex();
+    int getCurrentFrameIndex();
+    int getCurrentSubtileIndex();
+    int getCurrentTileIndex();
     void framePixelClicked(quint16, quint16);
 
     void displayFrame();
@@ -111,9 +111,9 @@ private:
     D1Til *til;
     D1Sol *sol;
     D1Amp *amp;
-    quint32 currentFrameIndex = 0;
-    quint16 currentSubtileIndex = 0;
-    quint16 currentTileIndex = 0;
+    int currentFrameIndex = 0;
+    int currentSubtileIndex = 0;
+    int currentTileIndex = 0;
     quint8 currentZoomFactor = 1;
     quint16 currentPlayDelay = 50;
 

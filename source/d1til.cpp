@@ -129,7 +129,7 @@ void D1Til::setMin(D1Min *m)
     this->tilePixelHeight = this->tileHeight * 32;
 }
 
-quint16 D1Til::getTileCount()
+int D1Til::getTileCount()
 {
     return this->tileCount;
 }
@@ -154,9 +154,9 @@ quint16 D1Til::getTilePixelHeight()
     return this->tilePixelHeight;
 }
 
-QList<quint16> D1Til::getSubtileIndices(quint16 tileIndex)
+QList<quint16> D1Til::getSubtileIndices(int tileIndex)
 {
-    if (tileIndex >= this->tileCount)
+    if (tileIndex < 0 || tileIndex >= this->tileCount)
         return QList<quint16>();
 
     return this->subtileIndices.at(tileIndex);

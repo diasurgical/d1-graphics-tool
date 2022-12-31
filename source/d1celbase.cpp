@@ -53,7 +53,7 @@ bool D1CelBase::isFrameSizeConstant()
     quint16 frameWidth = this->frames[0]->getWidth();
     quint16 frameHeight = this->frames[0]->getHeight();
 
-    for (unsigned int i = 1; i < this->frames.count(); i++) {
+    for (int i = 1; i < this->frames.count(); i++) {
         if (this->frames[i]->getWidth() != frameWidth
             || this->frames[i]->getHeight() != frameHeight)
             return false;
@@ -112,7 +112,7 @@ void D1CelBase::setPalette(D1Pal *pal)
     this->palette = pal;
 }
 
-quint16 D1CelBase::getGroupCount()
+int D1CelBase::getGroupCount()
 {
     return this->groupFrameIndices.count();
 }
@@ -125,7 +125,7 @@ QPair<quint16, quint16> D1CelBase::getGroupFrameIndices(quint16 groupIndex)
     return qMakePair(0, 0);
 }
 
-quint32 D1CelBase::getFrameCount()
+int D1CelBase::getFrameCount()
 {
     return this->frames.count();
 }

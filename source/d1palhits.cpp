@@ -34,7 +34,7 @@ void D1PalHits::buildPalHits()
     quint8 paletteIndex = 0;
 
     // Go through all frames
-    for (quint32 i = 0; i < this->cel->getFrameCount(); i++) {
+    for (int i = 0; i < this->cel->getFrameCount(); i++) {
         QMap<quint8, quint32> frameHits;
 
         // Get frame pointer
@@ -139,17 +139,17 @@ quint32 D1PalHits::getIndexHits(quint8 colorIndex)
 quint32 D1PalHits::getIndexHits(quint8 colorIndex, quint32 itemIndex)
 {
     if (this->mode == D1PALHITS_MODE::CURRENT_TILE) {
-        if (!this->tilePalHits[itemIndex].contains(colorIndex))
+        if (!this->tilePalHits.contains(itemIndex) || !this->tilePalHits[itemIndex].contains(colorIndex))
             return 0;
 
         return this->tilePalHits[itemIndex][colorIndex];
     } else if (this->mode == D1PALHITS_MODE::CURRENT_SUBTILE) {
-        if (!this->subtilePalHits[itemIndex].contains(colorIndex))
+        if (!this->subtilePalHits.contains(itemIndex) || !this->subtilePalHits[itemIndex].contains(colorIndex))
             return 0;
 
         return this->subtilePalHits[itemIndex][colorIndex];
     } else if (this->mode == D1PALHITS_MODE::CURRENT_FRAME) {
-        if (!this->framePalHits[itemIndex].contains(colorIndex))
+        if (!this->framePalHits.contains(itemIndex) || !this->framePalHits[itemIndex].contains(colorIndex))
             return 0;
 
         return this->framePalHits[itemIndex][colorIndex];

@@ -26,18 +26,18 @@ public:
     QString getFilePath();
     D1Min *getMin();
     void setMin(D1Min *m);
-    quint16 getTileCount();
+    int getTileCount();
     quint16 getTileWidth();
     quint16 getTileHeight();
     quint16 getTilePixelWidth();
     quint16 getTilePixelHeight();
-    QList<quint16> getSubtileIndices(quint16);
+    QList<quint16> getSubtileIndices(int tileIndex);
 
 private:
     D1TIL_TYPE type = D1TIL_TYPE::REGULAR_HEIGHT;
     QString tilFilePath;
     D1Min *min = nullptr;
-    quint16 tileCount = 0;
+    int tileCount = 0;
     quint16 tileWidth = 0;
     quint16 tileHeight = 0;
     quint16 tilePixelWidth = 0;

@@ -119,10 +119,6 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
 
     // CEL FRAMES OFFSETS CALCULATION
 
-    if (frameOffsets.empty()) {
-        return false;
-    }
-
     // BUILDING {CEL FRAMES}
 
     qDeleteAll(this->frames);
