@@ -40,10 +40,11 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
     in >> fileSizeDword;
 
     this->groupFrameIndices.clear();
-    this->frameOffsets.clear();
 
+    QList<QPair<quint32, quint32>> frameOffsets;
     if (fileBuffer.size() == fileSizeDword) {
         // Going through all frames of the CEL
+        this->groupFrameIndices.append(qMakePair(0, firstDword - 1));
         for (unsigned int i = 1; i <= firstDword; i++) {
             fileBuffer.seek(i * 4);
             quint32 celFrameStartOffset;
@@ -51,7 +52,7 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
             quint32 celFrameEndOffset;
             in >> celFrameEndOffset;
 
-            this->frameOffsets.append(qMakePair(celFrameStartOffset, celFrameEndOffset));
+            frameOffsets.append(qMakePair(celFrameStartOffset, celFrameEndOffset));
         }
         this->type = D1CEL_TYPE::V1_REGULAR;
     } else {
@@ -85,7 +86,6 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
         }
 
         this->type = D1CEL_TYPE::V1_COMPILATION;
-        this->groupCount = firstDword / 4;
 
         // Going through all CELs
         for (unsigned int i = 0; i * 4 < firstDword; i++) {
@@ -98,8 +98,8 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
             in >> celFrameCount;
 
             this->groupFrameIndices.append(
-                qMakePair(this->frameOffsets.size(),
-                    this->frameOffsets.size() + celFrameCount - 1));
+                qMakePair(frameOffsets.size(),
+                    frameOffsets.size() + celFrameCount - 1));
 
             // Going through all frames of the CEL
             for (unsigned int j = 1; j <= celFrameCount; j++) {
@@ -110,7 +110,7 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
                 in >> celFrameStartOffset;
                 in >> celFrameEndOffset;
 
-                this->frameOffsets.append(
+                frameOffsets.append(
                     qMakePair(celOffset + celFrameStartOffset,
                         celOffset + celFrameEndOffset));
             }
@@ -119,16 +119,15 @@ bool D1Cel::load(QString filePath, OpenAsParam *params)
 
     // CEL FRAMES OFFSETS CALCULATION
 
-    if (this->frameOffsets.empty())
+    if (frameOffsets.empty()) {
         return false;
-
-    this->frameCount = this->frameOffsets.size();
+    }
 
     // BUILDING {CEL FRAMES}
 
     qDeleteAll(this->frames);
     this->frames.clear();
-    for (const auto &offset : this->frameOffsets) {
+    for (const auto &offset : frameOffsets) {
         fileBuffer.seek(offset.first);
         QByteArray celFrameRawData = fileBuffer.read(offset.second - offset.first);
 
