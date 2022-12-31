@@ -9,6 +9,9 @@
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QStringList>
 #include <QTextStream>
 #include <QTime>
 #include <QUndoCommand>
@@ -229,11 +232,37 @@ void MainWindow::nextPaletteCycle(D1PAL_CYCLE_TYPE type)
 
 QString MainWindow::fileDialog(bool save, const char *title, const char *filter)
 {
-    QString filePath;
+    QString filePath = this->lastFilePath;
 
-    if (!this->lastFilePath.isEmpty()) {
-        QFileInfo fi(this->lastFilePath);
-        filePath = fi.absolutePath();
+    if (!filePath.isEmpty()) {
+        // filter file-name unless it matches the filter
+        QString pattern = QString(filter);
+        pattern = pattern.mid(pattern.lastIndexOf('(', pattern.length() - 1) + 1, -1);
+        pattern.chop(1);
+        QStringList patterns = pattern.split(QRegularExpression(" "), Qt::SkipEmptyParts);
+        bool match = false;
+        for (int i = 0; i < patterns.size(); i++) {
+            pattern = patterns.at(i);
+            // convert filter to regular expression
+            for (int n = 0; n < pattern.size(); n++) {
+                if (pattern[n] == '*') {
+                    // convert * to .*
+                    pattern.insert(n, '.');
+                    n++;
+                } else if (pattern[n] == '.') {
+                    // convert . to \.
+                    pattern.insert(n, '\\');
+                    n++;
+                }
+            }
+            QRegularExpression re(pattern);
+            QRegularExpressionMatch qmatch = re.match(filePath);
+            match |= qmatch.hasMatch();
+        }
+        if (!match) {
+            QFileInfo fi(filePath);
+            filePath = fi.absolutePath();
+        }
     }
     if (save) {
         filePath = QFileDialog::getSaveFileName(this, title, filePath, filter);
