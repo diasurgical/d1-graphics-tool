@@ -217,14 +217,14 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
 
         if (fileBuffer.size() == fileSizeDword) {
             this->type = D1CEL_TYPE::V2_MULTIPLE_GROUPS;
-            this->groupCount = firstDword / 4;
-        } else
+        } else {
             return false;
+        }
     }
 
     // CL2 FRAMES OFFSETS CALCULATION
     this->groupFrameIndices.clear();
-    this->frameOffsets.clear();
+    QList<QPair<quint32, quint32>> frameOffsets;
     if (this->type == D1CEL_TYPE::V2_MULTIPLE_GROUPS) {
         // Going through all groups
         for (unsigned i = 0; i * 4 < firstDword; i++) {
@@ -237,8 +237,8 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
             in >> cl2GroupFrameCount;
 
             this->groupFrameIndices.append(
-                qMakePair(this->frameOffsets.size(),
-                    this->frameOffsets.size() + cl2GroupFrameCount - 1));
+                qMakePair(frameOffsets.size(),
+                    frameOffsets.size() + cl2GroupFrameCount - 1));
 
             // Going through all frames of the group
             for (unsigned j = 1; j <= cl2GroupFrameCount; j++) {
@@ -248,13 +248,14 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
                 quint32 cl2FrameEndOffset;
                 in >> cl2FrameEndOffset;
 
-                this->frameOffsets.append(
+                frameOffsets.append(
                     qMakePair(cl2GroupOffset + cl2FrameStartOffset,
                         cl2GroupOffset + cl2FrameEndOffset));
             }
         }
     } else {
         // Going through all frames of the only group
+        this->groupFrameIndices.append(qMakePair(0, firstDword - 1));
         for (unsigned i = 1; i <= firstDword; i++) {
             fileBuffer.seek(i * 4);
             quint32 cl2FrameStartOffset;
@@ -262,21 +263,20 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
             quint32 cl2FrameEndOffset;
             in >> cl2FrameEndOffset;
 
-            this->frameOffsets.append(
+            frameOffsets.append(
                 qMakePair(cl2FrameStartOffset, cl2FrameEndOffset));
         }
     }
 
-    if (!this->frameOffsets.empty())
-        this->frameCount = this->frameOffsets.size();
-    else
+    if (frameOffsets.empty()) {
         return false;
+    }
 
     // BUILDING {CL2 FRAMES}
 
     qDeleteAll(this->frames);
     this->frames.clear();
-    for (const auto &offset : this->frameOffsets) {
+    for (const auto &offset : frameOffsets) {
         quint32 cl2FrameSize = offset.second - offset.first;
         fileBuffer.seek(offset.first);
 

@@ -135,9 +135,6 @@ void CelView::displayFrame()
 
 bool CelView::checkGroupNumber()
 {
-    if (this->cel->getGroupCount() == 1)
-        return true;
-
     QPair<quint16, quint16> groupFrameIndices = this->cel->getGroupFrameIndices(this->currentGroupIndex);
 
     return this->currentFrameIndex >= groupFrameIndices.first
@@ -161,19 +158,12 @@ void CelView::setGroupNumber()
 
 void CelView::playGroup()
 {
-    if (this->cel->getGroupCount() == 1) {
-        if (this->currentFrameIndex < this->cel->getFrameCount() - 1)
-            this->currentFrameIndex++;
-        else
-            this->currentFrameIndex = 0;
-    } else {
-        QPair<quint16, quint16> groupFrameIndices = this->cel->getGroupFrameIndices(this->currentGroupIndex);
+    QPair<quint16, quint16> groupFrameIndices = this->cel->getGroupFrameIndices(this->currentGroupIndex);
 
-        if (this->currentFrameIndex < groupFrameIndices.second)
-            this->currentFrameIndex++;
-        else
-            this->currentFrameIndex = groupFrameIndices.first;
-    }
+    if (this->currentFrameIndex < groupFrameIndices.second)
+        this->currentFrameIndex++;
+    else
+        this->currentFrameIndex = groupFrameIndices.first;
 
     MainWindow *mw = (MainWindow *)this->window();
     switch (this->ui->playComboBox->currentIndex()) {

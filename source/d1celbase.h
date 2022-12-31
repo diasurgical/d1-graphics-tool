@@ -65,7 +65,6 @@ class D1CelBase : public QObject {
 
 public:
     D1CelBase() = default;
-    D1CelBase(D1Pal *pal);
     ~D1CelBase();
 
     virtual bool load(QString filePath, OpenAsParam *params = nullptr) = 0;
@@ -88,9 +87,6 @@ protected:
     D1CEL_TYPE type = D1CEL_TYPE::NONE;
     QString celFilePath;
     D1Pal *palette = nullptr;
-    quint16 groupCount = 1;
     QList<QPair<quint16, quint16>> groupFrameIndices;
-    quint32 frameCount = 0;
-    QList<QPair<quint32, quint32>> frameOffsets;
     QList<QPointer<D1CelFrameBase>> frames;
 };

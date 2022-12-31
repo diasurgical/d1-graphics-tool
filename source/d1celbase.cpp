@@ -39,11 +39,6 @@ bool D1CelFrameBase::isClipped()
     return this->clipped;
 }
 
-D1CelBase::D1CelBase(D1Pal *pal)
-    : palette(pal)
-{
-}
-
 D1CelBase::~D1CelBase()
 {
     qDeleteAll(this->frames);
@@ -51,15 +46,16 @@ D1CelBase::~D1CelBase()
 
 bool D1CelBase::isFrameSizeConstant()
 {
-    if (this->frameCount == 0)
+    if (this->frames.isEmpty()) {
         return false;
+    }
 
-    quint16 frameWidth = this->getFrameWidth(0);
-    quint16 frameHeight = this->getFrameHeight(0);
+    quint16 frameWidth = this->frames[0]->getWidth();
+    quint16 frameHeight = this->frames[0]->getHeight();
 
-    for (unsigned int i = 1; i < this->frameCount; i++) {
-        if (this->getFrameWidth(i) != frameWidth
-            || this->getFrameHeight(i) != frameHeight)
+    for (unsigned int i = 1; i < this->frames.count(); i++) {
+        if (this->frames[i]->getWidth() != frameWidth
+            || this->frames[i]->getHeight() != frameHeight)
             return false;
     }
 
@@ -118,12 +114,12 @@ void D1CelBase::setPalette(D1Pal *pal)
 
 quint16 D1CelBase::getGroupCount()
 {
-    return this->groupCount;
+    return this->groupFrameIndices.count();
 }
 
 QPair<quint16, quint16> D1CelBase::getGroupFrameIndices(quint16 groupIndex)
 {
-    if (!this->groupFrameIndices.empty() && groupIndex < this->groupCount)
+    if (!this->groupFrameIndices.empty() && groupIndex < this->groupFrameIndices.count())
         return this->groupFrameIndices[groupIndex];
 
     return qMakePair(0, 0);
@@ -131,12 +127,12 @@ QPair<quint16, quint16> D1CelBase::getGroupFrameIndices(quint16 groupIndex)
 
 quint32 D1CelBase::getFrameCount()
 {
-    return this->frameCount;
+    return this->frames.count();
 }
 
 D1CelFrameBase *D1CelBase::getFrame(quint16 frameIndex)
 {
-    if (frameIndex >= this->frameCount)
+    if (frameIndex >= this->frames.count())
         return nullptr;
 
     return this->frames[frameIndex];
@@ -144,7 +140,7 @@ D1CelFrameBase *D1CelBase::getFrame(quint16 frameIndex)
 
 quint16 D1CelBase::getFrameWidth(quint16 frameIndex)
 {
-    if (frameIndex >= this->frameCount)
+    if (frameIndex >= this->frames.count())
         return 0;
 
     return this->frames[frameIndex]->getWidth();
@@ -152,7 +148,7 @@ quint16 D1CelBase::getFrameWidth(quint16 frameIndex)
 
 quint16 D1CelBase::getFrameHeight(quint16 frameIndex)
 {
-    if (frameIndex >= this->frameCount)
+    if (frameIndex >= this->frames.count())
         return 0;
 
     return this->frames[frameIndex]->getHeight();
