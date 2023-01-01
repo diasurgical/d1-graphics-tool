@@ -574,7 +574,7 @@ void MainWindow::saveFile(SaveAsParam *params)
         } else if (filePath.toLower().endsWith("clx")) {
             change = D1Cl2::save(*this->gfx, true, params);
         } else {
-            QMessageBox::critical(nullptr, "Warning", "Not supported.");
+            QMessageBox::critical(this, "Error", "Not supported.");
             // Clear loading message from status bar
             this->ui->statusBar->clearMessage();
             return;

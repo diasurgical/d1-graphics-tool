@@ -246,36 +246,28 @@ bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
 {
     const int numFrames = gfx.frames.count();
 
-    // update type
-    gfx.type = D1CEL_TYPE::V1_COMPILATION;
-    // update clipped info
-    bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
-    for (int n = 0; n < numFrames; n++) {
-        D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
-    }
-
     // calculate header size
     int numGroups;
     int headerSize = 0;
-    QList<int> groupSizes;
     if (params == nullptr || params->groupNum == 0) {
         numGroups = gfx.getGroupCount();
         for (int i = 0; i < numGroups; i++) {
             QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
             int ni = gfi.second - gfi.first + 1;
-            groupSizes.append(ni);
             headerSize += 4 + 4 * (ni + 1);
         }
     } else {
+        // update group indices
         numGroups = params->groupNum;
-        if (numFrames % numGroups != 0) {
+        if (numFrames == 0 || (numFrames % numGroups) != 0) {
             QMessageBox::critical(nullptr, "Error", "Frames can not be split to equal groups.");
             return false;
         }
+        // update group indices
+        gfx.groupFrameIndices.clear();
         for (int i = 0; i < numGroups; i++) {
             int ni = numFrames / numGroups;
-            groupSizes.append(ni);
+            gfx.groupFrameIndices.append(qMakePair(i * ni, i * ni + ni - 1));
             headerSize += 4 + 4 * (ni + 1);
         }
     }
@@ -284,6 +276,14 @@ bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
     headerSize += sizeof(quint32) * numGroups;
     // }
 
+    // update type
+    gfx.type = D1CEL_TYPE::V1_COMPILATION;
+    // update clipped info
+    bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    for (int n = 0; n < numFrames; n++) {
+        D1GfxFrame *frame = gfx.getFrame(n);
+        frame->clipped = (clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
+    }
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
     for (int n = 0; n < numFrames; n++) {
@@ -311,7 +311,8 @@ bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
     quint8 *pBuf = &buf[sizeof(quint32) * numGroups];
     int idx = 0;
     for (int ii = 0; ii < numGroups; ii++) {
-        int ni = groupSizes[ii];
+        QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(ii);
+        int ni = gfi.second - gfi.first + 1;
         *(quint32 *)&buf[ii * sizeof(quint32)] = SwapLE32(pBuf - buf);
 
         quint8 *hdr = pBuf;

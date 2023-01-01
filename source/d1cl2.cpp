@@ -381,26 +381,26 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *p
     bool groupped = false;
     int numGroups = 0;
     int headerSize = 0;
-    QList<int> groupSizes;
     if (params == nullptr || params->groupNum == 0) {
         numGroups = gfx.getGroupCount();
         groupped = numGroups > 1;
         for (int i = 0; i < numGroups; i++) {
             QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
             int ni = gfi.second - gfi.first + 1;
-            groupSizes.append(ni);
             headerSize += 4 + 4 * (ni + 1);
         }
     } else {
         numGroups = params->groupNum;
-        if (numFrames % numGroups != 0) {
+        if (numFrames == 0 || (numFrames % numGroups) != 0) {
             QMessageBox::critical(nullptr, "Error", "Frames can not be split to equal groups.");
             return false;
         }
         groupped = true;
+        // update group indices
+        gfx.groupFrameIndices.clear();
         for (int i = 0; i < numGroups; i++) {
             int ni = numFrames / numGroups;
-            groupSizes.append(ni);
+            gfx.groupFrameIndices.append(qMakePair(i * ni, i * ni + ni - 1));
             headerSize += 4 + 4 * (ni + 1);
         }
     }
@@ -445,7 +445,8 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *p
         int offset = numGroups * 4;
         for (int i = 0; i < numGroups; i++, hdr += 4) {
             *(quint32 *)&hdr[0] = offset;
-            quint32 ni = groupSizes[i];
+            QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
+            int ni = gfi.second - gfi.first + 1;
             offset += 4 + 4 * (ni + 1);
         }
     }
@@ -453,7 +454,8 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *p
     quint8 *pBuf = &buf[headerSize];
     int idx = 0;
     for (int ii = 0; ii < numGroups; ii++) {
-        int ni = groupSizes[ii];
+        QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(ii);
+        int ni = gfi.second - gfi.first + 1;
         *(quint32 *)&hdr[0] = SwapLE32(ni);
         *(quint32 *)&hdr[4] = SwapLE32(pBuf - hdr);
 
