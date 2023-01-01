@@ -7,7 +7,7 @@
 #include <QTimer>
 #include <QWidget>
 
-#include "d1celbase.h"
+#include "d1gfx.h"
 
 #define CEL_SCENE_SPACING 8
 
@@ -33,9 +33,7 @@ public:
     explicit CelView(QWidget *parent = nullptr);
     ~CelView();
 
-    void initialize(D1CelBase *c);
-    D1CelBase *getCel();
-    QString getCelPath();
+    void initialize(D1Gfx *gfx);
     int getCurrentFrameIndex();
     void framePixelClicked(quint16, quint16);
 
@@ -75,7 +73,7 @@ private:
     Ui::CelView *ui;
     CelScene *celScene;
 
-    D1CelBase *cel;
+    D1Gfx *gfx;
     int currentGroupIndex = 0;
     int currentFrameIndex = 0;
     quint8 currentZoomFactor = 1;

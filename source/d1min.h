@@ -3,8 +3,8 @@
 #include <QImage>
 #include <map>
 
-#include "d1cel.h"
 #include "d1celtilesetframe.h"
+#include "d1gfx.h"
 #include "saveasdialog.h"
 
 enum class D1MIN_TYPE {
@@ -26,8 +26,7 @@ public:
 
     D1MIN_TYPE getType();
     QString getFilePath();
-    D1CelBase *getCel();
-    void setCel(D1CelBase *c);
+    void setCel(D1Gfx *c);
     quint16 getSubtileCount();
     quint16 getSubtileWidth();
     quint16 getSubtileHeight();
@@ -37,7 +36,7 @@ public:
 private:
     D1MIN_TYPE type = D1MIN_TYPE::REGULAR_HEIGHT;
     QString minFilePath;
-    D1CelBase *cel = nullptr;
+    D1Gfx *cel = nullptr;
     quint8 subtileWidth = 2;
     quint8 subtileHeight = 5;
     QList<QList<quint16>> celFrameIndices;

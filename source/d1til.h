@@ -24,7 +24,6 @@ public:
 
     D1TIL_TYPE getType();
     QString getFilePath();
-    D1Min *getMin();
     void setMin(D1Min *m);
     int getTileCount();
     quint16 getTileWidth();

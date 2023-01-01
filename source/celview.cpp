@@ -37,35 +37,25 @@ CelView::~CelView()
     delete celScene;
 }
 
-void CelView::initialize(D1CelBase *c)
+void CelView::initialize(D1Gfx *g)
 {
-    this->cel = c;
+    this->gfx = g;
 
     // Displaying CEL file path information
-    QFileInfo celFileInfo(this->cel->getFilePath());
+    QFileInfo celFileInfo(this->gfx->getFilePath());
     ui->celLabel->setText(celFileInfo.fileName());
 
     /*
-    if( this->cel->getGroupCount() == 1 )
+    if( this->gfx->getGroupCount() == 1 )
     {
     }
     */
 
     ui->groupNumberEdit->setText(
-        QString::number(this->cel->getGroupCount()));
+        QString::number(this->gfx->getGroupCount()));
 
     ui->frameNumberEdit->setText(
-        QString::number(this->cel->getFrameCount()));
-}
-
-D1CelBase *CelView::getCel()
-{
-    return this->cel;
-}
-
-QString CelView::getCelPath()
-{
-    return this->cel->getFilePath();
+        QString::number(this->gfx->getFrameCount()));
 }
 
 int CelView::getCurrentFrameIndex()
@@ -79,12 +69,12 @@ void CelView::framePixelClicked(quint16 x, quint16 y)
 
     // If the the click event lands in the scene spacing, ignore
     if (x < CEL_SCENE_SPACING
-        || x >= (CEL_SCENE_SPACING + this->cel->getFrameWidth(this->currentFrameIndex))
+        || x >= (CEL_SCENE_SPACING + this->gfx->getFrameWidth(this->currentFrameIndex))
         || y < CEL_SCENE_SPACING
-        || y >= (CEL_SCENE_SPACING + this->cel->getFrameHeight(this->currentFrameIndex)))
+        || y >= (CEL_SCENE_SPACING + this->gfx->getFrameHeight(this->currentFrameIndex)))
         return;
 
-    index = this->cel->getFrame(
+    index = this->gfx->getFrame(
                          this->currentFrameIndex)
                 ->getPixel(x - CEL_SCENE_SPACING, y - CEL_SCENE_SPACING)
                 .getPaletteIndex();
@@ -97,7 +87,7 @@ void CelView::displayFrame()
     this->celScene->clear();
 
     // Getting the current frame to display
-    QImage celFrame = this->cel->getFrameImage(this->currentFrameIndex);
+    QImage celFrame = this->gfx->getFrameImage(this->currentFrameIndex);
 
     // Building a gray background of the width/height of the CEL frame
     QImage celFrameBackground = QImage(celFrame.width(), celFrame.height(), QImage::Format_ARGB32);
@@ -122,11 +112,11 @@ void CelView::displayFrame()
 
     // Set current group text
     this->ui->groupIndexEdit->setText(
-        QString::number(this->cel->getGroupCount() != 0 ? this->currentGroupIndex + 1 : 0));
+        QString::number(this->gfx->getGroupCount() != 0 ? this->currentGroupIndex + 1 : 0));
 
     // Set current frame text
     this->ui->frameIndexEdit->setText(
-        QString::number(this->cel->getFrameCount() != 0 ? this->currentFrameIndex + 1 : 0));
+        QString::number(this->gfx->getFrameCount() != 0 ? this->currentFrameIndex + 1 : 0));
 
     // Notify PalView that the frame changed (used to refresh palette hits)
     emit this->frameRefreshed();
@@ -134,7 +124,7 @@ void CelView::displayFrame()
 
 void CelView::updateGroupIndex()
 {
-    QPair<quint16, quint16> groupFrameIndices = this->cel->getGroupFrameIndices(this->currentGroupIndex);
+    QPair<quint16, quint16> groupFrameIndices = this->gfx->getGroupFrameIndices(this->currentGroupIndex);
 
     if (this->currentFrameIndex < groupFrameIndices.first || this->currentFrameIndex > groupFrameIndices.second) {
         this->setGroupIndex();
@@ -146,8 +136,8 @@ void CelView::setGroupIndex()
     QPair<quint16, quint16> groupFrameIndices;
     int i = 0;
 
-    for (; i < this->cel->getGroupCount(); i++) {
-        groupFrameIndices = this->cel->getGroupFrameIndices(i);
+    for (; i < this->gfx->getGroupCount(); i++) {
+        groupFrameIndices = this->gfx->getGroupFrameIndices(i);
 
         if (this->currentFrameIndex >= groupFrameIndices.first
             && this->currentFrameIndex <= groupFrameIndices.second) {
@@ -159,7 +149,7 @@ void CelView::setGroupIndex()
 
 void CelView::playGroup()
 {
-    QPair<quint16, quint16> groupFrameIndices = this->cel->getGroupFrameIndices(this->currentGroupIndex);
+    QPair<quint16, quint16> groupFrameIndices = this->gfx->getGroupFrameIndices(this->currentGroupIndex);
 
     if (this->currentFrameIndex < groupFrameIndices.second)
         this->currentFrameIndex++;
@@ -197,7 +187,7 @@ void CelView::on_previousFrameButton_clicked()
     if (this->currentFrameIndex >= 1)
         this->currentFrameIndex--;
     else
-        this->currentFrameIndex = std::max(0, this->cel->getFrameCount() - 1);
+        this->currentFrameIndex = std::max(0, this->gfx->getFrameCount() - 1);
 
     this->updateGroupIndex();
     this->displayFrame();
@@ -205,7 +195,7 @@ void CelView::on_previousFrameButton_clicked()
 
 void CelView::on_nextFrameButton_clicked()
 {
-    if (this->currentFrameIndex < (this->cel->getFrameCount() - 1))
+    if (this->currentFrameIndex < (this->gfx->getFrameCount() - 1))
         this->currentFrameIndex++;
     else
         this->currentFrameIndex = 0;
@@ -216,8 +206,8 @@ void CelView::on_nextFrameButton_clicked()
 
 void CelView::on_lastFrameButton_clicked()
 {
-    this->currentGroupIndex = std::max(0, this->cel->getGroupCount() - 1);
-    this->currentFrameIndex = std::max(0, this->cel->getFrameCount() - 1);
+    this->currentGroupIndex = std::max(0, this->gfx->getGroupCount() - 1);
+    this->currentFrameIndex = std::max(0, this->gfx->getFrameCount() - 1);
     this->displayFrame();
 }
 
@@ -225,7 +215,7 @@ void CelView::on_frameIndexEdit_returnPressed()
 {
     int frameIndex = this->ui->frameIndexEdit->text().toInt() - 1;
 
-    if (frameIndex >= 0 && frameIndex < this->cel->getFrameCount()) {
+    if (frameIndex >= 0 && frameIndex < this->gfx->getFrameCount()) {
         this->currentFrameIndex = frameIndex;
         this->updateGroupIndex();
         this->displayFrame();
@@ -242,9 +232,9 @@ void CelView::on_previousGroupButton_clicked()
     if (this->currentGroupIndex >= 1)
         this->currentGroupIndex--;
     else
-        this->currentGroupIndex = std::max(0, this->cel->getGroupCount() - 1);
+        this->currentGroupIndex = std::max(0, this->gfx->getGroupCount() - 1);
 
-    this->currentFrameIndex = this->cel->getGroupFrameIndices(this->currentGroupIndex).first;
+    this->currentFrameIndex = this->gfx->getGroupFrameIndices(this->currentGroupIndex).first;
     this->displayFrame();
 }
 
@@ -252,28 +242,28 @@ void CelView::on_groupIndexEdit_returnPressed()
 {
     int groupIndex = this->ui->groupIndexEdit->text().toInt() - 1;
 
-    if (groupIndex >= 0 && groupIndex < this->cel->getGroupCount()) {
+    if (groupIndex >= 0 && groupIndex < this->gfx->getGroupCount()) {
         this->currentGroupIndex = groupIndex;
-        this->currentFrameIndex = this->cel->getGroupFrameIndices(this->currentGroupIndex).first;
+        this->currentFrameIndex = this->gfx->getGroupFrameIndices(this->currentGroupIndex).first;
         this->displayFrame();
     }
 }
 
 void CelView::on_nextGroupButton_clicked()
 {
-    if (this->currentGroupIndex < (this->cel->getGroupCount() - 1))
+    if (this->currentGroupIndex < (this->gfx->getGroupCount() - 1))
         this->currentGroupIndex++;
     else
         this->currentGroupIndex = 0;
 
-    this->currentFrameIndex = this->cel->getGroupFrameIndices(this->currentGroupIndex).first;
+    this->currentFrameIndex = this->gfx->getGroupFrameIndices(this->currentGroupIndex).first;
     this->displayFrame();
 }
 
 void CelView::on_lastGroupButton_clicked()
 {
-    this->currentGroupIndex = std::max(0, this->cel->getGroupCount() - 1);
-    this->currentFrameIndex = this->cel->getGroupFrameIndices(this->currentGroupIndex).first;
+    this->currentGroupIndex = std::max(0, this->gfx->getGroupCount() - 1);
+    this->currentFrameIndex = this->gfx->getGroupFrameIndices(this->currentGroupIndex).first;
     this->displayFrame();
 }
 

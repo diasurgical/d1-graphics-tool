@@ -19,30 +19,30 @@ ExportDialog::~ExportDialog()
     delete ui;
 }
 
-void ExportDialog::initialize(QJsonObject *cfg, D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
+void ExportDialog::initialize(QJsonObject *cfg, D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
 {
     this->configuration = cfg;
 
-    this->cel = c;
+    this->gfx = g;
     this->min = m;
     this->til = t;
     this->sol = s;
     this->amp = a;
 
     // If there's only one frame
-    if (this->cel->getFrameCount() == 1)
+    if (this->gfx->getFrameCount() == 1)
         ui->filesSettingWidget->setEnabled(false);
     else
         ui->filesSettingWidget->setEnabled(true);
 
     // If all frames have the same width/height
-    if (this->cel->getFrameCount() > 1 && this->cel->isFrameSizeConstant()
+    if (this->gfx->getFrameCount() > 1 && this->gfx->isFrameSizeConstant()
         && ui->oneFileForAllFramesRadioButton->isChecked()) {
         ui->spritesSettingsWidget->setEnabled(true);
     }
 
     // If there's only one group
-    if (this->cel->getGroupCount() == 1) {
+    if (this->gfx->getGroupCount() == 1) {
         ui->allFramesOnOneLineRadioButton->setChecked(true);
         ui->oneFrameGroupPerLineRadioButton->setEnabled(false);
     } else {
@@ -51,7 +51,7 @@ void ExportDialog::initialize(QJsonObject *cfg, D1CelBase *c, D1Min *m, D1Til *t
     }
 
     // If it's a CEL level file
-    if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL && this->min != nullptr && this->til != nullptr)
+    if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL && this->min != nullptr && this->til != nullptr)
         ui->levelFramesSettingsWidget->setEnabled(true);
     else
         ui->levelFramesSettingsWidget->setEnabled(false);
@@ -89,8 +89,8 @@ bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
     QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
         + QFileInfo(this->til->getFilePath()).fileName().replace(".", "_");
 
-    quint16 tileWidth = this->min->getSubtileWidth() * 2 * 32;
-    quint16 tileHeight = this->min->getSubtileHeight() * 32 + 32;
+    quint16 tileWidth = this->min->getSubtileWidth() * 2 * MICRO_WIDTH;
+    quint16 tileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT + 32;
 
     // If only one file will contain all tiles
     QImage tempOutputImage;
@@ -151,8 +151,8 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
     QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
         + QFileInfo(this->min->getFilePath()).fileName().replace(".", "_");
 
-    quint16 subtileWidth = this->min->getSubtileWidth() * 32;
-    quint16 subtileHeight = this->min->getSubtileHeight() * 32;
+    quint16 subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
+    quint16 subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
 
     // If only one file will contain all sub-tiles
     QImage tempOutputImage;
@@ -214,31 +214,31 @@ bool ExportDialog::exportLevel(QProgressDialog &progress)
 
 bool ExportDialog::exportSprites(QProgressDialog &progress)
 {
-    progress.setLabelText("Exporting " + QFileInfo(this->cel->getFilePath()).fileName() + " frames...");
+    progress.setLabelText("Exporting " + QFileInfo(this->gfx->getFilePath()).fileName() + " frames...");
 
     QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
-        + QFileInfo(this->cel->getFilePath()).fileName().replace(".", "_");
+        + QFileInfo(this->gfx->getFilePath()).fileName().replace(".", "_");
     // single frame
-    if (this->cel->getFrameCount() == 1) {
+    if (this->gfx->getFrameCount() == 1) {
         // one file for each frame (not indexed)
         QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
-        this->cel->getFrameImage(0).save(outputFilePath);
+        this->gfx->getFrameImage(0).save(outputFilePath);
         return true;
     }
     // multiple frames
     if (!ui->oneFileForAllFramesRadioButton->isChecked()) {
         // one file for each frame (indexed)
-        for (int i = 0; i < this->cel->getFrameCount(); i++) {
+        for (int i = 0; i < this->gfx->getFrameCount(); i++) {
             if (progress.wasCanceled()) {
                 return false;
             }
 
-            progress.setValue(100 * i / this->cel->getFrameCount());
+            progress.setValue(100 * i / this->gfx->getFrameCount());
 
             QString outputFilePath = outputFilePathBase + "_frame"
                 + QString("%1").arg(i, 4, 10, QChar('0')) + this->getFileFormatExtension();
 
-            this->cel->getFrameImage(i).save(outputFilePath);
+            this->gfx->getFrameImage(i).save(outputFilePath);
         }
         return true;
     }
@@ -248,27 +248,27 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
     quint16 tempOutputImageHeight = 0;
     // If only one file will contain all frames
     if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
-        for (int i = 0; i < this->cel->getGroupCount(); i++) {
+        for (int i = 0; i < this->gfx->getGroupCount(); i++) {
             quint16 groupImageWidth = 0;
             quint16 groupImageHeight = 0;
-            for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
-                 j <= this->cel->getGroupFrameIndices(i).second; j++) {
-                groupImageWidth += this->cel->getFrameWidth(j);
-                groupImageHeight = std::max(this->cel->getFrameHeight(j), groupImageHeight);
+            for (unsigned int j = this->gfx->getGroupFrameIndices(i).first;
+                 j <= this->gfx->getGroupFrameIndices(i).second; j++) {
+                groupImageWidth += this->gfx->getFrameWidth(j);
+                groupImageHeight = std::max(this->gfx->getFrameHeight(j), groupImageHeight);
             }
             tempOutputImageWidth = std::max(groupImageWidth, tempOutputImageWidth);
             tempOutputImageHeight += groupImageHeight;
         }
 
     } else if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
-        for (int i = 0; i < this->cel->getGroupCount(); i++) {
-            tempOutputImageWidth = std::max(this->cel->getFrameWidth(i), tempOutputImageWidth);
-            tempOutputImageHeight += this->cel->getFrameHeight(i);
+        for (int i = 0; i < this->gfx->getGroupCount(); i++) {
+            tempOutputImageWidth = std::max(this->gfx->getFrameWidth(i), tempOutputImageWidth);
+            tempOutputImageHeight += this->gfx->getFrameHeight(i);
         }
     } else if (ui->allFramesOnOneLineRadioButton->isChecked()) {
-        for (int i = 0; i < this->cel->getGroupCount(); i++) {
-            tempOutputImageWidth += this->cel->getFrameWidth(i);
-            tempOutputImageHeight = std::max(this->cel->getFrameHeight(i), tempOutputImageHeight);
+        for (int i = 0; i < this->gfx->getGroupCount(); i++) {
+            tempOutputImageWidth += this->gfx->getFrameWidth(i);
+            tempOutputImageHeight = std::max(this->gfx->getFrameHeight(i), tempOutputImageHeight);
         }
     }
     tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
@@ -278,36 +278,36 @@ bool ExportDialog::exportSprites(QProgressDialog &progress)
 
     if (ui->oneFrameGroupPerLineRadioButton->isChecked()) {
         quint32 cursorY = 0;
-        for (int i = 0; i < this->cel->getGroupCount(); i++) {
+        for (int i = 0; i < this->gfx->getGroupCount(); i++) {
             quint32 cursorX = 0;
             quint16 groupImageHeight = 0;
-            for (unsigned int j = this->cel->getGroupFrameIndices(i).first;
-                 j <= this->cel->getGroupFrameIndices(i).second; j++) {
+            for (unsigned int j = this->gfx->getGroupFrameIndices(i).first;
+                 j <= this->gfx->getGroupFrameIndices(i).second; j++) {
                 if (progress.wasCanceled()) {
                     return false;
                 }
-                progress.setValue(100 * j / this->cel->getFrameCount());
+                progress.setValue(100 * j / this->gfx->getFrameCount());
 
-                painter.drawImage(cursorX, cursorY, this->cel->getFrameImage(j));
-                cursorX += this->cel->getFrameWidth(j);
-                groupImageHeight = std::max(this->cel->getFrameHeight(j), groupImageHeight);
+                painter.drawImage(cursorX, cursorY, this->gfx->getFrameImage(j));
+                cursorX += this->gfx->getFrameWidth(j);
+                groupImageHeight = std::max(this->gfx->getFrameHeight(j), groupImageHeight);
             }
             cursorY += groupImageHeight;
         }
     } else {
         quint32 cursor = 0;
-        for (int i = 0; i < this->cel->getFrameCount(); i++) {
+        for (int i = 0; i < this->gfx->getFrameCount(); i++) {
             if (progress.wasCanceled()) {
                 return false;
             }
-            progress.setValue(100 * i / this->cel->getFrameCount());
+            progress.setValue(100 * i / this->gfx->getFrameCount());
 
             if (ui->allFramesOnOneColumnRadioButton->isChecked()) {
-                painter.drawImage(0, cursor, this->cel->getFrameImage(i));
-                cursor += this->cel->getFrameHeight(i);
+                painter.drawImage(0, cursor, this->gfx->getFrameImage(i));
+                cursor += this->gfx->getFrameHeight(i);
             } else {
-                painter.drawImage(cursor, 0, this->cel->getFrameImage(i));
-                cursor += this->cel->getFrameWidth(i);
+                painter.drawImage(cursor, 0, this->gfx->getFrameImage(i));
+                cursor += this->gfx->getFrameWidth(i);
             }
         }
     }
@@ -326,7 +326,7 @@ void ExportDialog::on_exportButton_clicked()
         return;
     }
 
-    if (this->cel == nullptr) {
+    if (this->gfx == nullptr) {
         QMessageBox::critical(this, "Warning", "No graphics loaded.");
         return;
     }
@@ -342,7 +342,7 @@ void ExportDialog::on_exportButton_clicked()
         progress.setValue(0);
         progress.show();
 
-        if (this->cel->getType() == D1CEL_TYPE::V1_LEVEL && !ui->exportLevelFrames->isChecked()) {
+        if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL && !ui->exportLevelFrames->isChecked()) {
             result = this->exportLevel(progress);
         } else {
             result = this->exportSprites(progress);

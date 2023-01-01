@@ -1,10 +1,12 @@
 #include "d1cl2.h"
 
-#include <memory>
-
+#include <QBuffer>
+#include <QByteArray>
+#include <QDataStream>
+#include <QList>
 #include <QMessageBox>
 
-quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
+quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData, bool isClx)
 {
     QDataStream in(rawFrameData);
     in.setByteOrder(QDataStream::LittleEndian);
@@ -15,8 +17,13 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
     if (celFrameHeaderSize & 1)
         return 0; // invalid header
 
-    // Decode the 32 pixel-lines blocks to calculate the image width
     quint16 celFrameWidth = 0;
+    if (isClx) {
+        in >> celFrameWidth;
+        return celFrameWidth;
+    }
+
+    // Decode the 32 pixel-lines blocks to calculate the image width
     quint16 lastFrameOffset = celFrameHeaderSize;
     for (int i = 0; i < (celFrameHeaderSize / 2) - 1; i++) {
         quint16 pixelCount = 0;
@@ -39,7 +46,7 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
             }
         }
 
-        quint16 width = pixelCount / 32;
+        quint16 width = pixelCount / CEL_BLOCK_HEIGHT;
         // The calculated width has to be the identical for each 32 pixel-line block
         // If it's not the case, 0 is returned
         if (celFrameWidth != 0 && celFrameWidth != width)
@@ -52,14 +59,14 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData)
     return celFrameWidth;
 }
 
-bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
+bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, OpenAsParam *params)
 {
     if (rawData.size() == 0)
         return false;
 
     quint32 frameDataStartOffset = 0;
 
-    this->clipped = false;
+    frame.clipped = false;
     quint16 width = 0;
     if (params == nullptr || params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
         // Assume the presence of the {CEL FRAME HEADER}
@@ -69,8 +76,8 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
         in >> offset;
         frameDataStartOffset += offset;
         // If header is present, try to compute frame width from frame header
-        width = this->computeWidthFromHeader(rawData);
-        this->clipped = true;
+        width = D1Cl2Frame::computeWidthFromHeader(rawData, isClx);
+        frame.clipped = true;
     } else {
         if (params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
             QDataStream in(rawData);
@@ -79,18 +86,18 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
             in >> offset;
             frameDataStartOffset += offset;
             // If header is present, try to compute frame width from frame header
-            width = this->computeWidthFromHeader(rawData);
-            this->clipped = true;
+            width = D1Cl2Frame::computeWidthFromHeader(rawData, isClx);
+            frame.clipped = true;
         }
     }
-    this->width = (params == nullptr || params->width == 0) ? width : params->width;
+    frame.width = (params == nullptr || params->width == 0) ? width : params->width;
 
-    if (this->width == 0)
+    if (frame.width == 0)
         return false;
 
     // READ {CL2 FRAME DATA}
 
-    QList<D1CelPixel> pixelLine;
+    QList<D1GfxPixel> pixelLine;
     for (int o = frameDataStartOffset; o < rawData.size(); o++) {
         quint8 readByte = rawData[o];
 
@@ -98,10 +105,10 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
         if (readByte > 0x00 && readByte < 0x80) {
             for (int i = 0; i < readByte; i++) {
                 // Add transparent pixel
-                pixelLine.append(D1CelPixel(true, 0));
+                pixelLine.append(D1GfxPixel(true, 0));
 
-                if (pixelLine.size() == this->width) {
-                    pixels.insert(0, pixelLine);
+                if (pixelLine.size() == frame.width) {
+                    frame.pixels.insert(0, pixelLine);
                     pixelLine.clear();
                 }
             }
@@ -113,10 +120,10 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
 
             for (int i = 0; i < (0xBF - readByte); i++) {
                 // Add opaque pixel
-                pixelLine.append(D1CelPixel(false, rawData[o]));
+                pixelLine.append(D1GfxPixel(false, rawData[o]));
 
-                if (pixelLine.size() == this->width) {
-                    pixels.insert(0, pixelLine);
+                if (pixelLine.size() == frame.width) {
+                    frame.pixels.insert(0, pixelLine);
                     pixelLine.clear();
                 }
             }
@@ -127,10 +134,10 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
                 // Go to the next palette index offset
                 o++;
                 // Add opaque pixel
-                pixelLine.append(D1CelPixel(false, rawData[o]));
+                pixelLine.append(D1GfxPixel(false, rawData[o]));
 
-                if (pixelLine.size() == this->width) {
-                    pixels.insert(0, pixelLine);
+                if (pixelLine.size() == frame.width) {
+                    frame.pixels.insert(0, pixelLine);
                     pixelLine.clear();
                 }
             }
@@ -139,19 +146,12 @@ bool D1Cl2Frame::load(QByteArray rawData, OpenAsParam *params)
         }
     }
 
-    if (this->height == 0)
-        this->height = pixels.size();
+    frame.height = frame.pixels.size();
 
     return true;
 }
 
-D1Cl2::D1Cl2()
-    : D1CelBase()
-{
-    this->type = D1CEL_TYPE::V2_MULTIPLE_GROUPS;
-}
-
-bool D1Cl2::load(QString filePath, OpenAsParam *params)
+bool D1Cl2::load(D1Gfx &gfx, QString filePath, bool isClx, OpenAsParam *params)
 {
     // Opening CL2 file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -188,7 +188,7 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
     // If the dword is not equal to the file size then
     // check if it's a CL2 with multiple groups
     if (fileBuffer.size() == fileSizeDword) {
-        this->type = D1CEL_TYPE::V2_MONO_GROUP;
+        gfx.type = D1CEL_TYPE::V2_MONO_GROUP;
     } else {
         // Read offset of the last CL2 group header
         fileBuffer.seek(firstDword - 4);
@@ -216,16 +216,16 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
         fileSizeDword += lastCl2GroupHeaderOffset;
 
         if (fileBuffer.size() == fileSizeDword) {
-            this->type = D1CEL_TYPE::V2_MULTIPLE_GROUPS;
+            gfx.type = D1CEL_TYPE::V2_MULTIPLE_GROUPS;
         } else {
             return false;
         }
     }
 
     // CL2 FRAMES OFFSETS CALCULATION
-    this->groupFrameIndices.clear();
+    gfx.groupFrameIndices.clear();
     QList<QPair<quint32, quint32>> frameOffsets;
-    if (this->type == D1CEL_TYPE::V2_MULTIPLE_GROUPS) {
+    if (gfx.type == D1CEL_TYPE::V2_MULTIPLE_GROUPS) {
         // Going through all groups
         for (unsigned i = 0; i * 4 < firstDword; i++) {
             fileBuffer.seek(i * 4);
@@ -236,7 +236,7 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
             quint32 cl2GroupFrameCount;
             in >> cl2GroupFrameCount;
 
-            this->groupFrameIndices.append(
+            gfx.groupFrameIndices.append(
                 qMakePair(frameOffsets.size(),
                     frameOffsets.size() + cl2GroupFrameCount - 1));
 
@@ -255,7 +255,7 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
         }
     } else {
         // Going through all frames of the only group
-        this->groupFrameIndices.append(qMakePair(0, firstDword - 1));
+        gfx.groupFrameIndices.append(qMakePair(0, firstDword - 1));
         for (unsigned i = 1; i <= firstDword; i++) {
             fileBuffer.seek(i * 4);
             quint32 cl2FrameStartOffset;
@@ -270,27 +270,30 @@ bool D1Cl2::load(QString filePath, OpenAsParam *params)
 
     // BUILDING {CL2 FRAMES}
 
-    qDeleteAll(this->frames);
-    this->frames.clear();
+    gfx.frames.clear();
     for (const auto &offset : frameOffsets) {
         quint32 cl2FrameSize = offset.second - offset.first;
         fileBuffer.seek(offset.first);
 
         QByteArray cl2FrameRawData = fileBuffer.read(cl2FrameSize);
 
-        std::unique_ptr<D1CelFrameBase> frame { createFrame() };
-        frame->load(cl2FrameRawData, params);
-        this->frames.append(frame.release());
+        D1GfxFrame frame;
+        if (!D1Cl2Frame::load(frame, cl2FrameRawData, isClx, params)) {
+            // TODO: log?
+            continue;
+        }
+        gfx.frames.append(frame);
     }
 
-    this->celFilePath = filePath;
+    gfx.gfxFilePath = filePath;
     return true;
 }
 
-static quint8 *writeFrameData(D1CelFrameBase *frame, quint8 *pBuf, int subHeaderSize, bool clipped)
+static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, bool isClx, int subHeaderSize)
 {
     const int RLE_LEN = 4; // number of matching colors to switch from bmp encoding to RLE
 
+    bool clipped = frame->isClipped();
     // convert one image to cl2-data
     quint8 *pHeader = pBuf;
     if (clipped) {
@@ -317,7 +320,7 @@ static quint8 *writeFrameData(D1CelFrameBase *frame, quint8 *pBuf, int subHeader
         }
         first = true;
         for (int j = 0; j < frame->getWidth(); j++) {
-            D1CelPixel pixel = frame->getPixel(j, frame->getHeight() - i);
+            D1GfxPixel pixel = frame->getPixel(j, frame->getHeight() - i);
             if (!pixel.isTransparent()) {
                 // add opaque pixel
                 col = pixel.getPaletteIndex();
@@ -364,55 +367,59 @@ static quint8 *writeFrameData(D1CelFrameBase *frame, quint8 *pBuf, int subHeader
             first = false;
         }
     }
+    if (isClx) {
+        *(quint16 *)&pHeader[2] = SwapLE16(frame->getWidth());
+    }
     return pBuf;
 }
 
-bool D1Cl2::writeFileData(QFile &outFile, SaveAsParam *params)
+bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *params)
 {
-    const int numFrames = this->frames.count();
+    const int numFrames = gfx.frames.count();
 
-    // prepare clipping info
-    bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
-    QList<bool> clipped;
-    for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        clipped.append((clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped()));
-    }
     // calculate header size
     bool groupped = false;
     int numGroups = 0;
     int headerSize = 0;
-    QList<int> groupSizes;
     if (params == nullptr || params->groupNum == 0) {
-        numGroups = this->getGroupCount();
+        numGroups = gfx.getGroupCount();
         groupped = numGroups > 1;
         for (int i = 0; i < numGroups; i++) {
-            QPair<quint16, quint16> gfi = this->getGroupFrameIndices(i);
+            QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
             int ni = gfi.second - gfi.first + 1;
-            groupSizes.append(ni);
             headerSize += 4 + 4 * (ni + 1);
         }
     } else {
         numGroups = params->groupNum;
-        if (numFrames % numGroups != 0) {
+        if (numFrames == 0 || (numFrames % numGroups) != 0) {
             QMessageBox::critical(nullptr, "Error", "Frames can not be split to equal groups.");
             return false;
         }
         groupped = true;
+        // update group indices
+        gfx.groupFrameIndices.clear();
         for (int i = 0; i < numGroups; i++) {
             int ni = numFrames / numGroups;
-            groupSizes.append(ni);
+            gfx.groupFrameIndices.append(qMakePair(i * ni, i * ni + ni - 1));
             headerSize += 4 + 4 * (ni + 1);
         }
     }
     if (groupped) {
         headerSize += sizeof(quint32) * numGroups;
     }
+    // update type
+    gfx.type = groupped ? D1CEL_TYPE::V2_MULTIPLE_GROUPS : D1CEL_TYPE::V2_MONO_GROUP;
+    // update clipped info
+    bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    for (int n = 0; n < numFrames; n++) {
+        D1GfxFrame *frame = gfx.getFrame(n);
+        frame->clipped = (clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
+    }
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
     for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        if (clipped[n]) {
+        D1GfxFrame *frame = gfx.getFrame(n);
+        if (frame->clipped) {
             int hs = (frame->getHeight() - 1) / CEL_BLOCK_HEIGHT;
             hs = (hs + 1) * sizeof(quint16);
             subHeaderSize = std::max(subHeaderSize, hs);
@@ -421,8 +428,8 @@ bool D1Cl2::writeFileData(QFile &outFile, SaveAsParam *params)
     // estimate data size
     int maxSize = headerSize;
     for (int n = 0; n < numFrames; n++) {
-        QPointer<D1CelFrameBase> frame = this->frames[n];
-        if (clipped[n]) {
+        D1GfxFrame *frame = gfx.getFrame(n);
+        if (frame->clipped) {
             maxSize += subHeaderSize; // SUB_HEADER_SIZE
         }
         maxSize += frame->getHeight() * (2 * frame->getWidth());
@@ -438,7 +445,8 @@ bool D1Cl2::writeFileData(QFile &outFile, SaveAsParam *params)
         int offset = numGroups * 4;
         for (int i = 0; i < numGroups; i++, hdr += 4) {
             *(quint32 *)&hdr[0] = offset;
-            quint32 ni = groupSizes[i];
+            QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
+            int ni = gfi.second - gfi.first + 1;
             offset += 4 + 4 * (ni + 1);
         }
     }
@@ -446,12 +454,14 @@ bool D1Cl2::writeFileData(QFile &outFile, SaveAsParam *params)
     quint8 *pBuf = &buf[headerSize];
     int idx = 0;
     for (int ii = 0; ii < numGroups; ii++) {
-        int ni = groupSizes[ii];
+        QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(ii);
+        int ni = gfi.second - gfi.first + 1;
         *(quint32 *)&hdr[0] = SwapLE32(ni);
         *(quint32 *)&hdr[4] = SwapLE32(pBuf - hdr);
 
         for (int n = 0; n < ni; n++, idx++) {
-            pBuf = writeFrameData(this->getFrame(idx), pBuf, subHeaderSize, clipped[idx]); // TODO: what if the groups are not continuous?
+            D1GfxFrame *frame = gfx.getFrame(idx); // TODO: what if the groups are not continuous?
+            pBuf = writeFrameData(frame, pBuf, isClx, subHeaderSize);
             *(quint32 *)&hdr[4 + 4 * (n + 1)] = SwapLE32(pBuf - hdr);
         }
         hdr += 4 + 4 * (ni + 1);
@@ -464,9 +474,9 @@ bool D1Cl2::writeFileData(QFile &outFile, SaveAsParam *params)
     return true;
 }
 
-bool D1Cl2::save(SaveAsParam *params)
+bool D1Cl2::save(D1Gfx &gfx, bool isClx, SaveAsParam *params)
 {
-    QString filePath = this->getFilePath();
+    QString filePath = gfx.gfxFilePath;
     if (params != nullptr && !params->celFilePath.isEmpty()) {
         filePath = params->celFilePath;
         /*if (QFile::exists(filePath)) {
@@ -484,17 +494,12 @@ bool D1Cl2::save(SaveAsParam *params)
         return false;
     }
 
-    bool result = this->writeFileData(outFile, params);
+    bool result = D1Cl2::writeFileData(gfx, outFile, isClx, params);
 
     outFile.close();
 
     if (result) {
-        this->load(filePath);
+        gfx.gfxFilePath = filePath; // D1Cl2::load(gfx, filePath);
     }
     return result;
-}
-
-D1Cl2Frame *D1Cl2::createFrame()
-{
-    return new D1Cl2Frame();
 }

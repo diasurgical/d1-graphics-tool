@@ -1,6 +1,9 @@
 #pragma once
 
-#include "d1celbase.h"
+#include <QByteArray>
+
+#include "d1gfx.h"
+#include "openasdialog.h"
 
 // Class used only for CEL frame width calculation
 class D1CelPixelGroup {
@@ -16,13 +19,11 @@ private:
     quint16 pixelCount = 0;
 };
 
-class D1CelFrame : public D1CelFrameBase {
+class D1CelFrame {
 public:
-    D1CelFrame() = default;
-
-    bool load(QByteArray rawData, OpenAsParam *params = nullptr);
+    static bool load(D1GfxFrame &frame, QByteArray rawData, OpenAsParam *params = nullptr);
 
 private:
-    quint16 computeWidthFromHeader(QByteArray &);
-    quint16 computeWidthFromData(QByteArray &);
+    static quint16 computeWidthFromHeader(QByteArray &);
+    static quint16 computeWidthFromData(QByteArray &);
 };

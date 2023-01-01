@@ -20,7 +20,6 @@
 #include "d1cel.h"
 #include "d1celtileset.h"
 #include "d1cl2.h"
-#include "d1clx.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -94,7 +93,7 @@ void MainWindow::setTrn2(QString path)
     this->trn2->setPalette(this->trn1->getResultingPalette());
     this->trn2->refreshResultingPalette();
 
-    this->cel->setPalette(this->trn2->getResultingPalette());
+    this->gfx->setPalette(this->trn2->getResultingPalette());
 
     this->trn2Widget->setTrn(this->trn2);
 }
@@ -312,7 +311,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
 {
     // Check file extension
-    if (params == nullptr && !openFilePath.toLower().endsWith(".cel")
+    if (!openFilePath.toLower().endsWith(".cel")
         && !openFilePath.toLower().endsWith(".cl2")
         && !openFilePath.endsWith(".clx")) {
         return;
@@ -348,8 +347,9 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     QString tilFilePath = basePath + ".til";
     bool isTileset = params == nullptr && QFileInfo::exists(solFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(tilFilePath);
 
-    QString extension = celFileInfo.suffix();
-    if (QString::compare(extension, "cel", Qt::CaseInsensitive) == 0) {
+    this->gfx = new D1Gfx();
+    this->gfx->setPalette(this->trn2->getResultingPalette());
+    if (openFilePath.toLower().endsWith(".cel")) {
         if (isTileset) {
             // Loading SOL
             this->sol = new D1Sol();
@@ -361,8 +361,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
                 QMessageBox::critical(this, "Error", "Failed loading MIN file: " + minFilePath);
                 return;
             }
-            this->cel = new D1CelTileset(this->min);
-            this->min->setCel(this->cel);
+            this->min->setCel(this->gfx);
 
             // Loading TIL
             this->til = new D1Til();
@@ -376,21 +375,29 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
             this->amp = new D1Amp();
             QString ampFilePath = basePath + ".amp";
             this->amp->load(ampFilePath, this->til->getTileCount());
+
+            // Loading CEL
+            if (!D1CelTileset::load(*this->gfx, this->min, openFilePath, params)) {
+                QMessageBox::critical(this, "Error", "Failed loading level CEL file: " + openFilePath);
+                return;
+            }
         } else {
-            this->cel = new D1Cel();
+            if (!D1Cel::load(*this->gfx, openFilePath, params)) {
+                QMessageBox::critical(this, "Error", "Failed loading CEL file: " + openFilePath);
+                return;
+            }
         }
-    } else if (QString::compare(extension, "cl2", Qt::CaseInsensitive) == 0) {
-        this->cel = new D1Cl2();
-    } else if (QString::compare(extension, "clx", Qt::CaseInsensitive) == 0) {
-        this->cel = new D1Clx();
+    } else if (openFilePath.toLower().endsWith(".cl2")) {
+        if (!D1Cl2::load(*this->gfx, openFilePath, false)) {
+            QMessageBox::critical(this, "Error", "Failed loading CL2 file: " + openFilePath);
+            return;
+        }
+    } else if (openFilePath.toLower().endsWith(".clx")) {
+        if (!D1Cl2::load(*this->gfx, openFilePath, true)) {
+            QMessageBox::critical(this, "Error", "Failed loading CLX file: " + openFilePath);
+            return;
+        }
     }
-
-    if (!this->cel->load(openFilePath, params)) {
-        QMessageBox::critical(this, "Error", "Could not open " + extension.toUpper() + " file.");
-        return;
-    }
-
-    this->cel->setPalette(this->trn2->getResultingPalette());
 
     // Add palette widgets for PAL and TRNs
     this->palWidget = new PaletteWidget(this->configuration, nullptr, "Palette");
@@ -437,7 +444,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
 
     if (isTileset) {
         this->levelCelView = new LevelCelView();
-        this->levelCelView->initialize(this->cel, this->min, this->til, this->sol, this->amp);
+        this->levelCelView->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
 
         // Refresh CEL view if a PAL or TRN is modified
         QObject::connect(this->palWidget, &PaletteWidget::modified, this->levelCelView, &LevelCelView::displayFrame);
@@ -453,7 +460,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
         QObject::connect(this->levelCelView, &LevelCelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh);
 
         // Initialize palette widgets
-        this->palHits = new D1PalHits(this->cel, this->min, this->til, this->sol);
+        this->palHits = new D1PalHits(this->gfx, this->min, this->til, this->sol);
         this->palWidget->initialize(this->pal, this->levelCelView, this->palHits);
         this->trn1Widget->initialize(this->pal, this->trn1, this->levelCelView, this->palHits);
         this->trn2Widget->initialize(this->trn1->getResultingPalette(), this->trn2, this->levelCelView, this->palHits);
@@ -463,7 +470,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     // Otherwise build a CelView
     else {
         this->celView = new CelView();
-        this->celView->initialize(this->cel);
+        this->celView->initialize(this->gfx);
 
         // Refresh CEL view if a PAL or TRN is modified
         QObject::connect(this->palWidget, &PaletteWidget::modified, this->celView, &CelView::displayFrame);
@@ -479,7 +486,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
         QObject::connect(this->celView, &CelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh);
 
         // Initialize palette widgets
-        this->palHits = new D1PalHits(this->cel);
+        this->palHits = new D1PalHits(this->gfx);
         this->palWidget->initialize(this->pal, this->celView, this->palHits);
         this->trn1Widget->initialize(this->pal, this->trn1, this->celView, this->palHits);
         this->trn2Widget->initialize(this->trn1->getResultingPalette(), this->trn2, this->celView, this->palHits);
@@ -542,7 +549,38 @@ void MainWindow::saveFile(SaveAsParam *params)
     this->ui->statusBar->showMessage("Saving...");
     this->ui->statusBar->repaint();
 
-    bool change = this->cel->save(params);
+    bool change = false;
+    QString filePath;
+    if (params != nullptr)
+        filePath = params->celFilePath;
+    if (filePath.isEmpty())
+        filePath = this->gfx->getFilePath();
+    if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL) {
+        if (!filePath.toLower().endsWith("cel")) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to save as " + filePath + "? Data conversion is not supported.", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                // Clear loading message from status bar
+                this->ui->statusBar->clearMessage();
+                return;
+            }
+        }
+        change = D1CelTileset::save(*this->gfx, params);
+    } else {
+        if (filePath.toLower().endsWith("cel")) {
+            change = D1Cel::save(*this->gfx, params);
+        } else if (filePath.toLower().endsWith("cl2")) {
+            change = D1Cl2::save(*this->gfx, false, params);
+        } else if (filePath.toLower().endsWith("clx")) {
+            change = D1Cl2::save(*this->gfx, true, params);
+        } else {
+            QMessageBox::critical(this, "Error", "Not supported.");
+            // Clear loading message from status bar
+            this->ui->statusBar->clearMessage();
+            return;
+        }
+    }
+
     if (this->min != nullptr) {
         change |= this->min->save(params);
     }
@@ -559,10 +597,10 @@ void MainWindow::saveFile(SaveAsParam *params)
     if (change) {
         // update view
         if (this->celView != nullptr) {
-            this->celView->initialize(this->cel);
+            this->celView->initialize(this->gfx);
         }
         if (this->levelCelView != nullptr) {
-            this->levelCelView->initialize(this->cel, this->min, this->til, this->sol, this->amp);
+            this->levelCelView->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
         }
     }
 
@@ -583,7 +621,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-    this->saveAsDialog->initialize(this->configuration, this->cel, this->levelCelView != nullptr);
+    this->saveAsDialog->initialize(this->configuration, this->gfx);
     this->saveAsDialog->show();
 }
 
@@ -596,7 +634,7 @@ void MainWindow::on_actionClose_triggered()
     delete this->palWidget;
     delete this->trn1Widget;
     delete this->trn2Widget;
-    delete this->cel;
+    delete this->gfx;
 
     qDeleteAll(this->pals);
     this->pals.clear();
@@ -630,7 +668,7 @@ void MainWindow::on_actionSettings_triggered()
 
 void MainWindow::on_actionExport_triggered()
 {
-    this->exportDialog->initialize(this->configuration, this->cel, this->min, this->til, this->sol, this->amp);
+    this->exportDialog->initialize(this->configuration, this->gfx, this->min, this->til, this->sol, this->amp);
     this->exportDialog->show();
 }
 

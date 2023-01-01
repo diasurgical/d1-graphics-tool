@@ -1,16 +1,18 @@
 #pragma once
 
-#include "d1celbase.h"
-#include "d1celframe.h"
+#include <QFile>
+#include <QString>
 
-class D1Cel : public D1CelBase {
+#include "d1gfx.h"
+#include "openasdialog.h"
+#include "saveasdialog.h"
+
+class D1Cel {
 public:
-    D1Cel() = default;
-
-    bool load(QString celFilePath, OpenAsParam *params = nullptr);
-    bool save(SaveAsParam *params = nullptr);
+    static bool load(D1Gfx &gfx, QString celFilePath, OpenAsParam *params = nullptr);
+    static bool save(D1Gfx &gfx, SaveAsParam *params = nullptr);
 
 private:
-    bool writeFileData(QFile &outFile, SaveAsParam *params);
-    bool writeCompFileData(QFile &outFile, SaveAsParam *params);
+    static bool writeFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params);
+    static bool writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params);
 };

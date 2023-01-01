@@ -7,7 +7,7 @@
 #include <QJsonObject>
 #include <QString>
 
-class D1CelBase;
+class D1Gfx;
 
 enum class SAVE_CLIPPING_TYPE {
     CLIPPED_AUTODETECT,
@@ -39,7 +39,7 @@ public:
     explicit SaveAsDialog(QWidget *parent = nullptr);
     ~SaveAsDialog();
 
-    void initialize(QJsonObject *cfg, D1CelBase *cel, bool isTileset);
+    void initialize(QJsonObject *cfg, D1Gfx *gfx);
 
 private:
     void update();
@@ -56,6 +56,6 @@ private slots:
 private:
     Ui::SaveAsDialog *ui;
     QJsonObject *configuration;
-    D1CelBase *cel;
+    D1Gfx *gfx;
     bool isTileset;
 };

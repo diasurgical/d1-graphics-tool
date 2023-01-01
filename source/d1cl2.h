@@ -1,23 +1,27 @@
 #pragma once
 
-#include "d1celbase.h"
+#include <QFile>
+#include <QString>
 
-class D1Cl2Frame : public D1CelFrameBase {
+#include "d1gfx.h"
+#include "openasdialog.h"
+#include "saveasdialog.h"
+
+class D1Cl2Frame {
+    friend class D1Cl2;
+
 public:
-    D1Cl2Frame() = default;
+    static bool load(D1GfxFrame &frame, QByteArray rawFrameData, bool isClx = false, OpenAsParam *params = nullptr);
 
-    virtual quint16 computeWidthFromHeader(QByteArray &);
-    bool load(QByteArray rawData, OpenAsParam *params = nullptr);
+private:
+    static quint16 computeWidthFromHeader(QByteArray &rawFrameData, bool isClx);
 };
 
-class D1Cl2 : public D1CelBase {
+class D1Cl2 {
 public:
-    D1Cl2();
-
-    bool load(QString cl2FilePath, OpenAsParam *params = nullptr);
-    bool save(SaveAsParam *params = nullptr);
+    static bool load(D1Gfx &gfx, QString cl2FilePath, bool isClx = false, OpenAsParam *params = nullptr);
+    static bool save(D1Gfx &gfx, bool isClx = false, SaveAsParam *params = nullptr);
 
 protected:
-    virtual D1Cl2Frame *createFrame();
-    virtual bool writeFileData(QFile &outFile, SaveAsParam *params);
+    static bool writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *params);
 };

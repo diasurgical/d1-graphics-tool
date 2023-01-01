@@ -1,9 +1,13 @@
 #pragma once
 
-#include "d1celbase.h"
+#include <QByteArray>
+
+#include "openasdialog.h"
 
 #define MICRO_WIDTH 32
 #define MICRO_HEIGHT 32
+
+class D1GfxFrame;
 
 enum class D1CEL_FRAME_TYPE {
     Square,
@@ -15,32 +19,27 @@ enum class D1CEL_FRAME_TYPE {
     Unknown = -1,
 };
 
-class D1CelTilesetFrame : public D1CelFrameBase {
+class D1CelTilesetFrame {
 public:
-    D1CelTilesetFrame() = default;
-    D1CelTilesetFrame(D1CEL_FRAME_TYPE type);
+    static bool load(D1GfxFrame &frame, D1CEL_FRAME_TYPE frameType, QByteArray rawData, OpenAsParam *params = nullptr);
 
-    bool load(QByteArray rawData, OpenAsParam *params = nullptr);
-
-    quint8 *writeFrameData(quint8 *pBuf);
+    static quint8 *writeFrameData(D1GfxFrame &frame, quint8 *pBuf);
 
 private:
-    void LoadSquare(QByteArray &rawData);
-    void LoadTransparentSquare(QByteArray &rawData);
-    void LoadBottomLeftTriangle(QByteArray &rawData);
-    void LoadBottomRightTriangle(QByteArray &rawData);
-    void LoadLeftTriangle(QByteArray &rawData);
-    void LoadRightTriangle(QByteArray &rawData);
-    void LoadTopHalfSquare(QByteArray &rawData);
-    void LoadLeftTrapezoid(QByteArray &rawData);
-    void LoadRightTrapezoid(QByteArray &rawData);
+    static void LoadSquare(D1GfxFrame &frame, QByteArray &rawData);
+    static void LoadTransparentSquare(D1GfxFrame &frame, QByteArray &rawData);
+    static void LoadBottomLeftTriangle(D1GfxFrame &frame, QByteArray &rawData);
+    static void LoadBottomRightTriangle(D1GfxFrame &frame, QByteArray &rawData);
+    static void LoadLeftTriangle(D1GfxFrame &frame, QByteArray &rawData);
+    static void LoadRightTriangle(D1GfxFrame &frame, QByteArray &rawData);
+    static void LoadTopHalfSquare(D1GfxFrame &frame, QByteArray &rawData);
+    static void LoadLeftTrapezoid(D1GfxFrame &frame, QByteArray &rawData);
+    static void LoadRightTrapezoid(D1GfxFrame &frame, QByteArray &rawData);
 
-    quint8 *WriteSquare(quint8 *pBuf);
-    quint8 *WriteTransparentSquare(quint8 *pBuf);
-    quint8 *WriteLeftTriangle(quint8 *pBuf);
-    quint8 *WriteRightTriangle(quint8 *pBuf);
-    quint8 *WriteLeftTrapezoid(quint8 *pBuf);
-    quint8 *WriteRightTrapezoid(quint8 *pBuf);
-
-    D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::Square;
+    static quint8 *WriteSquare(D1GfxFrame &frame, quint8 *pBuf);
+    static quint8 *WriteTransparentSquare(D1GfxFrame &frame, quint8 *pBuf);
+    static quint8 *WriteLeftTriangle(D1GfxFrame &frame, quint8 *pBuf);
+    static quint8 *WriteRightTriangle(D1GfxFrame &frame, quint8 *pBuf);
+    static quint8 *WriteLeftTrapezoid(D1GfxFrame &frame, quint8 *pBuf);
+    static quint8 *WriteRightTrapezoid(D1GfxFrame &frame, quint8 *pBuf);
 };

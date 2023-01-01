@@ -1,20 +1,18 @@
 #pragma once
 
 #include <QFile>
+#include <QString>
 
-#include "d1celbase.h"
+#include "d1gfx.h"
 #include "d1min.h"
+#include "openasdialog.h"
+#include "saveasdialog.h"
 
-class D1CelTileset : public D1CelBase {
+class D1CelTileset {
 public:
-    D1CelTileset() = default;
-    D1CelTileset(D1Min *);
-
-    bool load(QString celFilePath, OpenAsParam *params = nullptr);
-    bool save(SaveAsParam *params = nullptr);
+    static bool load(D1Gfx &gfx, D1Min *min, QString celFilePath, OpenAsParam *params = nullptr);
+    static bool save(D1Gfx &gfx, SaveAsParam *params = nullptr);
 
 private:
-    bool writeFileData(QFile &outFile);
-
-    D1Min *min;
+    static bool writeFileData(D1Gfx &gfx, QFile &outFile);
 };

@@ -18,8 +18,6 @@ set(PROJECT_SOURCES
         source/celview.ui
         source/d1amp.cpp
         source/d1amp.h
-        source/d1celbase.cpp
-        source/d1celbase.h
         source/d1cel.cpp
         source/d1celframe.cpp
         source/d1celframe.h
@@ -30,8 +28,8 @@ set(PROJECT_SOURCES
         source/d1celtileset.h
         source/d1cl2.cpp
         source/d1cl2.h
-        source/d1clx.cpp
-        source/d1clx.h
+        source/d1gfx.cpp
+        source/d1gfx.h
         source/d1min.cpp
         source/d1min.h
         source/d1pal.cpp

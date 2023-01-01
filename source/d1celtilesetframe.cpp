@@ -2,185 +2,183 @@
 
 #include <QMessageBox>
 
-D1CelTilesetFrame::D1CelTilesetFrame(D1CEL_FRAME_TYPE type)
-    : frameType(type)
-{
-    this->width = MICRO_WIDTH;
-    this->height = MICRO_HEIGHT;
-}
+#include "d1gfx.h"
 
-bool D1CelTilesetFrame::load(QByteArray rawData, OpenAsParam *params)
+bool D1CelTilesetFrame::load(D1GfxFrame &frame, D1CEL_FRAME_TYPE type, QByteArray rawData, OpenAsParam *params)
 {
     (void)params; // unused
 
     if (rawData.size() == 0)
         return false;
 
-    this->clipped = false;
-    switch (this->frameType) {
+    frame.width = MICRO_WIDTH;
+    frame.height = MICRO_HEIGHT;
+    frame.frameType = type;
+    frame.clipped = false;
+    switch (type) {
     case D1CEL_FRAME_TYPE::Square:
-        this->LoadSquare(rawData);
+        D1CelTilesetFrame::LoadSquare(frame, rawData);
         break;
     case D1CEL_FRAME_TYPE::TransparentSquare:
-        this->LoadTransparentSquare(rawData);
+        D1CelTilesetFrame::LoadTransparentSquare(frame, rawData);
         break;
     case D1CEL_FRAME_TYPE::LeftTriangle:
-        this->LoadLeftTriangle(rawData);
+        D1CelTilesetFrame::LoadLeftTriangle(frame, rawData);
         break;
     case D1CEL_FRAME_TYPE::RightTriangle:
-        this->LoadRightTriangle(rawData);
+        D1CelTilesetFrame::LoadRightTriangle(frame, rawData);
         break;
     case D1CEL_FRAME_TYPE::LeftTrapezoid:
-        this->LoadLeftTrapezoid(rawData);
+        D1CelTilesetFrame::LoadLeftTrapezoid(frame, rawData);
         break;
     case D1CEL_FRAME_TYPE::RightTrapezoid:
-        this->LoadRightTrapezoid(rawData);
+        D1CelTilesetFrame::LoadRightTrapezoid(frame, rawData);
         break;
     }
 
     return true;
 }
 
-void D1CelTilesetFrame::LoadSquare(QByteArray &rawData)
+void D1CelTilesetFrame::LoadSquare(D1GfxFrame &frame, QByteArray &rawData)
 {
     int offset = 0;
-    for (int i = 0; i < this->height; i++) {
-        QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < this->width; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
+    for (int i = 0; i < frame.height; i++) {
+        QList<D1GfxPixel> pixelLine;
+        for (int j = 0; j < frame.width; j++) {
+            pixelLine.append(D1GfxPixel(false, rawData[offset++]));
         }
-        this->pixels.insert(0, pixelLine);
+        frame.pixels.insert(0, pixelLine);
     }
 }
 
-void D1CelTilesetFrame::LoadTransparentSquare(QByteArray &rawData)
+void D1CelTilesetFrame::LoadTransparentSquare(D1GfxFrame &frame, QByteArray &rawData)
 {
     int offset = 0;
-    for (int i = 0; i < this->height; i++) {
-        QList<D1CelPixel> pixelLine;
+    for (int i = 0; i < frame.height; i++) {
+        QList<D1GfxPixel> pixelLine;
         int width = 0;
-        for (int j = 0; j < this->width; j += width) {
+        for (int j = 0; j < frame.width; j += width) {
             qint8 readByte = rawData[offset++];
             width = std::abs(readByte);
             bool isTransparent = readByte < 0;
             for (int j = 0; j < width; j++) {
-                pixelLine.append(D1CelPixel(isTransparent, isTransparent ? 0 : rawData[offset++]));
+                pixelLine.append(D1GfxPixel(isTransparent, isTransparent ? 0 : rawData[offset++]));
             }
         }
-        this->pixels.insert(0, pixelLine);
+        frame.pixels.insert(0, pixelLine);
     }
 }
 
-void D1CelTilesetFrame::LoadBottomLeftTriangle(QByteArray &rawData)
+void D1CelTilesetFrame::LoadBottomLeftTriangle(D1GfxFrame &frame, QByteArray &rawData)
 {
     int offset = 0;
-    for (int i = 1; i <= this->height / 2; i++) {
+    for (int i = 1; i <= frame.height / 2; i++) {
         offset += 2 * (i % 2);
-        QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < this->width - 2 * i; j++) {
-            pixelLine.append(D1CelPixel(true, 0));
+        QList<D1GfxPixel> pixelLine;
+        for (int j = 0; j < frame.width - 2 * i; j++) {
+            pixelLine.append(D1GfxPixel(true, 0));
         }
         for (int j = 0; j < 2 * i; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
+            pixelLine.append(D1GfxPixel(false, rawData[offset++]));
         }
-        this->pixels.insert(0, pixelLine);
+        frame.pixels.insert(0, pixelLine);
     }
 }
 
-void D1CelTilesetFrame::LoadBottomRightTriangle(QByteArray &rawData)
+void D1CelTilesetFrame::LoadBottomRightTriangle(D1GfxFrame &frame, QByteArray &rawData)
 {
     int offset = 0;
-    for (int i = 1; i <= this->height / 2; i++) {
-        QList<D1CelPixel> pixelLine;
+    for (int i = 1; i <= frame.height / 2; i++) {
+        QList<D1GfxPixel> pixelLine;
         for (int j = 0; j < 2 * i; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
+            pixelLine.append(D1GfxPixel(false, rawData[offset++]));
         }
-        for (int j = 0; j < this->width - 2 * i; j++) {
-            pixelLine.append(D1CelPixel(true, 0));
+        for (int j = 0; j < frame.width - 2 * i; j++) {
+            pixelLine.append(D1GfxPixel(true, 0));
         }
         offset += 2 * (i % 2);
-        this->pixels.insert(0, pixelLine);
+        frame.pixels.insert(0, pixelLine);
     }
 }
 
-void D1CelTilesetFrame::LoadLeftTriangle(QByteArray &rawData)
+void D1CelTilesetFrame::LoadLeftTriangle(D1GfxFrame &frame, QByteArray &rawData)
 {
-    this->LoadBottomLeftTriangle(rawData);
+    D1CelTilesetFrame::LoadBottomLeftTriangle(frame, rawData);
     int offset = 288;
-    for (int i = 1; i <= this->height / 2; i++) {
+    for (int i = 1; i <= frame.height / 2; i++) {
         offset += 2 * (i % 2);
-        QList<D1CelPixel> pixelLine;
+        QList<D1GfxPixel> pixelLine;
         for (int j = 0; j < 2 * i; j++) {
-            pixelLine.append(D1CelPixel(true, 0));
+            pixelLine.append(D1GfxPixel(true, 0));
         }
-        for (int j = 0; j < this->width - 2 * i; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
+        for (int j = 0; j < frame.width - 2 * i; j++) {
+            pixelLine.append(D1GfxPixel(false, rawData[offset++]));
         }
-        this->pixels.insert(0, pixelLine);
+        frame.pixels.insert(0, pixelLine);
     }
 }
 
-void D1CelTilesetFrame::LoadRightTriangle(QByteArray &rawData)
+void D1CelTilesetFrame::LoadRightTriangle(D1GfxFrame &frame, QByteArray &rawData)
 {
-    this->LoadBottomRightTriangle(rawData);
+    D1CelTilesetFrame::LoadBottomRightTriangle(frame, rawData);
     int offset = 288;
-    for (int i = 1; i <= this->height / 2; i++) {
-        QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < this->width - 2 * i; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
+    for (int i = 1; i <= frame.height / 2; i++) {
+        QList<D1GfxPixel> pixelLine;
+        for (int j = 0; j < frame.width - 2 * i; j++) {
+            pixelLine.append(D1GfxPixel(false, rawData[offset++]));
         }
         for (int j = 0; j < 2 * i; j++) {
-            pixelLine.append(D1CelPixel(true, 0));
+            pixelLine.append(D1GfxPixel(true, 0));
         }
         offset += 2 * (i % 2);
-        this->pixels.insert(0, pixelLine);
+        frame.pixels.insert(0, pixelLine);
     }
 }
 
-void D1CelTilesetFrame::LoadTopHalfSquare(QByteArray &rawData)
+void D1CelTilesetFrame::LoadTopHalfSquare(D1GfxFrame &frame, QByteArray &rawData)
 {
     int offset = 288;
-    for (int i = 1; i <= this->height / 2; i++) {
-        QList<D1CelPixel> pixelLine;
-        for (int j = 0; j < this->width; j++) {
-            pixelLine.append(D1CelPixel(false, rawData[offset++]));
+    for (int i = 1; i <= frame.height / 2; i++) {
+        QList<D1GfxPixel> pixelLine;
+        for (int j = 0; j < frame.width; j++) {
+            pixelLine.append(D1GfxPixel(false, rawData[offset++]));
         }
-        this->pixels.insert(0, pixelLine);
+        frame.pixels.insert(0, pixelLine);
     }
 }
 
-void D1CelTilesetFrame::LoadLeftTrapezoid(QByteArray &rawData)
+void D1CelTilesetFrame::LoadLeftTrapezoid(D1GfxFrame &frame, QByteArray &rawData)
 {
-    this->LoadBottomLeftTriangle(rawData);
-    this->LoadTopHalfSquare(rawData);
+    D1CelTilesetFrame::LoadBottomLeftTriangle(frame, rawData);
+    D1CelTilesetFrame::LoadTopHalfSquare(frame, rawData);
 }
 
-void D1CelTilesetFrame::LoadRightTrapezoid(QByteArray &rawData)
+void D1CelTilesetFrame::LoadRightTrapezoid(D1GfxFrame &frame, QByteArray &rawData)
 {
-    this->LoadBottomRightTriangle(rawData);
-    this->LoadTopHalfSquare(rawData);
+    D1CelTilesetFrame::LoadBottomRightTriangle(frame, rawData);
+    D1CelTilesetFrame::LoadTopHalfSquare(frame, rawData);
 }
 
-quint8 *D1CelTilesetFrame::writeFrameData(quint8 *pDst)
+quint8 *D1CelTilesetFrame::writeFrameData(D1GfxFrame &frame, quint8 *pDst)
 {
-    switch (this->frameType) {
+    switch (frame.frameType) {
     case D1CEL_FRAME_TYPE::LeftTriangle:
-        pDst = WriteLeftTriangle(pDst);
+        pDst = D1CelTilesetFrame::WriteLeftTriangle(frame, pDst);
         break;
     case D1CEL_FRAME_TYPE::RightTriangle:
-        pDst = WriteRightTriangle(pDst);
+        pDst = D1CelTilesetFrame::WriteRightTriangle(frame, pDst);
         break;
     case D1CEL_FRAME_TYPE::LeftTrapezoid:
-        pDst = WriteLeftTrapezoid(pDst);
+        pDst = D1CelTilesetFrame::WriteLeftTrapezoid(frame, pDst);
         break;
     case D1CEL_FRAME_TYPE::RightTrapezoid:
-        pDst = WriteRightTrapezoid(pDst);
+        pDst = D1CelTilesetFrame::WriteRightTrapezoid(frame, pDst);
         break;
     case D1CEL_FRAME_TYPE::Square:
-        pDst = WriteSquare(pDst);
+        pDst = D1CelTilesetFrame::WriteSquare(frame, pDst);
         break;
     case D1CEL_FRAME_TYPE::TransparentSquare:
-        pDst = WriteTransparentSquare(pDst);
+        pDst = D1CelTilesetFrame::WriteTransparentSquare(frame, pDst);
         break;
     default:
         // case D1CEL_FRAME_TYPE::Unknown:
@@ -190,16 +188,16 @@ quint8 *D1CelTilesetFrame::writeFrameData(quint8 *pDst)
     return pDst;
 }
 
-quint8 *D1CelTilesetFrame::WriteSquare(quint8 *pDst)
+quint8 *D1CelTilesetFrame::WriteSquare(D1GfxFrame &frame, quint8 *pDst)
 {
-    D1CelPixel pixel;
+    D1GfxPixel pixel;
     int x, y;
     // int length = MICRO_WIDTH * MICRO_HEIGHT;
 
     // add opaque pixels
     for (y = MICRO_HEIGHT - 1; y >= 0; y--) {
         for (x = 0; x < MICRO_WIDTH; ++x) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Square frame I.");
                 return pDst;
@@ -211,9 +209,9 @@ quint8 *D1CelTilesetFrame::WriteSquare(quint8 *pDst)
     return pDst;
 }
 
-quint8 *D1CelTilesetFrame::WriteTransparentSquare(quint8 *pDst)
+quint8 *D1CelTilesetFrame::WriteTransparentSquare(D1GfxFrame &frame, quint8 *pDst)
 {
-    D1CelPixel pixel;
+    D1GfxPixel pixel;
     int x, y;
     // int length = MICRO_WIDTH * MICRO_HEIGHT;
     bool hasColor = false;
@@ -222,7 +220,7 @@ quint8 *D1CelTilesetFrame::WriteTransparentSquare(quint8 *pDst)
     for (y = MICRO_HEIGHT - 1; y >= 0; y--) {
         bool alpha = false;
         for (x = 0; x < MICRO_WIDTH; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 // add transparent pixel
                 if ((char)(*pHead) > 0) {
@@ -254,9 +252,9 @@ quint8 *D1CelTilesetFrame::WriteTransparentSquare(quint8 *pDst)
     return pHead;
 }
 
-quint8 *D1CelTilesetFrame::WriteLeftTriangle(quint8 *pDst)
+quint8 *D1CelTilesetFrame::WriteLeftTriangle(D1GfxFrame &frame, quint8 *pDst)
 {
-    D1CelPixel pixel;
+    D1GfxPixel pixel;
     int i, x, y;
     // int length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
 
@@ -265,7 +263,7 @@ quint8 *D1CelTilesetFrame::WriteLeftTriangle(quint8 *pDst)
     for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
         // check transparent pixels
         for (x = 0; x < i; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (!pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid non-transparent pixel in a Left Triangle frame I.");
                 return pDst;
@@ -274,7 +272,7 @@ quint8 *D1CelTilesetFrame::WriteLeftTriangle(quint8 *pDst)
         pDst += i & 2;
         // add opaque pixels
         for (x = i; x < MICRO_WIDTH; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Left Triangle frame I.");
                 return pDst;
@@ -287,7 +285,7 @@ quint8 *D1CelTilesetFrame::WriteLeftTriangle(quint8 *pDst)
     for (i = 2; i != MICRO_HEIGHT; i += 2, y--) {
         // check transparent pixels
         for (x = 0; x < i; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (!pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid non-transparent pixel in a Left Triangle frame II.");
                 return pDst;
@@ -296,7 +294,7 @@ quint8 *D1CelTilesetFrame::WriteLeftTriangle(quint8 *pDst)
         pDst += i & 2;
         // add opaque pixels
         for (x = i; x < MICRO_WIDTH; ++x) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Left Triangle frame II.");
                 return pDst;
@@ -308,9 +306,9 @@ quint8 *D1CelTilesetFrame::WriteLeftTriangle(quint8 *pDst)
     return pDst;
 }
 
-quint8 *D1CelTilesetFrame::WriteRightTriangle(quint8 *pDst)
+quint8 *D1CelTilesetFrame::WriteRightTriangle(D1GfxFrame &frame, quint8 *pDst)
 {
-    D1CelPixel pixel;
+    D1GfxPixel pixel;
     int i, x, y;
     // int length = MICRO_WIDTH * MICRO_HEIGHT / 2 + MICRO_HEIGHT;
 
@@ -319,7 +317,7 @@ quint8 *D1CelTilesetFrame::WriteRightTriangle(quint8 *pDst)
     for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
         // add opaque pixels
         for (x = 0; x < (MICRO_WIDTH - i); x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Right Triangle frame I.");
                 return pDst;
@@ -330,7 +328,7 @@ quint8 *D1CelTilesetFrame::WriteRightTriangle(quint8 *pDst)
         pDst += i & 2;
         // check transparent pixels
         for (x = MICRO_WIDTH - i; x < MICRO_WIDTH; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (!pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid non-transparent pixel in a Right Triangle frame I.");
                 return pDst;
@@ -341,7 +339,7 @@ quint8 *D1CelTilesetFrame::WriteRightTriangle(quint8 *pDst)
     for (i = 2; i != MICRO_HEIGHT; i += 2, y--) {
         // add opaque pixels
         for (x = 0; x < (MICRO_WIDTH - i); x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Right Triangle frame II.");
                 return pDst;
@@ -352,7 +350,7 @@ quint8 *D1CelTilesetFrame::WriteRightTriangle(quint8 *pDst)
         pDst += i & 2;
         // check transparent pixels
         for (x = MICRO_WIDTH - i; x < MICRO_WIDTH; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (!pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid non-transparent pixel in a Right Triangle frame II.");
                 return pDst;
@@ -362,9 +360,9 @@ quint8 *D1CelTilesetFrame::WriteRightTriangle(quint8 *pDst)
     return pDst;
 }
 
-quint8 *D1CelTilesetFrame::WriteLeftTrapezoid(quint8 *pDst)
+quint8 *D1CelTilesetFrame::WriteLeftTrapezoid(D1GfxFrame &frame, quint8 *pDst)
 {
-    D1CelPixel pixel;
+    D1GfxPixel pixel;
     int i, x, y;
     // int length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
 
@@ -373,7 +371,7 @@ quint8 *D1CelTilesetFrame::WriteLeftTrapezoid(quint8 *pDst)
     for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
         // check transparent pixels
         for (x = 0; x < i; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (!pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid non-transparent pixel in a Left Trapezoid frame I.");
                 return pDst;
@@ -382,7 +380,7 @@ quint8 *D1CelTilesetFrame::WriteLeftTrapezoid(quint8 *pDst)
         pDst += i & 2;
         // add opaque pixels
         for (x = i; x < MICRO_WIDTH; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Left Trapezoid frame I.");
                 return pDst;
@@ -394,7 +392,7 @@ quint8 *D1CelTilesetFrame::WriteLeftTrapezoid(quint8 *pDst)
     // add opaque pixels
     for (i = MICRO_HEIGHT / 2; i != 0; i--, y--) {
         for (x = 0; x < MICRO_WIDTH; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Left Trapezoid frame II.");
                 return pDst;
@@ -406,9 +404,9 @@ quint8 *D1CelTilesetFrame::WriteLeftTrapezoid(quint8 *pDst)
     return pDst;
 }
 
-quint8 *D1CelTilesetFrame::WriteRightTrapezoid(quint8 *pDst)
+quint8 *D1CelTilesetFrame::WriteRightTrapezoid(D1GfxFrame &frame, quint8 *pDst)
 {
-    D1CelPixel pixel;
+    D1GfxPixel pixel;
     int i, x, y;
     // int length = (MICRO_WIDTH * MICRO_HEIGHT) / 2 + MICRO_HEIGHT * (2 + MICRO_HEIGHT) / 4 + MICRO_HEIGHT / 2;
 
@@ -417,7 +415,7 @@ quint8 *D1CelTilesetFrame::WriteRightTrapezoid(quint8 *pDst)
     for (i = MICRO_HEIGHT - 2; i >= 0; i -= 2, y--) {
         // add opaque pixels
         for (x = 0; x < (MICRO_WIDTH - i); x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Right Trapezoid frame I.");
                 return pDst;
@@ -428,7 +426,7 @@ quint8 *D1CelTilesetFrame::WriteRightTrapezoid(quint8 *pDst)
         pDst += i & 2;
         // check transparent pixels
         for (x = MICRO_WIDTH - i; x < MICRO_WIDTH; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (!pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid non-transparent pixel in a Right Trapezoid frame I.");
                 return pDst;
@@ -438,7 +436,7 @@ quint8 *D1CelTilesetFrame::WriteRightTrapezoid(quint8 *pDst)
     // add opaque pixels
     for (i = MICRO_HEIGHT / 2; i != 0; i--, y--) {
         for (x = 0; x < MICRO_WIDTH; x++) {
-            pixel = this->getPixel(x, y);
+            pixel = frame.getPixel(x, y);
             if (pixel.isTransparent()) {
                 QMessageBox::critical(nullptr, "Error", "Invalid transparent pixel in a Right Trapezoid frame II.");
                 return pDst;

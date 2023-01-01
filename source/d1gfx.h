@@ -1,26 +1,23 @@
 #pragma once
 
-#include <QBuffer>
-#include <QFile>
 #include <QImage>
-#include <QPointer>
 #include <QtEndian>
 
+#include "d1celtilesetframe.h"
 #include "d1pal.h"
-#include "openasdialog.h"
-#include "saveasdialog.h"
 
+// TODO: move these to some persistency class?
 #define SUB_HEADER_SIZE 0x0A
 #define CEL_BLOCK_HEIGHT 32
 
 #define SwapLE16(X) qToLittleEndian((quint16)(X))
 #define SwapLE32(X) qToLittleEndian((quint32)(X))
 
-class D1CelPixel {
+class D1GfxPixel {
 public:
-    D1CelPixel() = default;
-    D1CelPixel(bool, quint8);
-    ~D1CelPixel() = default;
+    D1GfxPixel() = default;
+    D1GfxPixel(bool, quint8);
+    ~D1GfxPixel() = default;
 
     bool isTransparent() const;
     quint8 getPaletteIndex();
@@ -30,45 +27,51 @@ private:
     quint8 paletteIndex = 0;
 };
 
-class D1CelFrameBase : public QObject {
-    Q_OBJECT
+class D1GfxFrame {
+    friend class D1Cel;
+    friend class D1CelFrame;
+    friend class D1Cl2;
+    friend class D1Cl2Frame;
+    friend class D1CelTileset;
+    friend class D1CelTilesetFrame;
 
 public:
-    D1CelFrameBase() = default;
-    ~D1CelFrameBase() = default;
-
-    virtual bool load(QByteArray rawData, OpenAsParam *params = nullptr) = 0;
+    D1GfxFrame() = default;
+    ~D1GfxFrame() = default;
 
     quint16 getWidth();
     quint16 getHeight();
-    D1CelPixel getPixel(quint16, quint16);
+    D1GfxPixel getPixel(quint16, quint16);
     bool isClipped();
 
 protected:
     quint16 width = 0;
     quint16 height = 0;
-    QList<QList<D1CelPixel>> pixels;
-    bool clipped;
+    QList<QList<D1GfxPixel>> pixels;
+    bool clipped = false;
+    D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::Unknown;
 };
 
 enum class D1CEL_TYPE {
-    NONE,
     V1_REGULAR,
     V1_COMPILATION,
     V1_LEVEL,
     V2_MONO_GROUP,
-    V2_MULTIPLE_GROUPS
+    V2_MULTIPLE_GROUPS,
+    UNKNOWN = -1,
 };
 
-class D1CelBase : public QObject {
+class D1Gfx : public QObject {
     Q_OBJECT
 
-public:
-    D1CelBase() = default;
-    ~D1CelBase();
+    friend class D1Cel;
+    friend class D1Cl2;
+    friend class D1CelTileset;
 
-    virtual bool load(QString filePath, OpenAsParam *params = nullptr) = 0;
-    virtual bool save(SaveAsParam *params = nullptr) = 0;
+public:
+    D1Gfx() = default;
+    ~D1Gfx() = default;
+
     bool isFrameSizeConstant();
     QImage getFrameImage(quint16);
 
@@ -79,14 +82,14 @@ public:
     int getGroupCount();
     QPair<quint16, quint16> getGroupFrameIndices(quint16);
     int getFrameCount();
-    D1CelFrameBase *getFrame(quint16);
+    D1GfxFrame *getFrame(quint16);
     quint16 getFrameWidth(quint16);
     quint16 getFrameHeight(quint16);
 
 protected:
-    D1CEL_TYPE type = D1CEL_TYPE::NONE;
-    QString celFilePath;
+    D1CEL_TYPE type = D1CEL_TYPE::UNKNOWN;
+    QString gfxFilePath;
     D1Pal *palette = nullptr;
     QList<QPair<quint16, quint16>> groupFrameIndices;
-    QList<QPointer<D1CelFrameBase>> frames;
+    QList<D1GfxFrame> frames;
 };

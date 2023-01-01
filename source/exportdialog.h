@@ -4,7 +4,7 @@
 #include <QProgressDialog>
 
 #include "d1amp.h"
-#include "d1celbase.h"
+#include "d1gfx.h"
 #include "d1min.h"
 #include "d1sol.h"
 #include "d1til.h"
@@ -20,7 +20,7 @@ public:
     explicit ExportDialog(QWidget *parent = nullptr);
     ~ExportDialog();
 
-    void initialize(QJsonObject *cfg, D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a);
+    void initialize(QJsonObject *cfg, D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
 
     void setCurrentFrame(quint16);
 
@@ -41,7 +41,7 @@ private:
     Ui::ExportDialog *ui;
     QJsonObject *configuration;
 
-    D1CelBase *cel = nullptr;
+    D1Gfx *gfx = nullptr;
     D1Min *min = nullptr;
     D1Til *til = nullptr;
     D1Sol *sol = nullptr;

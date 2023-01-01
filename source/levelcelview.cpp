@@ -39,16 +39,16 @@ LevelCelView::~LevelCelView()
     delete celScene;
 }
 
-void LevelCelView::initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
+void LevelCelView::initialize(D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
 {
-    this->cel = c;
+    this->gfx = g;
     this->min = m;
     this->til = t;
     this->sol = s;
     this->amp = a;
 
     // Displaying CEL file path information
-    QFileInfo celFileInfo(this->cel->getFilePath());
+    QFileInfo celFileInfo(this->gfx->getFilePath());
     QFileInfo minFileInfo(this->min->getFilePath());
     QFileInfo tilFileInfo(this->til->getFilePath());
     QFileInfo solFileInfo(this->sol->getFilePath());
@@ -56,33 +56,13 @@ void LevelCelView::initialize(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s, D1Amp 
     ui->celLabel->setText(celFileInfo.fileName() + ", " + minFileInfo.fileName() + ", " + tilFileInfo.fileName() + ", " + solFileInfo.fileName() + ", " + ampFileInfo.fileName());
 
     ui->frameNumberEdit->setText(
-        QString::number(this->cel->getFrameCount()));
+        QString::number(this->gfx->getFrameCount()));
 
     ui->subtileNumberEdit->setText(
         QString::number(this->min->getSubtileCount()));
 
     ui->tileNumberEdit->setText(
         QString::number(this->til->getTileCount()));
-}
-
-D1CelBase *LevelCelView::getCel()
-{
-    return this->cel;
-}
-
-QString LevelCelView::getCelPath()
-{
-    return this->cel->getFilePath();
-}
-
-D1Min *LevelCelView::getMin()
-{
-    return this->min;
-}
-
-D1Til *LevelCelView::getTil()
-{
-    return this->til;
 }
 
 int LevelCelView::getCurrentFrameIndex()
@@ -104,18 +84,18 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
 {
     quint8 index = 0;
 
-    quint16 celFrameWidth = this->cel->getFrameWidth(this->currentFrameIndex);
-    quint16 subtileWidth = this->min->getSubtileWidth() * 32;
+    quint16 celFrameWidth = this->gfx->getFrameWidth(this->currentFrameIndex);
+    quint16 subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
     quint16 tileWidth = subtileWidth * 2;
 
-    quint16 celFrameHeight = this->cel->getFrameHeight(this->currentFrameIndex);
-    quint16 subtileHeight = this->min->getSubtileHeight() * 32;
+    quint16 celFrameHeight = this->gfx->getFrameHeight(this->currentFrameIndex);
+    quint16 subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
     quint16 tileHeight = subtileHeight + 32;
 
     if (x > CEL_SCENE_SPACING && x < (celFrameWidth + CEL_SCENE_SPACING)
         && y > CEL_SCENE_SPACING && y < (celFrameHeight + CEL_SCENE_SPACING)) {
         // If CEL frame color is clicked, select it in the palette widgets
-        index = this->cel->getFrame(this->currentFrameIndex)
+        index = this->gfx->getFrame(this->currentFrameIndex)
                     ->getPixel(x - CEL_SCENE_SPACING, y - CEL_SCENE_SPACING)
                     .getPaletteIndex();
 
@@ -194,13 +174,10 @@ void LevelCelView::displayFrame()
     quint16 minPosX = 0;
     quint16 tilPosX = 0;
 
-    if (this->cel == nullptr)
-        return;
-
     this->celScene->clear();
 
     // Getting the current frame/sub-tile/tile to display
-    QImage celFrame = this->cel->getFrameImage(this->currentFrameIndex);
+    QImage celFrame = this->gfx->getFrameImage(this->currentFrameIndex);
     QImage subtile = this->min->getSubtileImage(this->currentSubtileIndex);
     QImage tile = this->til->getTileImage(this->currentTileIndex);
     quint8 sol = this->sol->getSubtileProperties(this->currentSubtileIndex);
@@ -320,14 +297,14 @@ void LevelCelView::on_previousFrameButton_clicked()
     if (this->currentFrameIndex >= 1)
         this->currentFrameIndex--;
     else
-        this->currentFrameIndex = std::max(0, this->cel->getFrameCount() - 1);
+        this->currentFrameIndex = std::max(0, this->gfx->getFrameCount() - 1);
 
     this->displayFrame();
 }
 
 void LevelCelView::on_nextFrameButton_clicked()
 {
-    if (this->currentFrameIndex < (this->cel->getFrameCount() - 1))
+    if (this->currentFrameIndex < (this->gfx->getFrameCount() - 1))
         this->currentFrameIndex++;
     else
         this->currentFrameIndex = 0;
@@ -337,7 +314,7 @@ void LevelCelView::on_nextFrameButton_clicked()
 
 void LevelCelView::on_lastFrameButton_clicked()
 {
-    this->currentFrameIndex = std::max(0, this->cel->getFrameCount() - 1);
+    this->currentFrameIndex = std::max(0, this->gfx->getFrameCount() - 1);
     this->displayFrame();
 }
 
@@ -345,7 +322,7 @@ void LevelCelView::on_frameIndexEdit_returnPressed()
 {
     int frameIndex = this->ui->frameIndexEdit->text().toInt() - 1;
 
-    if (frameIndex >= 0 && frameIndex < this->cel->getFrameCount()) {
+    if (frameIndex >= 0 && frameIndex < this->gfx->getFrameCount()) {
         this->currentFrameIndex = frameIndex;
         this->displayFrame();
     }

@@ -2,6 +2,7 @@
 
 #include <QMap>
 
+#include "d1gfx.h"
 #include "d1min.h"
 #include "d1sol.h"
 #include "d1til.h"
@@ -18,8 +19,8 @@ class D1PalHits : public QObject {
     Q_OBJECT
 
 public:
-    D1PalHits(D1CelBase *);
-    D1PalHits(D1CelBase *c, D1Min *m, D1Til *t, D1Sol *s);
+    D1PalHits(D1Gfx *);
+    D1PalHits(D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s);
 
     D1PALHITS_MODE getMode();
     void setMode(D1PALHITS_MODE m);
@@ -37,7 +38,7 @@ private:
 
     D1PALHITS_MODE mode = D1PALHITS_MODE::ALL_COLORS;
 
-    D1CelBase *cel;
+    D1Gfx *gfx;
     D1Min *min;
     D1Til *til;
     D1Sol *sol;
