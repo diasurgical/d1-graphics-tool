@@ -30,6 +30,8 @@ set(PROJECT_SOURCES
         source/d1cl2.h
         source/d1gfx.cpp
         source/d1gfx.h
+        source/d1image.cpp
+        source/d1image.h
         source/d1min.cpp
         source/d1min.h
         source/d1pal.cpp

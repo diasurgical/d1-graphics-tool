@@ -34,6 +34,7 @@ class D1GfxFrame {
     friend class D1Cl2Frame;
     friend class D1CelTileset;
     friend class D1CelTilesetFrame;
+    friend class D1ImageFrame;
 
 public:
     D1GfxFrame() = default;
@@ -74,6 +75,8 @@ public:
 
     bool isFrameSizeConstant();
     QImage getFrameImage(quint16);
+    void insertFrame(quint16 idx, QString imageFilePath);
+    void removeFrame(quint16 idx);
 
     D1CEL_TYPE getType();
     QString getFilePath();

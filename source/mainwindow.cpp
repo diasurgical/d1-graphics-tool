@@ -5,10 +5,13 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QGraphicsScene>
+#include <QImageReader>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QMimeDatabase>
+#include <QMimeType>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 #include <QStringList>
@@ -39,8 +42,10 @@ MainWindow::MainWindow(QWidget *parent)
     this->undoAction->setShortcuts(QKeySequence::Undo);
     this->redoAction = undoStack->createRedoAction(this, "Redo");
     this->redoAction->setShortcuts(QKeySequence::Redo);
-    this->ui->menuEdit->addAction(this->undoAction);
-    this->ui->menuEdit->addAction(this->redoAction);
+    QAction *firstAction = (QAction *)this->ui->menuEdit->actions()[0];
+    this->ui->menuEdit->insertAction(firstAction, this->undoAction);
+    this->ui->menuEdit->insertAction(firstAction, this->redoAction);
+    this->ui->menuEdit->insertSeparator(firstAction);
 
     this->on_actionClose_triggered();
     setAcceptDrops(true);
@@ -229,10 +234,8 @@ void MainWindow::nextPaletteCycle(D1PAL_CYCLE_TYPE type)
     this->palWidget->modify();
 }
 
-QString MainWindow::fileDialog(bool save, const char *title, const char *filter)
+static QString prepareFilePath(QString filePath, const char *filter)
 {
-    QString filePath = this->lastFilePath;
-
     if (!filePath.isEmpty()) {
         // filter file-name unless it matches the filter
         QString pattern = QString(filter);
@@ -263,6 +266,13 @@ QString MainWindow::fileDialog(bool save, const char *title, const char *filter)
             filePath = fi.absolutePath();
         }
     }
+    return filePath;
+}
+
+QString MainWindow::fileDialog(bool save, const char *title, const char *filter)
+{
+    QString filePath = prepareFilePath(this->lastFilePath, filter);
+
     if (save) {
         filePath = QFileDialog::getSaveFileName(this, title, filePath, filter);
     } else {
@@ -273,6 +283,18 @@ QString MainWindow::fileDialog(bool save, const char *title, const char *filter)
         this->lastFilePath = filePath;
     }
     return filePath;
+}
+
+QStringList MainWindow::filesDialog(const char *title, const char *filter)
+{
+    QString filePath = prepareFilePath(this->lastFilePath, filter);
+
+    QStringList filePaths = QFileDialog::getOpenFileNames(this, title, filePath, filter);
+
+    if (!filePaths.isEmpty()) {
+        this->lastFilePath = filePaths[0];
+    }
+    return filePaths;
 }
 
 void MainWindow::on_actionOpen_triggered()
@@ -293,19 +315,22 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasFormat("text/uri-list"))
+    if (event->mimeData()->hasUrls()) {
         event->acceptProposedAction();
+    }
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
-    if (!event->mimeData()->hasFormat("text/uri-list"))
+    if (!event->mimeData()->hasUrls()) {
         return;
+    }
 
     event->acceptProposedAction();
 
-    for (const QUrl &url : event->mimeData()->urls())
+    for (const QUrl &url : event->mimeData()->urls()) {
         this->openFile(url.toLocalFile());
+    }
 }
 
 void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
@@ -539,6 +564,28 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->ui->actionSave->setEnabled(true);
     this->ui->actionSaveAs->setEnabled(true);
     this->ui->actionClose->setEnabled(true);
+    this->ui->actionAdd_Frame->setEnabled(!isTileset);
+    this->ui->actionDel_Frame->setEnabled(!isTileset && this->gfx->getFrameCount() != 0);
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::openImageFiles(QStringList filePaths)
+{
+    if (filePaths.isEmpty()) {
+        return;
+    }
+
+    this->ui->statusBar->showMessage("Reading...");
+    this->ui->statusBar->repaint();
+
+    this->celView->insertFrames(filePaths);
+    // rebuild palette hits
+    this->palHits->buildPalHits();
+    this->palWidget->refresh();
+    this->undoStack->clear();
+    this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -658,6 +705,8 @@ void MainWindow::on_actionClose_triggered()
     this->ui->actionSave->setEnabled(false);
     this->ui->actionSaveAs->setEnabled(false);
     this->ui->actionClose->setEnabled(false);
+    this->ui->actionAdd_Frame->setEnabled(false);
+    this->ui->actionDel_Frame->setEnabled(false);
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -675,6 +724,44 @@ void MainWindow::on_actionExport_triggered()
 void MainWindow::on_actionQuit_triggered()
 {
     qApp->quit();
+}
+
+void MainWindow::on_actionAdd_Frame_triggered()
+{
+    // get supported image file types
+    QStringList mimeTypeFilters;
+    const QByteArrayList supportedMimeTypes = QImageReader::supportedMimeTypes();
+    for (const QByteArray &mimeTypeName : supportedMimeTypes) {
+        mimeTypeFilters.append(mimeTypeName);
+    }
+
+    // compose filter for all supported types
+    QMimeDatabase mimeDB;
+    QStringList allSupportedFormats;
+    for (const QString &mimeTypeFilter : mimeTypeFilters) {
+        QMimeType mimeType = mimeDB.mimeTypeForName(mimeTypeFilter);
+        if (mimeType.isValid()) {
+            QStringList mimePatterns = mimeType.globPatterns();
+            for (int i = 0; i < mimePatterns.count(); i++) {
+                allSupportedFormats.append(mimePatterns[i]);
+                allSupportedFormats.append(mimePatterns[i].toUpper());
+            }
+        }
+    }
+    QString allSupportedFormatsFilter = QString("Image files (%1)").arg(allSupportedFormats.join(' '));
+    QStringList files = this->filesDialog("Select Image Files", allSupportedFormatsFilter.toLatin1().data());
+
+    this->openImageFiles(files);
+}
+
+void MainWindow::on_actionDel_Frame_triggered()
+{
+    this->celView->removeCurrentFrame();
+    // rebuild palette hits
+    this->palHits->buildPalHits();
+    this->palWidget->refresh();
+    this->undoStack->clear();
+    this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
 }
 
 void MainWindow::on_actionNew_PAL_triggered()
