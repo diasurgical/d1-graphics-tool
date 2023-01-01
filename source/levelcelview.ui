@@ -447,9 +447,6 @@
         </item>
         <item row="3" column="10">
          <widget class="QLineEdit" name="subtileNumberEdit">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -749,9 +746,6 @@
         </item>
         <item row="2" column="10">
          <widget class="QLineEdit" name="tileNumberEdit">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -872,9 +866,6 @@
         </item>
         <item row="4" column="10">
          <widget class="QLineEdit" name="frameNumberEdit">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <property name="minimumSize">
            <size>
             <width>50</width>
@@ -1116,168 +1107,150 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Tile map properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QComboBox" name="ampType">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <item>
-         <property name="text">
-          <string>None</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>PIllar</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Vertical wall</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Horizontal wall</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Wall intersection</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Vertical wall ending</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Horizontal wall ending</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Corner wall</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Wall intersection (west)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Wall intersection (east)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Horizontal wall (backside)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Vertical wall (backside)</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Wall intersection (south)</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="3">
-         <widget class="QCheckBox" name="amp5">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Grate</string>
+           <string>Tile map properties</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font-weight: bold;</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label_5">
-          <property name="text">
-           <string>Horizontal:</string>
-          </property>
+         <widget class="QComboBox" name="ampType">
+          <item>
+           <property name="text">
+            <string>None</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Pillar</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Vertical wall</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Horizontal wall</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Wall intersection</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Vertical wall ending</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Horizontal wall ending</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Corner wall</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Wall intersection (west)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Wall intersection (east)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Horizontal wall (backside)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Vertical wall (backside)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Wall intersection (south)</string>
+           </property>
+          </item>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QCheckBox" name="amp1">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Door</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QCheckBox" name="amp3">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Arch</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QCheckBox" name="amp2">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Arch</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QCheckBox" name="amp0">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Door</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="3">
-         <widget class="QCheckBox" name="amp4">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
-          <property name="text">
-           <string>Grate</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
+        <item row="2" column="0">
          <widget class="QLabel" name="label_4">
           <property name="text">
            <string>Vertical:</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="amp0">
+          <property name="text">
+           <string>Door</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QCheckBox" name="amp2">
+          <property name="text">
+           <string>Arch</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QCheckBox" name="amp4">
+          <property name="text">
+           <string>Grate</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Horizontal:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QCheckBox" name="amp1">
+          <property name="text">
+           <string>Door</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QCheckBox" name="amp3">
+          <property name="text">
+           <string>Arch</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="3">
+         <widget class="QCheckBox" name="amp5">
+          <property name="text">
+           <string>Grate</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
          <widget class="QCheckBox" name="amp6">
           <property name="text">
            <string>Dirt</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="4" column="1">
          <widget class="QCheckBox" name="amp7">
           <property name="text">
            <string>Stairs</string>
@@ -1288,57 +1261,39 @@
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0" columnstretch="0,0,0,0" columnminimumwidth="0,0,0,0">
-        <item row="2" column="1">
-         <widget class="QCheckBox" name="sol4">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Left masked</string>
+           <string>Sub-tile properties</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font-weight: bold;</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="QCheckBox" name="sol2">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
+        <item row="1" column="0">
+         <widget class="QCheckBox" name="sol0">
           <property name="text">
-           <string>Block missile</string>
+           <string>Solid</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
          <widget class="QCheckBox" name="sol1">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <property name="text">
            <string>Block light</string>
           </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QCheckBox" name="sol5">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
+        <item row="1" column="2">
+         <widget class="QCheckBox" name="sol2">
           <property name="text">
-           <string>Right masked</string>
+           <string>Block missile</string>
           </property>
          </widget>
         </item>
         <item row="1" column="3">
          <widget class="QCheckBox" name="sol7">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <property name="text">
            <string>Allow trap</string>
           </property>
@@ -1346,31 +1301,22 @@
         </item>
         <item row="2" column="0">
          <widget class="QCheckBox" name="sol3">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
           <property name="text">
            <string>Transparent</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="0">
-         <widget class="QCheckBox" name="sol0">
-          <property name="enabled">
-           <bool>true</bool>
-          </property>
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="sol4">
           <property name="text">
-           <string>Solid</string>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
+           <string>Left masked</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
+        <item row="2" column="2">
+         <widget class="QCheckBox" name="sol5">
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:700;&quot;&gt;Sub-tile properties&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>Right masked</string>
           </property>
          </widget>
         </item>
