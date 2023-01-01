@@ -7,12 +7,13 @@
 #include "mainwindow.h"
 #include "ui_palettewidget.h"
 
-EditColorsCommand::EditColorsCommand(D1Pal *p, quint8 sci, quint8 eci, QColor nc, QUndoCommand *parent)
+EditColorsCommand::EditColorsCommand(D1Pal *p, quint8 sci, quint8 eci, QColor nc, QColor ec, QUndoCommand *parent)
     : QUndoCommand(parent)
     , pal(p)
     , startColorIndex(sci)
     , endColorIndex(eci)
     , newColor(nc)
+    , endColor(ec)
 {
     // Get the initial color values before doing any modification
     for (int i = startColorIndex; i <= endColorIndex; i++)
@@ -39,8 +40,19 @@ void EditColorsCommand::redo()
         return;
     }
 
-    for (int i = startColorIndex; i <= endColorIndex; i++)
-        this->pal->setColor(i, this->newColor);
+    float step = 1.0f / (endColorIndex - startColorIndex + 1);
+
+    for (int i = startColorIndex; i <= endColorIndex; i++) {
+        float factor = (i - startColorIndex) * step;
+
+        QColor color(
+            this->newColor.red() * (1 - factor) + this->endColor.red() * factor,
+            this->newColor.green() * (1 - factor) + this->endColor.green() * factor,
+            this->newColor.blue() * (1 - factor) + this->endColor.blue() * factor,
+            255);
+
+        this->pal->setColor(i, color);
+    }
 
     emit this->modified();
 }
@@ -802,7 +814,7 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     EditColorsCommand *command = new EditColorsCommand(
-        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color);
+        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, color);
     QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
     emit this->sendEditingCommand(command);
@@ -814,11 +826,17 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
 void PaletteWidget::on_colorPickPushButton_clicked()
 {
     QColor color = QColorDialog::getColor();
+    QColor colorEnd;
+    if (this->selectedFirstColorIndex == this->selectedLastColorIndex) {
+        colorEnd = color;
+    } else {
+        colorEnd = QColorDialog::getColor();
+    }
 
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     EditColorsCommand *command = new EditColorsCommand(
-        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color);
+        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, colorEnd);
     QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
     emit this->sendEditingCommand(command);
@@ -829,7 +847,7 @@ void PaletteWidget::on_colorClearPushButton_clicked()
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     auto *command = new EditColorsCommand(
-        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, this->paletteDefaultColor);
+        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, this->paletteDefaultColor, this->paletteDefaultColor);
     QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
     emit this->sendEditingCommand(command);

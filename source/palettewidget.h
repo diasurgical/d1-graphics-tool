@@ -37,7 +37,7 @@ class EditColorsCommand : public QObject, public QUndoCommand {
     Q_OBJECT
 
 public:
-    explicit EditColorsCommand(D1Pal *, quint8, quint8, QColor, QUndoCommand *parent = nullptr);
+    explicit EditColorsCommand(D1Pal *, quint8, quint8, QColor, QColor, QUndoCommand *parent = nullptr);
     ~EditColorsCommand() = default;
 
     void undo() override;
@@ -52,6 +52,7 @@ private:
     quint8 endColorIndex;
     QList<QColor> initialColors;
     QColor newColor;
+    QColor endColor;
 };
 
 class EditTranslationsCommand : public QObject, public QUndoCommand {
