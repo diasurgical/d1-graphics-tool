@@ -4,6 +4,7 @@
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QStringList>
 #include <QTimer>
 #include <QWidget>
 
@@ -19,11 +20,20 @@ class CelView;
 class CelScene : public QGraphicsScene {
     Q_OBJECT
 
-protected:
+public:
+    CelScene(QWidget *view);
+
+private slots:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    void dropEvent(QGraphicsSceneDragDropEvent *event);
 
 signals:
     void framePixelClicked(quint16, quint16);
+
+private:
+    QWidget *view;
 };
 
 class CelView : public QWidget {
@@ -36,6 +46,8 @@ public:
     void initialize(D1Gfx *gfx);
     int getCurrentFrameIndex();
     void framePixelClicked(quint16, quint16);
+    void insertFrames(QStringList filePaths);
+    void removeCurrentFrame();
 
     void displayFrame();
 
@@ -68,6 +80,9 @@ private slots:
     void on_playButton_clicked();
     void on_stopButton_clicked();
     void playGroup();
+
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 
 private:
     Ui::CelView *ui;

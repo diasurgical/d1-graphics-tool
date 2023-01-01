@@ -154,9 +154,6 @@
     <addaction name="actionAbout_Qt"/>
    </widget>
    <widget class="QMenu" name="menuPalette">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
     <property name="title">
      <string>Palette</string>
     </property>
@@ -177,12 +174,13 @@
     <addaction name="actionSave_Translation_1"/>
     <addaction name="actionSave_Translation_1_as"/>
     <addaction name="actionClose_Translation_1"/>
-    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
      <string>Edit</string>
     </property>
+    <addaction name="actionAdd_Frame"/>
+    <addaction name="actionDel_Frame"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -220,20 +218,6 @@
     <string>Ctrl+W</string>
    </property>
   </action>
-  <action name="actionOpen_PAL">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Open palette...</string>
-   </property>
-   <property name="toolTip">
-    <string>Open</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+P</string>
-   </property>
-  </action>
   <action name="actionOpen">
    <property name="text">
     <string>Open...</string>
@@ -266,6 +250,17 @@
     <string>Ctrl+Shift+S</string>
    </property>
   </action>
+  <action name="actionOpen_PAL">
+   <property name="text">
+    <string>Open palette...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
   <action name="actionOpen_Translation_1">
    <property name="text">
     <string>Open unique translation...</string>
@@ -289,9 +284,6 @@
    </property>
   </action>
   <action name="actionExport">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
    <property name="text">
     <string>Export</string>
    </property>
@@ -302,6 +294,16 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
+   </property>
+  </action>
+  <action name="actionAdd_Frame">
+   <property name="text">
+    <string>Add Frame</string>
+   </property>
+  </action>
+  <action name="actionDel_Frame">
+   <property name="text">
+    <string>Del Frame</string>
    </property>
   </action>
   <action name="actionSave_PAL">

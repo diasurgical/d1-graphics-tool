@@ -1,6 +1,8 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QStringList>
+#include <QUndoCommand>
 
 #include "celview.h"
 #include "d1gfx.h"
@@ -37,6 +39,7 @@ public:
     void pushCommandToUndoStack(QUndoCommand *);
 
     void openFile(QString openFilePath, OpenAsParam *params = nullptr);
+    void openImageFiles(QStringList filePaths);
     void saveFile(SaveAsParam *params = nullptr);
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
@@ -47,6 +50,7 @@ public:
 
     QString getLastFilePath();
     QString fileDialog(bool save, const char *title, const char *filter);
+    QStringList filesDialog(const char *title, const char *filter);
 
 private:
     void loadConfiguration();
@@ -60,6 +64,9 @@ private slots:
     void on_actionExport_triggered();
     void on_actionSettings_triggered();
     void on_actionQuit_triggered();
+
+    void on_actionAdd_Frame_triggered();
+    void on_actionDel_Frame_triggered();
 
     void on_actionNew_PAL_triggered();
     void on_actionOpen_PAL_triggered();

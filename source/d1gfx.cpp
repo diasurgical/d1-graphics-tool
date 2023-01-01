@@ -1,5 +1,7 @@
 #include "d1gfx.h"
 
+#include "d1image.h"
+
 D1GfxPixel::D1GfxPixel(bool t, quint8 pi)
     : transparent(t)
     , paletteIndex(pi)
@@ -85,6 +87,58 @@ QImage D1Gfx::getFrameImage(quint16 frameIndex)
     }
 
     return image;
+}
+
+void D1Gfx::insertFrame(quint16 idx, QString imageFilePath)
+{
+    bool clipped;
+    QImage image = QImage(imageFilePath);
+
+    if (image.isNull()) {
+        return;
+    }
+
+    if (!this->frames.isEmpty()) {
+        clipped = this->frames[0].isClipped();
+    } else {
+        clipped = this->type == D1CEL_TYPE::V2_MONO_GROUP || this->type == D1CEL_TYPE::V2_MULTIPLE_GROUPS;
+    }
+
+    D1GfxFrame frame;
+    D1ImageFrame::load(frame, image, clipped, this->palette);
+    this->frames.insert(idx, frame);
+
+    if (this->groupFrameIndices.isEmpty()) {
+        this->groupFrameIndices.append(qMakePair(0, 0));
+    } else {
+        for (int i = 0; i < this->groupFrameIndices.count(); i++) {
+            if (this->groupFrameIndices[i].second < idx)
+                continue;
+            if (this->groupFrameIndices[i].first > idx) {
+                this->groupFrameIndices[i].first++;
+            }
+            this->groupFrameIndices[i].second++;
+        }
+    }
+}
+
+void D1Gfx::removeFrame(quint16 idx)
+{
+    this->frames.removeAt(idx);
+
+    for (int i = 0; i < this->groupFrameIndices.count(); i++) {
+        if (this->groupFrameIndices[i].second < idx)
+            continue;
+        if (this->groupFrameIndices[i].second == idx && this->groupFrameIndices[i].first == idx) {
+            this->groupFrameIndices.removeAt(i);
+            i--;
+            continue;
+        }
+        if (this->groupFrameIndices[i].first > idx) {
+            this->groupFrameIndices[i].first--;
+        }
+        this->groupFrameIndices[i].second--;
+    }
 }
 
 D1CEL_TYPE D1Gfx::getType()

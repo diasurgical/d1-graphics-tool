@@ -34,6 +34,8 @@ void D1PalHits::buildPalHits()
     quint8 paletteIndex = 0;
 
     // Go through all frames
+    this->framePalHits.clear();
+    this->allFramesPalHits.clear();
     for (int i = 0; i < this->gfx->getFrameCount(); i++) {
         QMap<quint8, quint32> frameHits;
 
@@ -69,6 +71,7 @@ void D1PalHits::buildSubtilePalHits()
     quint16 frameIndex;
 
     // Go through all sub-tiles
+    this->subtilePalHits.clear();
     for (int i = 0; i < this->min->getSubtileCount(); i++) {
         QMap<quint8, quint32> subtileHits;
 
@@ -98,6 +101,7 @@ void D1PalHits::buildTilePalHits()
     quint16 subtileIndex;
 
     // Go through all tiles
+    this->tilePalHits.clear();
     for (int i = 0; i < this->til->getTileCount(); i++) {
         QMap<quint8, quint32> tileHits;
 

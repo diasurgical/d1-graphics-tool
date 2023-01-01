@@ -2,8 +2,18 @@
 
 #include <algorithm>
 
+#include <QDragEnterEvent>
+#include <QMessageBox>
+#include <QMimeData>
+
 #include "mainwindow.h"
 #include "ui_celview.h"
+
+CelScene::CelScene(QWidget *v)
+    : QGraphicsScene()
+    , view(v)
+{
+}
 
 void CelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -15,10 +25,38 @@ void CelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     emit this->framePixelClicked(x, y);
 }
 
+void CelScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    }
+}
+
+void CelScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void CelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (!event->mimeData()->hasUrls()) {
+        return;
+    }
+
+    event->acceptProposedAction();
+
+    QStringList filePaths;
+    for (const QUrl &url : event->mimeData()->urls()) {
+        filePaths.append(url.toLocalFile());
+    }
+    // try to insert as frames
+    ((MainWindow *)this->view->window())->openImageFiles(filePaths);
+}
+
 CelView::CelView(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::CelView)
-    , celScene(new CelScene)
+    , celScene(new CelScene(this))
 {
     ui->setupUi(this);
     ui->celGraphicsView->setScene(this->celScene);
@@ -29,6 +67,8 @@ CelView::CelView(QWidget *parent)
 
     // If a pixel of the frame was clicked get pixel color index and notify the palette widgets
     QObject::connect(this->celScene, &CelScene::framePixelClicked, this, &CelView::framePixelClicked);
+
+    setAcceptDrops(true);
 }
 
 CelView::~CelView()
@@ -80,6 +120,30 @@ void CelView::framePixelClicked(quint16 x, quint16 y)
                 .getPaletteIndex();
 
     emit this->colorIndexClicked(index);
+}
+
+void CelView::insertFrames(QStringList filePaths)
+{
+    // insert the frame(s)
+    for (int i = 1; i <= filePaths.count(); i++) {
+        this->gfx->insertFrame(this->currentFrameIndex, filePaths[filePaths.count() - i]);
+    }
+    // update the view
+    this->initialize(this->gfx);
+    this->displayFrame();
+}
+
+void CelView::removeCurrentFrame()
+{
+    // remove the frame
+    this->gfx->removeFrame(this->currentFrameIndex);
+    if (this->gfx->getFrameCount() == this->currentFrameIndex) {
+        this->currentFrameIndex = std::max(0, this->currentFrameIndex - 1);
+    }
+    this->updateGroupIndex();
+    // update the view
+    this->initialize(this->gfx);
+    this->displayFrame();
 }
 
 void CelView::displayFrame()
@@ -333,4 +397,27 @@ void CelView::on_stopButton_clicked()
     this->ui->playButton->setEnabled(true);
     this->ui->playDelayEdit->setEnabled(true);
     this->ui->playComboBox->setEnabled(true);
+}
+
+void CelView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    }
+}
+
+void CelView::dropEvent(QDropEvent *event)
+{
+    if (!event->mimeData()->hasUrls()) {
+        return;
+    }
+
+    event->acceptProposedAction();
+
+    QStringList filePaths;
+    for (const QUrl &url : event->mimeData()->urls()) {
+        filePaths.append(url.toLocalFile());
+    }
+    // try to insert as frames
+    ((MainWindow *)this->window())->openImageFiles(filePaths);
 }
