@@ -16,13 +16,10 @@ static quint8 getPalColor(D1Pal *pal, QColor color)
             i = 128; // skip indices between 1 and 127 from the default palette
         }
         QColor palColor = pal->getColor(i);
-        /* int currR = abs(color.red() - palColor.red())
-           int currG = abs(color.green() - palColor.green())
-           int currB = abs(color.blue() - palColor.blue());*/
-        int currR = (color.red() - palColor.red()) * (color.red() - palColor.red());
-        int currG = (color.green() - palColor.green()) * (color.green() - palColor.green());
-        int currB = (color.blue() - palColor.blue()) * (color.blue() - palColor.blue());
-        int curr = currR + currG + currB;
+        int currR = color.red() - palColor.red();
+        int currG = color.green() - palColor.green();
+        int currB = color.blue() - palColor.blue();
+        int curr = currR * currR + currG * currG + currB * currB;
         if (curr < best) {
             best = curr;
             res = i;
