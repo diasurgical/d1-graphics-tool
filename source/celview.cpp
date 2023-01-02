@@ -50,7 +50,7 @@ void CelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
         filePaths.append(url.toLocalFile());
     }
     // try to insert as frames
-    ((MainWindow *)this->view->window())->openImageFiles(filePaths);
+    ((MainWindow *)this->view->window())->openImageFiles(filePaths, false);
 }
 
 CelView::CelView(QWidget *parent)
@@ -122,11 +122,18 @@ void CelView::framePixelClicked(quint16 x, quint16 y)
     emit this->colorIndexClicked(index);
 }
 
-void CelView::insertFrames(QStringList filePaths)
+void CelView::insertFrames(QStringList filePaths, bool append)
 {
-    // insert the frame(s)
-    for (int i = 1; i <= filePaths.count(); i++) {
-        this->gfx->insertFrame(this->currentFrameIndex, filePaths[filePaths.count() - i]);
+    if (append) {
+        // append the frame(s)
+        for (int i = 0; i < filePaths.count(); i++) {
+            this->gfx->insertFrame(this->gfx->getFrameCount(), filePaths[i]);
+        }
+    } else {
+        // insert the frame(s)
+        for (int i = 1; i <= filePaths.count(); i++) {
+            this->gfx->insertFrame(this->currentFrameIndex, filePaths[filePaths.count() - i]);
+        }
     }
     // update the view
     this->initialize(this->gfx);
@@ -419,5 +426,5 @@ void CelView::dropEvent(QDropEvent *event)
         filePaths.append(url.toLocalFile());
     }
     // try to insert as frames
-    ((MainWindow *)this->window())->openImageFiles(filePaths);
+    ((MainWindow *)this->window())->openImageFiles(filePaths, false);
 }

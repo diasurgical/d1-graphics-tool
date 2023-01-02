@@ -179,6 +179,10 @@
     <property name="title">
      <string>Edit</string>
     </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
+    <addaction name="actionInsert_Frame"/>
     <addaction name="actionAdd_Frame"/>
     <addaction name="actionDel_Frame"/>
    </widget>
@@ -254,9 +258,6 @@
    <property name="text">
     <string>Open palette...</string>
    </property>
-   <property name="toolTip">
-    <string>Open</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+P</string>
    </property>
@@ -265,9 +266,6 @@
    <property name="text">
     <string>Open unique translation...</string>
    </property>
-   <property name="toolTip">
-    <string>Open unique translation</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+U</string>
    </property>
@@ -275,9 +273,6 @@
   <action name="actionOpen_Translation_2">
    <property name="text">
     <string>Open translation...</string>
-   </property>
-   <property name="toolTip">
-    <string>Open translation</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
@@ -296,14 +291,28 @@
     <string>Settings</string>
    </property>
   </action>
+  <action name="actionInsert_Frame">
+   <property name="text">
+    <string>Insert Frame</string>
+   </property>
+   <property name="toolTip">
+    <string>Add new frames before the current one</string>
+   </property>
+  </action>
   <action name="actionAdd_Frame">
    <property name="text">
     <string>Add Frame</string>
+   </property>
+   <property name="toolTip">
+    <string>Add new frames at the end</string>
    </property>
   </action>
   <action name="actionDel_Frame">
    <property name="text">
     <string>Del Frame</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove the current frame</string>
    </property>
   </action>
   <action name="actionSave_PAL">

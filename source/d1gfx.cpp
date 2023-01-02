@@ -109,8 +109,13 @@ void D1Gfx::insertFrame(quint16 idx, QString imageFilePath)
     this->frames.insert(idx, frame);
 
     if (this->groupFrameIndices.isEmpty()) {
+        // create new group if this is the first frame
         this->groupFrameIndices.append(qMakePair(0, 0));
+    } else if (this->frames.count() == idx + 1) {
+        // extend the last group if appending a frame
+        this->groupFrameIndices.last().second = idx;
     } else {
+        // extend the current group and adjust every group after it
         for (int i = 0; i < this->groupFrameIndices.count(); i++) {
             if (this->groupFrameIndices[i].second < idx)
                 continue;

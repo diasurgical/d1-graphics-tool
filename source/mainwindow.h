@@ -39,8 +39,9 @@ public:
     void pushCommandToUndoStack(QUndoCommand *);
 
     void openFile(QString openFilePath, OpenAsParam *params = nullptr);
-    void openImageFiles(QStringList filePaths);
+    void openImageFiles(QStringList filePaths, bool append);
     void saveFile(SaveAsParam *params = nullptr);
+    void addFrames(bool append);
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
 
@@ -65,6 +66,7 @@ private slots:
     void on_actionSettings_triggered();
     void on_actionQuit_triggered();
 
+    void on_actionInsert_Frame_triggered();
     void on_actionAdd_Frame_triggered();
     void on_actionDel_Frame_triggered();
 
