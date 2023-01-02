@@ -564,6 +564,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->ui->actionSave->setEnabled(true);
     this->ui->actionSaveAs->setEnabled(true);
     this->ui->actionClose->setEnabled(true);
+    this->ui->actionInsert_Frame->setEnabled(!isTileset);
     this->ui->actionAdd_Frame->setEnabled(!isTileset);
     this->ui->actionDel_Frame->setEnabled(!isTileset && this->gfx->getFrameCount() != 0);
 
@@ -571,7 +572,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::openImageFiles(QStringList filePaths)
+void MainWindow::openImageFiles(QStringList filePaths, bool append)
 {
     if (filePaths.isEmpty()) {
         return;
@@ -580,7 +581,7 @@ void MainWindow::openImageFiles(QStringList filePaths)
     this->ui->statusBar->showMessage("Reading...");
     this->ui->statusBar->repaint();
 
-    this->celView->insertFrames(filePaths);
+    this->celView->insertFrames(filePaths, append);
     // rebuild palette hits
     this->palHits->buildPalHits();
     this->palWidget->refresh();
@@ -655,6 +656,34 @@ void MainWindow::saveFile(SaveAsParam *params)
     this->ui->statusBar->clearMessage();
 }
 
+void MainWindow::addFrames(bool append)
+{
+    // get supported image file types
+    QStringList mimeTypeFilters;
+    const QByteArrayList supportedMimeTypes = QImageReader::supportedMimeTypes();
+    for (const QByteArray &mimeTypeName : supportedMimeTypes) {
+        mimeTypeFilters.append(mimeTypeName);
+    }
+
+    // compose filter for all supported types
+    QMimeDatabase mimeDB;
+    QStringList allSupportedFormats;
+    for (const QString &mimeTypeFilter : mimeTypeFilters) {
+        QMimeType mimeType = mimeDB.mimeTypeForName(mimeTypeFilter);
+        if (mimeType.isValid()) {
+            QStringList mimePatterns = mimeType.globPatterns();
+            for (int i = 0; i < mimePatterns.count(); i++) {
+                allSupportedFormats.append(mimePatterns[i]);
+                allSupportedFormats.append(mimePatterns[i].toUpper());
+            }
+        }
+    }
+    QString allSupportedFormatsFilter = QString("Image files (%1)").arg(allSupportedFormats.join(' '));
+    QStringList files = this->filesDialog("Select Image Files", allSupportedFormatsFilter.toLatin1().data());
+
+    this->openImageFiles(files, append);
+}
+
 void MainWindow::on_actionOpenAs_triggered()
 {
     this->openAsDialog->initialize(this->configuration);
@@ -705,6 +734,7 @@ void MainWindow::on_actionClose_triggered()
     this->ui->actionSave->setEnabled(false);
     this->ui->actionSaveAs->setEnabled(false);
     this->ui->actionClose->setEnabled(false);
+    this->ui->actionInsert_Frame->setEnabled(false);
     this->ui->actionAdd_Frame->setEnabled(false);
     this->ui->actionDel_Frame->setEnabled(false);
 }
@@ -726,32 +756,14 @@ void MainWindow::on_actionQuit_triggered()
     qApp->quit();
 }
 
+void MainWindow::on_actionInsert_Frame_triggered()
+{
+    this->addFrames(false);
+}
+
 void MainWindow::on_actionAdd_Frame_triggered()
 {
-    // get supported image file types
-    QStringList mimeTypeFilters;
-    const QByteArrayList supportedMimeTypes = QImageReader::supportedMimeTypes();
-    for (const QByteArray &mimeTypeName : supportedMimeTypes) {
-        mimeTypeFilters.append(mimeTypeName);
-    }
-
-    // compose filter for all supported types
-    QMimeDatabase mimeDB;
-    QStringList allSupportedFormats;
-    for (const QString &mimeTypeFilter : mimeTypeFilters) {
-        QMimeType mimeType = mimeDB.mimeTypeForName(mimeTypeFilter);
-        if (mimeType.isValid()) {
-            QStringList mimePatterns = mimeType.globPatterns();
-            for (int i = 0; i < mimePatterns.count(); i++) {
-                allSupportedFormats.append(mimePatterns[i]);
-                allSupportedFormats.append(mimePatterns[i].toUpper());
-            }
-        }
-    }
-    QString allSupportedFormatsFilter = QString("Image files (%1)").arg(allSupportedFormats.join(' '));
-    QStringList files = this->filesDialog("Select Image Files", allSupportedFormatsFilter.toLatin1().data());
-
-    this->openImageFiles(files);
+    this->addFrames(true);
 }
 
 void MainWindow::on_actionDel_Frame_triggered()

@@ -46,7 +46,7 @@ public:
     void initialize(D1Gfx *gfx);
     int getCurrentFrameIndex();
     void framePixelClicked(quint16, quint16);
-    void insertFrames(QStringList filePaths);
+    void insertFrames(QStringList filePaths, bool append);
     void removeCurrentFrame();
 
     void displayFrame();
