@@ -1,5 +1,7 @@
 #include "d1image.h"
 
+#include <climits>
+
 #include <QColor>
 #include <QImage>
 #include <QList>
@@ -7,15 +9,12 @@
 static quint8 getPalColor(D1Pal *pal, QColor color)
 {
     int res = 0;
-    /* int bestR = abs(color.red() - 0)
-       int bestG = abs(color.green() - 0)
-       int bestB = abs(color.blue() - 0); */
-    int bestR = (color.red() - 0) * (color.red() - 0);
-    int bestG = (color.green() - 0) * (color.green() - 0);
-    int bestB = (color.blue() - 0) * (color.blue() - 0);
-    int best = bestR + bestG + bestB;
+    int best = INT_MAX;
 
     for (int i = 0; i < D1PAL_COLORS; i++) {
+        if (i == 1 && pal->getFilePath() == D1Pal::DEFAULT_PATH) {
+            i = 128; // skip indices between 1 and 127 from the default palette
+        }
         QColor palColor = pal->getColor(i);
         /* int currR = abs(color.red() - palColor.red())
            int currG = abs(color.green() - palColor.green())
