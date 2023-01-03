@@ -70,7 +70,7 @@ bool D1Amp::save(SaveAsParam *params)
     }
 
     QFileInfo fileinfo = QFileInfo(**outFile);
-    this->ampFilePath = fileinfo.fileName(); // this->load(filePath, allocate);
+    this->ampFilePath = fileinfo.filePath(); // this->load(filePath, allocate);
     delete *outFile;
 
     return true;
