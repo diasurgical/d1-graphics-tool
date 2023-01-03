@@ -67,21 +67,17 @@ void D1PalHits::buildPalHits()
 
 void D1PalHits::buildSubtilePalHits()
 {
-    QList<quint16> celFrameIndices;
-    quint16 frameIndex;
-
     // Go through all sub-tiles
     this->subtilePalHits.clear();
     for (int i = 0; i < this->min->getSubtileCount(); i++) {
         QMap<quint8, quint32> subtileHits;
 
         // Retrieve the CEL frame indices of the current sub-tile
-        celFrameIndices = this->min->getCelFrameIndices(i);
+        QList<quint16> &celFrameIndices = this->min->getCelFrameIndices(i);
 
         // Go through the CEL frames
-        QListIterator<quint16> it1(celFrameIndices);
-        while (it1.hasNext()) {
-            frameIndex = it1.next() - 1;
+        for (quint16 frameIndex : celFrameIndices) {
+            frameIndex--;
 
             // Go through the hits of the CEL frame and add them to the subtile hits
             QMapIterator<quint8, quint32> it2(this->framePalHits.value(frameIndex));
@@ -97,22 +93,16 @@ void D1PalHits::buildSubtilePalHits()
 
 void D1PalHits::buildTilePalHits()
 {
-    QList<quint16> subtileIndices;
-    quint16 subtileIndex;
-
     // Go through all tiles
     this->tilePalHits.clear();
     for (int i = 0; i < this->til->getTileCount(); i++) {
         QMap<quint8, quint32> tileHits;
 
         // Retrieve the sub-tile indices of the current tile
-        subtileIndices = this->til->getSubtileIndices(i);
+        QList<quint16> &subtileIndices = this->til->getSubtileIndices(i);
 
         // Go through the sub-tiles
-        QListIterator<quint16> it1(subtileIndices);
-        while (it1.hasNext()) {
-            subtileIndex = it1.next();
-
+        for (quint16 subtileIndex : subtileIndices) {
             // Go through the hits of the sub-tile and add them to the tile hits
             QMapIterator<quint8, quint32> it2(this->subtilePalHits.value(subtileIndex));
             while (it2.hasNext()) {

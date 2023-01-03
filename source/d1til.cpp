@@ -32,10 +32,10 @@ bool D1Til::load(QString filePath)
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->tileCount = file.size() / 2 / 4;
+    int tileCount = file.size() / 2 / 4;
 
     this->subtileIndices.clear();
-    for (int i = 0; i < this->tileCount; i++) {
+    for (int i = 0; i < tileCount; i++) {
         subtileIndicesList.clear();
         for (int j = 0; j < 4; j++) {
             in >> readWord;
@@ -58,7 +58,7 @@ bool D1Til::save(SaveAsParam *params)
     // write to file
     QDataStream out(*outFile);
     out.setByteOrder(QDataStream::LittleEndian);
-    for (int i = 0; i < this->tileCount; i++) {
+    for (int i = 0; i < this->subtileIndices.count(); i++) {
         QList<quint16> &subtileIndicesList = this->subtileIndices[i];
         for (int j = 0; j < 4; j++) {
             quint16 writeWord = subtileIndicesList[j];
@@ -103,11 +103,6 @@ QImage D1Til::getTileImage(quint16 tileIndex)
     return tile;
 }
 
-D1TIL_TYPE D1Til::getType()
-{
-    return this->type;
-}
-
 QString D1Til::getFilePath()
 {
     return this->tilFilePath;
@@ -126,7 +121,7 @@ void D1Til::setMin(D1Min *m)
 
 int D1Til::getTileCount()
 {
-    return this->tileCount;
+    return this->subtileIndices.count();
 }
 
 quint16 D1Til::getTileWidth()
@@ -149,10 +144,7 @@ quint16 D1Til::getTilePixelHeight()
     return this->tilePixelHeight;
 }
 
-QList<quint16> D1Til::getSubtileIndices(int tileIndex)
+QList<quint16> &D1Til::getSubtileIndices(int tileIndex)
 {
-    if (tileIndex < 0 || tileIndex >= this->tileCount)
-        return QList<quint16>();
-
-    return this->subtileIndices.at(tileIndex);
+    return const_cast<QList<quint16> &>(this->subtileIndices.at(tileIndex));
 }

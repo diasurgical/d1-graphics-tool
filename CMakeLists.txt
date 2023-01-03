@@ -50,6 +50,15 @@ set(PROJECT_SOURCES
         source/levelcelview.cpp
         source/levelcelview.h
         source/levelcelview.ui
+        source/leveltabframewidget.cpp
+        source/leveltabframewidget.h
+        source/leveltabframewidget.ui
+        source/leveltabsubtilewidget.cpp
+        source/leveltabsubtilewidget.h
+        source/leveltabsubtilewidget.ui
+        source/leveltabtilewidget.cpp
+        source/leveltabtilewidget.h
+        source/leveltabtilewidget.ui
         source/main.cpp
         source/mainwindow.cpp
         source/mainwindow.h

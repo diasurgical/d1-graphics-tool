@@ -382,7 +382,8 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
 
             // Loading MIN
             this->min = new D1Min();
-            if (!this->min->load(minFilePath, this->sol->getSubtileCount())) {
+            std::map<unsigned, D1CEL_FRAME_TYPE> celFrameTypes;
+            if (!this->min->load(minFilePath, this->sol->getSubtileCount(), celFrameTypes)) {
                 QMessageBox::critical(this, "Error", "Failed loading MIN file: " + minFilePath);
                 return;
             }
@@ -402,7 +403,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
             this->amp->load(ampFilePath, this->til->getTileCount());
 
             // Loading CEL
-            if (!D1CelTileset::load(*this->gfx, this->min, openFilePath, params)) {
+            if (!D1CelTileset::load(*this->gfx, celFrameTypes, openFilePath, params)) {
                 QMessageBox::critical(this, "Error", "Failed loading level CEL file: " + openFilePath);
                 return;
             }
@@ -630,7 +631,7 @@ void MainWindow::saveFile(SaveAsParam *params)
     }
 
     if (this->min != nullptr) {
-        change |= this->min->save(params);
+        change |= this->min->save(this->gfx, params);
     }
     if (this->til != nullptr) {
         change |= this->til->save(params);

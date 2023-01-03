@@ -48,7 +48,7 @@ D1CEL_FRAME_TYPE guessFrameType(QByteArray &rawFrameData)
     return D1CEL_FRAME_TYPE::TransparentSquare;
 }
 
-bool D1CelTileset::load(D1Gfx &gfx, D1Min *min, QString filePath, OpenAsParam *params)
+bool D1CelTileset::load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, QString filePath, OpenAsParam *params)
 {
     // Opening CEL file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -111,8 +111,11 @@ bool D1CelTileset::load(D1Gfx &gfx, D1Min *min, QString filePath, OpenAsParam *p
         const auto &offset = frameOffsets[i];
         fileBuffer.seek(offset.first);
         QByteArray celFrameRawData = fileBuffer.read(offset.second - offset.first);
-        D1CEL_FRAME_TYPE frameType = min->getFrameType(i + 1);
-        if (frameType == D1CEL_FRAME_TYPE::Unknown) {
+        D1CEL_FRAME_TYPE frameType;
+        auto iter = celFrameTypes.find(i + 1);
+        if (iter != celFrameTypes.end()) {
+            frameType = iter->second;
+        } else {
             qDebug() << "Unknown frame type for frame " << i + 1;
             frameType = guessFrameType(celFrameRawData);
         }
