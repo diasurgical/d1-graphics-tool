@@ -13,22 +13,22 @@ bool D1GfxPixel::isTransparent() const
     return this->transparent;
 }
 
-quint8 D1GfxPixel::getPaletteIndex()
+quint8 D1GfxPixel::getPaletteIndex() const
 {
     return this->paletteIndex;
 }
 
-quint16 D1GfxFrame::getWidth()
+quint16 D1GfxFrame::getWidth() const
 {
     return this->width;
 }
 
-quint16 D1GfxFrame::getHeight()
+quint16 D1GfxFrame::getHeight() const
 {
     return this->height;
 }
 
-D1GfxPixel D1GfxFrame::getPixel(quint16 x, quint16 y)
+D1GfxPixel D1GfxFrame::getPixel(quint16 x, quint16 y) const
 {
     if (x < this->width && y < this->height)
         return this->pixels[y][x];
@@ -36,9 +36,19 @@ D1GfxPixel D1GfxFrame::getPixel(quint16 x, quint16 y)
     return {};
 }
 
-bool D1GfxFrame::isClipped()
+bool D1GfxFrame::isClipped() const
 {
     return this->clipped;
+}
+
+D1CEL_FRAME_TYPE D1GfxFrame::getFrameType() const
+{
+    return this->frameType;
+}
+
+void D1GfxFrame::setFrameType(D1CEL_FRAME_TYPE type)
+{
+    this->frameType = type;
 }
 
 bool D1Gfx::isFrameSizeConstant()

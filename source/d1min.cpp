@@ -5,7 +5,7 @@
 #include <QFileInfo>
 #include <QPainter>
 
-bool D1Min::load(QString filePath, quint16 subtileCount)
+bool D1Min::load(QString filePath, quint16 subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes)
 {
     // Opening MIN file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -43,7 +43,6 @@ bool D1Min::load(QString filePath, quint16 subtileCount)
     quint8 subtileNumberOfCelFrames = this->subtileWidth * this->subtileHeight;
     fileBuffer.seek(0);
     this->celFrameIndices.clear();
-    this->celFrameTypes.clear();
     for (int i = 0; i < subtileCount; i++) {
         QList<quint16> celFrameIndicesList;
         for (int j = 0; j < subtileNumberOfCelFrames; j++) {
@@ -51,7 +50,7 @@ bool D1Min::load(QString filePath, quint16 subtileCount)
             in >> readWord;
             quint16 id = readWord & 0x0FFF;
             celFrameIndicesList.append(id);
-            this->celFrameTypes[id] = static_cast<D1CEL_FRAME_TYPE>((readWord & 0x7000) >> 12);
+            celFrameTypes[id] = static_cast<D1CEL_FRAME_TYPE>((readWord & 0x7000) >> 12);
         }
         this->celFrameIndices.append(celFrameIndicesList);
     }
@@ -59,7 +58,7 @@ bool D1Min::load(QString filePath, quint16 subtileCount)
     return true;
 }
 
-bool D1Min::save(SaveAsParam *params)
+bool D1Min::save(D1Gfx *gfx, SaveAsParam *params)
 {
     QString selectedPath = params != nullptr ? params->minFilePath : "";
     std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
@@ -74,7 +73,9 @@ bool D1Min::save(SaveAsParam *params)
         QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
         for (int j = 0; j < celFrameIndicesList.count(); j++) {
             quint16 writeWord = celFrameIndicesList[j];
-            writeWord |= ((quint16)this->getFrameType(writeWord)) << 12;
+            if (writeWord != 0) {
+                writeWord |= ((quint16)gfx->getFrame(writeWord - 1)->getFrameType()) << 12;
+            }
             out << writeWord;
         }
     }
@@ -116,11 +117,6 @@ QImage D1Min::getSubtileImage(quint16 subtileIndex)
     return subtile;
 }
 
-D1MIN_TYPE D1Min::getType()
-{
-    return this->type;
-}
-
 QString D1Min::getFilePath()
 {
     return this->minFilePath;
@@ -129,15 +125,6 @@ QString D1Min::getFilePath()
 void D1Min::setCel(D1Gfx *c)
 {
     this->cel = c;
-}
-
-D1CEL_FRAME_TYPE D1Min::getFrameType(quint16 id)
-{
-    if (this->celFrameTypes.find(id) == this->celFrameTypes.end()) {
-        return D1CEL_FRAME_TYPE::Unknown;
-    } else {
-        return this->celFrameTypes[id];
-    }
 }
 
 quint16 D1Min::getSubtileCount()
@@ -155,10 +142,7 @@ quint16 D1Min::getSubtileHeight()
     return this->subtileHeight;
 }
 
-QList<quint16> D1Min::getCelFrameIndices(quint16 subTileIndex)
+QList<quint16> &D1Min::getCelFrameIndices(quint16 subTileIndex)
 {
-    if (subTileIndex >= this->celFrameIndices.count())
-        return QList<quint16>();
-
-    return this->celFrameIndices.at(subTileIndex);
+    return const_cast<QList<quint16> &>(this->celFrameIndices.at(subTileIndex));
 }

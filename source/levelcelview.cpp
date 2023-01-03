@@ -28,6 +28,9 @@ LevelCelView::LevelCelView(QWidget *parent)
     ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
     ui->stopButton->setEnabled(false);
     this->playTimer.connect(&this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()));
+    ui->tilesTabs->addTab(this->tabTileWidget, "Tile properties");
+    ui->tilesTabs->addTab(this->tabSubTileWidget, "Sub-Tile properties");
+    ui->tilesTabs->addTab(this->tabFrameWidget, "Frame properties");
 
     // If a pixel of the frame, subtile or tile was clicked get pixel color index and notify the palette widgets
     QObject::connect(this->celScene, &LevelCelScene::framePixelClicked, this, &LevelCelView::framePixelClicked);
@@ -37,6 +40,9 @@ LevelCelView::~LevelCelView()
 {
     delete ui;
     delete celScene;
+    delete tabTileWidget;
+    delete tabSubTileWidget;
+    delete tabFrameWidget;
 }
 
 void LevelCelView::initialize(D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
@@ -63,6 +69,10 @@ void LevelCelView::initialize(D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
 
     ui->tileNumberEdit->setText(
         QString::number(this->til->getTileCount()));
+
+    this->tabTileWidget->initialize(this, this->til, this->min, this->amp);
+    this->tabSubTileWidget->initialize(this, this->gfx, this->min, this->sol);
+    this->tabFrameWidget->initialize(this, this->gfx);
 }
 
 int LevelCelView::getCurrentFrameIndex()
@@ -113,13 +123,13 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
         // qDebug() << "Subtile clicked: " << stx << "," << sty;
 
         quint8 stFrame = (sty / 32) * 2 + (stx / 32);
-        quint16 frameIndex = this->min->getCelFrameIndices(this->currentSubtileIndex).at(stFrame);
+        QList<quint16> &minFrames = this->min->getCelFrameIndices(this->currentSubtileIndex);
+        quint16 frameIndex = minFrames.count() > stFrame ? minFrames.at(stFrame) : 0;
 
-        // qDebug() << "stFrame: " << stFrame << ", frameIndex: " << frameIndex;
-
-        if (frameIndex > 0)
+        if (frameIndex > 0) {
             this->currentFrameIndex = frameIndex - 1;
-        this->displayFrame();
+            this->displayFrame();
+        }
     } else if (x > (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3)
         && x < (celFrameWidth + subtileWidth + tileWidth + CEL_SCENE_SPACING * 3)
         && y > CEL_SCENE_SPACING
@@ -141,7 +151,7 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
         // g(tx)
         int gtx = -tx / 2 + tileHeight;
         // qDebug() << "fx=" << ftx << ", gx=" << gtx;
-        quint8 tSubtile = 0;
+        int tSubtile = 0;
         if (ty < ftx) {
             if (ty < gtx) {
                 // tx to allow selecting subtile 1 and 2 if tile is clicked on the bottom left and bottom right side
@@ -160,12 +170,11 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
                 tSubtile = 3;
         }
 
-        quint16 subtileIndex = this->til->getSubtileIndices(this->currentTileIndex).at(tSubtile);
-
-        // qDebug() << "tSubtile=" << tSubtile << ", subtileIndex=" << subtileIndex;
-
-        this->currentSubtileIndex = subtileIndex;
-        this->displayFrame();
+        QList<quint16> &tilSubtiles = this->til->getSubtileIndices(this->currentTileIndex);
+        if (tilSubtiles.count() > tSubtile) {
+            this->currentSubtileIndex = tilSubtiles.at(tSubtile);
+            this->displayFrame();
+        }
     }
 }
 
@@ -180,28 +189,10 @@ void LevelCelView::displayFrame()
     QImage celFrame = this->gfx->getFrameImage(this->currentFrameIndex);
     QImage subtile = this->min->getSubtileImage(this->currentSubtileIndex);
     QImage tile = this->til->getTileImage(this->currentTileIndex);
-    quint8 sol = this->sol->getSubtileProperties(this->currentSubtileIndex);
-    quint8 ampType = this->amp->getTileType(this->currentTileIndex);
-    quint8 ampProperty = this->amp->getTileProperties(this->currentTileIndex);
 
-    this->ui->sol0->setChecked((sol & 1 << 0) != 0);
-    this->ui->sol1->setChecked((sol & 1 << 1) != 0);
-    this->ui->sol2->setChecked((sol & 1 << 2) != 0);
-    this->ui->sol3->setChecked((sol & 1 << 3) != 0);
-    this->ui->sol4->setChecked((sol & 1 << 4) != 0);
-    this->ui->sol5->setChecked((sol & 1 << 5) != 0);
-    this->ui->sol7->setChecked((sol & 1 << 7) != 0);
-
-    this->ui->ampType->setCurrentIndex(ampType);
-
-    this->ui->amp0->setChecked((ampProperty & 1 << 0) != 0);
-    this->ui->amp1->setChecked((ampProperty & 1 << 1) != 0);
-    this->ui->amp2->setChecked((ampProperty & 1 << 2) != 0);
-    this->ui->amp3->setChecked((ampProperty & 1 << 3) != 0);
-    this->ui->amp4->setChecked((ampProperty & 1 << 4) != 0);
-    this->ui->amp5->setChecked((ampProperty & 1 << 5) != 0);
-    this->ui->amp6->setChecked((ampProperty & 1 << 6) != 0);
-    this->ui->amp7->setChecked((ampProperty & 1 << 7) != 0);
+    this->tabSubTileWidget->update();
+    this->tabTileWidget->update();
+    this->tabFrameWidget->update();
 
     // Building a gray background of the width/height of the CEL frame
     QImage celFrameBackground = QImage(celFrame.width(), celFrame.height(), QImage::Format_ARGB32);
@@ -442,130 +433,6 @@ void LevelCelView::on_zoomEdit_returnPressed()
     ui->celGraphicsView->scale(this->currentZoomFactor, this->currentZoomFactor);
     ui->celGraphicsView->show();
     ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
-}
-
-void LevelCelView::on_ampType_activated(int index)
-{
-    this->amp->setTileType(this->currentTileIndex, index);
-}
-
-void LevelCelView::updateAmpProperty()
-{
-    quint8 flags = 0;
-    if (this->ui->amp0->checkState())
-        flags |= 1 << 0;
-    if (this->ui->amp1->checkState())
-        flags |= 1 << 1;
-    if (this->ui->amp2->checkState())
-        flags |= 1 << 2;
-    if (this->ui->amp3->checkState())
-        flags |= 1 << 3;
-    if (this->ui->amp4->checkState())
-        flags |= 1 << 4;
-    if (this->ui->amp5->checkState())
-        flags |= 1 << 5;
-    if (this->ui->amp6->checkState())
-        flags |= 1 << 6;
-    if (this->ui->amp7->checkState())
-        flags |= 1 << 7;
-
-    this->amp->setTileProperties(this->currentTileIndex, flags);
-}
-
-void LevelCelView::on_amp0_clicked()
-{
-    this->updateAmpProperty();
-}
-
-void LevelCelView::on_amp1_clicked()
-{
-    this->updateAmpProperty();
-}
-
-void LevelCelView::on_amp2_clicked()
-{
-    this->updateAmpProperty();
-}
-
-void LevelCelView::on_amp3_clicked()
-{
-    this->updateAmpProperty();
-}
-
-void LevelCelView::on_amp4_clicked()
-{
-    this->updateAmpProperty();
-}
-
-void LevelCelView::on_amp5_clicked()
-{
-    this->updateAmpProperty();
-}
-
-void LevelCelView::on_amp6_clicked()
-{
-    this->updateAmpProperty();
-}
-
-void LevelCelView::on_amp7_clicked()
-{
-    this->updateAmpProperty();
-}
-
-void LevelCelView::updateSolProperty()
-{
-    quint8 flags = 0;
-    if (this->ui->sol0->checkState())
-        flags |= 1 << 0;
-    if (this->ui->sol1->checkState())
-        flags |= 1 << 1;
-    if (this->ui->sol2->checkState())
-        flags |= 1 << 2;
-    if (this->ui->sol3->checkState())
-        flags |= 1 << 3;
-    if (this->ui->sol4->checkState())
-        flags |= 1 << 4;
-    if (this->ui->sol5->checkState())
-        flags |= 1 << 5;
-    if (this->ui->sol7->checkState())
-        flags |= 1 << 7;
-
-    this->sol->setSubtileProperties(this->currentSubtileIndex, flags);
-}
-
-void LevelCelView::on_sol0_clicked()
-{
-    this->updateSolProperty();
-}
-
-void LevelCelView::on_sol1_clicked()
-{
-    this->updateSolProperty();
-}
-
-void LevelCelView::on_sol2_clicked()
-{
-    this->updateSolProperty();
-}
-
-void LevelCelView::on_sol3_clicked()
-{
-    this->updateSolProperty();
-}
-
-void LevelCelView::on_sol4_clicked()
-{
-    this->updateSolProperty();
-}
-
-void LevelCelView::on_sol5_clicked()
-{
-    this->updateSolProperty();
-}
-
-void LevelCelView::on_sol7_clicked()
-{
-    this->updateSolProperty();
 }
 
 void LevelCelView::on_playDelayEdit_textChanged(const QString &text)

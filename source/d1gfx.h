@@ -20,7 +20,7 @@ public:
     ~D1GfxPixel() = default;
 
     bool isTransparent() const;
-    quint8 getPaletteIndex();
+    quint8 getPaletteIndex() const;
 
 private:
     bool transparent = false;
@@ -40,10 +40,12 @@ public:
     D1GfxFrame() = default;
     ~D1GfxFrame() = default;
 
-    quint16 getWidth();
-    quint16 getHeight();
-    D1GfxPixel getPixel(quint16, quint16);
-    bool isClipped();
+    quint16 getWidth() const;
+    quint16 getHeight() const;
+    D1GfxPixel getPixel(quint16, quint16) const;
+    bool isClipped() const;
+    D1CEL_FRAME_TYPE getFrameType() const;
+    void setFrameType(D1CEL_FRAME_TYPE type);
 
 protected:
     quint16 width = 0;
