@@ -2,8 +2,8 @@
 
 #include <algorithm>
 
-#include <QDragEnterEvent>
-#include <QMessageBox>
+#include <QFileInfo>
+#include <QGraphicsPixmapItem>
 #include <QMimeData>
 
 #include "mainwindow.h"

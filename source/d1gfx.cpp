@@ -99,13 +99,13 @@ QImage D1Gfx::getFrameImage(quint16 frameIndex)
     return image;
 }
 
-void D1Gfx::insertFrame(quint16 idx, QString imageFilePath)
+D1GfxFrame *D1Gfx::insertFrame(quint16 idx, QString imageFilePath)
 {
     bool clipped;
     QImage image = QImage(imageFilePath);
 
     if (image.isNull()) {
-        return;
+        return nullptr;
     }
 
     if (!this->frames.isEmpty()) {
@@ -135,6 +135,7 @@ void D1Gfx::insertFrame(quint16 idx, QString imageFilePath)
             this->groupFrameIndices[i].second++;
         }
     }
+    return &this->frames[idx];
 }
 
 void D1Gfx::removeFrame(quint16 idx)
