@@ -29,7 +29,7 @@ public:
 private:
     QString minFilePath;
     D1Gfx *cel = nullptr;
-    quint8 subtileWidth = 2;
-    quint8 subtileHeight = 5;
+    quint8 subtileWidth;
+    quint8 subtileHeight;
     QList<QList<quint16>> celFrameIndices;
 };

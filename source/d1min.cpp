@@ -29,10 +29,11 @@ bool D1Min::load(QString filePath, quint16 subtileCount, std::map<unsigned, D1CE
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->subtileHeight = file.size() / 2 / subtileCount / 2;
-    if ((file.size() / 2) % (this->subtileHeight * 2) == 0) {
+    this->subtileWidth = 2;
+    this->subtileHeight = file.size() / (subtileCount * this->subtileWidth * 2);
+    if (file.size() != subtileCount * this->subtileWidth * this->subtileHeight * 2) {
         qDebug() << "The size of sol-file does not align with min-file";
-        subtileCount = file.size() / 2 / this->subtileHeight / 2;
+        subtileCount = file.size() / (this->subtileWidth * this->subtileHeight * 2);
     }
 
     // File size check
