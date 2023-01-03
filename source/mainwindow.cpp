@@ -565,9 +565,9 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->ui->actionSave->setEnabled(true);
     this->ui->actionSaveAs->setEnabled(true);
     this->ui->actionClose->setEnabled(true);
-    this->ui->actionInsert_Frame->setEnabled(!isTileset);
-    this->ui->actionAdd_Frame->setEnabled(!isTileset);
-    this->ui->actionDel_Frame->setEnabled(!isTileset && this->gfx->getFrameCount() != 0);
+    this->ui->actionInsert_Frame->setEnabled(true);
+    this->ui->actionAdd_Frame->setEnabled(true);
+    this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -582,7 +582,12 @@ void MainWindow::openImageFiles(QStringList filePaths, bool append)
     this->ui->statusBar->showMessage("Reading...");
     this->ui->statusBar->repaint();
 
-    this->celView->insertFrames(filePaths, append);
+    if (this->celView != nullptr) {
+        this->celView->insertFrames(filePaths, append);
+    }
+    if (this->levelCelView != nullptr) {
+        this->levelCelView->insertFrames(filePaths, append);
+    }
     // rebuild palette hits
     this->palHits->buildPalHits();
     this->palWidget->refresh();
@@ -769,7 +774,12 @@ void MainWindow::on_actionAdd_Frame_triggered()
 
 void MainWindow::on_actionDel_Frame_triggered()
 {
-    this->celView->removeCurrentFrame();
+    if (this->celView != nullptr) {
+        this->celView->removeCurrentFrame();
+    }
+    if (this->levelCelView != nullptr) {
+        this->levelCelView->removeCurrentFrame();
+    }
     // rebuild palette hits
     this->palHits->buildPalHits();
     this->palWidget->refresh();

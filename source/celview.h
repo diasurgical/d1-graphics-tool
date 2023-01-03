@@ -1,7 +1,7 @@
 #pragma once
 
-#include <QFileInfo>
-#include <QGraphicsPixmapItem>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QStringList>

@@ -1,6 +1,9 @@
 #pragma once
 
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QGraphicsScene>
+#include <QGraphicsSceneDragDropEvent>
 #include <QGraphicsSceneMouseEvent>
 #include <QTimer>
 #include <QWidget>
@@ -24,11 +27,20 @@ class LevelCelView;
 class LevelCelScene : public QGraphicsScene {
     Q_OBJECT
 
+public:
+    LevelCelScene(QWidget *view);
+
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    void dropEvent(QGraphicsSceneDragDropEvent *event);
 
 signals:
     void framePixelClicked(quint16, quint16);
+
+private:
+    QWidget *view;
 };
 
 class LevelCelView : public QWidget {
@@ -44,6 +56,8 @@ public:
     int getCurrentSubtileIndex();
     int getCurrentTileIndex();
     void framePixelClicked(quint16, quint16);
+    void insertFrames(QStringList filePaths, bool append);
+    void removeCurrentFrame();
 
     void displayFrame();
 
@@ -79,9 +93,12 @@ private slots:
     void on_stopButton_clicked();
     void playGroup();
 
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
+
 private:
     Ui::LevelCelView *ui;
-    LevelCelScene *celScene = new LevelCelScene();
+    LevelCelScene *celScene;
     LevelTabTileWidget *tabTileWidget = new LevelTabTileWidget();
     LevelTabSubTileWidget *tabSubTileWidget = new LevelTabSubTileWidget();
     LevelTabFrameWidget *tabFrameWidget = new LevelTabFrameWidget();

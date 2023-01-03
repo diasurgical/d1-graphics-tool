@@ -4,9 +4,17 @@
 
 #include <QFileInfo>
 #include <QGraphicsPixmapItem>
+#include <QMessageBox>
+#include <QMimeData>
 
 #include "mainwindow.h"
 #include "ui_levelcelview.h"
+
+LevelCelScene::LevelCelScene(QWidget *v)
+    : QGraphicsScene()
+    , view(v)
+{
+}
 
 void LevelCelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -18,9 +26,38 @@ void LevelCelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     emit this->framePixelClicked(x, y);
 }
 
+void LevelCelScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    }
+}
+
+void LevelCelScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    event->acceptProposedAction();
+}
+
+void LevelCelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (!event->mimeData()->hasUrls()) {
+        return;
+    }
+
+    event->acceptProposedAction();
+
+    QStringList filePaths;
+    for (const QUrl &url : event->mimeData()->urls()) {
+        filePaths.append(url.toLocalFile());
+    }
+    // try to insert as frames
+    ((MainWindow *)this->view->window())->openImageFiles(filePaths, false);
+}
+
 LevelCelView::LevelCelView(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::LevelCelView)
+    , celScene(new LevelCelScene(this))
 {
     ui->setupUi(this);
     ui->celGraphicsView->setScene(this->celScene);
@@ -34,6 +71,8 @@ LevelCelView::LevelCelView(QWidget *parent)
 
     // If a pixel of the frame, subtile or tile was clicked get pixel color index and notify the palette widgets
     QObject::connect(this->celScene, &LevelCelScene::framePixelClicked, this, &LevelCelView::framePixelClicked);
+
+    setAcceptDrops(true);
 }
 
 LevelCelView::~LevelCelView()
@@ -176,6 +215,92 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
             this->displayFrame();
         }
     }
+}
+
+void LevelCelView::insertFrames(QStringList filePaths, bool append)
+{
+    int prevFrameCount = this->gfx->getFrameCount();
+
+    if (append) {
+        // append the frame(s)
+        for (int i = 0; i < filePaths.count(); i++) {
+            int index = this->gfx->getFrameCount();
+            D1GfxFrame *frame = this->gfx->insertFrame(index, filePaths[i]);
+            if (frame != nullptr) {
+                frame->setFrameType(D1CEL_FRAME_TYPE::TransparentSquare);
+            }
+        }
+    } else {
+        // insert the frame(s)
+        for (int i = 1; i <= filePaths.count(); i++) {
+            D1GfxFrame *frame = this->gfx->insertFrame(this->currentFrameIndex, filePaths[filePaths.count() - i]);
+            if (frame != nullptr) {
+                frame->setFrameType(D1CEL_FRAME_TYPE::TransparentSquare);
+            }
+        }
+        // shift references + add default frame type
+        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+        if (deltaFrameCount > 0) {
+            unsigned refIndex = this->currentFrameIndex + 1;
+            // shift frame indices of the subtiles
+            for (int i = 0; i < this->min->getSubtileCount(); i++) {
+                QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
+                for (int n = 0; n < frameIndices.count(); n++) {
+                    if (frameIndices[n] >= refIndex) {
+                        frameIndices[n] += deltaFrameCount;
+                    }
+                }
+            }
+        }
+    }
+    // update the view
+    this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->displayFrame();
+}
+
+void LevelCelView::removeCurrentFrame()
+{
+    // check if the frame is used
+    int user = -1;
+    unsigned refIndex = this->currentFrameIndex + 1;
+    for (int i = 0; i < this->min->getSubtileCount() && user < 0; i++) {
+        QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
+        for (quint16 frameIdx : frameIndices) {
+            if (frameIdx == refIndex) {
+                user = i;
+                break;
+            }
+        }
+    }
+    if (user >= 0) {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(nullptr, "Confirmation", "The frame is used by Subtile " + QString::number(user + 1) + " (and maybe others). Are you sure you want to proceed?", QMessageBox::Yes | QMessageBox::No);
+        if (reply != QMessageBox::Yes) {
+            return;
+        }
+    }
+    // remove the frame
+    this->gfx->removeFrame(this->currentFrameIndex);
+    if (this->gfx->getFrameCount() == this->currentFrameIndex) {
+        this->currentFrameIndex = std::max(0, this->currentFrameIndex - 1);
+    }
+    // shift references
+    // - shift frame indices of the subtiles
+    for (int i = 0; i < this->min->getSubtileCount(); i++) {
+        QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
+        for (int n = 0; n < frameIndices.count(); n++) {
+            if (frameIndices[n] >= refIndex) {
+                if (frameIndices[n] == refIndex) {
+                    frameIndices[n] = 0;
+                } else {
+                    frameIndices[n] -= 1;
+                }
+            }
+        }
+    }
+    // update the view
+    this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->displayFrame();
 }
 
 void LevelCelView::displayFrame()
@@ -469,4 +594,27 @@ void LevelCelView::on_stopButton_clicked()
     this->ui->playButton->setEnabled(true);
     this->ui->playDelayEdit->setEnabled(true);
     this->ui->playComboBox->setEnabled(true);
+}
+
+void LevelCelView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasUrls()) {
+        event->acceptProposedAction();
+    }
+}
+
+void LevelCelView::dropEvent(QDropEvent *event)
+{
+    if (!event->mimeData()->hasUrls()) {
+        return;
+    }
+
+    event->acceptProposedAction();
+
+    QStringList filePaths;
+    for (const QUrl &url : event->mimeData()->urls()) {
+        filePaths.append(url.toLocalFile());
+    }
+    // try to insert as frames
+    ((MainWindow *)this->window())->openImageFiles(filePaths, false);
 }

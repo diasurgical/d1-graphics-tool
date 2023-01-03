@@ -157,6 +157,26 @@ static bool validRightTrapezoid(const D1GfxFrame *frame, QString &msg)
     return validBottomRightTriangle(frame, msg) && validTopHalfSquare(frame, msg);
 }
 
+void LevelTabFrameWidget::selectFrameType(D1GfxFrame *frame)
+{
+    D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::TransparentSquare;
+    QString tmp;
+
+    if (validSquare(frame, tmp)) {
+        frameType = D1CEL_FRAME_TYPE::Square;
+    } else if (validLeftTriangle(frame, tmp)) {
+        frameType = D1CEL_FRAME_TYPE::LeftTriangle;
+    } else if (validRightTriangle(frame, tmp)) {
+        frameType = D1CEL_FRAME_TYPE::RightTriangle;
+    } else if (validLeftTrapezoid(frame, tmp)) {
+        frameType = D1CEL_FRAME_TYPE::LeftTrapezoid;
+    } else if (validRightTrapezoid(frame, tmp)) {
+        frameType = D1CEL_FRAME_TYPE::RightTrapezoid;
+    }
+
+    frame->setFrameType(frameType);
+}
+
 void LevelTabFrameWidget::validate()
 {
     int frameIdx = this->levelCelView->getCurrentFrameIndex();
