@@ -56,7 +56,7 @@ bool D1Sol::save(SaveAsParam *params)
     }
 
     QFileInfo fileinfo = QFileInfo(**outFile);
-    this->solFilePath = fileinfo.fileName(); // this->load(filePath);
+    this->solFilePath = fileinfo.filePath(); // this->load(filePath);
     delete *outFile;
 
     return true;

@@ -67,7 +67,7 @@ bool D1Til::save(SaveAsParam *params)
     }
 
     QFileInfo fileinfo = QFileInfo(**outFile);
-    this->tilFilePath = fileinfo.fileName(); // this->load(filePath);
+    this->tilFilePath = fileinfo.filePath(); // this->load(filePath);
     delete *outFile;
 
     return true;

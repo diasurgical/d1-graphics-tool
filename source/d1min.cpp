@@ -82,7 +82,7 @@ bool D1Min::save(D1Gfx *gfx, SaveAsParam *params)
     }
 
     QFileInfo fileinfo = QFileInfo(**outFile);
-    this->minFilePath = fileinfo.fileName(); // this->load(filePath, subtileCount);
+    this->minFilePath = fileinfo.filePath(); // this->load(filePath, subtileCount);
     delete *outFile;
 
     return true;
