@@ -150,6 +150,17 @@ void MainWindow::loadConfiguration()
     }
 }
 
+void MainWindow::updateView()
+{
+    // rebuild palette hits
+    this->palHits->buildPalHits();
+    this->palWidget->refresh();
+    this->undoStack->clear();
+    // update menu options
+    this->ui->actionReplace_Frame->setEnabled(this->gfx->getFrameCount() != 0);
+    this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
+}
+
 void MainWindow::pushCommandToUndoStack(QUndoCommand *cmd)
 {
     this->undoStack->push(cmd);
@@ -567,6 +578,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
     this->ui->actionClose->setEnabled(true);
     this->ui->actionInsert_Frame->setEnabled(true);
     this->ui->actionAdd_Frame->setEnabled(true);
+    this->ui->actionReplace_Frame->setEnabled(this->gfx->getFrameCount() != 0);
     this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
 
     // Clear loading message from status bar
@@ -588,11 +600,7 @@ void MainWindow::openImageFiles(QStringList filePaths, bool append)
     if (this->levelCelView != nullptr) {
         this->levelCelView->insertFrames(filePaths, append);
     }
-    // rebuild palette hits
-    this->palHits->buildPalHits();
-    this->palWidget->refresh();
-    this->undoStack->clear();
-    this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
+    this->updateView();
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -662,7 +670,7 @@ void MainWindow::saveFile(SaveAsParam *params)
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::addFrames(bool append)
+static QString imageNameFilter()
 {
     // get supported image file types
     QStringList mimeTypeFilters;
@@ -685,7 +693,13 @@ void MainWindow::addFrames(bool append)
         }
     }
     QString allSupportedFormatsFilter = QString("Image files (%1)").arg(allSupportedFormats.join(' '));
-    QStringList files = this->filesDialog("Select Image Files", allSupportedFormatsFilter.toLatin1().data());
+    return allSupportedFormatsFilter;
+}
+
+void MainWindow::addFrames(bool append)
+{
+    QString filter = imageNameFilter();
+    QStringList files = this->filesDialog("Select Image Files", filter.toLatin1().data());
 
     this->openImageFiles(files, append);
 }
@@ -742,6 +756,7 @@ void MainWindow::on_actionClose_triggered()
     this->ui->actionClose->setEnabled(false);
     this->ui->actionInsert_Frame->setEnabled(false);
     this->ui->actionAdd_Frame->setEnabled(false);
+    this->ui->actionReplace_Frame->setEnabled(false);
     this->ui->actionDel_Frame->setEnabled(false);
 }
 
@@ -772,6 +787,30 @@ void MainWindow::on_actionAdd_Frame_triggered()
     this->addFrames(true);
 }
 
+void MainWindow::on_actionReplace_Frame_triggered()
+{
+    QString filter = imageNameFilter();
+    QString imgFilePath = this->fileDialog(false, "Replacement Image File", filter.toLatin1().data());
+
+    if (imgFilePath.isEmpty()) {
+        return;
+    }
+
+    this->ui->statusBar->showMessage("Reading...");
+    this->ui->statusBar->repaint();
+
+    if (this->celView != nullptr) {
+        this->celView->replaceCurrentFrame(imgFilePath);
+    }
+    if (this->levelCelView != nullptr) {
+        this->levelCelView->replaceCurrentFrame(imgFilePath);
+    }
+    this->updateView();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
 void MainWindow::on_actionDel_Frame_triggered()
 {
     if (this->celView != nullptr) {
@@ -780,11 +819,7 @@ void MainWindow::on_actionDel_Frame_triggered()
     if (this->levelCelView != nullptr) {
         this->levelCelView->removeCurrentFrame();
     }
-    // rebuild palette hits
-    this->palHits->buildPalHits();
-    this->palWidget->refresh();
-    this->undoStack->clear();
-    this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
+    this->updateView();
 }
 
 void MainWindow::on_actionNew_PAL_triggered()

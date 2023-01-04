@@ -138,6 +138,23 @@ D1GfxFrame *D1Gfx::insertFrame(quint16 idx, QString imageFilePath)
     return &this->frames[idx];
 }
 
+D1GfxFrame *D1Gfx::replaceFrame(quint16 idx, QString imagefilePath)
+{
+    QImage image = QImage(imagefilePath);
+
+    if (image.isNull()) {
+        return nullptr;
+    }
+
+    bool clipped = this->frames[idx].isClipped();
+
+    D1GfxFrame frame;
+    D1ImageFrame::load(frame, image, clipped, this->palette);
+    this->frames[idx] = frame;
+
+    return &this->frames[idx];
+}
+
 void D1Gfx::removeFrame(quint16 idx)
 {
     this->frames.removeAt(idx);

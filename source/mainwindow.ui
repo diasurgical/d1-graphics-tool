@@ -184,6 +184,7 @@
     </property>
     <addaction name="actionInsert_Frame"/>
     <addaction name="actionAdd_Frame"/>
+    <addaction name="actionReplace_Frame"/>
     <addaction name="actionDel_Frame"/>
    </widget>
    <addaction name="menuFile"/>
@@ -305,6 +306,14 @@
    </property>
    <property name="toolTip">
     <string>Add new frames at the end</string>
+   </property>
+  </action>
+  <action name="actionReplace_Frame">
+   <property name="text">
+    <string>Replace Frame</string>
+   </property>
+   <property name="toolTip">
+    <string>Replace the current frame</string>
    </property>
   </action>
   <action name="actionDel_Frame">

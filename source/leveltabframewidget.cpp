@@ -162,16 +162,18 @@ void LevelTabFrameWidget::selectFrameType(D1GfxFrame *frame)
     D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::TransparentSquare;
     QString tmp;
 
-    if (validSquare(frame, tmp)) {
-        frameType = D1CEL_FRAME_TYPE::Square;
-    } else if (validLeftTriangle(frame, tmp)) {
-        frameType = D1CEL_FRAME_TYPE::LeftTriangle;
-    } else if (validRightTriangle(frame, tmp)) {
-        frameType = D1CEL_FRAME_TYPE::RightTriangle;
-    } else if (validLeftTrapezoid(frame, tmp)) {
-        frameType = D1CEL_FRAME_TYPE::LeftTrapezoid;
-    } else if (validRightTrapezoid(frame, tmp)) {
-        frameType = D1CEL_FRAME_TYPE::RightTrapezoid;
+    if (frame->getWidth() == MICRO_WIDTH && frame->getHeight() == MICRO_HEIGHT) {
+        if (validSquare(frame, tmp)) {
+            frameType = D1CEL_FRAME_TYPE::Square;
+        } else if (validLeftTriangle(frame, tmp)) {
+            frameType = D1CEL_FRAME_TYPE::LeftTriangle;
+        } else if (validRightTriangle(frame, tmp)) {
+            frameType = D1CEL_FRAME_TYPE::RightTriangle;
+        } else if (validLeftTrapezoid(frame, tmp)) {
+            frameType = D1CEL_FRAME_TYPE::LeftTrapezoid;
+        } else if (validRightTrapezoid(frame, tmp)) {
+            frameType = D1CEL_FRAME_TYPE::RightTrapezoid;
+        }
     }
 
     frame->setFrameType(frameType);

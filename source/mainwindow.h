@@ -55,6 +55,7 @@ public:
 
 private:
     void loadConfiguration();
+    void updateView();
 
 private slots:
     void on_actionOpen_triggered();
@@ -68,6 +69,7 @@ private slots:
 
     void on_actionInsert_Frame_triggered();
     void on_actionAdd_Frame_triggered();
+    void on_actionReplace_Frame_triggered();
     void on_actionDel_Frame_triggered();
 
     void on_actionNew_PAL_triggered();
