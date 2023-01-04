@@ -54,9 +54,9 @@ bool D1Amp::load(QString filePath, int allocate)
     return true;
 }
 
-bool D1Amp::save(SaveAsParam *params)
+bool D1Amp::save(const SaveAsParam &params)
 {
-    QString selectedPath = params != nullptr ? params->ampFilePath : "";
+    QString selectedPath = params.ampFilePath;
     std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
     if (!outFile) {
         return false;

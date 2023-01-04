@@ -21,7 +21,7 @@ enum class D1CEL_FRAME_TYPE {
 
 class D1CelTilesetFrame {
 public:
-    static bool load(D1GfxFrame &frame, D1CEL_FRAME_TYPE frameType, QByteArray rawData, OpenAsParam *params = nullptr);
+    static bool load(D1GfxFrame &frame, D1CEL_FRAME_TYPE frameType, QByteArray rawData, const OpenAsParam &params);
 
     static quint8 *writeFrameData(D1GfxFrame &frame, quint8 *pBuf);
 

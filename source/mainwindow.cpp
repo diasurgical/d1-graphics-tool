@@ -313,7 +313,9 @@ void MainWindow::on_actionOpen_triggered()
     QString openFilePath = this->fileDialog(false, "Open Graphics", "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX)");
 
     if (!openFilePath.isEmpty()) {
-        this->openFile(openFilePath);
+        OpenAsParam params;
+        params.celFilePath = openFilePath;
+        this->openFile(params);
     }
 
     // QMessageBox::information( this, "Debug", celFilePath );
@@ -339,13 +341,17 @@ void MainWindow::dropEvent(QDropEvent *event)
 
     event->acceptProposedAction();
 
+    OpenAsParam params;
     for (const QUrl &url : event->mimeData()->urls()) {
-        this->openFile(url.toLocalFile());
+        params.celFilePath = url.toLocalFile();
+        this->openFile(params);
     }
 }
 
-void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
+void MainWindow::openFile(const OpenAsParam &params)
 {
+    QString openFilePath = params.celFilePath;
+
     // Check file extension
     if (!openFilePath.toLower().endsWith(".cel")
         && !openFilePath.toLower().endsWith(".cl2")
@@ -378,10 +384,13 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
 
     // If a SOL, MIN and TIL files exists then build a LevelCelView
     QString basePath = celFileInfo.absolutePath() + "/" + celFileInfo.completeBaseName();
-    QString solFilePath = basePath + ".sol";
-    QString minFilePath = basePath + ".min";
-    QString tilFilePath = basePath + ".til";
-    bool isTileset = params == nullptr && QFileInfo::exists(solFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(tilFilePath);
+    QString tilFilePath = params.tilFilePath.isEmpty() ? basePath + ".til" : params.tilFilePath;
+    QString minFilePath = params.minFilePath.isEmpty() ? basePath + ".min" : params.minFilePath;
+    QString solFilePath = params.solFilePath.isEmpty() ? basePath + ".sol" : params.solFilePath;
+    bool isTileset = params.isTileset == OPEN_TILESET_TYPE::TILESET_TRUE;
+    if (params.isTileset == OPEN_TILESET_TYPE::TILESET_AUTODETECT) {
+        isTileset = QFileInfo::exists(tilFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(solFilePath);
+    }
 
     this->gfx = new D1Gfx();
     this->gfx->setPalette(this->trn2->getResultingPalette());
@@ -394,7 +403,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
             // Loading MIN
             this->min = new D1Min();
             std::map<unsigned, D1CEL_FRAME_TYPE> celFrameTypes;
-            if (!this->min->load(minFilePath, this->sol->getSubtileCount(), celFrameTypes)) {
+            if (!this->min->load(minFilePath, this->sol->getSubtileCount(), celFrameTypes, params)) {
                 QMessageBox::critical(this, "Error", "Failed loading MIN file: " + minFilePath);
                 return;
             }
@@ -410,7 +419,7 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
 
             // Loading AMP
             this->amp = new D1Amp();
-            QString ampFilePath = basePath + ".amp";
+            QString ampFilePath = params.ampFilePath.isEmpty() ? basePath + ".amp" : params.ampFilePath;
             this->amp->load(ampFilePath, this->til->getTileCount());
 
             // Loading CEL
@@ -425,12 +434,12 @@ void MainWindow::openFile(QString openFilePath, OpenAsParam *params)
             }
         }
     } else if (openFilePath.toLower().endsWith(".cl2")) {
-        if (!D1Cl2::load(*this->gfx, openFilePath, false)) {
+        if (!D1Cl2::load(*this->gfx, openFilePath, false, params)) {
             QMessageBox::critical(this, "Error", "Failed loading CL2 file: " + openFilePath);
             return;
         }
     } else if (openFilePath.toLower().endsWith(".clx")) {
-        if (!D1Cl2::load(*this->gfx, openFilePath, true)) {
+        if (!D1Cl2::load(*this->gfx, openFilePath, true, params)) {
             QMessageBox::critical(this, "Error", "Failed loading CLX file: " + openFilePath);
             return;
         }
@@ -606,17 +615,13 @@ void MainWindow::openImageFiles(QStringList filePaths, bool append)
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::saveFile(SaveAsParam *params)
+void MainWindow::saveFile(const SaveAsParam &params)
 {
     this->ui->statusBar->showMessage("Saving...");
     this->ui->statusBar->repaint();
 
     bool change = false;
-    QString filePath;
-    if (params != nullptr)
-        filePath = params->celFilePath;
-    if (filePath.isEmpty())
-        filePath = this->gfx->getFilePath();
+    QString filePath = params.celFilePath.isEmpty() ? this->gfx->getFilePath() : params.celFilePath;
     if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL) {
         if (!filePath.toLower().endsWith("cel")) {
             QMessageBox::StandardButton reply;
@@ -712,7 +717,8 @@ void MainWindow::on_actionOpenAs_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
-    this->saveFile();
+    SaveAsParam params;
+    this->saveFile(params);
 }
 
 void MainWindow::on_actionSaveAs_triggered()

@@ -12,8 +12,8 @@
 
 class D1CelTileset {
 public:
-    static bool load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, QString celFilePath, OpenAsParam *params = nullptr);
-    static bool save(D1Gfx &gfx, SaveAsParam *params = nullptr);
+    static bool load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, QString celFilePath, const OpenAsParam &params);
+    static bool save(D1Gfx &gfx, const SaveAsParam &params);
 
 private:
     static bool writeFileData(D1Gfx &gfx, QFile &outFile);

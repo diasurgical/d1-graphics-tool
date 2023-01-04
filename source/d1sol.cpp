@@ -41,9 +41,9 @@ bool D1Sol::load(QString filePath)
     return true;
 }
 
-bool D1Sol::save(SaveAsParam *params)
+bool D1Sol::save(const SaveAsParam &params)
 {
-    QString selectedPath = params != nullptr ? params->solFilePath : "";
+    QString selectedPath = params.solFilePath;
     std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
     if (!outFile) {
         return false;

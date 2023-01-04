@@ -12,7 +12,7 @@ public:
     ~D1Amp() = default;
 
     bool load(QString filePath, int allocate = 0);
-    bool save(SaveAsParam *params = nullptr);
+    bool save(const SaveAsParam &params);
 
     QString getFilePath();
     quint8 getTileType(quint16);

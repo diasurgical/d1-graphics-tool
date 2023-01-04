@@ -16,7 +16,7 @@ quint16 D1CelPixelGroup::getPixelCount()
     return this->pixelCount;
 }
 
-bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, OpenAsParam *params)
+bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, const OpenAsParam &params)
 {
     if (rawData.size() == 0)
         return false;
@@ -24,7 +24,7 @@ bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, OpenAsParam *params
     quint32 frameDataStartOffset = 0;
     quint16 width = 0;
     frame.clipped = false;
-    if (params == nullptr || params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
+    if (params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
         // Checking the presence of the {CEL FRAME HEADER}
         if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
             frameDataStartOffset += 0x0A;
@@ -33,7 +33,7 @@ bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, OpenAsParam *params
             frame.clipped = true;
         }
     } else {
-        if (params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
+        if (params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
             QDataStream in(rawData);
             in.setByteOrder(QDataStream::LittleEndian);
             quint16 offset;
@@ -44,7 +44,7 @@ bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, OpenAsParam *params
             frame.clipped = true;
         }
     }
-    frame.width = (params == nullptr || params->width == 0) ? width : params->width;
+    frame.width = params.celWidth == 0 ? width : params.celWidth;
 
     // If width could not be calculated with frame header,
     // attempt to calculate it from the frame data (by identifying pixel groups line wraps)

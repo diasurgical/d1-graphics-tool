@@ -8,7 +8,7 @@
 
 #include "d1celframe.h"
 
-bool D1Cel::load(D1Gfx &gfx, QString filePath, OpenAsParam *params)
+bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
 {
     // Opening CEL file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -188,17 +188,17 @@ static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, int subHeaderSize
     return pBuf;
 }
 
-bool D1Cel::writeFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
+bool D1Cel::writeFileData(D1Gfx &gfx, QFile &outFile, const SaveAsParam &params)
 {
     const int numFrames = gfx.frames.count();
 
     // update type
     gfx.type = D1CEL_TYPE::V1_REGULAR;
     // update clipped info
-    bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    bool clippedForced = params.clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
     for (int n = 0; n < numFrames; n++) {
         D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
+        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
     }
     // calculate header size
     int HEADER_SIZE = 4 + 4 + numFrames * 4;
@@ -242,14 +242,14 @@ bool D1Cel::writeFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
     return true;
 }
 
-bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
+bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, const SaveAsParam &params)
 {
     const int numFrames = gfx.frames.count();
 
     // calculate header size
-    int numGroups;
+    int numGroups = params.groupNum;
     int headerSize = 0;
-    if (params == nullptr || params->groupNum == 0) {
+    if (numGroups == 0) {
         numGroups = gfx.getGroupCount();
         for (int i = 0; i < numGroups; i++) {
             QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
@@ -258,7 +258,6 @@ bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
         }
     } else {
         // update group indices
-        numGroups = params->groupNum;
         if (numFrames == 0 || (numFrames % numGroups) != 0) {
             QMessageBox::critical(nullptr, "Error", "Frames can not be split to equal groups.");
             return false;
@@ -279,10 +278,10 @@ bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
     // update type
     gfx.type = D1CEL_TYPE::V1_COMPILATION;
     // update clipped info
-    bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    bool clippedForced = params.clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
     for (int n = 0; n < numFrames; n++) {
         D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
+        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
     }
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
@@ -333,11 +332,11 @@ bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, SaveAsParam *params)
     return true;
 }
 
-bool D1Cel::save(D1Gfx &gfx, SaveAsParam *params)
+bool D1Cel::save(D1Gfx &gfx, const SaveAsParam &params)
 {
     QString filePath = gfx.gfxFilePath;
-    if (params != nullptr && !params->celFilePath.isEmpty()) {
-        filePath = params->celFilePath;
+    if (!params.celFilePath.isEmpty()) {
+        filePath = params.celFilePath;
         /*if (QFile::exists(filePath)) {
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite the CEL file?", QMessageBox::Yes | QMessageBox::No);
@@ -354,14 +353,13 @@ bool D1Cel::save(D1Gfx &gfx, SaveAsParam *params)
     }
 
     D1CEL_TYPE type;
-    if (params == nullptr || params->groupNum == 0) {
+    if (params.groupNum == 0) {
         type = gfx.type;
     } else {
-        type = params->groupNum > 1 ? D1CEL_TYPE::V1_COMPILATION : D1CEL_TYPE::V1_REGULAR;
+        type = params.groupNum > 1 ? D1CEL_TYPE::V1_COMPILATION : D1CEL_TYPE::V1_REGULAR;
     }
 
     bool result;
-    // if ((params == nullptr && this->getGroupCount() > 1) || (params != nullptr && params->groupNum != 0)) {
     if (type == D1CEL_TYPE::V1_COMPILATION) {
         result = D1Cel::writeCompFileData(gfx, outFile, params);
     } else {

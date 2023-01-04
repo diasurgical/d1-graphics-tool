@@ -13,7 +13,7 @@ public:
     ~D1Til() = default;
 
     bool load(QString filePath);
-    bool save(SaveAsParam *params = nullptr);
+    bool save(const SaveAsParam &params);
 
     QImage getTileImage(quint16);
 

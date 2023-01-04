@@ -5,7 +5,7 @@
 #include <QFileInfo>
 #include <QPainter>
 
-bool D1Min::load(QString filePath, quint16 subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes)
+bool D1Min::load(QString filePath, quint16 subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params)
 {
     // Opening MIN file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -29,8 +29,14 @@ bool D1Min::load(QString filePath, quint16 subtileCount, std::map<unsigned, D1CE
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->subtileWidth = 2;
-    this->subtileHeight = file.size() / (subtileCount * this->subtileWidth * 2);
+    this->subtileWidth = params.minWidth;
+    if (this->subtileWidth == 0) {
+        this->subtileWidth = 2;
+    }
+    this->subtileHeight = params.minHeight;
+    if (this->subtileHeight == 0) {
+        this->subtileHeight = file.size() / (subtileCount * this->subtileWidth * 2);
+    }
     if (file.size() != subtileCount * this->subtileWidth * this->subtileHeight * 2) {
         qDebug() << "The size of sol-file does not align with min-file";
         subtileCount = file.size() / (this->subtileWidth * this->subtileHeight * 2);
@@ -59,9 +65,9 @@ bool D1Min::load(QString filePath, quint16 subtileCount, std::map<unsigned, D1CE
     return true;
 }
 
-bool D1Min::save(D1Gfx *gfx, SaveAsParam *params)
+bool D1Min::save(D1Gfx *gfx, const SaveAsParam &params)
 {
-    QString selectedPath = params != nullptr ? params->minFilePath : "";
+    QString selectedPath = params.minFilePath;
     std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
     if (!outFile) {
         return false;

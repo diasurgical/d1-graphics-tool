@@ -4,7 +4,7 @@
 
 #include "d1gfx.h"
 
-bool D1CelTilesetFrame::load(D1GfxFrame &frame, D1CEL_FRAME_TYPE type, QByteArray rawData, OpenAsParam *params)
+bool D1CelTilesetFrame::load(D1GfxFrame &frame, D1CEL_FRAME_TYPE type, QByteArray rawData, const OpenAsParam &params)
 {
     (void)params; // unused
 

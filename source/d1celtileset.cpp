@@ -48,7 +48,7 @@ D1CEL_FRAME_TYPE guessFrameType(QByteArray &rawFrameData)
     return D1CEL_FRAME_TYPE::TransparentSquare;
 }
 
-bool D1CelTileset::load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, QString filePath, OpenAsParam *params)
+bool D1CelTileset::load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, QString filePath, const OpenAsParam &params)
 {
     // Opening CEL file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -163,11 +163,11 @@ bool D1CelTileset::writeFileData(D1Gfx &gfx, QFile &outFile)
     return true;
 }
 
-bool D1CelTileset::save(D1Gfx &gfx, SaveAsParam *params)
+bool D1CelTileset::save(D1Gfx &gfx, const SaveAsParam &params)
 {
     QString filePath = gfx.gfxFilePath;
-    if (params != nullptr && !params->celFilePath.isEmpty()) {
-        filePath = params->celFilePath;
+    if (!params.celFilePath.isEmpty()) {
+        filePath = params.celFilePath;
         /*if (QFile::exists(filePath)) {
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite the (level-)CEL file?", QMessageBox::Yes | QMessageBox::No);

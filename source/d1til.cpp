@@ -47,9 +47,9 @@ bool D1Til::load(QString filePath)
     return true;
 }
 
-bool D1Til::save(SaveAsParam *params)
+bool D1Til::save(const SaveAsParam &params)
 {
-    QString selectedPath = params != nullptr ? params->tilFilePath : "";
+    QString selectedPath = params.tilFilePath;
     std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
     if (!outFile) {
         return false;
