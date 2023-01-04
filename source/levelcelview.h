@@ -56,7 +56,8 @@ public:
     int getCurrentSubtileIndex();
     int getCurrentTileIndex();
     void framePixelClicked(quint16, quint16);
-    void insertFrames(QStringList filePaths, bool append);
+    void insertFrames(QStringList imagefilePaths, bool append);
+    void replaceCurrentFrame(QString imagefilePath);
     void removeCurrentFrame();
 
     void displayFrame();

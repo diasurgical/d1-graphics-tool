@@ -122,22 +122,33 @@ void CelView::framePixelClicked(quint16 x, quint16 y)
     emit this->colorIndexClicked(index);
 }
 
-void CelView::insertFrames(QStringList filePaths, bool append)
+void CelView::insertFrames(QStringList imagefilePaths, bool append)
 {
     if (append) {
         // append the frame(s)
-        for (int i = 0; i < filePaths.count(); i++) {
-            this->gfx->insertFrame(this->gfx->getFrameCount(), filePaths[i]);
+        for (int i = 0; i < imagefilePaths.count(); i++) {
+            this->gfx->insertFrame(this->gfx->getFrameCount(), imagefilePaths[i]);
         }
     } else {
         // insert the frame(s)
-        for (int i = 1; i <= filePaths.count(); i++) {
-            this->gfx->insertFrame(this->currentFrameIndex, filePaths[filePaths.count() - i]);
+        for (int i = 1; i <= imagefilePaths.count(); i++) {
+            this->gfx->insertFrame(this->currentFrameIndex, imagefilePaths[imagefilePaths.count() - i]);
         }
     }
     // update the view
     this->initialize(this->gfx);
     this->displayFrame();
+}
+
+void CelView::replaceCurrentFrame(QString imagefilePath)
+{
+    D1GfxFrame *frame = this->gfx->replaceFrame(this->currentFrameIndex, imagefilePath);
+
+    if (frame != nullptr) {
+        // update the view
+        this->initialize(this->gfx);
+        this->displayFrame();
+    }
 }
 
 void CelView::removeCurrentFrame()

@@ -217,25 +217,25 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
     }
 }
 
-void LevelCelView::insertFrames(QStringList filePaths, bool append)
+void LevelCelView::insertFrames(QStringList imagefilePaths, bool append)
 {
     int prevFrameCount = this->gfx->getFrameCount();
 
     if (append) {
         // append the frame(s)
-        for (int i = 0; i < filePaths.count(); i++) {
+        for (int i = 0; i < imagefilePaths.count(); i++) {
             int index = this->gfx->getFrameCount();
-            D1GfxFrame *frame = this->gfx->insertFrame(index, filePaths[i]);
+            D1GfxFrame *frame = this->gfx->insertFrame(index, imagefilePaths[i]);
             if (frame != nullptr) {
-                frame->setFrameType(D1CEL_FRAME_TYPE::TransparentSquare);
+                LevelTabFrameWidget::selectFrameType(frame);
             }
         }
     } else {
         // insert the frame(s)
-        for (int i = 1; i <= filePaths.count(); i++) {
-            D1GfxFrame *frame = this->gfx->insertFrame(this->currentFrameIndex, filePaths[filePaths.count() - i]);
+        for (int i = 1; i <= imagefilePaths.count(); i++) {
+            D1GfxFrame *frame = this->gfx->insertFrame(this->currentFrameIndex, imagefilePaths[imagefilePaths.count() - i]);
             if (frame != nullptr) {
-                frame->setFrameType(D1CEL_FRAME_TYPE::TransparentSquare);
+                LevelTabFrameWidget::selectFrameType(frame);
             }
         }
         // shift references + add default frame type
@@ -256,6 +256,18 @@ void LevelCelView::insertFrames(QStringList filePaths, bool append)
     // update the view
     this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
     this->displayFrame();
+}
+
+void LevelCelView::replaceCurrentFrame(QString imagefilePath)
+{
+    D1GfxFrame *frame = this->gfx->replaceFrame(this->currentFrameIndex, imagefilePath);
+
+    if (frame != nullptr) {
+        LevelTabFrameWidget::selectFrameType(frame);
+        // update the view
+        this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+        this->displayFrame();
+    }
 }
 
 void LevelCelView::removeCurrentFrame()
