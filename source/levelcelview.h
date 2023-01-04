@@ -1,10 +1,12 @@
 #pragma once
 
+#include <QContextMenuEvent>
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QGraphicsScene>
 #include <QGraphicsSceneDragDropEvent>
 #include <QGraphicsSceneMouseEvent>
+#include <QPoint>
 #include <QTimer>
 #include <QWidget>
 
@@ -35,6 +37,7 @@ protected:
     void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
     void dropEvent(QGraphicsSceneDragDropEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
 
 signals:
     void framePixelClicked(quint16, quint16);
@@ -66,7 +69,15 @@ signals:
     void frameRefreshed();
     void colorIndexClicked(quint8);
 
+public slots:
+    void ShowContextMenu(const QPoint &pos);
+
 private slots:
+    void on_actionInsert_Frame_triggered();
+    void on_actionAdd_Frame_triggered();
+    void on_actionReplace_Frame_triggered();
+    void on_actionDel_Frame_triggered();
+
     void on_firstFrameButton_clicked();
     void on_previousFrameButton_clicked();
     void on_nextFrameButton_clicked();

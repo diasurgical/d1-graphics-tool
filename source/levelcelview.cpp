@@ -2,8 +2,10 @@
 
 #include <algorithm>
 
+#include <QAction>
 #include <QFileInfo>
 #include <QGraphicsPixmapItem>
+#include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
 
@@ -18,6 +20,10 @@ LevelCelScene::LevelCelScene(QWidget *v)
 
 void LevelCelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    if (event->button() != Qt::LeftButton) {
+        return;
+    }
+
     qDebug() << "Clicked: " << event->scenePos().x() << "," << event->scenePos().y();
 
     quint16 x = (quint16)event->scenePos().x();
@@ -54,6 +60,11 @@ void LevelCelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
     ((MainWindow *)this->view->window())->openImageFiles(filePaths, false);
 }
 
+void LevelCelScene::contextMenuEvent(QContextMenuEvent *event)
+{
+    ((LevelCelView *)this->view)->ShowContextMenu(event->globalPos());
+}
+
 LevelCelView::LevelCelView(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::LevelCelView)
@@ -71,6 +82,10 @@ LevelCelView::LevelCelView(QWidget *parent)
 
     // If a pixel of the frame, subtile or tile was clicked get pixel color index and notify the palette widgets
     QObject::connect(this->celScene, &LevelCelScene::framePixelClicked, this, &LevelCelView::framePixelClicked);
+
+    // setup context menu
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    QObject::connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(ShowContextMenu(const QPoint &)));
 
     setAcceptDrops(true);
 }
@@ -412,6 +427,54 @@ void LevelCelView::playGroup()
     }
 
     // this->displayFrame();
+}
+
+void LevelCelView::ShowContextMenu(const QPoint &pos)
+{
+    QMenu contextMenu(tr("Context menu"), this);
+    contextMenu.setToolTipsVisible(true);
+
+    QAction action0("Insert Frame", this);
+    action0.setToolTip("Add new frames before the current one");
+    QObject::connect(&action0, SIGNAL(triggered()), this, SLOT(on_actionInsert_Frame_triggered()));
+    contextMenu.addAction(&action0);
+
+    QAction action1("Add Frame", this);
+    action1.setToolTip("Add new frames at the end");
+    QObject::connect(&action1, SIGNAL(triggered()), this, SLOT(on_actionAdd_Frame_triggered()));
+    contextMenu.addAction(&action1);
+
+    QAction action2("Replace Frame", this);
+    action2.setToolTip("Replace the current frame");
+    QObject::connect(&action2, SIGNAL(triggered()), this, SLOT(on_actionReplace_Frame_triggered()));
+    contextMenu.addAction(&action2);
+
+    QAction action3("Del Frame", this);
+    action3.setToolTip("Delete the current frame");
+    QObject::connect(&action3, SIGNAL(triggered()), this, SLOT(on_actionDel_Frame_triggered()));
+    contextMenu.addAction(&action3);
+
+    contextMenu.exec(mapToGlobal(pos));
+}
+
+void LevelCelView::on_actionInsert_Frame_triggered()
+{
+    ((MainWindow *)this->window())->on_actionInsert_Frame_triggered();
+}
+
+void LevelCelView::on_actionAdd_Frame_triggered()
+{
+    ((MainWindow *)this->window())->on_actionAdd_Frame_triggered();
+}
+
+void LevelCelView::on_actionReplace_Frame_triggered()
+{
+    ((MainWindow *)this->window())->on_actionReplace_Frame_triggered();
+}
+
+void LevelCelView::on_actionDel_Frame_triggered()
+{
+    ((MainWindow *)this->window())->on_actionDel_Frame_triggered();
 }
 
 void LevelCelView::on_firstFrameButton_clicked()
