@@ -19,6 +19,7 @@ public:
     quint8 getTileProperties(quint16);
     void setTileType(quint16 tileIndex, quint8 value);
     void setTileProperties(quint16 tileIndex, quint8 value);
+    void removeTile(int tileIndex);
 
 private:
     QString ampFilePath;

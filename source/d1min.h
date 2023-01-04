@@ -24,12 +24,14 @@ public:
     quint16 getSubtileCount();
     quint16 getSubtileWidth();
     quint16 getSubtileHeight();
-    QList<quint16> &getCelFrameIndices(quint16 subTileIndex);
+    QList<quint16> &getCelFrameIndices(int subTileIndex);
+    void createSubtile();
+    void removeSubtile(int subTileIndex);
 
 private:
     QString minFilePath;
     D1Gfx *cel = nullptr;
-    quint8 subtileWidth;
-    quint8 subtileHeight;
+    quint8 subtileWidth = 2;
+    quint8 subtileHeight = 5;
     QList<QList<quint16>> celFrameIndices;
 };

@@ -106,3 +106,9 @@ void D1Amp::setTileProperties(quint16 tileIndex, quint8 value)
 {
     this->properties[tileIndex] = value;
 }
+
+void D1Amp::removeTile(int tileIndex)
+{
+    this->types.removeAt(tileIndex);
+    this->properties.removeAt(tileIndex);
+}

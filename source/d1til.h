@@ -25,6 +25,8 @@ public:
     quint16 getTilePixelWidth();
     quint16 getTilePixelHeight();
     QList<quint16> &getSubtileIndices(int tileIndex);
+    void createTile();
+    void removeTile(int tileIndex);
 
 private:
     QString tilFilePath;

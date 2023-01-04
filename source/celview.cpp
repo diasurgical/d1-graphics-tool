@@ -134,9 +134,16 @@ void CelView::framePixelClicked(quint16 x, quint16 y)
 void CelView::insertFrames(QStringList imagefilePaths, bool append)
 {
     if (append) {
+        int prevFrameCount = this->gfx->getFrameCount();
         // append the frame(s)
         for (int i = 0; i < imagefilePaths.count(); i++) {
             this->gfx->insertFrame(this->gfx->getFrameCount(), imagefilePaths[i]);
+        }
+        // jump to the first appended frame
+        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+        if (deltaFrameCount > 0) {
+            this->currentFrameIndex = prevFrameCount;
+            this->updateGroupIndex();
         }
     } else {
         // insert the frame(s)

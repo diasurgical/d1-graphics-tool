@@ -245,6 +245,11 @@ void LevelCelView::insertFrames(QStringList imagefilePaths, bool append)
                 LevelTabFrameWidget::selectFrameType(frame);
             }
         }
+        // jump to the first appended frame
+        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+        if (deltaFrameCount > 0) {
+            this->currentFrameIndex = prevFrameCount;
+        }
     } else {
         // insert the frame(s)
         for (int i = 1; i <= imagefilePaths.count(); i++) {
@@ -253,7 +258,7 @@ void LevelCelView::insertFrames(QStringList imagefilePaths, bool append)
                 LevelTabFrameWidget::selectFrameType(frame);
             }
         }
-        // shift references + add default frame type
+        // shift references
         int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
         if (deltaFrameCount > 0) {
             unsigned refIndex = this->currentFrameIndex + 1;
@@ -330,6 +335,79 @@ void LevelCelView::removeCurrentFrame()
     this->displayFrame();
 }
 
+void LevelCelView::createSubtile()
+{
+    this->min->createSubtile();
+    // jump to the new subtile
+    this->currentSubtileIndex = this->min->getSubtileCount() - 1;
+    // update the view
+    this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->displayFrame();
+}
+
+void LevelCelView::removeCurrentSubtile()
+{
+    // check if the subtile is used
+    int user = -1;
+    unsigned refIndex = this->currentSubtileIndex;
+    for (int i = 0; i < this->til->getTileCount() && user < 0; i++) {
+        QList<quint16> &subtileIndices = this->til->getSubtileIndices(i);
+        for (quint16 subtileIdx : subtileIndices) {
+            if (subtileIdx == refIndex) {
+                user = i;
+                break;
+            }
+        }
+    }
+    if (user >= 0) {
+        QMessageBox::critical(nullptr, "Error", "The subtile is used by Tile " + QString::number(user + 1) + " (and maybe others).");
+        return;
+    }
+    this->min->removeSubtile(this->currentSubtileIndex);
+    this->sol->removeSubtile(this->currentSubtileIndex);
+    // update subtile index if necessary
+    if (this->currentSubtileIndex == this->min->getSubtileCount()) {
+        this->currentSubtileIndex = std::max(0, this->currentSubtileIndex - 1);
+    }
+    // shift references
+    // - shift subtile indices of the tiles
+    for (int i = 0; i < this->til->getTileCount(); i++) {
+        QList<quint16> &subtileIndices = this->til->getSubtileIndices(i);
+        for (int n = 0; n < subtileIndices.count(); n++) {
+            if (subtileIndices[n] >= refIndex) {
+                // assert(subtileIndices[n] != refIndex);
+                subtileIndices[n] -= 1;
+            }
+        }
+    }
+    // update the view
+    this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->displayFrame();
+}
+
+void LevelCelView::createTile()
+{
+    this->til->createTile();
+    // jump to the new tile
+    this->currentTileIndex = this->til->getTileCount() - 1;
+    // update the view
+    this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->displayFrame();
+}
+
+void LevelCelView::removeCurrentTile()
+{
+    this->til->removeTile(this->currentTileIndex);
+    this->amp->removeTile(this->currentTileIndex);
+    // update tile index if necessary
+    if (this->currentTileIndex == this->til->getTileCount()) {
+        this->currentTileIndex = std::max(0, this->currentTileIndex - 1);
+    }
+    // update the view
+    this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->displayFrame();
+}
+
 void LevelCelView::displayFrame()
 {
     quint16 minPosX = 0;
@@ -374,7 +452,7 @@ void LevelCelView::displayFrame()
 
     // Set current frame text
     this->ui->frameIndexEdit->setText(
-        QString::number(this->currentFrameIndex + 1));
+        QString::number(this->gfx->getFrameCount() != 0 ? this->currentFrameIndex + 1 : 0));
 
     // MIN
     minPosX = celFrame.width() + CEL_SCENE_SPACING * 2;
@@ -389,7 +467,7 @@ void LevelCelView::displayFrame()
 
     // Set current subtile text
     this->ui->subtileIndexEdit->setText(
-        QString::number(this->currentSubtileIndex + 1));
+        QString::number(this->min->getSubtileCount() != 0 ? this->currentSubtileIndex + 1 : 0));
 
     // TIL
     tilPosX = minPosX + subtile.width() + CEL_SCENE_SPACING;
@@ -404,7 +482,7 @@ void LevelCelView::displayFrame()
 
     // Set current tile text
     this->ui->tileIndexEdit->setText(
-        QString::number(this->currentTileIndex + 1));
+        QString::number(this->til->getTileCount() != 0 ? this->currentTileIndex + 1 : 0));
 
     // Notify PalView that the frame changed (used to refresh palette hits)
     emit frameRefreshed();
@@ -447,12 +525,51 @@ void LevelCelView::ShowContextMenu(const QPoint &pos)
     QAction action2("Replace Frame", this);
     action2.setToolTip("Replace the current frame");
     QObject::connect(&action2, SIGNAL(triggered()), this, SLOT(on_actionReplace_Frame_triggered()));
+    if (this->gfx->getFrameCount() == 0) {
+        action2.setEnabled(false);
+    }
     contextMenu.addAction(&action2);
 
     QAction action3("Del Frame", this);
     action3.setToolTip("Delete the current frame");
     QObject::connect(&action3, SIGNAL(triggered()), this, SLOT(on_actionDel_Frame_triggered()));
+    if (this->gfx->getFrameCount() == 0) {
+        action3.setEnabled(false);
+    }
     contextMenu.addAction(&action3);
+
+    contextMenu.addSeparator();
+
+    QAction action5("Create Subtile", this);
+    action5.setToolTip("Create a new subtile");
+    QObject::connect(&action5, SIGNAL(triggered()), this, SLOT(on_actionCreate_Subtile_triggered()));
+    contextMenu.addAction(&action5);
+
+    QAction action6("Delete Subtile", this);
+    action6.setToolTip("Delete the current subtile");
+    QObject::connect(&action6, SIGNAL(triggered()), this, SLOT(on_actionDel_Subtile_triggered()));
+    if (this->min->getSubtileCount() == 0) {
+        action6.setEnabled(false);
+    }
+    contextMenu.addAction(&action6);
+
+    contextMenu.addSeparator();
+
+    QAction action7("Create Tile", this);
+    action7.setToolTip("Create a new tile");
+    QObject::connect(&action7, SIGNAL(triggered()), this, SLOT(on_actionCreate_Tile_triggered()));
+    if (this->min->getSubtileCount() == 0) {
+        action7.setEnabled(false);
+    }
+    contextMenu.addAction(&action7);
+
+    QAction action8("Delete Tile", this);
+    action8.setToolTip("Delete the current tile");
+    QObject::connect(&action8, SIGNAL(triggered()), this, SLOT(on_actionDel_Tile_triggered()));
+    if (this->til->getTileCount() == 0) {
+        action8.setEnabled(false);
+    }
+    contextMenu.addAction(&action8);
 
     contextMenu.exec(mapToGlobal(pos));
 }
@@ -475,6 +592,26 @@ void LevelCelView::on_actionReplace_Frame_triggered()
 void LevelCelView::on_actionDel_Frame_triggered()
 {
     ((MainWindow *)this->window())->on_actionDel_Frame_triggered();
+}
+
+void LevelCelView::on_actionCreate_Subtile_triggered()
+{
+    ((MainWindow *)this->window())->on_actionCreate_Subtile_triggered();
+}
+
+void LevelCelView::on_actionDel_Subtile_triggered()
+{
+    ((MainWindow *)this->window())->on_actionDel_Subtile_triggered();
+}
+
+void LevelCelView::on_actionCreate_Tile_triggered()
+{
+    ((MainWindow *)this->window())->on_actionCreate_Tile_triggered();
+}
+
+void LevelCelView::on_actionDel_Tile_triggered()
+{
+    ((MainWindow *)this->window())->on_actionDel_Tile_triggered();
 }
 
 void LevelCelView::on_firstFrameButton_clicked()
