@@ -321,7 +321,7 @@
     <string>Del Frame</string>
    </property>
    <property name="toolTip">
-    <string>Remove the current frame</string>
+    <string>Delete the current frame</string>
    </property>
   </action>
   <action name="actionSave_PAL">
