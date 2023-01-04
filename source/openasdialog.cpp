@@ -26,41 +26,28 @@ void OpenAsDialog::initialize(QJsonObject *cfg)
 
     // clear the input fields
     ui->inputFileEdit->setText("");
+    ui->isTilesetAutoRadioButton->setChecked(true);
     // - celSettingsGroupBox
     ui->celWidthEdit->setText("0");
     ui->celClippedAutoRadioButton->setChecked(true);
+    // - tilSettingsGroupBox
+    ui->tilFileEdit->setText("");
+    ui->minFileEdit->setText("");
+    ui->solFileEdit->setText("");
+    ui->ampFileEdit->setText("");
+    ui->minWidthEdit->setText("0");
+    ui->minHeightEdit->setText("0");
 
     this->update();
 }
 
 void OpenAsDialog::update()
 {
-    QString filePath = ui->inputFileEdit->text();
+    bool hasInputFile = !ui->inputFileEdit->text().isEmpty();
+    bool isTileset = ui->isTilesetYesRadioButton->isChecked() || (ui->isTilesetAutoRadioButton->isChecked() && !ui->tilFileEdit->text().isEmpty());
 
-    // activate optional fields based on the extension
-    if (filePath.toLower().endsWith(".cel") || filePath.toLower().endsWith(".cl2")) {
-        ui->celSettingsGroupBox->setEnabled(true);
-        // ui->clxSettingsWidget->setEnabled(false);
-        // ui->tilSettingsWidget->setEnabled(false);
-        return;
-    }
-    /*if (filePath.toLower().endsWith(".clx")) {
-        ui->celSettingsGroupBox->setEnabled(false);
-        ui->clxSettingsWidget->setEnabled(true);
-        ui->tilSettingsWidget->setEnabled(false);
-        return;
-    }
-    if (filePath.toLower().endsWith(".til")) {
-        ui->celSettingsGroupBox->setEnabled(false);
-        ui->clxSettingsWidget->setEnabled(false);
-        ui->tilSettingsWidget->setEnabled(true);
-        return;
-    }*/
-
-    // empty or invalid selection -> disable the dialog fields
-    ui->celSettingsGroupBox->setEnabled(false);
-    // ui->clxSettingsWidget->setEnabled(false);
-    // ui->tilSettingsWidget->setEnabled(false);
+    ui->celSettingsGroupBox->setEnabled(hasInputFile && !isTileset);
+    ui->tilSettingsGroupBox->setEnabled(hasInputFile && isTileset);
 }
 
 void OpenAsDialog::on_inputFileBrowseButton_clicked()
@@ -72,39 +59,138 @@ void OpenAsDialog::on_inputFileBrowseButton_clicked()
         return;
 
     ui->inputFileEdit->setText(openFilePath);
+    // activate optional fields based on the extension
+    if (ui->isTilesetAutoRadioButton->isChecked()) {
+        bool isTileset = false;
+        QString basePath;
+        QString tilFilePath;
+        QString minFilePath;
+        QString solFilePath;
+        if (openFilePath.toLower().endsWith(".cel")) {
+            QFileInfo celFileInfo = QFileInfo(openFilePath);
+
+            // If a SOL, MIN and TIL files exists then preset them
+            basePath = celFileInfo.absolutePath() + "/" + celFileInfo.completeBaseName();
+            tilFilePath = basePath + ".til";
+            minFilePath = basePath + ".min";
+            solFilePath = basePath + ".sol";
+            isTileset = QFileInfo::exists(tilFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(solFilePath);
+        }
+        if (isTileset) {
+            ui->tilFileEdit->setText(tilFilePath);
+            ui->minFileEdit->setText(minFilePath);
+            ui->solFileEdit->setText(solFilePath);
+            QString ampFilePath = basePath + ".amp";
+            if (QFileInfo::exists(ampFilePath)) {
+                ui->ampFileEdit->setText(ampFilePath);
+            } else {
+                ui->ampFileEdit->setText("");
+            }
+        } else {
+            ui->tilFileEdit->setText("");
+            ui->minFileEdit->setText("");
+            ui->solFileEdit->setText("");
+            ui->ampFileEdit->setText("");
+        }
+    }
 
     this->update();
 }
 
+void OpenAsDialog::on_isTilesetYesRadioButton_toggled(bool checked)
+{
+    this->update();
+}
+
+void OpenAsDialog::on_isTilesetNoRadioButton_toggled(bool checked)
+{
+    this->update();
+}
+
+void OpenAsDialog::on_isTilesetAutoRadioButton_toggled(bool checked)
+{
+    this->update();
+}
+
+void OpenAsDialog::on_tilFileBrowseButton_clicked()
+{
+    MainWindow *qw = (MainWindow *)this->parentWidget();
+    QString openFilePath = qw->fileDialog(false, "Open TIL file", "TIL Files (*.til *.TIL)");
+
+    if (openFilePath.isEmpty())
+        return;
+
+    ui->tilFileEdit->setText(openFilePath);
+}
+
+void OpenAsDialog::on_minFileBrowseButton_clicked()
+{
+    MainWindow *qw = (MainWindow *)this->parentWidget();
+    QString openFilePath = qw->fileDialog(false, "Open MIN file", "MIN Files (*.min *.MIN)");
+
+    if (openFilePath.isEmpty())
+        return;
+
+    ui->minFileEdit->setText(openFilePath);
+}
+
+void OpenAsDialog::on_solFileBrowseButton_clicked()
+{
+    MainWindow *qw = (MainWindow *)this->parentWidget();
+    QString openFilePath = qw->fileDialog(false, "Open SOL file", "SOL Files (*.sol *.SOL)");
+
+    if (openFilePath.isEmpty())
+        return;
+
+    ui->solFileEdit->setText(openFilePath);
+}
+
+void OpenAsDialog::on_ampFileBrowseButton_clicked()
+{
+    MainWindow *qw = (MainWindow *)this->parentWidget();
+    QString openFilePath = qw->fileDialog(false, "Open AMP file", "AMP Files (*.amp *.AMP)");
+
+    if (openFilePath.isEmpty())
+        return;
+
+    ui->ampFileEdit->setText(openFilePath);
+}
+
 void OpenAsDialog::on_openButton_clicked()
 {
-    if (ui->inputFileEdit->text() == "") {
+    OpenAsParam params;
+    params.celFilePath = ui->inputFileEdit->text();
+    if (params.celFilePath.isEmpty()) {
         QMessageBox::warning(this, "Warning", "Input file is missing, please choose an input file.");
         return;
     }
-
-    OpenAsParam params;
-    if (ui->celSettingsGroupBox->isEnabled()) {
-        // cel/cl2: clipped, width
-        params.width = this->ui->celWidthEdit->text().toUShort();
-        if (ui->celClippedYesRadioButton->isChecked()) {
-            params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_TRUE;
-        } else if (ui->celClippedNoRadioButton->isChecked()) {
-            params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_FALSE;
-        } else {
-            params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT;
-        }
+    if (ui->isTilesetYesRadioButton->isChecked()) {
+        params.isTileset = OPEN_TILESET_TYPE::TILESET_TRUE;
+    } else if (ui->isTilesetNoRadioButton->isChecked()) {
+        params.isTileset = OPEN_TILESET_TYPE::TILESET_FALSE;
+    } else {
+        params.isTileset = OPEN_TILESET_TYPE::TILESET_AUTODETECT;
     }
+    // cel/cl2: clipped, width
+    params.celWidth = this->ui->celWidthEdit->text().toUShort();
+    if (ui->celClippedYesRadioButton->isChecked()) {
+        params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_TRUE;
+    } else if (ui->celClippedNoRadioButton->isChecked()) {
+        params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_FALSE;
+    } else {
+        params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    }
+    params.tilFilePath = ui->tilFileEdit->text();
+    params.minFilePath = ui->minFileEdit->text();
+    params.solFilePath = ui->solFileEdit->text();
+    params.ampFilePath = ui->ampFileEdit->text();
+    params.minWidth = ui->minWidthEdit->text().toUShort();
+    params.minHeight = ui->minHeightEdit->text().toUShort();
 
-    // TODO:
-    //  clx: ?
-    //  til: ? sol + min + amp + cel path ?
-
-    QString filePath = ui->inputFileEdit->text();
     MainWindow *qw = (MainWindow *)this->parentWidget();
     this->close();
 
-    qw->openFile(filePath, &params);
+    qw->openFile(params);
 }
 
 void OpenAsDialog::on_openCancelButton_clicked()

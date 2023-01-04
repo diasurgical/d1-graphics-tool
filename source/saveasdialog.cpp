@@ -182,7 +182,7 @@ void SaveAsDialog::on_saveButton_clicked()
     MainWindow *qw = (MainWindow *)this->parentWidget();
     this->close();
 
-    qw->saveFile(&params);
+    qw->saveFile(params);
 }
 
 void SaveAsDialog::on_saveCancelButton_clicked()

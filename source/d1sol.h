@@ -12,7 +12,7 @@ public:
     ~D1Sol() = default;
 
     bool load(QString filePath);
-    bool save(SaveAsParam *params = nullptr);
+    bool save(const SaveAsParam &params);
 
     QString getFilePath();
     quint16 getSubtileCount();

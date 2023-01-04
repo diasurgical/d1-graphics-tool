@@ -59,7 +59,7 @@ quint16 D1Cl2Frame::computeWidthFromHeader(QByteArray &rawFrameData, bool isClx)
     return celFrameWidth;
 }
 
-bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, OpenAsParam *params)
+bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, const OpenAsParam &params)
 {
     if (rawData.size() == 0)
         return false;
@@ -68,7 +68,7 @@ bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, OpenAsP
 
     frame.clipped = false;
     quint16 width = 0;
-    if (params == nullptr || params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
+    if (params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
         // Assume the presence of the {CEL FRAME HEADER}
         QDataStream in(rawData);
         in.setByteOrder(QDataStream::LittleEndian);
@@ -79,7 +79,7 @@ bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, OpenAsP
         width = D1Cl2Frame::computeWidthFromHeader(rawData, isClx);
         frame.clipped = true;
     } else {
-        if (params->clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
+        if (params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
             QDataStream in(rawData);
             in.setByteOrder(QDataStream::LittleEndian);
             quint16 offset;
@@ -90,7 +90,7 @@ bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, OpenAsP
             frame.clipped = true;
         }
     }
-    frame.width = (params == nullptr || params->width == 0) ? width : params->width;
+    frame.width = params.celWidth == 0 ? width : params.celWidth;
 
     if (frame.width == 0)
         return false;
@@ -151,7 +151,7 @@ bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, OpenAsP
     return true;
 }
 
-bool D1Cl2::load(D1Gfx &gfx, QString filePath, bool isClx, OpenAsParam *params)
+bool D1Cl2::load(D1Gfx &gfx, QString filePath, bool isClx, const OpenAsParam &params)
 {
     // Opening CL2 file with a QBuffer to load it in RAM
     if (!QFile::exists(filePath))
@@ -373,15 +373,15 @@ static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, bool isClx, int s
     return pBuf;
 }
 
-bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *params)
+bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const SaveAsParam &params)
 {
     const int numFrames = gfx.frames.count();
 
     // calculate header size
     bool groupped = false;
-    int numGroups = 0;
+    int numGroups = params.groupNum;
     int headerSize = 0;
-    if (params == nullptr || params->groupNum == 0) {
+    if (numGroups == 0) {
         numGroups = gfx.getGroupCount();
         groupped = numGroups > 1;
         for (int i = 0; i < numGroups; i++) {
@@ -390,7 +390,6 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *p
             headerSize += 4 + 4 * (ni + 1);
         }
     } else {
-        numGroups = params->groupNum;
         if (numFrames == 0 || (numFrames % numGroups) != 0) {
             QMessageBox::critical(nullptr, "Error", "Frames can not be split to equal groups.");
             return false;
@@ -410,10 +409,10 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *p
     // update type
     gfx.type = groupped ? D1CEL_TYPE::V2_MULTIPLE_GROUPS : D1CEL_TYPE::V2_MONO_GROUP;
     // update clipped info
-    bool clippedForced = params != nullptr && params->clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    bool clippedForced = params.clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
     for (int n = 0; n < numFrames; n++) {
         D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params->clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
+        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
     }
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
@@ -474,11 +473,11 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, SaveAsParam *p
     return true;
 }
 
-bool D1Cl2::save(D1Gfx &gfx, bool isClx, SaveAsParam *params)
+bool D1Cl2::save(D1Gfx &gfx, bool isClx, const SaveAsParam &params)
 {
     QString filePath = gfx.gfxFilePath;
-    if (params != nullptr && !params->celFilePath.isEmpty()) {
-        filePath = params->celFilePath;
+    if (!params.celFilePath.isEmpty()) {
+        filePath = params.celFilePath;
         /*if (QFile::exists(filePath)) {
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite the CL2 file?", QMessageBox::Yes | QMessageBox::No);

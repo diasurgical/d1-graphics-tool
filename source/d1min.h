@@ -14,8 +14,8 @@ public:
     D1Min() = default;
     ~D1Min() = default;
 
-    bool load(QString minFilePath, quint16 subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes);
-    bool save(D1Gfx *gfx, SaveAsParam *params = nullptr);
+    bool load(QString minFilePath, quint16 subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params);
+    bool save(D1Gfx *gfx, const SaveAsParam &params);
 
     QImage getSubtileImage(quint16);
 

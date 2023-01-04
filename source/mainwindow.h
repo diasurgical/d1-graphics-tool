@@ -38,9 +38,9 @@ public:
 
     void pushCommandToUndoStack(QUndoCommand *);
 
-    void openFile(QString openFilePath, OpenAsParam *params = nullptr);
+    void openFile(const OpenAsParam &params);
     void openImageFiles(QStringList filePaths, bool append);
-    void saveFile(SaveAsParam *params = nullptr);
+    void saveFile(const SaveAsParam &params);
     void addFrames(bool append);
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);

@@ -21,7 +21,7 @@ private:
 
 class D1CelFrame {
 public:
-    static bool load(D1GfxFrame &frame, QByteArray rawData, OpenAsParam *params = nullptr);
+    static bool load(D1GfxFrame &frame, QByteArray rawData, const OpenAsParam &params);
 
 private:
     static quint16 computeWidthFromHeader(QByteArray &);
