@@ -148,3 +148,19 @@ QList<quint16> &D1Til::getSubtileIndices(int tileIndex)
 {
     return const_cast<QList<quint16> &>(this->subtileIndices.at(tileIndex));
 }
+
+void D1Til::createTile()
+{
+    QList<quint16> subtileIndices;
+    const int n = 4;
+
+    for (int i = 0; i < n; i++) {
+        subtileIndices.append(0);
+    }
+    this->subtileIndices.append(subtileIndices);
+}
+
+void D1Til::removeTile(int tileIndex)
+{
+    this->subtileIndices.removeAt(tileIndex);
+}

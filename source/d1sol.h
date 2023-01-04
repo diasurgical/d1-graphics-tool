@@ -16,8 +16,9 @@ public:
 
     QString getFilePath();
     quint16 getSubtileCount();
-    quint8 getSubtileProperties(quint16);
-    void setSubtileProperties(quint16 tileIndex, quint8 value);
+    quint8 getSubtileProperties(int subtileIndex);
+    void setSubtileProperties(int subtileIndex, quint8 value);
+    void removeSubtile(int subtileIndex);
 
 private:
     QString solFilePath;

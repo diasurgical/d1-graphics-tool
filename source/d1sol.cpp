@@ -72,15 +72,20 @@ quint16 D1Sol::getSubtileCount()
     return this->subProperties.count();
 }
 
-quint8 D1Sol::getSubtileProperties(quint16 tileIndex)
+quint8 D1Sol::getSubtileProperties(int subtileIndex)
 {
-    if (tileIndex >= this->subProperties.count())
+    if (subtileIndex >= this->subProperties.count())
         return 0;
 
-    return this->subProperties.at(tileIndex);
+    return this->subProperties.at(subtileIndex);
 }
 
-void D1Sol::setSubtileProperties(quint16 tileIndex, quint8 value)
+void D1Sol::setSubtileProperties(int subtileIndex, quint8 value)
 {
-    this->subProperties[tileIndex] = value;
+    this->subProperties[subtileIndex] = value;
+}
+
+void D1Sol::removeSubtile(int subtileIndex)
+{
+    this->subProperties.removeAt(subtileIndex);
 }

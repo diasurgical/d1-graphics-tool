@@ -186,6 +186,12 @@
     <addaction name="actionAdd_Frame"/>
     <addaction name="actionReplace_Frame"/>
     <addaction name="actionDel_Frame"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreate_Subtile"/>
+    <addaction name="actionDel_Subtile"/>
+    <addaction name="separator"/>
+    <addaction name="actionCreate_Tile"/>
+    <addaction name="actionDel_Tile"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -322,6 +328,38 @@
    </property>
    <property name="toolTip">
     <string>Delete the current frame</string>
+   </property>
+  </action>
+  <action name="actionCreate_Subtile">
+   <property name="text">
+    <string>Create Subtile</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new subtile</string>
+   </property>
+  </action>
+  <action name="actionDel_Subtile">
+   <property name="text">
+    <string>Del Subtile</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete the current subtile</string>
+   </property>
+  </action>
+  <action name="actionCreate_Tile">
+   <property name="text">
+    <string>Create Tile</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new tile</string>
+   </property>
+  </action>
+  <action name="actionDel_Tile">
+   <property name="text">
+    <string>Del Tile</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete the current tile</string>
    </property>
   </action>
   <action name="actionSave_PAL">

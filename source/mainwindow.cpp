@@ -159,6 +159,10 @@ void MainWindow::updateView()
     // update menu options
     this->ui->actionReplace_Frame->setEnabled(this->gfx->getFrameCount() != 0);
     this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
+    this->ui->actionCreate_Subtile->setEnabled(this->levelCelView != nullptr);
+    this->ui->actionDel_Subtile->setEnabled(this->levelCelView != nullptr && this->min->getSubtileCount() != 0);
+    this->ui->actionCreate_Tile->setEnabled(this->levelCelView != nullptr && this->min->getSubtileCount() != 0);
+    this->ui->actionDel_Tile->setEnabled(this->levelCelView != nullptr && this->til->getTileCount() != 0);
 }
 
 void MainWindow::pushCommandToUndoStack(QUndoCommand *cmd)
@@ -589,6 +593,10 @@ void MainWindow::openFile(const OpenAsParam &params)
     this->ui->actionAdd_Frame->setEnabled(true);
     this->ui->actionReplace_Frame->setEnabled(this->gfx->getFrameCount() != 0);
     this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
+    this->ui->actionCreate_Subtile->setEnabled(isTileset);
+    this->ui->actionDel_Subtile->setEnabled(isTileset && this->min->getSubtileCount() != 0);
+    this->ui->actionCreate_Tile->setEnabled(isTileset && this->min->getSubtileCount() != 0);
+    this->ui->actionDel_Tile->setEnabled(isTileset && this->til->getTileCount() != 0);
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -764,6 +772,10 @@ void MainWindow::on_actionClose_triggered()
     this->ui->actionAdd_Frame->setEnabled(false);
     this->ui->actionReplace_Frame->setEnabled(false);
     this->ui->actionDel_Frame->setEnabled(false);
+    this->ui->actionCreate_Subtile->setEnabled(false);
+    this->ui->actionDel_Subtile->setEnabled(false);
+    this->ui->actionCreate_Tile->setEnabled(false);
+    this->ui->actionDel_Tile->setEnabled(false);
 }
 
 void MainWindow::on_actionSettings_triggered()
@@ -825,6 +837,30 @@ void MainWindow::on_actionDel_Frame_triggered()
     if (this->levelCelView != nullptr) {
         this->levelCelView->removeCurrentFrame();
     }
+    this->updateView();
+}
+
+void MainWindow::on_actionCreate_Subtile_triggered()
+{
+    this->levelCelView->createSubtile();
+    this->updateView();
+}
+
+void MainWindow::on_actionDel_Subtile_triggered()
+{
+    this->levelCelView->removeCurrentSubtile();
+    this->updateView();
+}
+
+void MainWindow::on_actionCreate_Tile_triggered()
+{
+    this->levelCelView->createTile();
+    this->updateView();
+}
+
+void MainWindow::on_actionDel_Tile_triggered()
+{
+    this->levelCelView->removeCurrentTile();
     this->updateView();
 }
 

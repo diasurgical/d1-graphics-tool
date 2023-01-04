@@ -62,6 +62,10 @@ public:
     void insertFrames(QStringList imagefilePaths, bool append);
     void replaceCurrentFrame(QString imagefilePath);
     void removeCurrentFrame();
+    void createSubtile();
+    void removeCurrentSubtile();
+    void createTile();
+    void removeCurrentTile();
 
     void displayFrame();
 
@@ -77,6 +81,10 @@ private slots:
     void on_actionAdd_Frame_triggered();
     void on_actionReplace_Frame_triggered();
     void on_actionDel_Frame_triggered();
+    void on_actionCreate_Subtile_triggered();
+    void on_actionDel_Subtile_triggered();
+    void on_actionCreate_Tile_triggered();
+    void on_actionDel_Tile_triggered();
 
     void on_firstFrameButton_clicked();
     void on_previousFrameButton_clicked();
