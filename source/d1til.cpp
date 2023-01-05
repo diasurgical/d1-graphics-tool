@@ -5,39 +5,48 @@
 #include <QFileInfo>
 #include <QPainter>
 
+#define TILE_SIZE 4
+
 bool D1Til::load(QString filePath)
 {
-    quint16 readWord;
-    QList<quint16> subtileIndicesList;
-
-    // Opening MIN file with a QBuffer to load it in RAM
-    if (!QFile::exists(filePath))
-        return false;
-
-    QFile file = QFile(filePath);
-
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
-
-    if (file.size() < 16)
-        return false;
+    // prepare file data source
+    QFile file;
+    // done by the caller
+    // if (!params.tilFilePath.isEmpty()) {
+    //    filePath = params.tilFilePath;
+    // }
+    if (!filePath.isEmpty()) {
+        file.setFileName(filePath);
+        if (!file.open(QIODevice::ReadOnly)) {
+            return false;
+        }
+    }
 
     QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
-    if (!fileBuffer.open(QIODevice::ReadOnly))
+    if (!fileBuffer.open(QIODevice::ReadOnly)) {
         return false;
+    }
+
+    // File size check
+    auto fileSize = file.size();
+    if (fileSize % (2 * TILE_SIZE) != 0) {
+        qDebug() << "Invalid til-file.";
+        return false;
+    }
+
+    int tileCount = fileSize / (2 * TILE_SIZE);
 
     // Read TIL binary data
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    int tileCount = file.size() / 2 / 4;
-
     this->subtileIndices.clear();
     for (int i = 0; i < tileCount; i++) {
-        subtileIndicesList.clear();
-        for (int j = 0; j < 4; j++) {
+        QList<quint16> subtileIndicesList;
+        for (int j = 0; j < TILE_SIZE; j++) {
+            quint16 readWord;
             in >> readWord;
             subtileIndicesList.append(readWord);
         }
@@ -60,7 +69,7 @@ bool D1Til::save(const SaveAsParam &params)
     out.setByteOrder(QDataStream::LittleEndian);
     for (int i = 0; i < this->subtileIndices.count(); i++) {
         QList<quint16> &subtileIndicesList = this->subtileIndices[i];
-        for (int j = 0; j < 4; j++) {
+        for (int j = 0; j < TILE_SIZE; j++) {
             quint16 writeWord = subtileIndicesList[j];
             out << writeWord;
         }
@@ -152,9 +161,8 @@ QList<quint16> &D1Til::getSubtileIndices(int tileIndex)
 void D1Til::createTile()
 {
     QList<quint16> subtileIndices;
-    const int n = 4;
 
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < TILE_SIZE; i++) {
         subtileIndices.append(0);
     }
     this->subtileIndices.append(subtileIndices);

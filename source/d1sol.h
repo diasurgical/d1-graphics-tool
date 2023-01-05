@@ -18,6 +18,7 @@ public:
     quint16 getSubtileCount();
     quint8 getSubtileProperties(int subtileIndex);
     void setSubtileProperties(int subtileIndex, quint8 value);
+    void createSubtile();
     void removeSubtile(int subtileIndex);
 
 private:

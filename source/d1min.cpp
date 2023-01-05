@@ -5,61 +5,81 @@
 #include <QFileInfo>
 #include <QPainter>
 
-bool D1Min::load(QString filePath, quint16 subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params)
+bool D1Min::load(QString filePath, int subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params)
 {
-    // Opening MIN file with a QBuffer to load it in RAM
-    if (!QFile::exists(filePath))
-        return false;
-
-    QFile file = QFile(filePath);
-
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
-
-    if (file.size() == 0)
-        return false;
+    // prepare file data source
+    QFile file;
+    // done by the caller
+    // if (!params.minFilePath.isEmpty()) {
+    //    filePath = params.minFilePath;
+    // }
+    if (!filePath.isEmpty()) {
+        file.setFileName(filePath);
+        if (!file.open(QIODevice::ReadOnly)) {
+            return false;
+        }
+    }
 
     QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
-    if (!fileBuffer.open(QIODevice::ReadOnly))
+    if (!fileBuffer.open(QIODevice::ReadOnly)) {
         return false;
+    }
+
+    // calculate subtileWidth/Height
+    auto fileSize = file.size();
+    int width = params.minWidth;
+    if (width == 0) {
+        width = 2;
+    }
+    int height = params.minHeight;
+    if (height == 0) {
+        if (fileSize == 0 || subtileCount == 0) {
+            height = 5;
+        } else {
+            // guess subtileHeight based on the data
+            height = fileSize / (subtileCount * width * 2);
+        }
+    }
+
+    // File size check
+    int subtileNumberOfCelFrames = width * height;
+    if ((fileSize % (subtileNumberOfCelFrames * 2)) != 0) {
+        qDebug() << "Sub-tile width/height does not align with min-file.";
+        return false;
+    }
+
+    this->subtileWidth = width;
+    this->subtileHeight = height;
+    int minSubtileCount = fileSize / (subtileNumberOfCelFrames * 2);
+    if (minSubtileCount != subtileCount) {
+        qDebug() << "The size of sol-file does not align with min-file";
+    }
+
+    // prepare an empty list with zeros
+    this->celFrameIndices.clear();
+    for (int i = 0; i < minSubtileCount; i++) {
+        QList<quint16> celFrameIndicesList;
+        for (int j = 0; j < subtileNumberOfCelFrames; j++) {
+            celFrameIndicesList.append(0);
+        }
+        this->celFrameIndices.append(celFrameIndicesList);
+    }
 
     // Read MIN binary data
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    this->subtileWidth = params.minWidth;
-    if (this->subtileWidth == 0) {
-        this->subtileWidth = 2;
-    }
-    this->subtileHeight = params.minHeight;
-    if (this->subtileHeight == 0) {
-        this->subtileHeight = file.size() / (subtileCount * this->subtileWidth * 2);
-    }
-    if (file.size() != subtileCount * this->subtileWidth * this->subtileHeight * 2) {
-        qDebug() << "The size of sol-file does not align with min-file";
-        subtileCount = file.size() / (this->subtileWidth * this->subtileHeight * 2);
-    }
-
-    // File size check
-    if (file.size() % this->subtileHeight != 0)
-        return false;
-
-    // Read sub-tile data
-    quint8 subtileNumberOfCelFrames = this->subtileWidth * this->subtileHeight;
-    fileBuffer.seek(0);
-    this->celFrameIndices.clear();
-    for (int i = 0; i < subtileCount; i++) {
-        QList<quint16> celFrameIndicesList;
+    for (int i = 0; i < minSubtileCount; i++) {
+        QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
         for (int j = 0; j < subtileNumberOfCelFrames; j++) {
             quint16 readWord;
             in >> readWord;
             quint16 id = readWord & 0x0FFF;
-            celFrameIndicesList.append(id);
+            celFrameIndicesList[j] = id;
             celFrameTypes[id] = static_cast<D1CEL_FRAME_TYPE>((readWord & 0x7000) >> 12);
         }
-        this->celFrameIndices.append(celFrameIndicesList);
     }
     this->minFilePath = filePath;
     return true;

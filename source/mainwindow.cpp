@@ -402,7 +402,10 @@ void MainWindow::openFile(const OpenAsParam &params)
         if (isTileset) {
             // Loading SOL
             this->sol = new D1Sol();
-            this->sol->load(solFilePath);
+            if (!this->sol->load(solFilePath)) {
+                QMessageBox::critical(this, "Error", "Failed loading SOL file: " + solFilePath);
+                return;
+            }
 
             // Loading MIN
             this->min = new D1Min();
@@ -424,7 +427,10 @@ void MainWindow::openFile(const OpenAsParam &params)
             // Loading AMP
             this->amp = new D1Amp();
             QString ampFilePath = params.ampFilePath.isEmpty() ? basePath + ".amp" : params.ampFilePath;
-            this->amp->load(ampFilePath, this->til->getTileCount());
+            if (!this->amp->load(ampFilePath, this->til->getTileCount(), params)) {
+                QMessageBox::critical(this, "Error", "Failed loading AMP file: " + ampFilePath);
+                return;
+            }
 
             // Loading CEL
             if (!D1CelTileset::load(*this->gfx, celFrameTypes, openFilePath, params)) {

@@ -5,51 +5,65 @@
 #include <QFile>
 #include <QFileInfo>
 
-bool D1Amp::clear(int allocate)
+bool D1Amp::load(QString filePath, int tileCount, const OpenAsParam &params)
 {
-    for (int i = 0; i < allocate; i++) {
-        this->types.append(0);
-        this->properties.append(0);
+    // prepare file data source
+    QFile file;
+    // done by the caller
+    // if (!params.ampFilePath.isEmpty()) {
+    //    filePath = params.ampFilePath;
+    // }
+    if (!filePath.isEmpty()) {
+        file.setFileName(filePath);
+        if (!file.open(QIODevice::ReadOnly) && !params.ampFilePath.isEmpty()) {
+            return false; // report read-error only if the file was explicitly requested
+        }
     }
-    return false;
-}
-
-bool D1Amp::load(QString filePath, int allocate)
-{
-    this->properties.clear();
-    this->types.clear();
-
-    // Opening AMP file with a QBuffer to load it in RAM
-    if (!QFile::exists(filePath))
-        return this->clear(allocate);
-
-    QFile file = QFile(filePath);
-
-    if (!file.open(QIODevice::ReadOnly))
-        return this->clear(allocate);
 
     QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
-    if (!fileBuffer.open(QIODevice::ReadOnly))
-        return this->clear(allocate);
+    if (!fileBuffer.open(QIODevice::ReadOnly)) {
+        return false;
+    }
+
+    // File size check
+    auto fileSize = file.size();
+    if (fileSize % 2 != 0) {
+        qDebug() << "Invalid amp-file.";
+        return false;
+    }
+
+    int ampTileCount = fileSize / 2;
+    if (ampTileCount != tileCount) {
+        if (ampTileCount != 0) {
+            qDebug() << "The size of amp-file does not align with til-file";
+        }
+        if (ampTileCount > tileCount) {
+            ampTileCount = tileCount; // skip unusable data
+        }
+    }
+
+    // prepare empty lists with zeros
+    this->properties.clear();
+    this->types.clear();
+    for (int i = 0; i < tileCount; i++) {
+        this->types.append(0);
+        this->properties.append(0);
+    }
 
     // Read AMP binary data
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    quint8 readBytr;
-    for (int i = 0; i < file.size() / 2; i++) {
+    for (int i = 0; i < ampTileCount; i++) {
+        quint8 readBytr;
         in >> readBytr;
-        this->types.append(readBytr);
+        this->types[i] = readBytr;
         in >> readBytr;
-        this->properties.append(readBytr);
+        this->properties[i] = readBytr;
     }
 
-    while (this->types.size() < allocate) {
-        this->types.append(0);
-        this->properties.append(0);
-    }
     this->ampFilePath = filePath;
     return true;
 }
@@ -105,6 +119,12 @@ void D1Amp::setTileType(quint16 tileIndex, quint8 value)
 void D1Amp::setTileProperties(quint16 tileIndex, quint8 value)
 {
     this->properties[tileIndex] = value;
+}
+
+void D1Amp::createTile()
+{
+    this->types.append(0);
+    this->properties.append(0);
 }
 
 void D1Amp::removeTile(int tileIndex)

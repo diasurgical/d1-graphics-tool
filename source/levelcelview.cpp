@@ -338,6 +338,7 @@ void LevelCelView::removeCurrentFrame()
 void LevelCelView::createSubtile()
 {
     this->min->createSubtile();
+    this->sol->createSubtile();
     // jump to the new subtile
     this->currentSubtileIndex = this->min->getSubtileCount() - 1;
     // update the view
@@ -388,6 +389,7 @@ void LevelCelView::removeCurrentSubtile()
 void LevelCelView::createTile()
 {
     this->til->createTile();
+    this->amp->createTile();
     // jump to the new tile
     this->currentTileIndex = this->til->getTileCount() - 1;
     // update the view

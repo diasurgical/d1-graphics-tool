@@ -50,47 +50,67 @@ D1CEL_FRAME_TYPE guessFrameType(QByteArray &rawFrameData)
 
 bool D1CelTileset::load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, QString filePath, const OpenAsParam &params)
 {
-    // Opening CEL file with a QBuffer to load it in RAM
-    if (!QFile::exists(filePath))
-        return false;
-
-    QFile file = QFile(filePath);
-
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
+    // prepare file data source
+    QFile file;
+    // done by the caller
+    // if (!params.celFilePath.isEmpty()) {
+    //    filePath = params.celFilePath;
+    // }
+    if (!filePath.isEmpty()) {
+        file.setFileName(filePath);
+        if (!file.open(QIODevice::ReadOnly)) {
+            return false;
+        }
+    }
 
     QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
-    if (!fileBuffer.open(QIODevice::ReadOnly))
+    if (!fileBuffer.open(QIODevice::ReadOnly)) {
         return false;
+    }
 
     // Read CEL binary data
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    // CEL HEADER CHECKS
+    // File size check
+    int numFrames = 0;
+    auto fileSize = fileBuffer.size();
+    if (fileSize != 0) {
+        // CEL HEADER CHECKS
+        if (fileSize < 4) {
+            qDebug() << "Level-cel-file is too small.";
+            return false;
+        }
 
-    // Read first DWORD
-    quint32 firstDword;
-    in >> firstDword;
+        // Read first DWORD
+        quint32 readDword;
+        in >> readDword;
 
-    // Trying to find file size in CEL header
-    if (fileBuffer.size() < (4 + firstDword * 4 + 4))
-        return false;
+        numFrames = readDword;
 
-    fileBuffer.seek(firstDword * 4 + 4);
-    quint32 fileSizeDword;
-    in >> fileSizeDword;
+        // Trying to find file size in CEL header
+        if (fileSize < (4 + numFrames * 4 + 4)) {
+            qDebug() << "Header of the level-cel-file is too small.";
+            return false;
+        }
+
+        fileBuffer.seek(numFrames * 4 + 4);
+        quint32 fileSizeDword;
+        in >> fileSizeDword;
+
+        if (fileSize != fileSizeDword) {
+            qDebug() << "Invalid level-cel-file header.";
+            return false;
+        }
+    }
 
     gfx.groupFrameIndices.clear();
 
-    if (fileBuffer.size() != fileSizeDword)
-        return false;
-
-    // Going through all frames of the CEL
+    // CEL FRAMES OFFSETS CALCULATION
     QList<QPair<quint32, quint32>> frameOffsets;
-    for (unsigned i = 1; i <= firstDword; i++) {
+    for (int i = 1; i <= numFrames; i++) {
         fileBuffer.seek(i * 4);
         quint32 celFrameStartOffset;
         in >> celFrameStartOffset;
@@ -102,10 +122,7 @@ bool D1CelTileset::load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFra
 
     gfx.type = D1CEL_TYPE::V1_LEVEL;
 
-    // CEL FRAMES OFFSETS CALCULATION
-
     // BUILDING {CEL FRAMES}
-
     gfx.frames.clear();
     for (int i = 0; i < frameOffsets.count(); i++) {
         const auto &offset = frameOffsets[i];

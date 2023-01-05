@@ -7,32 +7,36 @@
 
 bool D1Sol::load(QString filePath)
 {
-    this->subProperties.clear();
-
-    // Opening SOL file with a QBuffer to load it in RAM
-    if (!QFile::exists(filePath))
-        return false;
-
-    QFile file = QFile(filePath);
-
-    if (!file.open(QIODevice::ReadOnly))
-        return false;
-
-    if (file.size() == 0)
-        return false;
+    // prepare file data source
+    QFile file;
+    // done by the caller
+    // if (!params.solFilePath.isEmpty()) {
+    //    filePath = params.solFilePath;
+    // }
+    if (!filePath.isEmpty()) {
+        file.setFileName(filePath);
+        if (!file.open(QIODevice::ReadOnly)) {
+            return false;
+        }
+    }
 
     QByteArray fileData = file.readAll();
     QBuffer fileBuffer(&fileData);
 
-    if (!fileBuffer.open(QIODevice::ReadOnly))
+    if (!fileBuffer.open(QIODevice::ReadOnly)) {
         return false;
+    }
+
+    int subTileCount = file.size();
+
+    this->subProperties.clear();
 
     // Read SOL binary data
     QDataStream in(&fileBuffer);
     in.setByteOrder(QDataStream::LittleEndian);
 
-    quint8 readBytr;
-    for (int i = 0; i < file.size(); i++) {
+    for (int i = 0; i < subTileCount; i++) {
+        quint8 readBytr;
         in >> readBytr;
         this->subProperties.append(readBytr);
     }
@@ -83,6 +87,11 @@ quint8 D1Sol::getSubtileProperties(int subtileIndex)
 void D1Sol::setSubtileProperties(int subtileIndex, quint8 value)
 {
     this->subProperties[subtileIndex] = value;
+}
+
+void D1Sol::createSubtile()
+{
+    this->subProperties.append(0);
 }
 
 void D1Sol::removeSubtile(int subtileIndex)
