@@ -63,8 +63,10 @@ public:
     void replaceCurrentFrame(QString imagefilePath);
     void removeCurrentFrame();
     void createSubtile();
+    void cloneSubtile();
     void removeCurrentSubtile();
     void createTile();
+    void cloneTile();
     void removeCurrentTile();
 
     void displayFrame();
@@ -115,6 +117,14 @@ private slots:
 
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
+
+    void on_addTileButton_clicked();
+
+    void on_cloneTileButton_clicked();
+
+    void on_addSubTileButton_clicked();
+
+    void on_cloneSubTileButton_clicked();
 
 private:
     Ui::LevelCelView *ui;

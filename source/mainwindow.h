@@ -63,8 +63,10 @@ public slots:
     void on_actionReplace_Frame_triggered();
     void on_actionDel_Frame_triggered();
     void on_actionCreate_Subtile_triggered();
+    void on_actionClone_Subtile_triggered();
     void on_actionDel_Subtile_triggered();
     void on_actionCreate_Tile_triggered();
+    void on_actionClone_Tile_triggered();
     void on_actionDel_Tile_triggered();
 
 private slots:
