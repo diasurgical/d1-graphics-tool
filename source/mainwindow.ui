@@ -128,7 +128,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -188,9 +188,11 @@
     <addaction name="actionDel_Frame"/>
     <addaction name="separator"/>
     <addaction name="actionCreate_Subtile"/>
+    <addaction name="actionClone_Subtile"/>
     <addaction name="actionDel_Subtile"/>
     <addaction name="separator"/>
     <addaction name="actionCreate_Tile"/>
+    <addaction name="actionClone_Tile"/>
     <addaction name="actionDel_Tile"/>
    </widget>
    <addaction name="menuFile"/>
@@ -420,6 +422,22 @@
   <action name="actionNew_Translation_1">
    <property name="text">
     <string>New unique translation</string>
+   </property>
+  </action>
+  <action name="actionClone_Subtile">
+   <property name="text">
+    <string>Clone Subtile</string>
+   </property>
+   <property name="toolTip">
+    <string>Clone current subtile</string>
+   </property>
+  </action>
+  <action name="actionClone_Tile">
+   <property name="text">
+    <string>Clone Tile</string>
+   </property>
+   <property name="toolTip">
+    <string>Clone current tile</string>
    </property>
   </action>
  </widget>

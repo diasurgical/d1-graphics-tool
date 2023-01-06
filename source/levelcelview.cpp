@@ -346,6 +346,14 @@ void LevelCelView::createSubtile()
     this->displayFrame();
 }
 
+void LevelCelView::cloneSubtile()
+{
+    int cloneFrom = this->currentSubtileIndex;
+    this->createSubtile();
+    this->min->getCelFrameIndices(this->currentSubtileIndex) = this->min->getCelFrameIndices(cloneFrom);
+    this->displayFrame();
+}
+
 void LevelCelView::removeCurrentSubtile()
 {
     // check if the subtile is used
@@ -394,6 +402,14 @@ void LevelCelView::createTile()
     this->currentTileIndex = this->til->getTileCount() - 1;
     // update the view
     this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->displayFrame();
+}
+
+void LevelCelView::cloneTile()
+{
+    int cloneFrom = this->currentTileIndex;
+    this->createTile();
+    this->til->getSubtileIndices(this->currentTileIndex) = this->til->getSubtileIndices(cloneFrom);
     this->displayFrame();
 }
 
@@ -449,8 +465,7 @@ void LevelCelView::displayFrame()
         ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->celFrameWidthEdit->setText(QString::number(celFrame.width()));
-    this->ui->celFrameHeightEdit->setText(QString::number(celFrame.height()));
+    this->ui->celFrameHeightLabel->setText(QString::number(celFrame.width()) + " x " + QString::number(celFrame.height()) + " px");
 
     // Set current frame text
     this->ui->frameIndexEdit->setText(
@@ -464,8 +479,7 @@ void LevelCelView::displayFrame()
         ->setPos(minPosX, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->minFrameWidthEdit->setText(QString::number(subtile.width()));
-    this->ui->minFrameHeightEdit->setText(QString::number(subtile.height()));
+    this->ui->minFrameHeightLabel->setText(QString::number(subtile.width()) + " x " + QString::number(subtile.height()) + " px");
 
     // Set current subtile text
     this->ui->subtileIndexEdit->setText(
@@ -479,8 +493,7 @@ void LevelCelView::displayFrame()
         ->setPos(tilPosX, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->tilFrameWidthEdit->setText(QString::number(tile.width()));
-    this->ui->tilFrameHeightEdit->setText(QString::number(tile.height()));
+    this->ui->tilFrameHeightLabel->setText(QString::number(tile.width()) + " x " + QString::number(tile.height()) + " px");
 
     // Set current tile text
     this->ui->tileIndexEdit->setText(
@@ -831,4 +844,24 @@ void LevelCelView::dropEvent(QDropEvent *event)
     }
     // try to insert as frames
     ((MainWindow *)this->window())->openImageFiles(filePaths, false);
+}
+
+void LevelCelView::on_addTileButton_clicked()
+{
+    this->createTile();
+}
+
+void LevelCelView::on_cloneTileButton_clicked()
+{
+    this->cloneTile();
+}
+
+void LevelCelView::on_addSubTileButton_clicked()
+{
+    this->createSubtile();
+}
+
+void LevelCelView::on_cloneSubTileButton_clicked()
+{
+    this->cloneSubtile();
 }

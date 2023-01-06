@@ -852,6 +852,12 @@ void MainWindow::on_actionCreate_Subtile_triggered()
     this->updateView();
 }
 
+void MainWindow::on_actionClone_Subtile_triggered()
+{
+    this->levelCelView->cloneSubtile();
+    this->updateView();
+}
+
 void MainWindow::on_actionDel_Subtile_triggered()
 {
     this->levelCelView->removeCurrentSubtile();
@@ -861,6 +867,12 @@ void MainWindow::on_actionDel_Subtile_triggered()
 void MainWindow::on_actionCreate_Tile_triggered()
 {
     this->levelCelView->createTile();
+    this->updateView();
+}
+
+void MainWindow::on_actionClone_Tile_triggered()
+{
+    this->levelCelView->cloneTile();
     this->updateView();
 }
 
