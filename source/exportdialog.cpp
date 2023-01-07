@@ -29,17 +29,12 @@ void ExportDialog::initialize(QJsonObject *cfg, D1Gfx *g, D1Min *m, D1Til *t, D1
     this->sol = s;
     this->amp = a;
 
-    // If there's only one frame
-    if (this->gfx->getFrameCount() == 1)
-        ui->filesSettingWidget->setEnabled(false);
-    else
-        ui->filesSettingWidget->setEnabled(true);
+    bool multiFrame = this->gfx->getFrameCount() > 1;
+    // disable if there's only one frame
+    ui->filesSettingWidget->setEnabled(multiFrame);
 
-    // If all frames have the same width/height
-    if (this->gfx->getFrameCount() > 1 && this->gfx->isFrameSizeConstant()
-        && ui->oneFileForAllFramesRadioButton->isChecked()) {
-        ui->spritesSettingsWidget->setEnabled(true);
-    }
+    // disable if there is only one frame or not all frames have the same width/height
+    ui->spritesSettingsWidget->setEnabled(multiFrame && this->gfx->isFrameSizeConstant() && ui->oneFileForAllFramesRadioButton->isChecked());
 
     // If there's only one group
     if (this->gfx->getGroupCount() == 1) {
@@ -50,11 +45,8 @@ void ExportDialog::initialize(QJsonObject *cfg, D1Gfx *g, D1Min *m, D1Til *t, D1
         ui->oneFrameGroupPerLineRadioButton->setEnabled(true);
     }
 
-    // If it's a CEL level file
-    if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL && this->min != nullptr && this->til != nullptr)
-        ui->levelFramesSettingsWidget->setEnabled(true);
-    else
-        ui->levelFramesSettingsWidget->setEnabled(false);
+    // disable if not a CEL level file or data is missing
+    ui->levelFramesSettingsWidget->setEnabled(this->gfx->getType() == D1CEL_TYPE::V1_LEVEL && this->min != nullptr && this->til != nullptr);
 }
 
 QString ExportDialog::getFileFormatExtension()
@@ -89,40 +81,39 @@ bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
     QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
         + QFileInfo(this->til->getFilePath()).fileName().replace(".", "_");
 
-    quint16 tileWidth = this->min->getSubtileWidth() * 2 * MICRO_WIDTH;
-    quint16 tileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT + 32;
+    unsigned tileWidth = this->min->getSubtileWidth() * 2 * MICRO_WIDTH;
+    unsigned tileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT + 32;
+    unsigned n = this->til->getTileCount();
 
     // If only one file will contain all tiles
+    constexpr unsigned tiles_per_line = 8;
     QImage tempOutputImage;
-    quint16 tempOutputImageWidth = 0;
-    quint16 tempOutputImageHeight = 0;
-    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-        tempOutputImageWidth = tileWidth * 8;
-        tempOutputImageHeight = tileHeight * (quint32)(this->til->getTileCount() / 8);
-        if (this->til->getTileCount() % 8 != 0)
-            tempOutputImageHeight += tileHeight;
+    unsigned tempOutputImageWidth = 0;
+    unsigned tempOutputImageHeight = 0;
+    bool oneFileForAll = ui->oneFileForAllFramesRadioButton->isChecked();
+    if (oneFileForAll) {
+        tempOutputImageWidth = tileWidth * tiles_per_line;
+        tempOutputImageHeight = tileHeight * ((n + (tiles_per_line - 1)) / tiles_per_line);
         tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
         tempOutputImage.fill(Qt::transparent);
     }
 
     QPainter painter(&tempOutputImage);
-    quint8 tileXIndex = 0;
-    quint8 tileYIndex = 0;
-    for (int i = 0; i < this->til->getTileCount(); i++) {
+    unsigned dx = 0, dy = 0;
+    for (unsigned i = 0; i < n; i++) {
         if (progress.wasCanceled()) {
             return false;
         }
-        progress.setValue(100 * i / this->til->getTileCount());
+        progress.setValue(100 * i / n);
 
         // If only one file will contain all tiles
-        if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-            painter.drawImage(tileXIndex * tileWidth,
-                tileYIndex * tileHeight, this->til->getTileImage(i));
+        if (oneFileForAll) {
+            painter.drawImage(dx, dy, this->til->getTileImage(i));
 
-            tileXIndex++;
-            if (tileXIndex >= 8) {
-                tileXIndex = 0;
-                tileYIndex++;
+            dx += tileWidth;
+            if (dx >= tempOutputImageWidth) {
+                dx = 0;
+                dy += tileHeight;
             }
         } else {
             QString outputFilePath = outputFilePathBase + "_tile"
@@ -132,7 +123,7 @@ bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
         }
     }
 
-    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+    if (oneFileForAll) {
         painter.end();
         QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
         tempOutputImage.save(outputFilePath);
@@ -142,7 +133,7 @@ bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
 
 bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
 {
-    if (this->min == nullptr || this->sol == nullptr) {
+    if (this->min == nullptr) {
         return true;
     }
 
@@ -151,40 +142,39 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
     QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
         + QFileInfo(this->min->getFilePath()).fileName().replace(".", "_");
 
-    quint16 subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
-    quint16 subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
+    unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
+    unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
+    unsigned n = this->min->getSubtileCount();
 
     // If only one file will contain all sub-tiles
+    constexpr unsigned subtiles_per_line = 16;
     QImage tempOutputImage;
-    quint16 tempOutputImageWidth = 0;
-    quint16 tempOutputImageHeight = 0;
-    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-        tempOutputImageWidth = subtileWidth * 16;
-        tempOutputImageHeight = subtileHeight * (quint32)(this->min->getSubtileCount() / 16);
-        if (this->min->getSubtileCount() % 16 != 0)
-            tempOutputImageHeight += subtileHeight;
+    unsigned tempOutputImageWidth = 0;
+    unsigned tempOutputImageHeight = 0;
+    bool oneFileForAll = ui->oneFileForAllFramesRadioButton->isChecked();
+    if (oneFileForAll) {
+        tempOutputImageWidth = subtileWidth * subtiles_per_line;
+        tempOutputImageHeight = subtileHeight * ((n + (subtiles_per_line - 1)) / subtiles_per_line);
         tempOutputImage = QImage(tempOutputImageWidth, tempOutputImageHeight, QImage::Format_ARGB32);
         tempOutputImage.fill(Qt::transparent);
     }
 
     QPainter painter(&tempOutputImage);
-    quint8 subtileXIndex = 0;
-    quint8 subtileYIndex = 0;
-    for (unsigned int i = 0; i < this->min->getSubtileCount(); i++) {
+    unsigned dx = 0, dy = 0;
+    for (unsigned i = 0; i < n; i++) {
         if (progress.wasCanceled()) {
             return false;
         }
-        progress.setValue(100 * i / this->min->getSubtileCount());
+        progress.setValue(100 * i / n);
 
         // If only one file will contain all sub-tiles
-        if (ui->oneFileForAllFramesRadioButton->isChecked()) {
-            painter.drawImage(subtileXIndex * subtileWidth,
-                subtileYIndex * subtileHeight, this->min->getSubtileImage(i));
+        if (oneFileForAll) {
+            painter.drawImage(dx, dy, this->min->getSubtileImage(i));
 
-            subtileXIndex++;
-            if (subtileXIndex >= 16) {
-                subtileXIndex = 0;
-                subtileYIndex++;
+            dx += subtileWidth;
+            if (dx >= tempOutputImageWidth) {
+                dx = 0;
+                dy += subtileHeight;
             }
         } else {
             QString outputFilePath = outputFilePathBase + "_sub-tile"
@@ -194,7 +184,7 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
         }
     }
 
-    if (ui->oneFileForAllFramesRadioButton->isChecked()) {
+    if (oneFileForAll) {
         painter.end();
         QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
         tempOutputImage.save(outputFilePath);

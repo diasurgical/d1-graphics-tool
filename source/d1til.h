@@ -12,18 +12,13 @@ public:
     D1Til() = default;
     ~D1Til() = default;
 
-    bool load(QString filePath);
+    bool load(QString filePath, D1Min *min);
     bool save(const SaveAsParam &params);
 
-    QImage getTileImage(quint16);
+    QImage getTileImage(int tileIndex);
 
     QString getFilePath();
-    void setMin(D1Min *m);
     int getTileCount();
-    quint16 getTileWidth();
-    quint16 getTileHeight();
-    quint16 getTilePixelWidth();
-    quint16 getTilePixelHeight();
     QList<quint16> &getSubtileIndices(int tileIndex);
     void createTile();
     void removeTile(int tileIndex);
@@ -31,9 +26,5 @@ public:
 private:
     QString tilFilePath;
     D1Min *min = nullptr;
-    quint16 tileWidth = 0;
-    quint16 tileHeight = 0;
-    quint16 tilePixelWidth = 0;
-    quint16 tilePixelHeight = 0;
     QList<QList<quint16>> subtileIndices;
 };

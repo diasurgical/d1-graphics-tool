@@ -5,7 +5,7 @@
 #include <QFileInfo>
 #include <QPainter>
 
-bool D1Min::load(QString filePath, int subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params)
+bool D1Min::load(QString filePath, D1Gfx *g, D1Sol *sol, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params)
 {
     // prepare file data source
     QFile file;
@@ -29,6 +29,7 @@ bool D1Min::load(QString filePath, int subtileCount, std::map<unsigned, D1CEL_FR
 
     // calculate subtileWidth/Height
     auto fileSize = file.size();
+    int subtileCount = sol->getSubtileCount();
     int width = params.minWidth;
     if (width == 0) {
         width = 2;
@@ -50,13 +51,16 @@ bool D1Min::load(QString filePath, int subtileCount, std::map<unsigned, D1CEL_FR
         return false;
     }
 
+    this->gfx = g;
     this->subtileWidth = width;
     this->subtileHeight = height;
     int minSubtileCount = fileSize / (subtileNumberOfCelFrames * 2);
     if (minSubtileCount != subtileCount) {
         qDebug() << "The size of sol-file does not align with min-file";
-        if (minSubtileCount > subtileCount) {
-            minSubtileCount = subtileCount; // skip unusable data
+        // add subtiles to sol if necessary
+        while (minSubtileCount > subtileCount) {
+            subtileCount++;
+            sol->createSubtile();
         }
     }
 
@@ -88,7 +92,7 @@ bool D1Min::load(QString filePath, int subtileCount, std::map<unsigned, D1CEL_FR
     return true;
 }
 
-bool D1Min::save(D1Gfx *gfx, const SaveAsParam &params)
+bool D1Min::save(const SaveAsParam &params)
 {
     QString selectedPath = params.minFilePath;
     std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
@@ -104,7 +108,7 @@ bool D1Min::save(D1Gfx *gfx, const SaveAsParam &params)
         for (int j = 0; j < celFrameIndicesList.count(); j++) {
             quint16 writeWord = celFrameIndicesList[j];
             if (writeWord != 0) {
-                writeWord |= ((quint16)gfx->getFrame(writeWord - 1)->getFrameType()) << 12;
+                writeWord |= ((quint16)this->gfx->getFrame(writeWord - 1)->getFrameType()) << 12;
             }
             out << writeWord;
         }
@@ -117,29 +121,30 @@ bool D1Min::save(D1Gfx *gfx, const SaveAsParam &params)
     return true;
 }
 
-QImage D1Min::getSubtileImage(quint16 subtileIndex)
+QImage D1Min::getSubtileImage(int subtileIndex)
 {
-    if (this->cel == nullptr || subtileIndex >= this->celFrameIndices.size())
+    if (subtileIndex < 0 || subtileIndex >= this->celFrameIndices.size())
         return QImage();
 
-    QImage subtile = QImage(this->subtileWidth * MICRO_WIDTH,
+    unsigned subtileWidthPx = this->subtileWidth * MICRO_WIDTH;
+    QImage subtile = QImage(subtileWidthPx,
         this->subtileHeight * MICRO_HEIGHT, QImage::Format_ARGB32);
     subtile.fill(Qt::transparent);
     QPainter subtilePainter(&subtile);
 
-    quint16 dx = 0, dy = 0;
-    for (int i = 0; i < this->subtileWidth * this->subtileHeight; i++) {
+    unsigned dx = 0, dy = 0;
+    int n = this->subtileWidth * this->subtileHeight;
+    for (int i = 0; i < n; i++) {
         quint16 celFrameIndex = this->celFrameIndices.at(subtileIndex).at(i);
 
         if (celFrameIndex > 0)
             subtilePainter.drawImage(dx, dy,
-                this->cel->getFrameImage(celFrameIndex - 1));
+                this->gfx->getFrameImage(celFrameIndex - 1));
 
-        if (dx == MICRO_WIDTH) {
-            dy += MICRO_HEIGHT;
+        dx += MICRO_WIDTH;
+        if (dx == subtileWidthPx) {
             dx = 0;
-        } else {
-            dx = MICRO_WIDTH;
+            dy += MICRO_HEIGHT;
         }
     }
 
@@ -152,12 +157,7 @@ QString D1Min::getFilePath()
     return this->minFilePath;
 }
 
-void D1Min::setCel(D1Gfx *c)
-{
-    this->cel = c;
-}
-
-quint16 D1Min::getSubtileCount()
+int D1Min::getSubtileCount()
 {
     return this->celFrameIndices.count();
 }

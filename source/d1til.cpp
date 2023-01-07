@@ -5,9 +5,9 @@
 #include <QFileInfo>
 #include <QPainter>
 
-#define TILE_SIZE 4
+#define TILE_SIZE (2 * 2)
 
-bool D1Til::load(QString filePath)
+bool D1Til::load(QString filePath, D1Min *m)
 {
     // prepare file data source
     QFile file;
@@ -35,6 +35,8 @@ bool D1Til::load(QString filePath)
         qDebug() << "Invalid til-file.";
         return false;
     }
+
+    this->min = m;
 
     int tileCount = fileSize / (2 * TILE_SIZE);
 
@@ -82,29 +84,33 @@ bool D1Til::save(const SaveAsParam &params)
     return true;
 }
 
-QImage D1Til::getTileImage(quint16 tileIndex)
+QImage D1Til::getTileImage(int tileIndex)
 {
-    if (this->min == nullptr || tileIndex >= this->subtileIndices.size())
+    if (tileIndex < 0 || tileIndex >= this->subtileIndices.size())
         return QImage();
 
-    QImage tile = QImage(this->tilePixelWidth,
-        this->tilePixelHeight, QImage::Format_ARGB32);
+    unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
+    unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
+    // assert(TILE_SIZE == 2 * 2);
+    unsigned subtileShiftY = subtileWidth / 4;
+    QImage tile = QImage(subtileWidth * 2,
+        subtileHeight + 2 * subtileShiftY, QImage::Format_ARGB32);
     tile.fill(Qt::transparent);
     QPainter tilePainter(&tile);
 
-    tilePainter.drawImage(32, 0,
+    tilePainter.drawImage(subtileWidth / 2, 0,
         this->min->getSubtileImage(
             this->subtileIndices.at(tileIndex).at(0)));
 
-    tilePainter.drawImage(64, 16,
+    tilePainter.drawImage(subtileWidth, subtileShiftY,
         this->min->getSubtileImage(
             this->subtileIndices.at(tileIndex).at(1)));
 
-    tilePainter.drawImage(0, 16,
+    tilePainter.drawImage(0, subtileShiftY,
         this->min->getSubtileImage(
             this->subtileIndices.at(tileIndex).at(2)));
 
-    tilePainter.drawImage(32, 32,
+    tilePainter.drawImage(subtileWidth / 2, 2 * subtileShiftY,
         this->min->getSubtileImage(
             this->subtileIndices.at(tileIndex).at(3)));
 
@@ -117,40 +123,9 @@ QString D1Til::getFilePath()
     return this->tilFilePath;
 }
 
-void D1Til::setMin(D1Min *m)
-{
-    this->min = m;
-
-    this->tileWidth = this->min->getSubtileWidth() * 2;
-    this->tileHeight = this->min->getSubtileHeight() + 1;
-
-    this->tilePixelWidth = this->tileWidth * MICRO_WIDTH;
-    this->tilePixelHeight = this->tileHeight * MICRO_HEIGHT;
-}
-
 int D1Til::getTileCount()
 {
     return this->subtileIndices.count();
-}
-
-quint16 D1Til::getTileWidth()
-{
-    return this->tileWidth;
-}
-
-quint16 D1Til::getTileHeight()
-{
-    return this->tileHeight;
-}
-
-quint16 D1Til::getTilePixelWidth()
-{
-    return this->tilePixelWidth;
-}
-
-quint16 D1Til::getTilePixelHeight()
-{
-    return this->tilePixelHeight;
 }
 
 QList<quint16> &D1Til::getSubtileIndices(int tileIndex)

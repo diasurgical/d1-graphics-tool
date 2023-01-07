@@ -5,6 +5,7 @@
 
 #include "d1celtilesetframe.h"
 #include "d1gfx.h"
+#include "d1sol.h"
 #include "saveasdialog.h"
 
 class D1Min : public QObject {
@@ -14,14 +15,13 @@ public:
     D1Min() = default;
     ~D1Min() = default;
 
-    bool load(QString minFilePath, int subtileCount, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params);
-    bool save(D1Gfx *gfx, const SaveAsParam &params);
+    bool load(QString minFilePath, D1Gfx *gfx, D1Sol *sol, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params);
+    bool save(const SaveAsParam &params);
 
-    QImage getSubtileImage(quint16);
+    QImage getSubtileImage(int subTileIndex);
 
     QString getFilePath();
-    void setCel(D1Gfx *c);
-    quint16 getSubtileCount();
+    int getSubtileCount();
     quint16 getSubtileWidth();
     quint16 getSubtileHeight();
     QList<quint16> &getCelFrameIndices(int subTileIndex);
@@ -30,8 +30,8 @@ public:
 
 private:
     QString minFilePath;
-    D1Gfx *cel = nullptr;
-    quint8 subtileWidth = 2;
-    quint8 subtileHeight = 5;
+    D1Gfx *gfx = nullptr;
+    quint8 subtileWidth;
+    quint8 subtileHeight;
     QList<QList<quint16>> celFrameIndices;
 };
