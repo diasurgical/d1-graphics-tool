@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QMenu>
+#include <QMimeData>
 #include <QStringList>
 #include <QUndoCommand>
 
@@ -52,6 +53,8 @@ public:
     QString getLastFilePath();
     QString fileDialog(bool save, const char *title, const char *filter);
     QStringList filesDialog(const char *title, const char *filter);
+
+    static bool hasImageUrl(const QMimeData *mimeData);
 
 private:
     void loadConfiguration();
@@ -108,6 +111,7 @@ private slots:
     void on_actionAbout_Qt_triggered();
 
     void dragEnterEvent(QDragEnterEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event);
     void dropEvent(QDropEvent *event);
 
 private:

@@ -379,6 +379,22 @@ QStringList MainWindow::filesDialog(const char *title, const char *filter)
     return filePaths;
 }
 
+bool MainWindow::hasImageUrl(const QMimeData *mimeData)
+{
+    const QByteArrayList supportedMimeTypes = QImageReader::supportedMimeTypes();
+    QMimeDatabase mimeDB;
+
+    for (const QUrl &url : mimeData->urls()) {
+        QMimeType mimeType = mimeDB.mimeTypeForFile(url.toLocalFile());
+        for (const QByteArray &mimeTypeName : supportedMimeTypes) {
+            if (mimeType.inherits(mimeTypeName)) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void MainWindow::on_actionNew_CEL_triggered()
 {
     OpenAsParam params;
@@ -422,17 +438,22 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasUrls()) {
-        event->acceptProposedAction();
+    this->dragMoveEvent(event);
+}
+
+void MainWindow::dragMoveEvent(QDragMoveEvent *event)
+{
+    for (const QUrl &url : event->mimeData()->urls()) {
+        QString path = url.toLocalFile().toLower();
+        if (path.endsWith(".cel") || path.endsWith(".cl2") || path.endsWith(".clx")) {
+            event->acceptProposedAction();
+            return;
+        }
     }
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
-    if (!event->mimeData()->hasUrls()) {
-        return;
-    }
-
     event->acceptProposedAction();
 
     OpenAsParam params;
@@ -718,6 +739,9 @@ void MainWindow::openPalFiles(QStringList filePaths, PaletteWidget *widget)
 {
     QString firstFound;
 
+    this->ui->statusBar->showMessage("Reading...");
+    this->ui->statusBar->repaint();
+
     if (widget == this->palWidget) {
         for (QString path : filePaths) {
             if (this->loadPal(path) && firstFound.isEmpty()) {
@@ -746,6 +770,9 @@ void MainWindow::openPalFiles(QStringList filePaths, PaletteWidget *widget)
             this->trn2Widget->selectPath(firstFound);
         }
     }
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
 }
 
 void MainWindow::saveFile(const SaveAsParam &params)

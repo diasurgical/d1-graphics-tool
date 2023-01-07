@@ -33,22 +33,20 @@ void CelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void CelScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (event->mimeData()->hasUrls()) {
-        event->acceptProposedAction();
-    }
+    this->dragMoveEvent(event);
 }
 
 void CelScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
-    this->dragEnterEvent(event);
+    if (MainWindow::hasImageUrl(event->mimeData())) {
+        event->acceptProposedAction();
+    } else {
+        event->ignore();
+    }
 }
 
 void CelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!event->mimeData()->hasUrls()) {
-        return;
-    }
-
     event->acceptProposedAction();
 
     QStringList filePaths;
@@ -483,17 +481,18 @@ void CelView::on_stopButton_clicked()
 
 void CelView::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (event->mimeData()->hasUrls()) {
+    this->dragMoveEvent(event);
+}
+
+void CelView::dragMoveEvent(QDragMoveEvent *event)
+{
+    if (MainWindow::hasImageUrl(event->mimeData())) {
         event->acceptProposedAction();
     }
 }
 
 void CelView::dropEvent(QDropEvent *event)
 {
-    if (!event->mimeData()->hasUrls()) {
-        return;
-    }
-
     event->acceptProposedAction();
 
     QStringList filePaths;

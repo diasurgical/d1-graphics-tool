@@ -213,27 +213,24 @@ void PaletteScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 
 void PaletteScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 {
+    this->dragMoveEvent(event);
+}
+
+void PaletteScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
     bool isTrn = ((PaletteWidget *)this->view)->isTrnWidget();
     const char *ext = isTrn ? ".trn" : ".pal";
     for (const QUrl &url : event->mimeData()->urls()) {
         if (url.toLocalFile().toLower().endsWith(ext)) {
             event->acceptProposedAction();
-            break;
+            return;
         }
     }
-}
-
-void PaletteScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
-{
-    this->dragEnterEvent(event);
+    event->ignore();
 }
 
 void PaletteScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 {
-    if (!event->mimeData()->hasUrls()) {
-        return;
-    }
-
     event->acceptProposedAction();
 
     QStringList filePaths;
