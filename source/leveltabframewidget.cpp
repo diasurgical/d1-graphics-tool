@@ -27,6 +27,15 @@ void LevelTabFrameWidget::update()
     int frameIdx = this->levelCelView->getCurrentFrameIndex();
     D1GfxFrame *frame = this->gfx->getFrame(frameIdx);
 
+    bool hasFrame = frame != nullptr;
+
+    this->ui->frameTypeComboBox->setEnabled(hasFrame);
+
+    if (!hasFrame) {
+        this->ui->frameTypeComboBox->setCurrentIndex(-1);
+        return;
+    }
+
     D1CEL_FRAME_TYPE frameType = frame->getFrameType();
     this->ui->frameTypeComboBox->setCurrentIndex((int)frameType);
 

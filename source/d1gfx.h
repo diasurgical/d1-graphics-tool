@@ -76,21 +76,22 @@ public:
     ~D1Gfx() = default;
 
     bool isFrameSizeConstant();
-    QImage getFrameImage(quint16);
-    D1GfxFrame *insertFrame(quint16 idx, QString imageFilePath);
-    D1GfxFrame *replaceFrame(quint16 idx, QString imagefilePath);
-    void removeFrame(quint16 idx);
+    QImage getFrameImage(quint16 frameIndex);
+    D1GfxFrame *insertFrame(quint16 frameIndex, QString imageFilePath);
+    D1GfxFrame *replaceFrame(quint16 frameIndex, QString imagefilePath);
+    void removeFrame(quint16 frameIndex);
 
     D1CEL_TYPE getType();
+    void setType(D1CEL_TYPE type);
     QString getFilePath();
     D1Pal *getPalette();
     void setPalette(D1Pal *pal);
     int getGroupCount();
-    QPair<quint16, quint16> getGroupFrameIndices(quint16);
+    QPair<quint16, quint16> getGroupFrameIndices(int groupIndex);
     int getFrameCount();
-    D1GfxFrame *getFrame(quint16);
-    quint16 getFrameWidth(quint16);
-    quint16 getFrameHeight(quint16);
+    D1GfxFrame *getFrame(int frameIndex);
+    quint16 getFrameWidth(int frameIndex);
+    quint16 getFrameHeight(int frameIndex);
 
 protected:
     D1CEL_TYPE type = D1CEL_TYPE::UNKNOWN;

@@ -6,6 +6,11 @@
 
 #include "ui_saveasdialog.h"
 
+#include "d1amp.h"
+#include "d1gfx.h"
+#include "d1min.h"
+#include "d1sol.h"
+#include "d1til.h"
 #include "mainwindow.h"
 
 std::optional<QFile *> SaveAsParam::getValidSaveOutput(QString filePath, QString selectedPath)
@@ -42,7 +47,7 @@ SaveAsDialog::~SaveAsDialog()
     delete ui;
 }
 
-void SaveAsDialog::initialize(QJsonObject *cfg, D1Gfx *g)
+void SaveAsDialog::initialize(QJsonObject *cfg, D1Gfx *g, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp)
 {
     // initialize the configuration pointer
     this->configuration = cfg;
@@ -50,15 +55,15 @@ void SaveAsDialog::initialize(QJsonObject *cfg, D1Gfx *g)
     this->isTileset = this->gfx->getType() == D1CEL_TYPE::V1_LEVEL;
 
     // reset fields
-    this->ui->outputCelFileEdit->setText("");
+    this->ui->outputCelFileEdit->setText(this->gfx->getFilePath());
 
     this->ui->celClippedAutoRadioButton->setChecked(true);
     this->ui->celGroupEdit->setText("0");
 
-    this->ui->outputMinFileEdit->setText("");
-    this->ui->outputTilFileEdit->setText("");
-    this->ui->outputSolFileEdit->setText("");
-    this->ui->outputAmpFileEdit->setText("");
+    this->ui->outputMinFileEdit->setText(min == nullptr ? "" : min->getFilePath());
+    this->ui->outputTilFileEdit->setText(til == nullptr ? "" : til->getFilePath());
+    this->ui->outputSolFileEdit->setText(sol == nullptr ? "" : sol->getFilePath());
+    this->ui->outputAmpFileEdit->setText(amp == nullptr ? "" : amp->getFilePath());
 
     this->update();
 }
@@ -164,6 +169,10 @@ void SaveAsDialog::on_saveButton_clicked()
     SaveAsParam params;
     // main cel file
     params.celFilePath = this->ui->outputCelFileEdit->text();
+    if (params.celFilePath.isEmpty()) {
+        QMessageBox::warning(this, "Warning", "Output file is missing, please choose an output file.");
+        return;
+    }
     // celSettingsGroupBox: groupNum, clipped
     params.groupNum = this->ui->celGroupEdit->text().toUShort();
     if (this->ui->celClippedYesRadioButton->isChecked()) {

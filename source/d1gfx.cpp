@@ -179,6 +179,11 @@ D1CEL_TYPE D1Gfx::getType()
     return this->type;
 }
 
+void D1Gfx::setType(D1CEL_TYPE type)
+{
+    this->type = type;
+}
+
 QString D1Gfx::getFilePath()
 {
     return this->gfxFilePath;
@@ -199,12 +204,12 @@ int D1Gfx::getGroupCount()
     return this->groupFrameIndices.count();
 }
 
-QPair<quint16, quint16> D1Gfx::getGroupFrameIndices(quint16 groupIndex)
+QPair<quint16, quint16> D1Gfx::getGroupFrameIndices(int groupIndex)
 {
-    if (!this->groupFrameIndices.empty() && groupIndex < this->groupFrameIndices.count())
-        return this->groupFrameIndices[groupIndex];
+    if (groupIndex < 0 || groupIndex >= this->groupFrameIndices.count())
+        return qMakePair(0, 0);
 
-    return qMakePair(0, 0);
+    return this->groupFrameIndices[groupIndex];
 }
 
 int D1Gfx::getFrameCount()
@@ -212,25 +217,25 @@ int D1Gfx::getFrameCount()
     return this->frames.count();
 }
 
-D1GfxFrame *D1Gfx::getFrame(quint16 frameIndex)
+D1GfxFrame *D1Gfx::getFrame(int frameIndex)
 {
-    if (frameIndex >= this->frames.count())
+    if (frameIndex < 0 || frameIndex >= this->frames.count())
         return nullptr;
 
     return &this->frames[frameIndex];
 }
 
-quint16 D1Gfx::getFrameWidth(quint16 frameIndex)
+quint16 D1Gfx::getFrameWidth(int frameIndex)
 {
-    if (frameIndex >= this->frames.count())
+    if (frameIndex < 0 || frameIndex >= this->frames.count())
         return 0;
 
     return this->frames[frameIndex].getWidth();
 }
 
-quint16 D1Gfx::getFrameHeight(quint16 frameIndex)
+quint16 D1Gfx::getFrameHeight(int frameIndex)
 {
-    if (frameIndex >= this->frames.count())
+    if (frameIndex < 0 || frameIndex >= this->frames.count())
         return 0;
 
     return this->frames[frameIndex].getHeight();

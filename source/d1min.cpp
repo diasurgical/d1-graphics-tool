@@ -55,11 +55,14 @@ bool D1Min::load(QString filePath, int subtileCount, std::map<unsigned, D1CEL_FR
     int minSubtileCount = fileSize / (subtileNumberOfCelFrames * 2);
     if (minSubtileCount != subtileCount) {
         qDebug() << "The size of sol-file does not align with min-file";
+        if (minSubtileCount > subtileCount) {
+            minSubtileCount = subtileCount; // skip unusable data
+        }
     }
 
     // prepare an empty list with zeros
     this->celFrameIndices.clear();
-    for (int i = 0; i < minSubtileCount; i++) {
+    for (int i = 0; i < subtileCount; i++) {
         QList<quint16> celFrameIndicesList;
         for (int j = 0; j < subtileNumberOfCelFrames; j++) {
             celFrameIndicesList.append(0);

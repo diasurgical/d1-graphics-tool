@@ -67,20 +67,19 @@ void OpenAsDialog::on_inputFileBrowseButton_clicked()
         QString minFilePath;
         QString solFilePath;
         if (openFilePath.toLower().endsWith(".cel")) {
-            QFileInfo celFileInfo = QFileInfo(openFilePath);
-
             // If a SOL, MIN and TIL files exists then preset them
-            basePath = celFileInfo.absolutePath() + "/" + celFileInfo.completeBaseName();
-            tilFilePath = basePath + ".til";
-            minFilePath = basePath + ".min";
-            solFilePath = basePath + ".sol";
+            basePath = openFilePath;
+            basePath.chop(3);
+            tilFilePath = basePath + "til";
+            minFilePath = basePath + "min";
+            solFilePath = basePath + "sol";
             isTileset = QFileInfo::exists(tilFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(solFilePath);
         }
         if (isTileset) {
             ui->tilFileEdit->setText(tilFilePath);
             ui->minFileEdit->setText(minFilePath);
             ui->solFileEdit->setText(solFilePath);
-            QString ampFilePath = basePath + ".amp";
+            QString ampFilePath = basePath + "amp";
             if (QFileInfo::exists(ampFilePath)) {
                 ui->ampFileEdit->setText(ampFilePath);
             } else {

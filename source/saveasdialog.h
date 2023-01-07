@@ -8,6 +8,10 @@
 #include <QString>
 
 class D1Gfx;
+class D1Min;
+class D1Til;
+class D1Sol;
+class D1Amp;
 
 enum class SAVE_CLIPPING_TYPE {
     CLIPPED_AUTODETECT,
@@ -39,7 +43,7 @@ public:
     explicit SaveAsDialog(QWidget *parent = nullptr);
     ~SaveAsDialog();
 
-    void initialize(QJsonObject *cfg, D1Gfx *gfx);
+    void initialize(QJsonObject *cfg, D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
 
 private:
     void update();

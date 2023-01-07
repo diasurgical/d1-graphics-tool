@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QMenu>
 #include <QStringList>
 #include <QUndoCommand>
 
@@ -70,6 +71,10 @@ public slots:
     void on_actionDel_Tile_triggered();
 
 private slots:
+    void on_actionNew_CEL_triggered();
+    void on_actionNew_CL2_triggered();
+    void on_actionNew_Tileset_triggered();
+
     void on_actionOpen_triggered();
     void on_actionOpenAs_triggered();
     void on_actionSave_triggered();
@@ -107,6 +112,8 @@ private:
     Ui::MainWindow *ui;
     QJsonObject *configuration = new QJsonObject();
     QString lastFilePath;
+
+    QMenu *newMenu;
 
     QUndoStack *undoStack;
     QAction *undoAction;

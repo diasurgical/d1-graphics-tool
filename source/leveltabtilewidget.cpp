@@ -30,6 +30,41 @@ void LevelTabTileWidget::update()
 {
     this->onUpdate = true;
 
+    bool hasTile = this->til->getTileCount() != 0;
+
+    this->ui->ampTypeComboBox->setEnabled(false);
+
+    this->ui->amp0->setEnabled(hasTile);
+    this->ui->amp1->setEnabled(hasTile);
+    this->ui->amp2->setEnabled(hasTile);
+    this->ui->amp3->setEnabled(hasTile);
+    this->ui->amp4->setEnabled(hasTile);
+    this->ui->amp5->setEnabled(hasTile);
+    this->ui->amp6->setEnabled(hasTile);
+    this->ui->amp7->setEnabled(hasTile);
+
+    this->ui->subtilesComboBox->setEnabled(hasTile);
+
+    if (!hasTile) {
+        this->ui->ampTypeComboBox->setCurrentIndex(-1);
+
+        this->ui->amp0->setChecked(false);
+        this->ui->amp1->setChecked(false);
+        this->ui->amp2->setChecked(false);
+        this->ui->amp3->setChecked(false);
+        this->ui->amp4->setChecked(false);
+        this->ui->amp5->setChecked(false);
+        this->ui->amp6->setChecked(false);
+        this->ui->amp7->setChecked(false);
+
+        this->ui->subtilesComboBox->setCurrentIndex(-1);
+        this->ui->subtilesPrevButton->setEnabled(false);
+        this->ui->subtilesNextButton->setEnabled(false);
+
+        this->onUpdate = false;
+        return;
+    }
+
     int tileIdx = this->levelCelView->getCurrentTileIndex();
     quint8 ampType = this->amp->getTileType(tileIdx);
     quint8 ampProperty = this->amp->getTileProperties(tileIdx);
@@ -71,7 +106,7 @@ void LevelTabTileWidget::updateSubtilesSelection(int index)
     int subtileIdx = this->ui->subtilesComboBox->currentText().toInt();
 
     this->ui->subtilesPrevButton->setEnabled(subtileIdx > 0);
-    this->ui->subtilesNextButton->setEnabled(subtileIdx >= 0 && subtileIdx < this->min->getSubtileCount() - 1);
+    this->ui->subtilesNextButton->setEnabled(subtileIdx < this->min->getSubtileCount() - 1);
 }
 
 void LevelTabTileWidget::updateAmpType()
@@ -168,7 +203,14 @@ void LevelTabTileWidget::on_subtilesPrevButton_clicked()
 {
     int index = this->ui->subtilesComboBox->currentIndex();
     int tileIdx = this->levelCelView->getCurrentTileIndex();
-    int subtileIdx = --this->til->getSubtileIndices(tileIdx)[index];
+    QList<quint16> &subtileIndices = this->til->getSubtileIndices(tileIdx);
+    int subtileIdx = subtileIndices[index] - 1;
+
+    if (subtileIdx > this->min->getSubtileCount() - 1) {
+        subtileIdx = this->min->getSubtileCount() - 1;
+    }
+
+    subtileIndices[index] = subtileIdx;
 
     // this->ui->subtilesComboBox->setItemText(index, QString::number(subtileIdx));
     // this->updateSubtilesSelection(index);
@@ -207,7 +249,14 @@ void LevelTabTileWidget::on_subtilesNextButton_clicked()
 {
     int index = this->ui->subtilesComboBox->currentIndex();
     int tileIdx = this->levelCelView->getCurrentTileIndex();
-    int subtileIdx = ++this->til->getSubtileIndices(tileIdx)[index];
+    QList<quint16> &subtileIndices = this->til->getSubtileIndices(tileIdx);
+    int subtileIdx = subtileIndices[index] + 1;
+
+    if (subtileIdx > this->min->getSubtileCount() - 1) {
+        subtileIdx = this->min->getSubtileCount() - 1;
+    }
+
+    subtileIndices[index] = subtileIdx;
 
     // this->ui->subtilesComboBox->setItemText(index, QString::number(subtileIdx));
     // this->updateSubtilesSelection(index);

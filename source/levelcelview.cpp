@@ -157,17 +157,18 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
     quint16 tileHeight = subtileHeight + 32;
 
     if (x > CEL_SCENE_SPACING && x < (celFrameWidth + CEL_SCENE_SPACING)
-        && y > CEL_SCENE_SPACING && y < (celFrameHeight + CEL_SCENE_SPACING)) {
+        && y > CEL_SCENE_SPACING && y < (celFrameHeight + CEL_SCENE_SPACING)
+        && this->gfx->getFrameCount() != 0) {
         // If CEL frame color is clicked, select it in the palette widgets
-        index = this->gfx->getFrame(this->currentFrameIndex)
-                    ->getPixel(x - CEL_SCENE_SPACING, y - CEL_SCENE_SPACING)
-                    .getPaletteIndex();
+        D1GfxFrame *frame = this->gfx->getFrame(this->currentFrameIndex);
+        index = frame->getPixel(x - CEL_SCENE_SPACING, y - CEL_SCENE_SPACING).getPaletteIndex();
 
         emit this->colorIndexClicked(index);
     } else if (x > (celFrameWidth + CEL_SCENE_SPACING * 2)
         && x < (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 2)
         && y > CEL_SCENE_SPACING
-        && y < (subtileHeight + CEL_SCENE_SPACING)) {
+        && y < (subtileHeight + CEL_SCENE_SPACING)
+        && this->min->getSubtileCount() != 0) {
         // When a CEL frame is clicked in the subtile, display the corresponding CEL frame
 
         // Adjust coordinates
@@ -187,7 +188,8 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
     } else if (x > (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3)
         && x < (celFrameWidth + subtileWidth + tileWidth + CEL_SCENE_SPACING * 3)
         && y > CEL_SCENE_SPACING
-        && y < tileHeight + CEL_SCENE_SPACING) {
+        && y < tileHeight + CEL_SCENE_SPACING
+        && this->til->getTileCount() != 0) {
         // When a subtile is clicked in the tile, display the corresponding subtile
 
         // Adjust coordinates

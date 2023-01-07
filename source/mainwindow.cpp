@@ -36,6 +36,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
 
+    // initialize 'new' submenu
+    QAction *firstFileAction = (QAction *)this->ui->menuFile->actions()[0];
+    this->newMenu = new QMenu("New");
+    this->newMenu->addAction("CEL gfx", this, SLOT(on_actionNew_CEL_triggered()));
+    this->newMenu->addAction("CL2 gfx", this, SLOT(on_actionNew_CL2_triggered()));
+    this->newMenu->addAction("Tileset", this, SLOT(on_actionNew_Tileset_triggered()));
+    this->ui->menuFile->insertMenu(firstFileAction, this->newMenu);
+
     // Initialize undo/redo
     this->undoStack = new QUndoStack(this);
     this->undoAction = undoStack->createUndoAction(this, "Undo");
@@ -65,6 +73,7 @@ MainWindow::~MainWindow()
     delete saveAsDialog;
     delete settingsDialog;
     delete exportDialog;
+    delete this->newMenu;
     delete this->undoStack;
     delete this->undoAction;
     delete this->redoAction;
@@ -312,6 +321,29 @@ QStringList MainWindow::filesDialog(const char *title, const char *filter)
     return filePaths;
 }
 
+void MainWindow::on_actionNew_CEL_triggered()
+{
+    OpenAsParam params;
+    params.isTileset = OPEN_TILESET_TYPE::TILESET_FALSE;
+    params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_FALSE;
+    this->openFile(params);
+}
+
+void MainWindow::on_actionNew_CL2_triggered()
+{
+    OpenAsParam params;
+    params.isTileset = OPEN_TILESET_TYPE::TILESET_FALSE;
+    params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_TRUE;
+    this->openFile(params);
+}
+
+void MainWindow::on_actionNew_Tileset_triggered()
+{
+    OpenAsParam params;
+    params.isTileset = OPEN_TILESET_TYPE::TILESET_TRUE;
+    this->openFile(params);
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
     QString openFilePath = this->fileDialog(false, "Open Graphics", "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX)");
@@ -357,7 +389,8 @@ void MainWindow::openFile(const OpenAsParam &params)
     QString openFilePath = params.celFilePath;
 
     // Check file extension
-    if (!openFilePath.toLower().endsWith(".cel")
+    if (!openFilePath.isEmpty()
+        && !openFilePath.toLower().endsWith(".cel")
         && !openFilePath.toLower().endsWith(".cl2")
         && !openFilePath.endsWith(".clx")) {
         return;
@@ -388,60 +421,71 @@ void MainWindow::openFile(const OpenAsParam &params)
 
     // If a SOL, MIN and TIL files exists then build a LevelCelView
     QString basePath = celFileInfo.absolutePath() + "/" + celFileInfo.completeBaseName();
-    QString tilFilePath = params.tilFilePath.isEmpty() ? basePath + ".til" : params.tilFilePath;
-    QString minFilePath = params.minFilePath.isEmpty() ? basePath + ".min" : params.minFilePath;
-    QString solFilePath = params.solFilePath.isEmpty() ? basePath + ".sol" : params.solFilePath;
+    QString tilFilePath = params.tilFilePath;
+    QString minFilePath = params.minFilePath;
+    QString solFilePath = params.solFilePath;
+    if (!openFilePath.isEmpty() && tilFilePath.isEmpty()) {
+        tilFilePath = basePath + ".til";
+    }
+    if (!openFilePath.isEmpty() && minFilePath.isEmpty()) {
+        minFilePath = basePath + ".min";
+    }
+    if (!openFilePath.isEmpty() && solFilePath.isEmpty()) {
+        solFilePath = basePath + ".sol";
+    }
+
     bool isTileset = params.isTileset == OPEN_TILESET_TYPE::TILESET_TRUE;
     if (params.isTileset == OPEN_TILESET_TYPE::TILESET_AUTODETECT) {
-        isTileset = QFileInfo::exists(tilFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(solFilePath);
+        isTileset = openFilePath.toLower().endsWith(".cel") && QFileInfo::exists(tilFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(solFilePath);
     }
 
     this->gfx = new D1Gfx();
     this->gfx->setPalette(this->trn2->getResultingPalette());
-    if (openFilePath.toLower().endsWith(".cel")) {
-        if (isTileset) {
-            // Loading SOL
-            this->sol = new D1Sol();
-            if (!this->sol->load(solFilePath)) {
-                QMessageBox::critical(this, "Error", "Failed loading SOL file: " + solFilePath);
-                return;
-            }
+    if (isTileset) {
+        // Loading SOL
+        this->sol = new D1Sol();
+        if (!this->sol->load(solFilePath)) {
+            QMessageBox::critical(this, "Error", "Failed loading SOL file: " + minFilePath);
+            return;
+        }
 
-            // Loading MIN
-            this->min = new D1Min();
-            std::map<unsigned, D1CEL_FRAME_TYPE> celFrameTypes;
-            if (!this->min->load(minFilePath, this->sol->getSubtileCount(), celFrameTypes, params)) {
-                QMessageBox::critical(this, "Error", "Failed loading MIN file: " + minFilePath);
-                return;
-            }
-            this->min->setCel(this->gfx);
+        // Loading MIN
+        this->min = new D1Min();
+        std::map<unsigned, D1CEL_FRAME_TYPE> celFrameTypes;
+        if (!this->min->load(minFilePath, this->sol->getSubtileCount(), celFrameTypes, params)) {
+            QMessageBox::critical(this, "Error", "Failed loading MIN file: " + minFilePath);
+            return;
+        }
+        this->min->setCel(this->gfx);
 
-            // Loading TIL
-            this->til = new D1Til();
-            if (!this->til->load(tilFilePath)) {
-                QMessageBox::critical(this, "Error", "Failed loading TIL file: " + tilFilePath);
-                return;
-            }
-            this->til->setMin(this->min);
+        // Loading TIL
+        this->til = new D1Til();
+        if (!this->til->load(tilFilePath)) {
+            QMessageBox::critical(this, "Error", "Failed loading TIL file: " + tilFilePath);
+            return;
+        }
+        this->til->setMin(this->min);
 
-            // Loading AMP
-            this->amp = new D1Amp();
-            QString ampFilePath = params.ampFilePath.isEmpty() ? basePath + ".amp" : params.ampFilePath;
-            if (!this->amp->load(ampFilePath, this->til->getTileCount(), params)) {
-                QMessageBox::critical(this, "Error", "Failed loading AMP file: " + ampFilePath);
-                return;
-            }
+        // Loading AMP
+        this->amp = new D1Amp();
+        QString ampFilePath = params.ampFilePath;
+        if (!openFilePath.isEmpty() && ampFilePath.isEmpty()) {
+            ampFilePath = basePath + ".amp";
+        }
+        if (!this->amp->load(ampFilePath, this->til->getTileCount(), params)) {
+            QMessageBox::critical(this, "Error", "Failed loading AMP file: " + ampFilePath);
+            return;
+        }
 
-            // Loading CEL
-            if (!D1CelTileset::load(*this->gfx, celFrameTypes, openFilePath, params)) {
-                QMessageBox::critical(this, "Error", "Failed loading level CEL file: " + openFilePath);
-                return;
-            }
-        } else {
-            if (!D1Cel::load(*this->gfx, openFilePath, params)) {
-                QMessageBox::critical(this, "Error", "Failed loading CEL file: " + openFilePath);
-                return;
-            }
+        // Loading CEL
+        if (!D1CelTileset::load(*this->gfx, celFrameTypes, openFilePath, params)) {
+            QMessageBox::critical(this, "Error", "Failed loading level CEL file: " + openFilePath);
+            return;
+        }
+    } else if (openFilePath.toLower().endsWith(".cel")) {
+        if (!D1Cel::load(*this->gfx, openFilePath, params)) {
+            QMessageBox::critical(this, "Error", "Failed loading CEL file: " + openFilePath);
+            return;
         }
     } else if (openFilePath.toLower().endsWith(".cl2")) {
         if (!D1Cl2::load(*this->gfx, openFilePath, false, params)) {
@@ -453,6 +497,9 @@ void MainWindow::openFile(const OpenAsParam &params)
             QMessageBox::critical(this, "Error", "Failed loading CLX file: " + openFilePath);
             return;
         }
+    } else {
+        // openFilePath.isEmpty()
+        this->gfx->setType(params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE ? D1CEL_TYPE::V2_MONO_GROUP : D1CEL_TYPE::V1_REGULAR);
     }
 
     // Add palette widgets for PAL and TRNs
@@ -731,13 +778,17 @@ void MainWindow::on_actionOpenAs_triggered()
 
 void MainWindow::on_actionSave_triggered()
 {
+    if (this->gfx->getFilePath().isEmpty()) {
+        this->on_actionSaveAs_triggered();
+        return;
+    }
     SaveAsParam params;
     this->saveFile(params);
 }
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-    this->saveAsDialog->initialize(this->configuration, this->gfx);
+    this->saveAsDialog->initialize(this->configuration, this->gfx, this->min, this->til, this->sol, this->amp);
     this->saveAsDialog->show();
 }
 

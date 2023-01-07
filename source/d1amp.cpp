@@ -97,7 +97,7 @@ QString D1Amp::getFilePath()
 
 quint8 D1Amp::getTileType(quint16 tileIndex)
 {
-    if (tileIndex >= this->properties.count())
+    if (tileIndex >= this->types.count())
         return 0;
 
     return this->types.at(tileIndex);
