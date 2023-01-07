@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 #include <QStyle>
 #include <QUndoCommand>
+#include <QUndoStack>
 #include <QWidget>
 
 #include "celview.h"
@@ -28,6 +29,7 @@ enum class PWIDGET_CALLBACK_TYPE {
 };
 
 namespace Ui {
+class PaletteScene;
 class PaletteWidget;
 class EditColorsCommand;
 class EditTranslationsCommand;
@@ -96,15 +98,38 @@ private:
     QList<quint8> initialTranslations;
 };
 
+class PaletteScene : public QGraphicsScene {
+    Q_OBJECT
+
+public:
+    PaletteScene(QWidget *view);
+
+private slots:
+    void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
+    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
+    void dropEvent(QGraphicsSceneDragDropEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
+
+signals:
+    void framePixelClicked(quint16, quint16);
+
+private:
+    QWidget *view;
+};
+
 class PaletteWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PaletteWidget(QJsonObject *configuration, QWidget *parent, QString title);
+    explicit PaletteWidget(QJsonObject *configuration, QUndoStack *undoStack, QString title);
     ~PaletteWidget();
 
     void setPal(D1Pal *p);
     void setTrn(D1Trn *t);
+    bool isTrnWidget();
 
     void initialize(D1Pal *p, CelView *c, D1PalHits *ph);
     void initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph);
@@ -118,23 +143,17 @@ public:
 
     void reloadConfig();
     void selectColor(quint8);
-    void selectColors();
     void checkTranslationsSelection(QList<quint8>);
 
-    QString getPath(QString);
-    void setPath(QString, QString);
     void addPath(QString, QString);
     void removePath(QString);
     void selectPath(QString);
     QString getSelectedPath();
 
-    // Coordinates functions
-    QRectF getColorCoordinates(quint8);
-    QPointF getMousePosition(QMouseEvent *mouseEvent);
-    quint8 getColorIndexFromCoordinates(QPointF);
-
-    // Mouse event filter
-    bool eventFilter(QObject *, QEvent *);
+    // color selection handlers
+    void startColorSelection(int colorIndex);
+    void changeColorSelection(int colorIndex);
+    void finishColorSelection();
 
     // Display functions
     void displayColors();
@@ -163,13 +182,14 @@ signals:
     void displayRootBorder();
     void clearRootBorder();
 
-    void sendEditingCommand(QUndoCommand *);
-
     void modified();
     void refreshed();
 
 private:
     QPushButton *addButton(QStyle::StandardPixmap type, QString tooltip, void (PaletteWidget::*callback)(void));
+
+public slots:
+    void ShowContextMenu(const QPoint &pos);
 
 private slots:
     // Due to a bug in Qt these functions can not follow the naming conventions
@@ -179,8 +199,12 @@ private slots:
     void on_savePushButtonClicked();
     void on_saveAsPushButtonClicked();
     void on_closePushButtonClicked();
-    void pathComboBox_currentTextChanged(const QString &arg1);
-    void displayComboBox_currentTextChanged(const QString &arg1);
+
+    void on_actionUndo_triggered();
+    void on_actionRedo_triggered();
+
+    void on_pathComboBox_activated(int index);
+    void on_displayComboBox_activated(int index);
     void on_colorLineEdit_returnPressed();
     void on_colorPickPushButton_clicked();
     void on_colorClearPushButton_clicked();
@@ -191,7 +215,7 @@ private slots:
 
 private:
     QJsonObject *configuration;
-
+    QUndoStack *undoStack;
     Ui::PaletteWidget *ui;
     bool isLevelCel;
     bool isTrn;
@@ -199,7 +223,7 @@ private:
     CelView *celView;
     LevelCelView *levelCelView;
 
-    QGraphicsScene *scene = new QGraphicsScene(0, 0, PALETTE_WIDTH, PALETTE_WIDTH);
+    PaletteScene *scene;
 
     QColor paletteDefaultColor = Qt::magenta;
 
@@ -215,8 +239,5 @@ private:
 
     D1PalHits *palHits;
 
-    bool buildingPathComboBox = false;
     QMap<QString, QString> paths;
-
-    bool buildingDisplayComboBox;
 };

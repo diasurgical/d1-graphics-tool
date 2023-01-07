@@ -1,11 +1,25 @@
 #include "palettewidget.h"
 
+#include <algorithm>
+
 #include <QColorDialog>
 #include <QComboBox>
 #include <QMessageBox>
+#include <QMimeData>
 
 #include "mainwindow.h"
 #include "ui_palettewidget.h"
+
+enum class COLORFILTER_TYPE {
+    NONE,
+    USED,
+    TILE,
+    SUBTILE,
+    FRAME,
+    TRANSLATED,
+};
+
+Q_DECLARE_METATYPE(COLORFILTER_TYPE)
 
 EditColorsCommand::EditColorsCommand(D1Pal *p, quint8 sci, quint8 eci, QColor nc, QColor ec, QUndoCommand *parent)
     : QUndoCommand(parent)
@@ -132,6 +146,113 @@ void ClearTranslationsCommand::redo()
     emit this->modified();
 }
 
+PaletteScene::PaletteScene(QWidget *v)
+    : QGraphicsScene(0, 0, PALETTE_WIDTH, PALETTE_WIDTH)
+    , view(v)
+{
+}
+
+static int getColorIndexFromCoordinates(QPointF coordinates)
+{
+    // if (position.x() < 0 || position.x() >= PALETTE_WIDTH
+    //    || position.y() < 0 || position.y() >= PALETTE_WIDTH)
+    //    return -1;
+
+    int index = 0;
+
+    int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
+
+    int ix = coordinates.x() / w;
+    int iy = coordinates.y() / w;
+
+    index = iy * PALETTE_COLORS_PER_LINE + ix;
+
+    return index;
+}
+
+void PaletteScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton) {
+        return;
+    }
+
+    QPointF pos = event->scenePos();
+
+    qDebug() << "Clicked: " << pos.x() << "," << pos.y();
+
+    // Check if selected color has changed
+    int colorIndex = getColorIndexFromCoordinates(pos);
+
+    // if (colorIndex >= 0)
+    ((PaletteWidget *)this->view)->startColorSelection(colorIndex);
+}
+
+void PaletteScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    // if (event->button() != Qt::LeftButton) {
+    //    return;
+    // }
+
+    QPointF pos = event->scenePos();
+
+    // Check if selected color has changed
+    int colorIndex = getColorIndexFromCoordinates(pos);
+
+    // if (colorIndex >= 0)
+    ((PaletteWidget *)this->view)->changeColorSelection(colorIndex);
+}
+
+void PaletteScene::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if (event->button() != Qt::LeftButton) {
+        return;
+    }
+
+    ((PaletteWidget *)this->view)->finishColorSelection();
+}
+
+void PaletteScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
+{
+    bool isTrn = ((PaletteWidget *)this->view)->isTrnWidget();
+    const char *ext = isTrn ? ".trn" : ".pal";
+    for (const QUrl &url : event->mimeData()->urls()) {
+        if (url.toLocalFile().toLower().endsWith(ext)) {
+            event->acceptProposedAction();
+            break;
+        }
+    }
+}
+
+void PaletteScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
+{
+    this->dragEnterEvent(event);
+}
+
+void PaletteScene::dropEvent(QGraphicsSceneDragDropEvent *event)
+{
+    if (!event->mimeData()->hasUrls()) {
+        return;
+    }
+
+    event->acceptProposedAction();
+
+    QStringList filePaths;
+    bool isTrn = ((PaletteWidget *)this->view)->isTrnWidget();
+    const char *ext = isTrn ? ".trn" : ".pal";
+    for (const QUrl &url : event->mimeData()->urls()) {
+        if (url.toLocalFile().toLower().endsWith(ext)) {
+            filePaths.append(url.toLocalFile());
+        }
+    }
+    // try to insert pal/trn files
+    ((MainWindow *)this->view->window())->openPalFiles(filePaths, (PaletteWidget *)this->view);
+}
+
+void PaletteScene::contextMenuEvent(QContextMenuEvent *event)
+{
+    ((PaletteWidget *)this->view)->ShowContextMenu(event->globalPos());
+}
+
 QPushButton *PaletteWidget::addButton(QStyle::StandardPixmap type, QString tooltip, void (PaletteWidget::*callback)(void))
 {
     QPushButton *button = new QPushButton(this->style()->standardIcon(type), tr(""), nullptr);
@@ -146,10 +267,12 @@ QPushButton *PaletteWidget::addButton(QStyle::StandardPixmap type, QString toolt
     return button;
 }
 
-PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title)
-    : QWidget(parent)
+PaletteWidget::PaletteWidget(QJsonObject *config, QUndoStack *us, QString title)
+    : QWidget(nullptr)
     , configuration(config)
-    , ui(new Ui::PaletteWidget)
+    , undoStack(us)
+    , ui(new Ui::PaletteWidget())
+    , scene(new PaletteScene(this))
 {
     // Load selection border color from JSON config file
     this->reloadConfig();
@@ -167,18 +290,9 @@ PaletteWidget::PaletteWidget(QJsonObject *config, QWidget *parent, QString title
     // When there is a modification to the PAL or TRNs then UI must be refreshed
     QObject::connect(this, &PaletteWidget::modified, this, &PaletteWidget::refresh);
 
-    // Slots need to be written connected manually because I use multiple instances of PaletteWidget
-    // thus Qt is not able to differentiate between children widgets with the same name.
-    // e.g. the pathComboBox will be present three times, one for the PAL and two for the TRNs.
-    QObject::connect(
-        this->findChild<QComboBox *>("pathComboBox"), &QComboBox::currentTextChanged,
-        this, &PaletteWidget::pathComboBox_currentTextChanged);
-    QObject::connect(
-        this->findChild<QComboBox *>("displayComboBox"), &QComboBox::currentTextChanged,
-        this, &PaletteWidget::displayComboBox_currentTextChanged);
-
-    // Install the mouse events filter on the QGraphicsView
-    ui->graphicsView->viewport()->installEventFilter(this);
+    // setup context menu
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    QObject::connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(ShowContextMenu(const QPoint &)));
 }
 
 PaletteWidget::~PaletteWidget()
@@ -199,6 +313,11 @@ void PaletteWidget::setTrn(D1Trn *t)
     this->trn = t;
 
     emit this->modified();
+}
+
+bool PaletteWidget::isTrnWidget()
+{
+    return this->isTrn;
 }
 
 void PaletteWidget::initialize(D1Pal *p, CelView *c, D1PalHits *ph)
@@ -292,22 +411,18 @@ void PaletteWidget::initializePathComboBox()
 
 void PaletteWidget::initializeDisplayComboBox()
 {
-    this->buildingDisplayComboBox = true;
-
-    ui->displayComboBox->addItem("Show all colors");
+    ui->displayComboBox->addItem("Show all colors", QVariant((int)COLORFILTER_TYPE::NONE));
 
     if (!this->isTrn) {
-        ui->displayComboBox->addItem("Show all frames hits");
+        ui->displayComboBox->addItem("Show all frames hits", QVariant((int)COLORFILTER_TYPE::USED));
         if (this->isLevelCel) {
-            ui->displayComboBox->addItem("Show current tile hits");
-            ui->displayComboBox->addItem("Show current sub-tile hits");
+            ui->displayComboBox->addItem("Show current tile hits", QVariant((int)COLORFILTER_TYPE::TILE));
+            ui->displayComboBox->addItem("Show current sub-tile hits", QVariant((int)COLORFILTER_TYPE::SUBTILE));
         }
-        ui->displayComboBox->addItem("Show current frame hits");
+        ui->displayComboBox->addItem("Show current frame hits", QVariant((int)COLORFILTER_TYPE::FRAME));
     } else {
-        ui->displayComboBox->addItem("Show translated colors");
+        ui->displayComboBox->addItem("Show translated colors", QVariant((int)COLORFILTER_TYPE::TRANSLATED));
     }
-
-    this->buildingDisplayComboBox = false;
 }
 
 void PaletteWidget::reloadConfig()
@@ -329,37 +444,6 @@ void PaletteWidget::selectColor(quint8 index)
     this->refresh();
 }
 
-void PaletteWidget::selectColors()
-{
-    // If second selected color has an index less than the first one swap them
-    if (this->selectedFirstColorIndex > this->selectedLastColorIndex) {
-        quint8 tmp = this->selectedFirstColorIndex;
-        this->selectedFirstColorIndex = this->selectedLastColorIndex;
-        this->selectedLastColorIndex = tmp;
-    }
-
-    if (this->isTrn) {
-        if (this->pickingTranslationColor) {
-            this->clearInfo();
-            emit this->clearRootInformation();
-            emit this->clearRootBorder();
-            this->pickingTranslationColor = false;
-        }
-    }
-
-    this->temporarilyDisplayingAllColors = false;
-
-    // emit selected colors
-    if ((!this->isTrn && !this->pal.isNull()) || (this->isTrn && !this->trn.isNull())) {
-        QList<quint8> indexes;
-        for (int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++)
-            indexes.append(i);
-        emit this->colorsSelected(indexes);
-    }
-
-    this->refresh();
-}
-
 void PaletteWidget::checkTranslationsSelection(QList<quint8> indexes)
 {
     if (!this->pickingTranslationColor)
@@ -377,24 +461,13 @@ void PaletteWidget::checkTranslationsSelection(QList<quint8> indexes)
         this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, indexes);
     QObject::connect(command, &EditTranslationsCommand::modified, this, &PaletteWidget::modify);
 
-    emit this->sendEditingCommand(command);
+    this->undoStack->push(command);
 
     this->pickingTranslationColor = false;
     this->clearInfo();
 
     emit this->clearRootInformation();
     emit this->clearRootBorder();
-}
-
-QString PaletteWidget::getPath(QString name)
-{
-    // Returns empty string if not found
-    return this->paths.key(name);
-}
-
-void PaletteWidget::setPath(QString path, QString name)
-{
-    this->paths[path] = name;
 }
 
 void PaletteWidget::addPath(QString path, QString name)
@@ -410,7 +483,7 @@ void PaletteWidget::removePath(QString path)
 
 void PaletteWidget::selectPath(QString path)
 {
-    this->ui->pathComboBox->setCurrentText(this->paths[path]);
+    this->ui->pathComboBox->setCurrentIndex(this->ui->pathComboBox->findData(path));
     this->ui->pathComboBox->setToolTip(path);
 
     emit this->pathSelected(path);
@@ -422,7 +495,7 @@ QString PaletteWidget::getSelectedPath()
     return this->paths.key(this->ui->pathComboBox->currentText());
 }
 
-QRectF PaletteWidget::getColorCoordinates(quint8 index)
+static QRectF getColorCoordinates(quint8 index)
 {
     int ix = index % PALETTE_COLORS_PER_LINE;
     int iy = index / PALETTE_COLORS_PER_LINE;
@@ -434,83 +507,67 @@ QRectF PaletteWidget::getColorCoordinates(quint8 index)
     return coordinates;
 }
 
-QPointF PaletteWidget::getMousePosition(QMouseEvent *mouseEvent)
+void PaletteWidget::ShowContextMenu(const QPoint &pos)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-    return mouseEvent->position();
-#else
-    return mouseEvent->pos();
-#endif
+    QMenu contextMenu(tr("Context menu"), this);
+    contextMenu.setToolTipsVisible(true);
+
+    QAction action0("Undo", this);
+    QObject::connect(&action0, SIGNAL(triggered()), this, SLOT(on_actionUndo_triggered()));
+    action0.setEnabled(this->undoStack->canUndo());
+    contextMenu.addAction(&action0);
+
+    QAction action1("Redo", this);
+    QObject::connect(&action1, SIGNAL(triggered()), this, SLOT(on_actionRedo_triggered()));
+    action1.setEnabled(this->undoStack->canRedo());
+    contextMenu.addAction(&action1);
+
+    contextMenu.exec(mapToGlobal(pos));
 }
 
-quint8 PaletteWidget::getColorIndexFromCoordinates(QPointF coordinates)
+void PaletteWidget::startColorSelection(int colorIndex)
 {
-    quint8 index = 0;
-
-    int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
-
-    int ix = coordinates.x() / w;
-    int iy = coordinates.y() / w;
-
-    index = iy * PALETTE_COLORS_PER_LINE + ix;
-
-    return index;
+    this->selectedFirstColorIndex = colorIndex;
+    this->selectedLastColorIndex = colorIndex;
 }
 
-// This event filter is used on the QGraphicsView
-bool PaletteWidget::eventFilter(QObject *obj, QEvent *event)
+void PaletteWidget::changeColorSelection(int colorIndex)
 {
-    if (event->type() == QEvent::MouseButtonPress) {
-        QPointF position = getMousePosition(static_cast<QMouseEvent *>(event));
-        qDebug() << "MouseButtonPress: " << position.x() << "," << position.y();
-        // Check if selected color has changed
-        quint8 colorIndex = getColorIndexFromCoordinates(position);
+    this->selectedLastColorIndex = colorIndex;
 
-        this->selectedFirstColorIndex = colorIndex;
-        this->selectedLastColorIndex = colorIndex;
+    this->refreshIndexLineEdit();
 
-        return true;
+    this->displayColors();
+    this->displaySelection();
+}
+
+void PaletteWidget::finishColorSelection()
+{
+    // If second selected color has an index less than the first one swap them
+    if (this->selectedFirstColorIndex > this->selectedLastColorIndex) {
+        std::swap(this->selectedFirstColorIndex, this->selectedLastColorIndex);
     }
 
-    if (event->type() == QEvent::MouseMove) {
-        QPointF position = getMousePosition(static_cast<QMouseEvent *>(event));
-        if (position.x() < 0 || position.x() > PALETTE_WIDTH
-            || position.y() < 0 || position.y() > PALETTE_WIDTH)
-            return true;
-        quint8 colorIndex = getColorIndexFromCoordinates(position);
-
-        if (colorIndex == this->selectedLastColorIndex)
-            return true;
-
-        this->selectedLastColorIndex = colorIndex;
-
-        this->refreshIndexLineEdit();
-
-        this->displayColors();
-        this->displaySelection();
-
-        return true;
+    if (this->isTrn) {
+        if (this->pickingTranslationColor) {
+            this->clearInfo();
+            emit this->clearRootInformation();
+            emit this->clearRootBorder();
+            this->pickingTranslationColor = false;
+        }
     }
 
-    if (event->type() == QEvent::MouseButtonRelease) {
-        // QPointF position = getMousePosition(static_cast<QMouseEvent *>(event));
-        // qDebug() << "MouseButtonRelease: " << position.x() << "," << position.y();
+    this->temporarilyDisplayingAllColors = false;
 
-        // Check if selected color has changed
-        // quint8 colorIndex = getColorIndexFromCoordinates( position );
+    // emit selected colors
+    // if ((!this->isTrn && !this->pal.isNull()) || (this->isTrn && !this->trn.isNull())) {
+    QList<quint8> indexes;
+    for (int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++)
+        indexes.append(i);
+    emit this->colorsSelected(indexes);
+    // }
 
-        // this->selectedLastColorIndex = colorIndex;
-        this->selectColors();
-
-        return true;
-    }
-
-    if (event->type() == QEvent::MouseButtonDblClick) {
-        return true;
-    }
-
-    // standard event processing
-    return QObject::eventFilter(obj, event);
+    this->refresh();
 }
 
 void PaletteWidget::displayColors()
@@ -573,7 +630,7 @@ void PaletteWidget::displayColors()
             displayColor = false;
 
         // Check translation display filter
-        if (this->isTrn && ui->displayComboBox->currentText() == "Show translated colors"
+        if (this->isTrn && ui->displayComboBox->currentData().value<COLORFILTER_TYPE>() == COLORFILTER_TYPE::TRANSLATED // "Show translated colors"
             && this->trn->getTranslation(i) == i)
             displayColor = false;
 
@@ -665,29 +722,21 @@ void PaletteWidget::clearBorder()
 
 void PaletteWidget::refreshPathComboBox()
 {
-    // This boolean is used to avoid infinite loop when adding items to the combo box
-    // because adding items calls pathComboBox_currentIndexChanged() which itself calls
-    // refresh() which calls pathComboBox_currentIndexChanged(), ...
-    this->buildingPathComboBox = true;
-
     this->ui->pathComboBox->clear();
 
     // Go through the hits of the CEL frame and add them to the subtile hits
-    QMapIterator<QString, QString> it(this->paths);
-    while (it.hasNext()) {
-        it.next();
-        this->ui->pathComboBox->addItem(it.value());
+    for (auto iter = this->paths.cbegin(); iter != this->paths.cend(); iter++) {
+        this->ui->pathComboBox->addItem(iter.value(), iter.key());
     }
 
+    QString selectedPath;
     if (!this->isTrn) {
-        this->ui->pathComboBox->setCurrentText(this->paths[this->pal->getFilePath()]);
-        this->ui->pathComboBox->setToolTip(this->pal->getFilePath());
+        selectedPath = this->pal->getFilePath();
     } else {
-        this->ui->pathComboBox->setCurrentText(this->paths[this->trn->getFilePath()]);
-        this->ui->pathComboBox->setToolTip(this->trn->getFilePath());
+        selectedPath = this->trn->getFilePath();
     }
-
-    this->buildingPathComboBox = false;
+    this->ui->pathComboBox->setCurrentIndex(this->ui->pathComboBox->findData(selectedPath));
+    this->ui->pathComboBox->setToolTip(selectedPath);
 }
 
 void PaletteWidget::refreshColorLineEdit()
@@ -702,16 +751,16 @@ void PaletteWidget::refreshColorLineEdit()
 
 void PaletteWidget::refreshIndexLineEdit()
 {
-    if (this->selectedFirstColorIndex == this->selectedLastColorIndex) {
-        this->ui->indexLineEdit->setText(QString::number(this->selectedFirstColorIndex));
+    int firstColorIndex = this->selectedFirstColorIndex;
+    int lastColorIndex = this->selectedLastColorIndex;
+    if (firstColorIndex == lastColorIndex) {
+        this->ui->indexLineEdit->setText(QString::number(firstColorIndex));
     } else {
         // If second selected color has an index less than the first one swap them
-        if (this->selectedFirstColorIndex < this->selectedLastColorIndex)
-            this->ui->indexLineEdit->setText(
-                QString::number(this->selectedFirstColorIndex) + "-" + QString::number(this->selectedLastColorIndex));
-        else
-            this->ui->indexLineEdit->setText(
-                QString::number(this->selectedLastColorIndex) + "-" + QString::number(this->selectedFirstColorIndex));
+        if (firstColorIndex < lastColorIndex) {
+            std::swap(firstColorIndex, lastColorIndex);
+        }
+        this->ui->indexLineEdit->setText(QString::number(firstColorIndex) + "-" + QString::number(lastColorIndex));
     }
 }
 
@@ -774,35 +823,45 @@ void PaletteWidget::on_closePushButtonClicked()
     ((MainWindow *)this->window())->paletteWidget_callback(this, PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_CLOSE);
 }
 
-void PaletteWidget::pathComboBox_currentTextChanged(const QString &arg1)
+void PaletteWidget::on_actionUndo_triggered()
 {
-    if (this->paths.isEmpty() || this->buildingPathComboBox)
-        return;
+    this->undoStack->undo();
+}
 
-    QString filePath = this->paths.key(arg1);
+void PaletteWidget::on_actionRedo_triggered()
+{
+    this->undoStack->redo();
+}
 
-    // Set tooltip to display full file path when mouse hover
-    ui->pathComboBox->setToolTip(filePath);
+void PaletteWidget::on_pathComboBox_activated(int index)
+{
+    QString filePath = this->ui->pathComboBox->currentData().value<QString>();
 
     emit this->pathSelected(filePath);
     emit this->modified();
 }
 
-void PaletteWidget::displayComboBox_currentTextChanged(const QString &arg1)
+void PaletteWidget::on_displayComboBox_activated(int index)
 {
-    if (this->buildingDisplayComboBox)
-        return;
-
-    if (arg1 == "Show all colors" && !this->isTrn)
-        this->palHits->setMode(D1PALHITS_MODE::ALL_COLORS);
-    else if (arg1 == "Show all frames hits")
+    switch (this->ui->displayComboBox->currentData().value<COLORFILTER_TYPE>()) {
+    case COLORFILTER_TYPE::NONE:
+        if (!this->isTrn) {
+            this->palHits->setMode(D1PALHITS_MODE::ALL_COLORS);
+        }
+        break;
+    case COLORFILTER_TYPE::USED:
         this->palHits->setMode(D1PALHITS_MODE::ALL_FRAMES);
-    else if (arg1 == "Show current tile hits")
+        break;
+    case COLORFILTER_TYPE::TILE:
         this->palHits->setMode(D1PALHITS_MODE::CURRENT_TILE);
-    else if (arg1 == "Show current sub-tile hits")
+        break;
+    case COLORFILTER_TYPE::SUBTILE:
         this->palHits->setMode(D1PALHITS_MODE::CURRENT_SUBTILE);
-    else if (arg1 == "Show current frame hits")
+        break;
+    case COLORFILTER_TYPE::FRAME:
         this->palHits->setMode(D1PALHITS_MODE::CURRENT_FRAME);
+        break;
+    }
 
     this->refresh();
 }
@@ -817,7 +876,7 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
         this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, color);
     QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
-    emit this->sendEditingCommand(command);
+    this->undoStack->push(command);
 
     // Release focus to allow keyboard shortcuts to work as expected
     this->ui->colorLineEdit->clearFocus();
@@ -839,7 +898,7 @@ void PaletteWidget::on_colorPickPushButton_clicked()
         this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, colorEnd);
     QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
-    emit this->sendEditingCommand(command);
+    this->undoStack->push(command);
 }
 
 void PaletteWidget::on_colorClearPushButton_clicked()
@@ -850,7 +909,7 @@ void PaletteWidget::on_colorClearPushButton_clicked()
         this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, this->paletteDefaultColor, this->paletteDefaultColor);
     QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
-    emit this->sendEditingCommand(command);
+    this->undoStack->push(command);
 }
 
 void PaletteWidget::on_translationIndexLineEdit_returnPressed()
@@ -868,7 +927,7 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
         this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, newTranslations);
     QObject::connect(command, &EditTranslationsCommand::modified, this, &PaletteWidget::modify);
 
-    emit this->sendEditingCommand(command);
+    this->undoStack->push(command);
 
     // Release focus to allow keyboard shortcuts to work as expected
     this->ui->translationIndexLineEdit->clearFocus();
@@ -891,7 +950,7 @@ void PaletteWidget::on_translationClearPushButton_clicked()
         this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex);
     QObject::connect(command, &ClearTranslationsCommand::modified, this, &PaletteWidget::modify);
 
-    emit this->sendEditingCommand(command);
+    this->undoStack->push(command);
 }
 
 void PaletteWidget::on_monsterTrnPushButton_clicked()

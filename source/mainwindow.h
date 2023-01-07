@@ -37,10 +37,9 @@ public:
     void setTrn1(QString);
     void setTrn2(QString);
 
-    void pushCommandToUndoStack(QUndoCommand *);
-
     void openFile(const OpenAsParam &params);
     void openImageFiles(QStringList filePaths, bool append);
+    void openPalFiles(QStringList filePaths, PaletteWidget *widget);
     void saveFile(const SaveAsParam &params);
     void addFrames(bool append);
 
@@ -57,6 +56,9 @@ public:
 private:
     void loadConfiguration();
     void updateView();
+    bool loadPal(QString palFilePath);
+    bool loadTrn1(QString trnfilePath);
+    bool loadTrn2(QString trnfilePath);
 
 public slots:
     void on_actionInsert_Frame_triggered();

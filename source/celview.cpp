@@ -40,7 +40,7 @@ void CelScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
 
 void CelScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 {
-    event->acceptProposedAction();
+    this->dragEnterEvent(event);
 }
 
 void CelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
