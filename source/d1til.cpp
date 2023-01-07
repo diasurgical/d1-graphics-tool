@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QPainter>
 
 #define TILE_SIZE (2 * 2)
@@ -60,14 +61,26 @@ bool D1Til::load(QString filePath, D1Min *m)
 
 bool D1Til::save(const SaveAsParam &params)
 {
-    QString selectedPath = params.tilFilePath;
-    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
-    if (!outFile) {
+    QString filePath = this->getFilePath();
+    if (!params.tilFilePath.isEmpty()) {
+        filePath = params.tilFilePath;
+        if (QFile::exists(filePath)) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                return false;
+            }
+        }
+    }
+
+    QFile outFile = QFile(filePath);
+    if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
         return false;
     }
 
     // write to file
-    QDataStream out(*outFile);
+    QDataStream out(&outFile);
     out.setByteOrder(QDataStream::LittleEndian);
     for (int i = 0; i < this->subtileIndices.count(); i++) {
         QList<quint16> &subtileIndicesList = this->subtileIndices[i];
@@ -77,9 +90,7 @@ bool D1Til::save(const SaveAsParam &params)
         }
     }
 
-    QFileInfo fileinfo = QFileInfo(**outFile);
-    this->tilFilePath = fileinfo.filePath(); // this->load(filePath);
-    delete *outFile;
+    this->tilFilePath = filePath; // this->load(filePath);
 
     return true;
 }

@@ -1,8 +1,6 @@
 #include "saveasdialog.h"
 
-#include <QFileDialog>
 #include <QMessageBox>
-#include <optional>
 
 #include "ui_saveasdialog.h"
 
@@ -12,28 +10,6 @@
 #include "d1sol.h"
 #include "d1til.h"
 #include "mainwindow.h"
-
-std::optional<QFile *> SaveAsParam::getValidSaveOutput(QString filePath, QString selectedPath)
-{
-    if (!selectedPath.isEmpty()) {
-        filePath = selectedPath;
-        if (QFile::exists(filePath)) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
-            if (reply != QMessageBox::Yes) {
-                return {};
-            }
-        }
-    }
-
-    QFile *outFile = new QFile(filePath);
-    if (!outFile->open(QIODevice::WriteOnly | QFile::Truncate)) {
-        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
-        return {};
-    }
-
-    return outFile;
-}
 
 SaveAsDialog::SaveAsDialog(QWidget *parent)
     : QDialog(parent)
@@ -90,7 +66,7 @@ void SaveAsDialog::on_outputCelFileBrowseButton_clicked()
     }
 
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString saveFilePath = qw->fileDialog(true, "Save Graphics as...", filter);
+    QString saveFilePath = qw->fileDialog(FILE_DIALOG_MODE::SAVE_NO_CONF, "Save Graphics as...", filter);
 
     if (saveFilePath.isEmpty()) {
         return;
@@ -115,7 +91,7 @@ void SaveAsDialog::on_outputCelFileBrowseButton_clicked()
 void SaveAsDialog::on_outputMinFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString saveFilePath = qw->fileDialog(true, "Save MIN as...", "MIN Files (*.min *.MIN)");
+    QString saveFilePath = qw->fileDialog(FILE_DIALOG_MODE::SAVE_NO_CONF, "Save MIN as...", "MIN Files (*.min *.MIN)");
 
     if (saveFilePath.isEmpty())
         return;
@@ -128,7 +104,7 @@ void SaveAsDialog::on_outputMinFileBrowseButton_clicked()
 void SaveAsDialog::on_outputTilFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString saveFilePath = qw->fileDialog(true, "Save TIL as...", "TIL Files (*.til *.TIL)");
+    QString saveFilePath = qw->fileDialog(FILE_DIALOG_MODE::SAVE_NO_CONF, "Save TIL as...", "TIL Files (*.til *.TIL)");
 
     if (saveFilePath.isEmpty())
         return;
@@ -141,7 +117,7 @@ void SaveAsDialog::on_outputTilFileBrowseButton_clicked()
 void SaveAsDialog::on_outputSolFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString saveFilePath = qw->fileDialog(true, "Save SOL as...", "SOL Files (*.sol *.SOL)");
+    QString saveFilePath = qw->fileDialog(FILE_DIALOG_MODE::SAVE_NO_CONF, "Save SOL as...", "SOL Files (*.sol *.SOL)");
 
     if (saveFilePath.isEmpty())
         return;
@@ -154,7 +130,7 @@ void SaveAsDialog::on_outputSolFileBrowseButton_clicked()
 void SaveAsDialog::on_outputAmpFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString saveFilePath = qw->fileDialog(true, "Save AMP as...", "AMP Files (*.amp *.AMP)");
+    QString saveFilePath = qw->fileDialog(FILE_DIALOG_MODE::SAVE_NO_CONF, "Save AMP as...", "AMP Files (*.amp *.AMP)");
 
     if (saveFilePath.isEmpty())
         return;

@@ -23,6 +23,12 @@
 
 #define D1_GRAPHICS_TOOL_VERSION "0.5.0"
 
+enum class FILE_DIALOG_MODE {
+    OPEN,         // open existing
+    SAVE_CONF,    // save with confirm
+    SAVE_NO_CONF, // save without confirm
+};
+
 namespace Ui {
 class MainWindow;
 }
@@ -51,7 +57,7 @@ public:
     void resetPaletteCycle();
 
     QString getLastFilePath();
-    QString fileDialog(bool save, const char *title, const char *filter);
+    QString fileDialog(FILE_DIALOG_MODE mode, const char *title, const char *filter);
     QStringList filesDialog(const char *title, const char *filter);
 
     static bool hasImageUrl(const QMimeData *mimeData);

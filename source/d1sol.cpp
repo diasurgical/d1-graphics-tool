@@ -4,6 +4,7 @@
 #include <QDataStream>
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
 
 bool D1Sol::load(QString filePath)
 {
@@ -47,21 +48,31 @@ bool D1Sol::load(QString filePath)
 
 bool D1Sol::save(const SaveAsParam &params)
 {
-    QString selectedPath = params.solFilePath;
-    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
-    if (!outFile) {
+    QString filePath = this->getFilePath();
+    if (!params.solFilePath.isEmpty()) {
+        filePath = params.solFilePath;
+        if (QFile::exists(filePath)) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                return false;
+            }
+        }
+    }
+
+    QFile outFile = QFile(filePath);
+    if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
         return false;
     }
 
     // write to file
-    QDataStream out(*outFile);
+    QDataStream out(&outFile);
     for (int i = 0; i < this->subProperties.size(); i++) {
         out << this->subProperties[i];
     }
 
-    QFileInfo fileinfo = QFileInfo(**outFile);
-    this->solFilePath = fileinfo.filePath(); // this->load(filePath);
-    delete *outFile;
+    this->solFilePath = filePath; // this->load(filePath);
 
     return true;
 }

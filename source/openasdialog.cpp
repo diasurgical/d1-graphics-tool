@@ -53,7 +53,7 @@ void OpenAsDialog::update()
 void OpenAsDialog::on_inputFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString openFilePath = qw->fileDialog(false, "Open Graphics", "CEL/CL2 Files (*.cel *.CEL *.cl2 *.CL2)"); // "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX);;TIL Files (*.til *.TIL)");
+    QString openFilePath = qw->fileDialog(FILE_DIALOG_MODE::OPEN, "Open Graphics", "CEL/CL2 Files (*.cel *.CEL *.cl2 *.CL2)"); // "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX);;TIL Files (*.til *.TIL)");
 
     if (openFilePath.isEmpty())
         return;
@@ -114,7 +114,7 @@ void OpenAsDialog::on_isTilesetAutoRadioButton_toggled(bool checked)
 void OpenAsDialog::on_tilFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString openFilePath = qw->fileDialog(false, "Open TIL file", "TIL Files (*.til *.TIL)");
+    QString openFilePath = qw->fileDialog(FILE_DIALOG_MODE::OPEN, "Open TIL file", "TIL Files (*.til *.TIL)");
 
     if (openFilePath.isEmpty())
         return;
@@ -125,7 +125,7 @@ void OpenAsDialog::on_tilFileBrowseButton_clicked()
 void OpenAsDialog::on_minFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString openFilePath = qw->fileDialog(false, "Open MIN file", "MIN Files (*.min *.MIN)");
+    QString openFilePath = qw->fileDialog(FILE_DIALOG_MODE::OPEN, "Open MIN file", "MIN Files (*.min *.MIN)");
 
     if (openFilePath.isEmpty())
         return;
@@ -136,7 +136,7 @@ void OpenAsDialog::on_minFileBrowseButton_clicked()
 void OpenAsDialog::on_solFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString openFilePath = qw->fileDialog(false, "Open SOL file", "SOL Files (*.sol *.SOL)");
+    QString openFilePath = qw->fileDialog(FILE_DIALOG_MODE::OPEN, "Open SOL file", "SOL Files (*.sol *.SOL)");
 
     if (openFilePath.isEmpty())
         return;
@@ -147,7 +147,7 @@ void OpenAsDialog::on_solFileBrowseButton_clicked()
 void OpenAsDialog::on_ampFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString openFilePath = qw->fileDialog(false, "Open AMP file", "AMP Files (*.amp *.AMP)");
+    QString openFilePath = qw->fileDialog(FILE_DIALOG_MODE::OPEN, "Open AMP file", "AMP Files (*.amp *.AMP)");
 
     if (openFilePath.isEmpty())
         return;

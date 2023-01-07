@@ -4,6 +4,7 @@
 #include <QDataStream>
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
 
 bool D1Amp::load(QString filePath, int tileCount, const OpenAsParam &params)
 {
@@ -70,22 +71,32 @@ bool D1Amp::load(QString filePath, int tileCount, const OpenAsParam &params)
 
 bool D1Amp::save(const SaveAsParam &params)
 {
-    QString selectedPath = params.ampFilePath;
-    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
-    if (!outFile) {
+    QString filePath = this->getFilePath();
+    if (!params.ampFilePath.isEmpty()) {
+        filePath = params.ampFilePath;
+        if (QFile::exists(filePath)) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                return false;
+            }
+        }
+    }
+
+    QFile outFile = QFile(filePath);
+    if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
         return false;
     }
 
     // write to file
-    QDataStream out(*outFile);
+    QDataStream out(&outFile);
     for (int i = 0; i < this->types.size(); i++) {
         out << this->types[i];
         out << this->properties[i];
     }
 
-    QFileInfo fileinfo = QFileInfo(**outFile);
-    this->ampFilePath = fileinfo.filePath(); // this->load(filePath, allocate);
-    delete *outFile;
+    this->ampFilePath = filePath; // this->load(filePath, allocate);
 
     return true;
 }

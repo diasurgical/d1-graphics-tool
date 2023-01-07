@@ -1,9 +1,6 @@
 #pragma once
 
-#include <optional>
-
 #include <QDialog>
-#include <QFile>
 #include <QJsonObject>
 #include <QString>
 
@@ -28,8 +25,6 @@ public:
     QString ampFilePath;
     quint16 groupNum = 0;
     SAVE_CLIPPING_TYPE clipped = SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
-
-    static std::optional<QFile *> getValidSaveOutput(QString filePath, QString selectedPath);
 };
 
 namespace Ui {

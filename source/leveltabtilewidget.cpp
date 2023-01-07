@@ -32,7 +32,7 @@ void LevelTabTileWidget::update()
 
     bool hasTile = this->til->getTileCount() != 0;
 
-    this->ui->ampTypeComboBox->setEnabled(false);
+    this->ui->ampTypeComboBox->setEnabled(hasTile);
 
     this->ui->amp0->setEnabled(hasTile);
     this->ui->amp1->setEnabled(hasTile);

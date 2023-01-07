@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include <QFile>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QPainter>
 
 bool D1Min::load(QString filePath, D1Gfx *g, D1Sol *sol, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params)
@@ -94,14 +95,26 @@ bool D1Min::load(QString filePath, D1Gfx *g, D1Sol *sol, std::map<unsigned, D1CE
 
 bool D1Min::save(const SaveAsParam &params)
 {
-    QString selectedPath = params.minFilePath;
-    std::optional<QFile *> outFile = SaveAsParam::getValidSaveOutput(this->getFilePath(), selectedPath);
-    if (!outFile) {
+    QString filePath = this->getFilePath();
+    if (!params.minFilePath.isEmpty()) {
+        filePath = params.minFilePath;
+        if (QFile::exists(filePath)) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                return false;
+            }
+        }
+    }
+
+    QFile outFile = QFile(filePath);
+    if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
         return false;
     }
 
     // write to file
-    QDataStream out(*outFile);
+    QDataStream out(&outFile);
     out.setByteOrder(QDataStream::LittleEndian);
     for (int i = 0; i < this->celFrameIndices.size(); i++) {
         QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
@@ -114,9 +127,7 @@ bool D1Min::save(const SaveAsParam &params)
         }
     }
 
-    QFileInfo fileinfo = QFileInfo(**outFile);
-    this->minFilePath = fileinfo.filePath(); // this->load(filePath, subtileCount);
-    delete *outFile;
+    this->minFilePath = filePath; // this->load(filePath, subtileCount);
 
     return true;
 }
