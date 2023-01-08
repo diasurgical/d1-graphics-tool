@@ -74,18 +74,19 @@ set(PROJECT_SOURCES
         source/saveasdialog.ui
         source/settingsdialog.cpp
         source/settingsdialog.h
-        source/D1GraphicsTool.rc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(D1GraphicsTool
-        source/d1files.qrc
+        resources/D1GraphicsTool.rc
+        resources/d1files.qrc
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
 else()
     add_executable(D1GraphicsTool
-        source/d1files.qrc
+        resources/D1GraphicsTool.rc
+        resources/d1files.qrc
         ${PROJECT_SOURCES}
     )
 endif()

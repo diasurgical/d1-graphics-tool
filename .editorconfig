@@ -1,0 +1,60 @@
+root = true
+
+[*]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{c++,cc,cpp,cppm,cxx,h,h++,hh,hpp,hxx,inl,ipp,ixx,tlh,tli}]
+# Visual C++ Code Style settings
+cpp_generate_documentation_comments = doxygen_slash_star
+
+[*.ui]
+indent_style = space
+indent_size = 1
+end_of_line = lf
+
+[*.{qrc,rc,ps1}]
+indent_style = space
+indent_size = 4
+end_of_line = lf
+
+[*.yml]
+indent_style = space
+indent_size = 2
+end_of_line = lf
+
+[*.sh]
+end_of_line = lf
+
+[.clang-format]
+end_of_line = lf
+
+[.gitignore]
+end_of_line = lf
+
+[*.cmake]
+indent_style = space
+indent_size = 2
+
+[*.md]
+indent_style = space
+indent_size = 2
+end_of_line = crlf
+
+[*.txt]
+end_of_line = crlf
+
+[AppRun]
+end_of_line = lf
+
+[{CMakeLists.txt,CMakeSettings.json}]
+indent_style = space
+indent_size = 2
+end_of_line = crlf
+
+[control]
+end_of_line = lf
