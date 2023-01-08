@@ -465,8 +465,8 @@ void LevelCelView::displayFrame()
         ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->celFrameWidthEdit->setText(QString::number(celFrame.width()));
-    this->ui->celFrameHeightEdit->setText(QString::number(celFrame.height()));
+    this->ui->celFrameWidthEdit->setText(QString::number(celFrame.width()) + " px");
+    this->ui->celFrameHeightEdit->setText(QString::number(celFrame.height()) + " px");
 
     // Set current frame text
     this->ui->frameIndexEdit->setText(
@@ -480,8 +480,10 @@ void LevelCelView::displayFrame()
         ->setPos(minPosX, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->minFrameWidthEdit->setText(QString::number(subtile.width()));
-    this->ui->minFrameHeightEdit->setText(QString::number(subtile.height()));
+    this->ui->minFrameWidthEdit->setText(QString::number(this->min->getSubtileWidth()));
+    this->ui->minFrameWidthEdit->setToolTip(QString::number(subtile.width()) + " px");
+    this->ui->minFrameHeightEdit->setText(QString::number(this->min->getSubtileHeight()));
+    this->ui->minFrameHeightEdit->setToolTip(QString::number(subtile.height()) + " px");
 
     // Set current subtile text
     this->ui->subtileIndexEdit->setText(
@@ -495,8 +497,10 @@ void LevelCelView::displayFrame()
         ->setPos(tilPosX, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->tilFrameWidthEdit->setText(QString::number(tile.width()));
-    this->ui->tilFrameHeightEdit->setText(QString::number(tile.height()));
+    this->ui->tilFrameWidthEdit->setText("2");
+    this->ui->tilFrameWidthEdit->setToolTip(QString::number(tile.width()) + " px");
+    this->ui->tilFrameHeightEdit->setText("2");
+    this->ui->tilFrameHeightEdit->setToolTip(QString::number(tile.height()) + " px");
 
     // Set current tile text
     this->ui->tileIndexEdit->setText(
@@ -756,6 +760,22 @@ void LevelCelView::on_tileIndexEdit_returnPressed()
         this->currentTileIndex = tileIndex;
         this->displayFrame();
     }
+}
+
+void LevelCelView::on_minFrameWidthEdit_returnPressed()
+{
+    unsigned width = this->ui->minFrameWidthEdit->text().toUInt();
+
+    this->min->setSubtileWidth(width);
+    this->displayFrame();
+}
+
+void LevelCelView::on_minFrameHeightEdit_returnPressed()
+{
+    unsigned height = this->ui->minFrameHeightEdit->text().toUInt();
+
+    this->min->setSubtileHeight(height);
+    this->displayFrame();
 }
 
 void LevelCelView::on_zoomOutButton_clicked()

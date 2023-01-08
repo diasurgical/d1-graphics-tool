@@ -178,9 +178,107 @@ quint16 D1Min::getSubtileWidth()
     return this->subtileWidth;
 }
 
+void D1Min::setSubtileWidth(int width)
+{
+    if (width == 0) {
+        return;
+    }
+    int prevWidth = this->subtileWidth;
+    int diff = width - prevWidth;
+    if (diff > 0) {
+        // extend the subtile-width
+        for (int i = 0; i < this->celFrameIndices.size(); i++) {
+            QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
+            for (int y = 0; y < this->subtileHeight; y++) {
+                for (int dx = 0; dx < diff; dx++) {
+                    celFrameIndicesList.insert(y * width + prevWidth, 0);
+                }
+            }
+        }
+    } else if (diff < 0) {
+        diff = -diff;
+        // check if there is a non-zero frame in the subtiles
+        bool hasFrame = false;
+        for (int i = 0; i < this->celFrameIndices.size() && !hasFrame; i++) {
+            QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
+            for (int y = 0; y < this->subtileHeight; y++) {
+                for (int x = width; x < prevWidth; x++) {
+                    if (celFrameIndicesList[y * prevWidth + x] != 0) {
+                        hasFrame = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (hasFrame) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Non-transparent frames are going to be eliminited. Are you sure you want to proceed?", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                return;
+            }
+        }
+        // reduce the subtile-width
+        for (int i = 0; i < this->celFrameIndices.size(); i++) {
+            QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
+            for (int y = 0; y < this->subtileHeight; y++) {
+                for (int dx = 0; dx < diff; dx++) {
+                    celFrameIndicesList.takeAt((y + 1) * width);
+                }
+            }
+        }
+    }
+    this->subtileWidth = width;
+}
+
 quint16 D1Min::getSubtileHeight()
 {
     return this->subtileHeight;
+}
+
+void D1Min::setSubtileHeight(int height)
+{
+    if (height == 0) {
+        return;
+    }
+    int width = this->subtileWidth;
+    int diff = height - this->subtileHeight;
+    if (diff > 0) {
+        // extend the subtile-height
+        int n = diff * width;
+        for (int i = 0; i < this->celFrameIndices.size(); i++) {
+            QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
+            for (int j = 0; j < n; j++) {
+                celFrameIndicesList.push_front(0);
+            }
+        }
+    } else if (diff < 0) {
+        diff = -diff;
+        // check if there is a non-zero frame in the subtiles
+        bool hasFrame = false;
+        int n = diff * width;
+        for (int i = 0; i < this->celFrameIndices.size() && !hasFrame; i++) {
+            QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
+            for (int j = 0; j < n; j++) {
+                if (celFrameIndicesList[j] != 0) {
+                    hasFrame = true;
+                    break;
+                }
+            }
+        }
+        if (hasFrame) {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(nullptr, "Confirmation", "Non-transparent frames are going to be eliminited. Are you sure you want to proceed?", QMessageBox::Yes | QMessageBox::No);
+            if (reply != QMessageBox::Yes) {
+                return;
+            }
+        }
+        // reduce the subtile-height
+        for (int i = 0; i < this->celFrameIndices.size(); i++) {
+            QList<quint16> &celFrameIndicesList = this->celFrameIndices[i];
+            celFrameIndicesList.erase(celFrameIndicesList.begin(), celFrameIndicesList.begin() + n);
+        }
+    }
+    this->subtileHeight = height;
 }
 
 QList<quint16> &D1Min::getCelFrameIndices(int subTileIndex)

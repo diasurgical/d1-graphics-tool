@@ -23,7 +23,9 @@ public:
     QString getFilePath();
     int getSubtileCount();
     quint16 getSubtileWidth();
+    void setSubtileWidth(int width);
     quint16 getSubtileHeight();
+    void setSubtileHeight(int height);
     QList<quint16> &getCelFrameIndices(int subTileIndex);
     void createSubtile();
     void removeSubtile(int subTileIndex);
