@@ -10,12 +10,6 @@
     <height>368</height>
    </rect>
   </property>
-  <property name="minimumSize">
-   <size>
-    <width>0</width>
-    <height>0</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>Open As</string>
   </property>
@@ -25,29 +19,11 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="inputFileGroupBox">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
      <layout class="QGridLayout" name="gridLayout_0">
       <item row="0" column="0">
        <widget class="QLabel" name="inputFileLabel">
         <property name="text">
-         <string>Input File: </string>
+         <string>Input File:</string>
         </property>
        </widget>
       </item>
@@ -68,7 +44,7 @@
       <item row="1" column="0">
         <widget class="QLabel" name="tilesetLabel">
           <property name="text">
-            <string>Tileset: </string>
+            <string>Tileset:</string>
           </property>
         </widget>
       </item>
@@ -141,32 +117,14 @@
    </item>
    <item>
     <widget class="QGroupBox" name="celSettingsGroupBox">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
      <property name="title">
       <string>CEL/CL2 File Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_1">
       <item row="0" column="0">
        <widget class="QLabel" name="celClippedLabel">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="text">
-         <string>Clipped: </string>
+         <string>Clipped:</string>
         </property>
        </widget>
       </item>
@@ -236,20 +194,8 @@
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="celWidthLabel">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="text">
-         <string>Width: </string>
+         <string>Width:</string>
         </property>
        </widget>
       </item>
@@ -289,20 +235,8 @@
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
        <widget class="QLabel" name="minWidthLabel">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="text">
-         <string>Width: </string>
+         <string>Width:</string>
         </property>
        </widget>
       </item>
@@ -327,20 +261,8 @@
       </item>
       <item row="1" column="0">
        <widget class="QLabel" name="minHeightLabel">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
         <property name="text">
-         <string>Height: </string>
+         <string>Height:</string>
         </property>
        </widget>
       </item>
@@ -366,7 +288,7 @@
       <item row="2" column="0">
        <widget class="QLabel" name="tilFileLabel">
         <property name="text">
-         <string>Til File: </string>
+         <string>Til File:</string>
         </property>
        </widget>
       </item>
@@ -387,7 +309,7 @@
       <item row="3" column="0">
        <widget class="QLabel" name="minFileLabel">
         <property name="text">
-         <string>Min File: </string>
+         <string>Min File:</string>
         </property>
        </widget>
       </item>
@@ -408,7 +330,7 @@
       <item row="4" column="0">
        <widget class="QLabel" name="solFileLabel">
         <property name="text">
-         <string>Sol File: </string>
+         <string>Sol File:</string>
         </property>
        </widget>
       </item>
@@ -429,7 +351,7 @@
       <item row="5" column="0">
        <widget class="QLabel" name="ampFileLabel">
         <property name="text">
-         <string>Til File: </string>
+         <string>Amp File:</string>
         </property>
        </widget>
       </item>
@@ -451,35 +373,7 @@
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::MinimumExpanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
     <widget class="QWidget" name="openButtonsWidget" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
      <layout class="QHBoxLayout" name="horizontalLayout_10">
       <property name="spacing">
        <number>4</number>
@@ -500,12 +394,6 @@
        <spacer name="horizontalSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>345</width>
-          <height>19</height>
-         </size>
         </property>
        </spacer>
       </item>

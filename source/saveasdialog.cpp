@@ -46,13 +46,10 @@ void SaveAsDialog::initialize(QJsonObject *cfg, D1Gfx *g, D1Min *min, D1Til *til
 
 void SaveAsDialog::update()
 {
-    if (this->isTileset) {
-        this->ui->celSettingsGroupBox->setEnabled(false);
-        this->ui->tilSettingsGroupBox->setEnabled(true);
-    } else {
-        this->ui->celSettingsGroupBox->setEnabled(true);
-        this->ui->tilSettingsGroupBox->setEnabled(false);
-    }
+    bool isTilesetGfx = this->isTileset;
+
+    this->ui->celSettingsGroupBox->setEnabled(!isTilesetGfx);
+    this->ui->tilSettingsGroupBox->setEnabled(isTilesetGfx);
 }
 
 void SaveAsDialog::on_outputCelFileBrowseButton_clicked()

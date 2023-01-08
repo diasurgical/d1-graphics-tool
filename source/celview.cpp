@@ -455,7 +455,7 @@ void CelView::on_playButton_clicked()
 {
     // disable the related fields
     this->ui->playButton->setEnabled(false);
-    this->ui->playDelayEdit->setEnabled(false);
+    this->ui->playDelayEdit->setReadOnly(false);
     this->ui->playComboBox->setEnabled(false);
     // enable the stop button
     this->ui->stopButton->setEnabled(true);
@@ -475,7 +475,7 @@ void CelView::on_stopButton_clicked()
     this->ui->stopButton->setEnabled(false);
     // enable the related fields
     this->ui->playButton->setEnabled(true);
-    this->ui->playDelayEdit->setEnabled(true);
+    this->ui->playDelayEdit->setReadOnly(true);
     this->ui->playComboBox->setEnabled(true);
 }
 

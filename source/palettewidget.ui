@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>265</height>
+    <width>450</width>
+    <height>200</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+   <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -175,9 +175,6 @@
            <layout class="QGridLayout" name="gridLayout">
             <item row="1" column="5">
              <widget class="QPushButton" name="translationClearPushButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -254,9 +251,6 @@
             </item>
             <item row="1" column="4">
              <widget class="QPushButton" name="translationPickPushButton">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -282,14 +276,8 @@
             </item>
             <item row="1" column="1">
              <widget class="QLineEdit" name="indexLineEdit">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
+              <property name="readOnly">
+               <bool>true</bool>
               </property>
               <property name="minimumSize">
                <size>
@@ -300,7 +288,7 @@
               <property name="maximumSize">
                <size>
                 <width>60</width>
-                <height>40</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="maxLength">
@@ -313,12 +301,6 @@
             </item>
             <item row="0" column="1" colspan="3">
              <widget class="QLineEdit" name="colorLineEdit">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="minimumSize">
                <size>
                 <width>100</width>
@@ -327,8 +309,8 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>16777215</width>
-                <height>40</height>
+                <width>100</width>
+                <height>16777215</height>
                </size>
               </property>
               <property name="maxLength">
@@ -341,12 +323,6 @@
             </item>
             <item row="1" column="3">
              <widget class="QLineEdit" name="translationIndexLineEdit">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
               <property name="minimumSize">
                <size>
                 <width>30</width>
@@ -356,7 +332,7 @@
               <property name="maximumSize">
                <size>
                 <width>30</width>
-                <height>40</height>
+                <height>16777215</height>
                </size>
               </property>
               <property name="maxLength">

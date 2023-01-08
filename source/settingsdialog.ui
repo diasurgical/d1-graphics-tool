@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>437</width>
-    <height>163</height>
+    <width>200</width>
+    <height>120</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,23 +20,39 @@
       <string>Palettes and translations</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="2">
-       <widget class="QLineEdit" name="defaultPaletteColorLineEdit">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+      <item row="0" column="0">
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="readOnly">
-         <bool>false</bool>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="defaultPaletteColorLabel">
+        <property name="text">
+         <string>Default palette color:</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="paletteSelectionBorderColorLabel">
-        <property name="text">
-         <string>Selection border color:</string>
+      <item row="0" column="2">
+       <widget class="QLineEdit" name="defaultPaletteColorLineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="maxLength">
+         <number>7</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -47,6 +63,42 @@
         </property>
        </widget>
       </item>
+      <item row="1" column="0">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="paletteSelectionBorderColorLabel">
+        <property name="text">
+         <string>Selection border color:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QLineEdit" name="paletteSelectionBorderColorLineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="maxLength">
+         <number>7</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
       <item row="1" column="3">
        <widget class="QPushButton" name="paletteSelectionBorderColorPushButton">
         <property name="text">
@@ -54,82 +106,11 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="defaultPaletteColorLabel">
-        <property name="text">
-         <string>Default palette color:</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QLineEdit" name="paletteSelectionBorderColorLineEdit">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="readOnly">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="0">
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
      </layout>
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
     <widget class="QWidget" name="settingsButtonsWidget" native="true">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
        <number>4</number>
@@ -147,15 +128,9 @@
        <number>4</number>
       </property>
       <item>
-       <spacer name="horizontalSpacer">
+       <spacer name="groupLeftHorizontalSpacer_0">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>345</width>
-          <height>19</height>
-         </size>
         </property>
        </spacer>
       </item>
