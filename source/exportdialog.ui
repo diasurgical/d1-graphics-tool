@@ -22,7 +22,7 @@
      <property name="title">
       <string>Output Folder</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4">
+     <layout class="QHBoxLayout" name="horizontalLayout_0">
       <item>
        <widget class="QLineEdit" name="outputFolderEdit">
         <property name="readOnly">
@@ -47,278 +47,279 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
-       <widget class="QLabel" name="outputFilesSettingsLabel">
+       <widget class="QLabel" name="outputFilesFormatLabel">
         <property name="text">
          <string>Format:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QWidget" name="filesFormatWidget" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="spacing">
-          <number>4</number>
-         </property>
-         <property name="leftMargin">
-          <number>4</number>
-         </property>
-         <property name="topMargin">
-          <number>4</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>4</number>
-         </property>
-         <item>
-          <widget class="QRadioButton" name="pngRadioButton">
-           <property name="text">
-            <string>PNG</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">outputFilesFormatButtonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="bmpRadioButton">
-           <property name="text">
-            <string>BMP</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">outputFilesFormatButtonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <spacer name="filesHorizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
+       <widget class="QComboBox" name="formatComboBox"/>
+      </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </spacer>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="outputFilesLabel">
+       <widget class="QLabel" name="outputFilesCountLabel">
         <property name="text">
          <string>File(s):</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QWidget" name="filesSettingWidget" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <property name="spacing">
-          <number>4</number>
+       <widget class="QComboBox" name="filesCountComboBox">
+        <item>
+         <property name="text">
+          <string>One</string>
          </property>
-         <property name="leftMargin">
-          <number>4</number>
+        </item>
+        <item>
+         <property name="text">
+          <string>Multi</string>
          </property>
-         <property name="topMargin">
-          <number>4</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>4</number>
-         </property>
-         <item>
-          <widget class="QRadioButton" name="oneFileForEachFrameRadioButton">
-           <property name="text">
-            <string>One file for each frame</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">outputFilesButtonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="oneFileForAllFramesRadioButton">
-           <property name="text">
-            <string>One file for all frames</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">outputFilesButtonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <spacer name="filesFormatHorizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </spacer>
-         </item>
-        </layout>
+        </item>
        </widget>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="framesSettingsGroupBox">
+    <widget class="QGroupBox" name="outputContentGroupBox">
      <property name="title">
-      <string>Frame(s) Settings</string>
+      <string>Content Settings</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QLabel" name="spritesSettingsLabel">
+       <widget class="QLabel" name="outputContentTypeLabel">
         <property name="text">
-         <string>Sprites Settings:</string>
+         <string>Type:</string>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QWidget" name="spritesSettingsWidget" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <property name="spacing">
-          <number>4</number>
+       <widget class="QComboBox" name="contentTypeComboBox">
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>90</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>Frame</string>
          </property>
-         <property name="leftMargin">
-          <number>4</number>
+        </item>
+        <item>
+         <property name="text">
+          <string>Subtile</string>
          </property>
-         <property name="topMargin">
-          <number>4</number>
+        </item>
+        <item>
+         <property name="text">
+          <string>Flat Tile</string>
          </property>
-         <property name="rightMargin">
-          <number>4</number>
+        </item>
+        <item>
+         <property name="text">
+          <string>2.5D Tile</string>
          </property>
-         <property name="bottomMargin">
-          <number>4</number>
-         </property>
-         <item>
-          <widget class="QRadioButton" name="oneFrameGroupPerLineRadioButton">
-           <property name="text">
-            <string>One frame group per line</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">spritesSettingsButtonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="allFramesOnOneLineRadioButton">
-           <property name="text">
-            <string>All frames on one line</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">spritesSettingsButtonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="allFramesOnOneColumnRadioButton">
-           <property name="text">
-            <string>All frames on one column</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">spritesSettingsButtonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </spacer>
-         </item>
-        </layout>
+        </item>
        </widget>
       </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </spacer>
+      </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="levelFramesLabel">
+       <widget class="QLabel" name="outputContentPlacementLabel">
         <property name="text">
-         <string>Level Settings:</string>
+         <string>Placement:</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QWidget" name="levelFramesSettingsWidget" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <widget class="QComboBox" name="contentPlacementComboBox">
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>90</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <item>
+         <property name="text">
+          <string>Grouped</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>One line</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>One column</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="outputContentRangeLabel">
+        <property name="text">
+         <string>Range:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QWidget" name="rangeFieldsWidget" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>120</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>120</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="spacing">
           <number>4</number>
          </property>
          <property name="leftMargin">
-          <number>4</number>
+          <number>0</number>
          </property>
          <property name="topMargin">
-          <number>4</number>
+          <number>0</number>
          </property>
          <property name="rightMargin">
-          <number>4</number>
+          <number>0</number>
          </property>
          <property name="bottomMargin">
-          <number>4</number>
+          <number>0</number>
          </property>
          <item>
-          <widget class="QRadioButton" name="exportLevelTiles">
+          <widget class="QLineEdit" name="contentRangeFromEdit">
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>From</string>
+           </property>
            <property name="text">
-            <string>Export tile(s)</string>
+            <string>0</string>
            </property>
-           <property name="checked">
-            <bool>true</bool>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
-           <attribute name="buttonGroup">
-            <string notr="true">levelFramesButtonGroup</string>
-           </attribute>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="exportLevelSubtiles">
-           <property name="text">
-            <string>Export subtile(s)</string>
+          <widget class="QLabel" name="contentRangeSepLabel">
+           <property name="minimumSize">
+            <size>
+             <width>8</width>
+             <height>0</height>
+            </size>
            </property>
-           <attribute name="buttonGroup">
-            <string notr="true">levelFramesButtonGroup</string>
-           </attribute>
+           <property name="maximumSize">
+            <size>
+             <width>8</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>-</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="exportLevelFrames">
+          <widget class="QLineEdit" name="contentRangeToEdit">
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>50</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>To</string>
+           </property>
            <property name="text">
-            <string>Export frame(s)</string>
+            <string>0</string>
            </property>
-           <property name="checked">
-            <bool>false</bool>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
-           <attribute name="buttonGroup">
-            <string notr="true">levelFramesButtonGroup</string>
-           </attribute>
           </widget>
-         </item>
-         <item>
-          <spacer name="framesHorizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </spacer>
          </item>
         </layout>
        </widget>
+      </item>
+      <item row="2" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
    </item>
    <item>
     <widget class="QWidget" name="exportButtonsWidget" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="spacing">
        <number>4</number>
       </property>
@@ -362,10 +363,5 @@
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="outputFilesButtonGroup"/>
-  <buttongroup name="levelFramesButtonGroup"/>
-  <buttongroup name="spritesSettingsButtonGroup"/>
-  <buttongroup name="outputFilesFormatButtonGroup"/>
- </buttongroups>
+ <buttongroups/>
 </ui>

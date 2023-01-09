@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QPainter>
 
-#define TILE_SIZE (2 * 2)
+#define TILE_SIZE (TILE_WIDTH * TILE_HEIGHT)
 
 bool D1Til::load(QString filePath, D1Min *m)
 {
@@ -102,7 +102,7 @@ QImage D1Til::getTileImage(int tileIndex)
 
     unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
     unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
-    // assert(TILE_SIZE == 2 * 2);
+    // assert(TILE_WIDTH == 2 &&  TILE_HEIGHT == 2);
     unsigned subtileShiftY = subtileWidth / 4;
     QImage tile = QImage(subtileWidth * 2,
         subtileHeight + 2 * subtileShiftY, QImage::Format_ARGB32);
@@ -124,6 +124,27 @@ QImage D1Til::getTileImage(int tileIndex)
     tilePainter.drawImage(subtileWidth / 2, 2 * subtileShiftY,
         this->min->getSubtileImage(
             this->subtileIndices.at(tileIndex).at(3)));
+
+    tilePainter.end();
+    return tile;
+}
+
+QImage D1Til::getFlatTileImage(int tileIndex)
+{
+    if (tileIndex < 0 || tileIndex >= this->subtileIndices.size())
+        return QImage();
+
+    unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
+    unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
+    QImage tile = QImage(subtileWidth * TILE_SIZE, subtileHeight, QImage::Format_ARGB32);
+    tile.fill(Qt::transparent);
+    QPainter tilePainter(&tile);
+
+    for (int i = 0; i < TILE_SIZE; i++) {
+        tilePainter.drawImage(subtileWidth * i, 0,
+            this->min->getSubtileImage(
+                this->subtileIndices.at(tileIndex).at(i)));
+    }
 
     tilePainter.end();
     return tile;

@@ -497,9 +497,9 @@ void LevelCelView::displayFrame()
         ->setPos(tilPosX, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->tilFrameWidthEdit->setText("2");
+    this->ui->tilFrameWidthEdit->setText(QString::number(TILE_WIDTH));
     this->ui->tilFrameWidthEdit->setToolTip(QString::number(tile.width()) + " px");
-    this->ui->tilFrameHeightEdit->setText("2");
+    this->ui->tilFrameHeightEdit->setText(QString::number(TILE_HEIGHT));
     this->ui->tilFrameHeightEdit->setToolTip(QString::number(tile.height()) + " px");
 
     // Set current tile text

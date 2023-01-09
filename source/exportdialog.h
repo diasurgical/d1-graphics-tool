@@ -13,6 +13,12 @@ namespace Ui {
 class ExportDialog;
 }
 
+// subtiles per line if the output is groupped, an odd number to ensure it is not recognized as a flat tile
+#define EXPORT_SUBTILES_PER_LINE 15
+
+// frames per line if the output of a tileset-frames is groupped, an odd number to ensure it is not recognized as a flat tile or as subtiles
+#define EXPORT_LVLFRAMES_PER_LINE 31
+
 class ExportDialog : public QDialog {
     Q_OBJECT
 
@@ -22,21 +28,18 @@ public:
 
     void initialize(QJsonObject *cfg, D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
 
-    void setCurrentFrame(quint16);
-
-    QString getFileFormatExtension();
-
 private slots:
     void on_outputFolderBrowseButton_clicked();
     void on_exportButton_clicked();
     void on_exportCancelButton_clicked();
-    void on_oneFileForAllFramesRadioButton_toggled(bool checked);
 
 private:
+    QString getFileFormatExtension();
+
+    bool exportLevelTiles25D(QProgressDialog &progress);
     bool exportLevelTiles(QProgressDialog &progress);
     bool exportLevelSubtiles(QProgressDialog &progress);
-    bool exportLevel(QProgressDialog &progress);
-    bool exportSprites(QProgressDialog &progress);
+    bool exportFrames(QProgressDialog &progress);
 
     Ui::ExportDialog *ui;
     QJsonObject *configuration;

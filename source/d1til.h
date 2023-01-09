@@ -5,6 +5,9 @@
 #include "d1min.h"
 #include "saveasdialog.h"
 
+#define TILE_WIDTH 2
+#define TILE_HEIGHT 2
+
 class D1Til : public QObject {
     Q_OBJECT
 
@@ -16,6 +19,7 @@ public:
     bool save(const SaveAsParam &params);
 
     QImage getTileImage(int tileIndex);
+    QImage getFlatTileImage(int tileIndex);
 
     QString getFilePath();
     int getTileCount();

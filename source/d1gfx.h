@@ -40,16 +40,16 @@ public:
     D1GfxFrame() = default;
     ~D1GfxFrame() = default;
 
-    quint16 getWidth() const;
-    quint16 getHeight() const;
-    D1GfxPixel getPixel(quint16, quint16) const;
+    int getWidth() const;
+    int getHeight() const;
+    D1GfxPixel getPixel(int x, int y) const;
     bool isClipped() const;
     D1CEL_FRAME_TYPE getFrameType() const;
     void setFrameType(D1CEL_FRAME_TYPE type);
 
 protected:
-    quint16 width = 0;
-    quint16 height = 0;
+    int width = 0;
+    int height = 0;
     QList<QList<D1GfxPixel>> pixels;
     bool clipped = false;
     D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::Unknown;
@@ -90,8 +90,8 @@ public:
     QPair<quint16, quint16> getGroupFrameIndices(int groupIndex);
     int getFrameCount();
     D1GfxFrame *getFrame(int frameIndex);
-    quint16 getFrameWidth(int frameIndex);
-    quint16 getFrameHeight(int frameIndex);
+    int getFrameWidth(int frameIndex);
+    int getFrameHeight(int frameIndex);
 
 protected:
     D1CEL_TYPE type = D1CEL_TYPE::UNKNOWN;

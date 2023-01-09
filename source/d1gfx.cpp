@@ -18,19 +18,19 @@ quint8 D1GfxPixel::getPaletteIndex() const
     return this->paletteIndex;
 }
 
-quint16 D1GfxFrame::getWidth() const
+int D1GfxFrame::getWidth() const
 {
     return this->width;
 }
 
-quint16 D1GfxFrame::getHeight() const
+int D1GfxFrame::getHeight() const
 {
     return this->height;
 }
 
-D1GfxPixel D1GfxFrame::getPixel(quint16 x, quint16 y) const
+D1GfxPixel D1GfxFrame::getPixel(int x, int y) const
 {
-    if (x < this->width && y < this->height)
+    if (x >= 0 && x < this->width && y >= 0 && y < this->height)
         return this->pixels[y][x];
 
     return {};
@@ -57,8 +57,8 @@ bool D1Gfx::isFrameSizeConstant()
         return false;
     }
 
-    quint16 frameWidth = this->frames[0].getWidth();
-    quint16 frameHeight = this->frames[0].getHeight();
+    int frameWidth = this->frames[0].getWidth();
+    int frameHeight = this->frames[0].getHeight();
 
     for (int i = 1; i < this->frames.count(); i++) {
         if (this->frames[i].getWidth() != frameWidth
@@ -225,7 +225,7 @@ D1GfxFrame *D1Gfx::getFrame(int frameIndex)
     return &this->frames[frameIndex];
 }
 
-quint16 D1Gfx::getFrameWidth(int frameIndex)
+int D1Gfx::getFrameWidth(int frameIndex)
 {
     if (frameIndex < 0 || frameIndex >= this->frames.count())
         return 0;
@@ -233,7 +233,7 @@ quint16 D1Gfx::getFrameWidth(int frameIndex)
     return this->frames[frameIndex].getWidth();
 }
 
-quint16 D1Gfx::getFrameHeight(int frameIndex)
+int D1Gfx::getFrameHeight(int frameIndex)
 {
     if (frameIndex < 0 || frameIndex >= this->frames.count())
         return 0;

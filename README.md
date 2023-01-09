@@ -1,6 +1,5 @@
 # Diablo 1 Graphics Tool
 [![Downloads](https://img.shields.io/github/downloads/diasurgical/d1-graphics-tool/total.svg)](https://github.com/diasurgical/d1-graphics-tool/releases)
-![GitHub](https://img.shields.io/github/license/diasurgical/d1-graphics-tool)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/diasurgical/d1-graphics-tool?include_prereleases)
 ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/downloads-pre/diasurgical/d1-graphics-tool/latest/total)
 [![Windows-x64](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows.yml/badge.svg)](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows.yml)
@@ -12,7 +11,7 @@ Diablo 1 Graphics Tool can display and edit Diablo 1 assets (CEL/CL2 graphics fi
 
 ![Screenshot 1](/resources/demo001.gif)
 
-This tool is cross-platform, it can be compiled on Windows, Linux, or macOS (using the Qt5/6 Framework).  
+This tool is cross-platform, it can be compiled on Windows, Linux, or macOS (using the Qt5/6 Framework).
 Go to the [releases page](https://github.com/diasurgical/d1-graphics-tool/releases) to download the latest build.
 
 ## Features
@@ -20,7 +19,7 @@ Go to the [releases page](https://github.com/diasurgical/d1-graphics-tool/releas
 - Mono and multi-group CL2 support with animation.
 - PAL/TRN support.
 - Palette hits and color translation hits display.
-- Bitmap and PNG export in multiple files or tiled file.
+- Exporting to (multiple) image files (PNG, BMP, JPG, etc...).
 
 For a full list of features and changes see our [changelog](CHANGELOG.md).
 
