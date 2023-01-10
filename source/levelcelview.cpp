@@ -465,7 +465,8 @@ void LevelCelView::displayFrame()
         ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->celFrameHeightLabel->setText(QString::number(celFrame.width()) + " x " + QString::number(celFrame.height()) + " px");
+    this->ui->celFrameWidthEdit->setText(QString::number(celFrame.width()));
+    this->ui->celFrameHeightEdit->setText(QString::number(celFrame.height()));
 
     // Set current frame text
     this->ui->frameIndexEdit->setText(
@@ -479,7 +480,8 @@ void LevelCelView::displayFrame()
         ->setPos(minPosX, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->minFrameHeightLabel->setText(QString::number(subtile.width()) + " x " + QString::number(subtile.height()) + " px");
+    this->ui->minFrameWidthEdit->setText(QString::number(subtile.width()));
+    this->ui->minFrameHeightEdit->setText(QString::number(subtile.height()));
 
     // Set current subtile text
     this->ui->subtileIndexEdit->setText(
@@ -493,7 +495,8 @@ void LevelCelView::displayFrame()
         ->setPos(tilPosX, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->tilFrameHeightLabel->setText(QString::number(tile.width()) + " x " + QString::number(tile.height()) + " px");
+    this->ui->tilFrameWidthEdit->setText(QString::number(tile.width()));
+    this->ui->tilFrameHeightEdit->setText(QString::number(tile.height()));
 
     // Set current tile text
     this->ui->tileIndexEdit->setText(
