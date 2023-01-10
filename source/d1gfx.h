@@ -77,8 +77,8 @@ public:
 
     bool isFrameSizeConstant();
     QImage getFrameImage(quint16 frameIndex);
-    D1GfxFrame *insertFrame(quint16 frameIndex, QString imageFilePath);
-    D1GfxFrame *replaceFrame(quint16 frameIndex, QString imagefilePath);
+    D1GfxFrame *insertFrame(int frameIndex, const QString &imageFilePath);
+    D1GfxFrame *replaceFrame(int frameIndex, const QString &imagefilePath);
     void removeFrame(quint16 frameIndex);
 
     D1CEL_TYPE getType();

@@ -99,7 +99,7 @@ QImage D1Gfx::getFrameImage(quint16 frameIndex)
     return image;
 }
 
-D1GfxFrame *D1Gfx::insertFrame(quint16 idx, QString imageFilePath)
+D1GfxFrame *D1Gfx::insertFrame(int idx, const QString &imageFilePath)
 {
     bool clipped;
     QImage image = QImage(imageFilePath);
@@ -138,7 +138,7 @@ D1GfxFrame *D1Gfx::insertFrame(quint16 idx, QString imageFilePath)
     return &this->frames[idx];
 }
 
-D1GfxFrame *D1Gfx::replaceFrame(quint16 idx, QString imagefilePath)
+D1GfxFrame *D1Gfx::replaceFrame(int idx, const QString &imagefilePath)
 {
     QImage image = QImage(imagefilePath);
 

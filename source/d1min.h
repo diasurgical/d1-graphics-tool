@@ -18,7 +18,7 @@ public:
     bool load(QString minFilePath, D1Gfx *gfx, D1Sol *sol, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params);
     bool save(const SaveAsParam &params);
 
-    QImage getSubtileImage(int subTileIndex);
+    QImage getSubtileImage(int subtileIndex);
 
     QString getFilePath();
     int getSubtileCount();
@@ -26,9 +26,9 @@ public:
     void setSubtileWidth(int width);
     quint16 getSubtileHeight();
     void setSubtileHeight(int height);
-    QList<quint16> &getCelFrameIndices(int subTileIndex);
+    QList<quint16> &getCelFrameIndices(int subtileIndex);
     void createSubtile();
-    void removeSubtile(int subTileIndex);
+    void removeSubtile(int subtileIndex);
 
 private:
     QString minFilePath;

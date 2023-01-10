@@ -48,7 +48,6 @@ public:
     void openImageFiles(QStringList filePaths, bool append);
     void openPalFiles(QStringList filePaths, PaletteWidget *widget);
     void saveFile(const SaveAsParam &params);
-    void addFrames(bool append);
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
 
@@ -64,10 +63,12 @@ public:
 
 private:
     void loadConfiguration();
-    void updateView();
+    void updateWindow();
     bool loadPal(QString palFilePath);
     bool loadTrn1(QString trnfilePath);
     bool loadTrn2(QString trnfilePath);
+
+    void addFrames(bool append);
 
 public slots:
     void on_actionInsert_Frame_triggered();

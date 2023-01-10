@@ -34,7 +34,7 @@ private slots:
     void contextMenuEvent(QContextMenuEvent *event);
 
 signals:
-    void framePixelClicked(quint16, quint16);
+    void framePixelClicked(unsigned x, unsigned y);
 
 private:
     QWidget *view;
@@ -49,7 +49,7 @@ public:
 
     void initialize(D1Gfx *gfx);
     int getCurrentFrameIndex();
-    void framePixelClicked(quint16, quint16);
+    void framePixelClicked(unsigned x, unsigned y);
     void insertFrames(QStringList imagefilePaths, bool append);
     void replaceCurrentFrame(QString imagefilePath);
     void removeCurrentFrame();
@@ -68,11 +68,6 @@ public slots:
     void ShowContextMenu(const QPoint &pos);
 
 private slots:
-    void on_actionInsert_Frame_triggered();
-    void on_actionAdd_Frame_triggered();
-    void on_actionReplace_Frame_triggered();
-    void on_actionDel_Frame_triggered();
-
     void on_firstFrameButton_clicked();
     void on_previousFrameButton_clicked();
     void on_nextFrameButton_clicked();

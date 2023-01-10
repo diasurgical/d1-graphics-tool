@@ -40,7 +40,7 @@ protected:
     void contextMenuEvent(QContextMenuEvent *event);
 
 signals:
-    void framePixelClicked(quint16, quint16);
+    void framePixelClicked(unsigned x, unsigned y);
 
 private:
     QWidget *view;
@@ -58,9 +58,9 @@ public:
     int getCurrentFrameIndex();
     int getCurrentSubtileIndex();
     int getCurrentTileIndex();
-    void framePixelClicked(quint16, quint16);
-    void insertFrames(QStringList imagefilePaths, bool append);
-    void replaceCurrentFrame(QString imagefilePath);
+    void framePixelClicked(unsigned x, unsigned y);
+    void insertFrames(const QStringList &imagefilePaths, bool append);
+    void replaceCurrentFrame(const QString &imagefilePath);
     void removeCurrentFrame();
     void createSubtile();
     void cloneSubtile();
@@ -79,15 +79,6 @@ public slots:
     void ShowContextMenu(const QPoint &pos);
 
 private slots:
-    void on_actionInsert_Frame_triggered();
-    void on_actionAdd_Frame_triggered();
-    void on_actionReplace_Frame_triggered();
-    void on_actionDel_Frame_triggered();
-    void on_actionCreate_Subtile_triggered();
-    void on_actionDel_Subtile_triggered();
-    void on_actionCreate_Tile_triggered();
-    void on_actionDel_Tile_triggered();
-
     void on_firstFrameButton_clicked();
     void on_previousFrameButton_clicked();
     void on_nextFrameButton_clicked();

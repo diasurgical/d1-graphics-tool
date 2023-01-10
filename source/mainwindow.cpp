@@ -159,19 +159,22 @@ void MainWindow::loadConfiguration()
     }
 }
 
-void MainWindow::updateView()
+void MainWindow::updateWindow()
 {
     // rebuild palette hits
     this->palHits->buildPalHits();
     this->palWidget->refresh();
     this->undoStack->clear();
     // update menu options
-    this->ui->actionReplace_Frame->setEnabled(this->gfx->getFrameCount() != 0);
-    this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
-    this->ui->actionCreate_Subtile->setEnabled(this->levelCelView != nullptr);
-    this->ui->actionDel_Subtile->setEnabled(this->levelCelView != nullptr && this->min->getSubtileCount() != 0);
-    this->ui->actionCreate_Tile->setEnabled(this->levelCelView != nullptr && this->min->getSubtileCount() != 0);
-    this->ui->actionDel_Tile->setEnabled(this->levelCelView != nullptr && this->til->getTileCount() != 0);
+    bool hasFrame = this->gfx->getFrameCount() != 0;
+    this->ui->actionReplace_Frame->setEnabled(hasFrame);
+    this->ui->actionDel_Frame->setEnabled(hasFrame);
+    bool isTileset = this->levelCelView != nullptr;
+    bool hasSubtile = this->min->getSubtileCount() != 0;
+    this->ui->actionDel_Subtile->setEnabled(isTileset && hasSubtile);
+    this->ui->actionCreate_Tile->setEnabled(isTileset && hasSubtile);
+    bool hasTile = this->til->getTileCount() != 0;
+    this->ui->actionDel_Tile->setEnabled(isTileset && hasTile);
 }
 
 bool MainWindow::loadPal(QString palFilePath)
@@ -684,10 +687,7 @@ void MainWindow::openFile(const OpenAsParam &params)
         this->palWidget->selectPath(firstPaletteFound);
 
     // Adding the CelView to the main frame
-    if (this->celView != nullptr)
-        this->ui->mainFrame->layout()->addWidget(this->celView);
-    else
-        this->ui->mainFrame->layout()->addWidget(this->levelCelView);
+    this->ui->mainFrame->layout()->addWidget(isTileset ? (QWidget *)this->levelCelView : this->celView);
 
     // Adding the PalView to the pal frame
     // this->ui->palFrame->layout()->addWidget( this->palView );
@@ -701,12 +701,9 @@ void MainWindow::openFile(const OpenAsParam &params)
     this->ui->actionClose->setEnabled(true);
     this->ui->actionInsert_Frame->setEnabled(true);
     this->ui->actionAdd_Frame->setEnabled(true);
-    this->ui->actionReplace_Frame->setEnabled(this->gfx->getFrameCount() != 0);
-    this->ui->actionDel_Frame->setEnabled(this->gfx->getFrameCount() != 0);
     this->ui->actionCreate_Subtile->setEnabled(isTileset);
-    this->ui->actionDel_Subtile->setEnabled(isTileset && this->min->getSubtileCount() != 0);
-    this->ui->actionCreate_Tile->setEnabled(isTileset && this->min->getSubtileCount() != 0);
-    this->ui->actionDel_Tile->setEnabled(isTileset && this->til->getTileCount() != 0);
+
+    this->updateWindow();
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -727,7 +724,7 @@ void MainWindow::openImageFiles(QStringList filePaths, bool append)
     if (this->levelCelView != nullptr) {
         this->levelCelView->insertFrames(filePaths, append);
     }
-    this->updateView();
+    this->updateWindow();
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -977,7 +974,7 @@ void MainWindow::on_actionReplace_Frame_triggered()
     if (this->levelCelView != nullptr) {
         this->levelCelView->replaceCurrentFrame(imgFilePath);
     }
-    this->updateView();
+    this->updateWindow();
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -991,13 +988,13 @@ void MainWindow::on_actionDel_Frame_triggered()
     if (this->levelCelView != nullptr) {
         this->levelCelView->removeCurrentFrame();
     }
-    this->updateView();
+    this->updateWindow();
 }
 
 void MainWindow::on_actionCreate_Subtile_triggered()
 {
     this->levelCelView->createSubtile();
-    this->updateView();
+    this->updateWindow();
 }
 
 void MainWindow::on_actionClone_Subtile_triggered()
@@ -1009,13 +1006,13 @@ void MainWindow::on_actionClone_Subtile_triggered()
 void MainWindow::on_actionDel_Subtile_triggered()
 {
     this->levelCelView->removeCurrentSubtile();
-    this->updateView();
+    this->updateWindow();
 }
 
 void MainWindow::on_actionCreate_Tile_triggered()
 {
     this->levelCelView->createTile();
-    this->updateView();
+    this->updateWindow();
 }
 
 void MainWindow::on_actionClone_Tile_triggered()
@@ -1027,7 +1024,7 @@ void MainWindow::on_actionClone_Tile_triggered()
 void MainWindow::on_actionDel_Tile_triggered()
 {
     this->levelCelView->removeCurrentTile();
-    this->updateView();
+    this->updateWindow();
 }
 
 void MainWindow::on_actionNew_PAL_triggered()

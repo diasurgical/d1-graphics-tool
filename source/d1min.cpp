@@ -281,9 +281,9 @@ void D1Min::setSubtileHeight(int height)
     this->subtileHeight = height;
 }
 
-QList<quint16> &D1Min::getCelFrameIndices(int subTileIndex)
+QList<quint16> &D1Min::getCelFrameIndices(int subtileIndex)
 {
-    return const_cast<QList<quint16> &>(this->celFrameIndices.at(subTileIndex));
+    return const_cast<QList<quint16> &>(this->celFrameIndices.at(subtileIndex));
 }
 
 void D1Min::createSubtile()
@@ -297,7 +297,7 @@ void D1Min::createSubtile()
     this->celFrameIndices.append(celFrameIndicesList);
 }
 
-void D1Min::removeSubtile(int subTileIndex)
+void D1Min::removeSubtile(int subtileIndex)
 {
-    this->celFrameIndices.removeAt(subTileIndex);
+    this->celFrameIndices.removeAt(subtileIndex);
 }

@@ -108,7 +108,9 @@ QImage D1Til::getTileImage(int tileIndex)
         subtileHeight + 2 * subtileShiftY, QImage::Format_ARGB32);
     tile.fill(Qt::transparent);
     QPainter tilePainter(&tile);
-
+    //      0
+    //    2   1
+    //      3
     tilePainter.drawImage(subtileWidth / 2, 0,
         this->min->getSubtileImage(
             this->subtileIndices.at(tileIndex).at(0)));

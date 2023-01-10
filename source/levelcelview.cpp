@@ -24,10 +24,10 @@ void LevelCelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
     }
 
-    qDebug() << "Clicked: " << event->scenePos().x() << "," << event->scenePos().y();
+    int x = event->scenePos().x();
+    int y = event->scenePos().y();
 
-    quint16 x = (quint16)event->scenePos().x();
-    quint16 y = (quint16)event->scenePos().y();
+    qDebug() << "Clicked: " << x << "," << y;
 
     emit this->framePixelClicked(x, y);
 }
@@ -75,7 +75,7 @@ LevelCelView::LevelCelView(QWidget *parent)
     ui->stopButton->setEnabled(false);
     this->playTimer.connect(&this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()));
     ui->tilesTabs->addTab(this->tabTileWidget, "Tile properties");
-    ui->tilesTabs->addTab(this->tabSubTileWidget, "Sub-Tile properties");
+    ui->tilesTabs->addTab(this->tabSubTileWidget, "Subtile properties");
     ui->tilesTabs->addTab(this->tabFrameWidget, "Frame properties");
 
     // If a pixel of the frame, subtile or tile was clicked get pixel color index and notify the palette widgets
@@ -142,40 +142,41 @@ int LevelCelView::getCurrentTileIndex()
     return this->currentTileIndex;
 }
 
-void LevelCelView::framePixelClicked(quint16 x, quint16 y)
+void LevelCelView::framePixelClicked(unsigned x, unsigned y)
 {
     quint8 index = 0;
 
-    quint16 celFrameWidth = this->gfx->getFrameWidth(this->currentFrameIndex);
-    quint16 subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
-    quint16 tileWidth = subtileWidth * 2;
+    unsigned celFrameWidth = MICRO_WIDTH; // this->gfx->getFrameWidth(this->currentFrameIndex);
+    unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
+    unsigned tileWidth = subtileWidth * TILE_WIDTH;
 
-    quint16 celFrameHeight = this->gfx->getFrameHeight(this->currentFrameIndex);
-    quint16 subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
-    quint16 tileHeight = subtileHeight + 32;
+    unsigned celFrameHeight = MICRO_HEIGHT; // this->gfx->getFrameHeight(this->currentFrameIndex);
+    unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
+    unsigned subtileShiftY = subtileWidth / 4;
+    unsigned tileHeight = subtileHeight + 2 * subtileShiftY;
 
-    if (x > CEL_SCENE_SPACING && x < (celFrameWidth + CEL_SCENE_SPACING)
-        && y > CEL_SCENE_SPACING && y < (celFrameHeight + CEL_SCENE_SPACING)
+    if (x >= CEL_SCENE_SPACING && x < (celFrameWidth + CEL_SCENE_SPACING)
+        && y >= CEL_SCENE_SPACING && y < (celFrameHeight + CEL_SCENE_SPACING)
         && this->gfx->getFrameCount() != 0) {
         // If CEL frame color is clicked, select it in the palette widgets
         D1GfxFrame *frame = this->gfx->getFrame(this->currentFrameIndex);
         index = frame->getPixel(x - CEL_SCENE_SPACING, y - CEL_SCENE_SPACING).getPaletteIndex();
 
         emit this->colorIndexClicked(index);
-    } else if (x > (celFrameWidth + CEL_SCENE_SPACING * 2)
+    } else if (x >= (celFrameWidth + CEL_SCENE_SPACING * 2)
         && x < (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 2)
-        && y > CEL_SCENE_SPACING
+        && y >= CEL_SCENE_SPACING
         && y < (subtileHeight + CEL_SCENE_SPACING)
         && this->min->getSubtileCount() != 0) {
         // When a CEL frame is clicked in the subtile, display the corresponding CEL frame
 
         // Adjust coordinates
-        quint16 stx = x - celFrameWidth - CEL_SCENE_SPACING * 2;
-        quint16 sty = y - CEL_SCENE_SPACING;
+        unsigned stx = x - celFrameWidth - CEL_SCENE_SPACING * 2;
+        unsigned sty = y - CEL_SCENE_SPACING;
 
         // qDebug() << "Subtile clicked: " << stx << "," << sty;
 
-        quint8 stFrame = (sty / 32) * 2 + (stx / 32);
+        int stFrame = (sty / MICRO_HEIGHT) * TILE_WIDTH + (stx / MICRO_WIDTH);
         QList<quint16> &minFrames = this->min->getCelFrameIndices(this->currentSubtileIndex);
         quint16 frameIndex = minFrames.count() > stFrame ? minFrames.at(stFrame) : 0;
 
@@ -183,40 +184,44 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
             this->currentFrameIndex = frameIndex - 1;
             this->displayFrame();
         }
-    } else if (x > (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3)
+    } else if (x >= (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3)
         && x < (celFrameWidth + subtileWidth + tileWidth + CEL_SCENE_SPACING * 3)
-        && y > CEL_SCENE_SPACING
+        && y >= CEL_SCENE_SPACING
         && y < tileHeight + CEL_SCENE_SPACING
         && this->til->getTileCount() != 0) {
         // When a subtile is clicked in the tile, display the corresponding subtile
 
         // Adjust coordinates
-        quint16 tx = x - celFrameWidth - subtileWidth - CEL_SCENE_SPACING * 3;
-        quint16 ty = y - CEL_SCENE_SPACING;
+        unsigned tx = x - celFrameWidth - subtileWidth - CEL_SCENE_SPACING * 3;
+        unsigned ty = y - CEL_SCENE_SPACING;
 
         // qDebug() << "Tile clicked" << tx << "," << ty;
 
-        // Ground squares must be clicked
-        // The four squares can be delimited by the following functions
-        // f(x) = 0.5x + (tileHeight - 4*16)
-        // g(x) = -0.5x + tileHeight
-        // f(tx)
-        int ftx = tx / 2 + tileHeight - 64;
-        // g(tx)
-        int gtx = -tx / 2 + tileHeight;
+        // Split the area based on the ground squares
+        // f(x)\ 0 /
+        //      \ /
+        //   2   *   1
+        //      / \  
+        // g(x)/ 3 \
+        //
+        // f(x) = (tileHeight - 2 * subtileShiftY) + 0.5x
+        unsigned ftx = (tileHeight - 2 * subtileShiftY) + tx / 2;
+        // g(tx) = tileHeight - 0.5x
+        unsigned gtx = tileHeight - tx / 2;
         // qDebug() << "fx=" << ftx << ", gx=" << gtx;
         int tSubtile = 0;
         if (ty < ftx) {
             if (ty < gtx) {
-                // tx to allow selecting subtile 1 and 2 if tile is clicked on the bottom left and bottom right side
-                if (tx < 32)
+                // limit the area of 0 horizontally
+                if (tx < subtileWidth / 2)
                     tSubtile = 2;
-                else if (tx > 96)
+                else if (tx >= (subtileWidth / 2 + subtileWidth))
                     tSubtile = 1;
                 else
                     tSubtile = 0;
-            } else
+            } else {
                 tSubtile = 1;
+            }
         } else {
             if (ty < gtx)
                 tSubtile = 2;
@@ -232,7 +237,7 @@ void LevelCelView::framePixelClicked(quint16 x, quint16 y)
     }
 }
 
-void LevelCelView::insertFrames(QStringList imagefilePaths, bool append)
+void LevelCelView::insertFrames(const QStringList &imagefilePaths, bool append)
 {
     int prevFrameCount = this->gfx->getFrameCount();
 
@@ -278,7 +283,7 @@ void LevelCelView::insertFrames(QStringList imagefilePaths, bool append)
     this->displayFrame();
 }
 
-void LevelCelView::replaceCurrentFrame(QString imagefilePath)
+void LevelCelView::replaceCurrentFrame(const QString &imagefilePath)
 {
     D1GfxFrame *frame = this->gfx->replaceFrame(this->currentFrameIndex, imagefilePath);
 
@@ -531,22 +536,24 @@ void LevelCelView::playGroup()
 
 void LevelCelView::ShowContextMenu(const QPoint &pos)
 {
+    MainWindow *mw = (MainWindow *)this->window();
+
     QMenu contextMenu(tr("Context menu"), this);
     contextMenu.setToolTipsVisible(true);
 
     QAction action0("Insert Frame", this);
     action0.setToolTip("Add new frames before the current one");
-    QObject::connect(&action0, SIGNAL(triggered()), this, SLOT(on_actionInsert_Frame_triggered()));
+    QObject::connect(&action0, SIGNAL(triggered()), mw, SLOT(on_actionInsert_Frame_triggered()));
     contextMenu.addAction(&action0);
 
     QAction action1("Add Frame", this);
     action1.setToolTip("Add new frames at the end");
-    QObject::connect(&action1, SIGNAL(triggered()), this, SLOT(on_actionAdd_Frame_triggered()));
+    QObject::connect(&action1, SIGNAL(triggered()), mw, SLOT(on_actionAdd_Frame_triggered()));
     contextMenu.addAction(&action1);
 
     QAction action2("Replace Frame", this);
     action2.setToolTip("Replace the current frame");
-    QObject::connect(&action2, SIGNAL(triggered()), this, SLOT(on_actionReplace_Frame_triggered()));
+    QObject::connect(&action2, SIGNAL(triggered()), mw, SLOT(on_actionReplace_Frame_triggered()));
     if (this->gfx->getFrameCount() == 0) {
         action2.setEnabled(false);
     }
@@ -554,7 +561,7 @@ void LevelCelView::ShowContextMenu(const QPoint &pos)
 
     QAction action3("Del Frame", this);
     action3.setToolTip("Delete the current frame");
-    QObject::connect(&action3, SIGNAL(triggered()), this, SLOT(on_actionDel_Frame_triggered()));
+    QObject::connect(&action3, SIGNAL(triggered()), mw, SLOT(on_actionDel_Frame_triggered()));
     if (this->gfx->getFrameCount() == 0) {
         action3.setEnabled(false);
     }
@@ -564,12 +571,12 @@ void LevelCelView::ShowContextMenu(const QPoint &pos)
 
     QAction action5("Create Subtile", this);
     action5.setToolTip("Create a new subtile");
-    QObject::connect(&action5, SIGNAL(triggered()), this, SLOT(on_actionCreate_Subtile_triggered()));
+    QObject::connect(&action5, SIGNAL(triggered()), mw, SLOT(on_actionCreate_Subtile_triggered()));
     contextMenu.addAction(&action5);
 
     QAction action6("Delete Subtile", this);
     action6.setToolTip("Delete the current subtile");
-    QObject::connect(&action6, SIGNAL(triggered()), this, SLOT(on_actionDel_Subtile_triggered()));
+    QObject::connect(&action6, SIGNAL(triggered()), mw, SLOT(on_actionDel_Subtile_triggered()));
     if (this->min->getSubtileCount() == 0) {
         action6.setEnabled(false);
     }
@@ -579,7 +586,7 @@ void LevelCelView::ShowContextMenu(const QPoint &pos)
 
     QAction action7("Create Tile", this);
     action7.setToolTip("Create a new tile");
-    QObject::connect(&action7, SIGNAL(triggered()), this, SLOT(on_actionCreate_Tile_triggered()));
+    QObject::connect(&action7, SIGNAL(triggered()), mw, SLOT(on_actionCreate_Tile_triggered()));
     if (this->min->getSubtileCount() == 0) {
         action7.setEnabled(false);
     }
@@ -587,53 +594,13 @@ void LevelCelView::ShowContextMenu(const QPoint &pos)
 
     QAction action8("Delete Tile", this);
     action8.setToolTip("Delete the current tile");
-    QObject::connect(&action8, SIGNAL(triggered()), this, SLOT(on_actionDel_Tile_triggered()));
+    QObject::connect(&action8, SIGNAL(triggered()), mw, SLOT(on_actionDel_Tile_triggered()));
     if (this->til->getTileCount() == 0) {
         action8.setEnabled(false);
     }
     contextMenu.addAction(&action8);
 
     contextMenu.exec(mapToGlobal(pos));
-}
-
-void LevelCelView::on_actionInsert_Frame_triggered()
-{
-    ((MainWindow *)this->window())->on_actionInsert_Frame_triggered();
-}
-
-void LevelCelView::on_actionAdd_Frame_triggered()
-{
-    ((MainWindow *)this->window())->on_actionAdd_Frame_triggered();
-}
-
-void LevelCelView::on_actionReplace_Frame_triggered()
-{
-    ((MainWindow *)this->window())->on_actionReplace_Frame_triggered();
-}
-
-void LevelCelView::on_actionDel_Frame_triggered()
-{
-    ((MainWindow *)this->window())->on_actionDel_Frame_triggered();
-}
-
-void LevelCelView::on_actionCreate_Subtile_triggered()
-{
-    ((MainWindow *)this->window())->on_actionCreate_Subtile_triggered();
-}
-
-void LevelCelView::on_actionDel_Subtile_triggered()
-{
-    ((MainWindow *)this->window())->on_actionDel_Subtile_triggered();
-}
-
-void LevelCelView::on_actionCreate_Tile_triggered()
-{
-    ((MainWindow *)this->window())->on_actionCreate_Tile_triggered();
-}
-
-void LevelCelView::on_actionDel_Tile_triggered()
-{
-    ((MainWindow *)this->window())->on_actionDel_Tile_triggered();
 }
 
 void LevelCelView::on_firstFrameButton_clicked()
