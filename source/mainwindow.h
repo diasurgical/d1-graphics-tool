@@ -84,18 +84,22 @@ public slots:
     void on_actionAdd_Frame_triggered();
     void on_actionReplace_Frame_triggered();
     void on_actionDel_Frame_triggered();
+
     void on_actionCreate_Subtile_triggered();
     void on_actionInsert_Subtile_triggered();
     void on_actionAdd_Subtile_triggered();
     void on_actionReplace_Subtile_triggered();
     void on_actionClone_Subtile_triggered();
     void on_actionDel_Subtile_triggered();
+
     void on_actionCreate_Tile_triggered();
     void on_actionClone_Tile_triggered();
     void on_actionInsert_Tile_triggered();
     void on_actionAdd_Tile_triggered();
     void on_actionReplace_Tile_triggered();
     void on_actionDel_Tile_triggered();
+
+    void on_actionReportUse_Tileset_triggered();
 
 private slots:
     void on_actionNew_CEL_triggered();
@@ -145,6 +149,7 @@ private:
     QMenu *frameMenu;
     QMenu *subtileMenu;
     QMenu *tileMenu;
+    QMenu *tilesetMenu;
 
     QUndoStack *undoStack;
     QAction *undoAction;

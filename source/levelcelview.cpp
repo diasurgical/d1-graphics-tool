@@ -574,20 +574,15 @@ void LevelCelView::replaceCurrentFrame(const QString &imagefilePath)
 void LevelCelView::removeCurrentFrame()
 {
     // check if the frame is used
-    int user = -1;
-    unsigned refIndex = this->currentFrameIndex + 1;
-    for (int i = 0; i < this->min->getSubtileCount() && user < 0; i++) {
-        QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
-        for (quint16 frameIdx : frameIndices) {
-            if (frameIdx == refIndex) {
-                user = i;
-                break;
-            }
-        }
-    }
-    if (user >= 0) {
+    QList<int> frameUsers;
+
+    unsigned refIndex = this->currentFrameIndex;
+    this->collectFrameUsers(refIndex, frameUsers);
+    refIndex++;
+
+    if (!frameUsers.isEmpty()) {
         QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(nullptr, "Confirmation", "The frame is used by Subtile " + QString::number(user + 1) + " (and maybe others). Are you sure you want to proceed?", QMessageBox::Yes | QMessageBox::No);
+        reply = QMessageBox::question(nullptr, "Confirmation", "The frame is used by Subtile " + QString::number(frameUsers.first() + 1) + " (and maybe others). Are you sure you want to proceed?", QMessageBox::Yes | QMessageBox::No);
         if (reply != QMessageBox::Yes) {
             return;
         }
@@ -666,19 +661,13 @@ void LevelCelView::replaceCurrentSubtile(const QString &imagefilePath)
 void LevelCelView::removeCurrentSubtile()
 {
     // check if the subtile is used
-    int user = -1;
+    QList<int> subtileUsers;
+
     unsigned refIndex = this->currentSubtileIndex;
-    for (int i = 0; i < this->til->getTileCount() && user < 0; i++) {
-        QList<quint16> &subtileIndices = this->til->getSubtileIndices(i);
-        for (quint16 subtileIdx : subtileIndices) {
-            if (subtileIdx == refIndex) {
-                user = i;
-                break;
-            }
-        }
-    }
-    if (user >= 0) {
-        QMessageBox::critical(nullptr, "Error", "The subtile is used by Tile " + QString::number(user + 1) + " (and maybe others).");
+    this->collectSubtileUsers(refIndex, subtileUsers);
+
+    if (!subtileUsers.isEmpty()) {
+        QMessageBox::critical(nullptr, "Error", "The subtile is used by Tile " + QString::number(subtileUsers.first() + 1) + " (and maybe others).");
         return;
     }
     this->min->removeSubtile(this->currentSubtileIndex);
@@ -761,6 +750,89 @@ void LevelCelView::removeCurrentTile()
     // update the view
     this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
     this->displayFrame();
+}
+
+void LevelCelView::collectFrameUsers(int frameIndex, QList<int> &users)
+{
+    unsigned refIndex = frameIndex + 1;
+
+    for (int i = 0; i < this->min->getSubtileCount(); i++) {
+        const QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
+        for (quint16 index : frameIndices) {
+            if (index == refIndex) {
+                users.append(i);
+                break;
+            }
+        }
+    }
+}
+
+void LevelCelView::collectSubtileUsers(int subtileIndex, QList<int> &users)
+{
+    for (int i = 0; i < this->til->getTileCount(); i++) {
+        const QList<quint16> &subtileIndices = this->til->getSubtileIndices(i);
+        for (quint16 index : subtileIndices) {
+            if (index == subtileIndex) {
+                users.append(i);
+                break;
+            }
+        }
+    }
+}
+
+void LevelCelView::reportUsage()
+{
+    QString frameUses;
+
+    if (this->gfx->getFrameCount() > this->currentFrameIndex) {
+        QList<int> frameUsers;
+        this->collectFrameUsers(this->currentFrameIndex, frameUsers);
+
+        frameUses = "Frame " + QString::number(this->currentFrameIndex);
+        if (frameUsers.isEmpty()) {
+            frameUses += " is not used by any subtile.";
+        } else {
+            frameUses += " is used by subtile ";
+            for (int user : frameUsers) {
+                frameUses += QString::number(user + 1) + ", ";
+            }
+            frameUses.chop(2);
+            frameUses += ".";
+        }
+    }
+
+    QString subtileUses;
+
+    if (this->min->getSubtileCount() > this->currentSubtileIndex) {
+        QList<int> subtileUsers;
+        this->collectSubtileUsers(this->currentSubtileIndex, subtileUsers);
+
+        subtileUses = "Subtile " + QString::number(this->currentSubtileIndex);
+        if (subtileUsers.isEmpty()) {
+            subtileUses += " is not used by any tile.";
+        } else {
+            subtileUses += " is used by tile ";
+            for (int user : subtileUsers) {
+                subtileUses += QString::number(user + 1) + ", ";
+            }
+            subtileUses.chop(2);
+            subtileUses += ".";
+        }
+    }
+
+    QString msg;
+
+    if (!frameUses.isEmpty()) {
+        msg = frameUses;
+
+        if (!subtileUses.isEmpty()) {
+            msg += "\n\n" + subtileUses;
+        }
+    } else {
+        msg = "The tileset is empty.";
+    }
+
+    QMessageBox::information(this, "Information", msg);
 }
 
 void LevelCelView::displayFrame()

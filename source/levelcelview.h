@@ -61,18 +61,27 @@ public:
     int getCurrentFrameIndex();
     int getCurrentSubtileIndex();
     int getCurrentTileIndex();
+
     void framePixelClicked(unsigned x, unsigned y);
+
     void insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
+
     void replaceCurrentFrame(const QString &imagefilePath);
     void removeCurrentFrame();
+
     void createSubtile();
     void cloneSubtile();
     void replaceCurrentSubtile(const QString &imagefilePath);
     void removeCurrentSubtile();
+
     void createTile();
     void cloneTile();
     void replaceCurrentTile(const QString &imagefilePath);
     void removeCurrentTile();
+
+    void collectFrameUsers(int frameIndex, QList<int> &users);
+    void collectSubtileUsers(int subtileIndex, QList<int> &users);
+    void reportUsage();
 
     void displayFrame();
 

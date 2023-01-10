@@ -85,6 +85,12 @@ MainWindow::MainWindow(QWidget *parent)
     this->tileMenu->addAction("Delete", this, SLOT(on_actionDel_Tile_triggered()))->setToolTip("Delete the current tile");
     this->ui->menuEdit->addMenu(this->tileMenu);
 
+    // Initialize 'Tileset' submenu of 'Edit'
+    this->tilesetMenu = new QMenu("Tileset");
+    this->tilesetMenu->setToolTipsVisible(true);
+    this->tilesetMenu->addAction("Usage Report", this, SLOT(on_actionReportUse_Tileset_triggered()))->setToolTip("List the uses of the current frame/subtile/tile.");
+    this->ui->menuEdit->addMenu(this->tilesetMenu);
+
     this->on_actionClose_triggered();
     setAcceptDrops(true);
 }
@@ -110,6 +116,7 @@ MainWindow::~MainWindow()
     delete this->frameMenu;
     delete this->subtileMenu;
     delete this->tileMenu;
+    delete this->tilesetMenu;
     delete this->palHits;
 }
 
@@ -738,6 +745,7 @@ void MainWindow::openFile(const OpenAsParam &params)
 
     this->subtileMenu->setEnabled(isTileset);
     this->tileMenu->setEnabled(isTileset);
+    this->tilesetMenu->setEnabled(isTileset);
 
     this->updateWindow();
 
@@ -1129,6 +1137,11 @@ void MainWindow::on_actionDel_Tile_triggered()
 {
     this->levelCelView->removeCurrentTile();
     this->updateWindow();
+}
+
+void MainWindow::on_actionReportUse_Tileset_triggered()
+{
+    this->levelCelView->reportUsage();
 }
 
 void MainWindow::on_actionNew_PAL_triggered()
