@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QFile>
 
 #include "mainwindow.h"
 
@@ -6,9 +7,14 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    a.setStyleSheet("QLineEdit[readOnly=\"true\"] { color: #808080; background-color: #F0F0F0; }");
-    //          "border: 1px solid #B0B0B0;"
-    //          "border-radius: 2px;}");
+    const char *qssName = ":/D1GraphicsTool.qss";
+    QFile file(qssName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qDebug() << "Failed to open " << qssName;
+        return -1;
+    }
+    QString styleSheet = QTextStream(&file).readAll();
+    a.setStyleSheet(styleSheet);
 
     MainWindow w;
     w.setWindowTitle("Diablo 1 Graphics Tool");

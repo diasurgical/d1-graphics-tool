@@ -201,13 +201,13 @@
          <widget class="QLineEdit" name="playDelayEdit">
           <property name="minimumSize">
            <size>
-            <width>48</width>
+            <width>50</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>48</width>
+            <width>50</width>
             <height>16777215</height>
            </size>
           </property>
@@ -348,13 +348,13 @@
          <widget class="QLineEdit" name="groupIndexEdit">
           <property name="minimumSize">
            <size>
-            <width>48</width>
+            <width>50</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>48</width>
+            <width>50</width>
             <height>16777215</height>
            </size>
           </property>
@@ -398,13 +398,13 @@
           </property>
           <property name="minimumSize">
            <size>
-            <width>48</width>
+            <width>50</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>48</width>
+            <width>50</width>
             <height>16777215</height>
            </size>
           </property>
@@ -556,13 +556,13 @@
          <widget class="QLineEdit" name="frameIndexEdit">
           <property name="minimumSize">
            <size>
-            <width>48</width>
+            <width>50</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>48</width>
+            <width>50</width>
             <height>16777215</height>
            </size>
           </property>
