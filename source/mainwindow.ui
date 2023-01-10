@@ -153,21 +153,6 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <property name="toolTipsVisible">
-     <bool>true</bool>
-    </property>
-    <addaction name="actionInsert_Frame"/>
-    <addaction name="actionAdd_Frame"/>
-    <addaction name="actionReplace_Frame"/>
-    <addaction name="actionDel_Frame"/>
-    <addaction name="separator"/>
-    <addaction name="actionCreate_Subtile"/>
-    <addaction name="actionClone_Subtile"/>
-    <addaction name="actionDel_Subtile"/>
-    <addaction name="separator"/>
-    <addaction name="actionCreate_Tile"/>
-    <addaction name="actionClone_Tile"/>
-    <addaction name="actionDel_Tile"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -272,38 +257,6 @@
   <action name="actionSettings">
    <property name="text">
     <string>Settings</string>
-   </property>
-  </action>
-  <action name="actionInsert_Frame">
-   <property name="text">
-    <string>Insert Frame</string>
-   </property>
-   <property name="toolTip">
-    <string>Add new frames before the current one</string>
-   </property>
-  </action>
-  <action name="actionAdd_Frame">
-   <property name="text">
-    <string>Add Frame</string>
-   </property>
-   <property name="toolTip">
-    <string>Add new frames at the end</string>
-   </property>
-  </action>
-  <action name="actionReplace_Frame">
-   <property name="text">
-    <string>Replace Frame</string>
-   </property>
-   <property name="toolTip">
-    <string>Replace the current frame</string>
-   </property>
-  </action>
-  <action name="actionDel_Frame">
-   <property name="text">
-    <string>Del Frame</string>
-   </property>
-   <property name="toolTip">
-    <string>Delete the current frame</string>
    </property>
   </action>
   <action name="actionCreate_Subtile">

@@ -16,12 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New menu option to open a clean cel, cl2 or tileset graphics
 - Drag and drop support
 - Edit fields to modify subtiles of tiles, frames of subtiles, frame-types
+- Subtile height is editable
 - Button to apply trn-adjustments of the game (done to normal monster-trns)
 - Context menu + menu option to add, insert, delete or replace frames
-- Context menu + menu option to create or delete tiles and subtiles
+- Context menu + menu option to create, add, insert, delete or replace tiles and subtiles
 - Context menu to undo/redo the modifications of the palette/translation
 - Icon buttons to create/load/save palette/translation in place
 - File dialogs start from the last used folder/file (even after restart)
+- Export to any kind of image format which are supported by Qt (JPEG, WEBP, etc...)
+- Option to limit the range of the exported items
 
 ### Fixed
 - Memory leaks
@@ -149,7 +152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.1.1
 ### Added
 - Incomplete CEL viewing support, new algorithm, only level CEL files are not displayed.
- 
+
 ## 0.1.0
 ### Added
 - Full PAL viewing support.

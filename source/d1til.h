@@ -20,12 +20,13 @@ public:
 
     QImage getTileImage(int tileIndex);
     QImage getFlatTileImage(int tileIndex);
+    void insertTile(int tileIndex, const QImage &image);
+    void createTile();
+    void removeTile(int tileIndex);
 
     QString getFilePath();
     int getTileCount();
     QList<quint16> &getSubtileIndices(int tileIndex);
-    void createTile();
-    void removeTile(int tileIndex);
 
 private:
     QString tilFilePath;

@@ -55,7 +55,7 @@ void CelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
         filePaths.append(url.toLocalFile());
     }
     // try to insert as frames
-    ((MainWindow *)this->view->window())->openImageFiles(filePaths, false);
+    ((MainWindow *)this->view->window())->openImageFiles(IMAGE_FILE_MODE::AUTO, filePaths, false);
 }
 
 void CelScene::contextMenuEvent(QContextMenuEvent *event)
@@ -127,24 +127,30 @@ void CelView::framePixelClicked(unsigned x, unsigned y)
     emit this->colorIndexClicked(colorIndex);
 }
 
-void CelView::insertFrames(QStringList imagefilePaths, bool append)
+void CelView::insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append)
 {
+    int prevFrameCount = this->gfx->getFrameCount();
+
     if (append) {
-        int prevFrameCount = this->gfx->getFrameCount();
         // append the frame(s)
         for (int i = 0; i < imagefilePaths.count(); i++) {
-            this->gfx->insertFrame(this->gfx->getFrameCount(), imagefilePaths[i]);
+            this->insertFrame(mode, this->gfx->getFrameCount(), imagefilePaths[i]);
+        }
+        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+        if (deltaFrameCount == 0) {
+            return; // no new frame -> done
         }
         // jump to the first appended frame
-        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
-        if (deltaFrameCount > 0) {
-            this->currentFrameIndex = prevFrameCount;
-            this->updateGroupIndex();
-        }
+        this->currentFrameIndex = prevFrameCount;
+        this->updateGroupIndex();
     } else {
         // insert the frame(s)
-        for (int i = 1; i <= imagefilePaths.count(); i++) {
-            this->gfx->insertFrame(this->currentFrameIndex, imagefilePaths[imagefilePaths.count() - i]);
+        for (int i = imagefilePaths.count() - 1; i >= 0; i--) {
+            this->insertFrame(mode, this->currentFrameIndex, imagefilePaths[i]);
+        }
+        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+        if (deltaFrameCount == 0) {
+            return; // no new frame -> done
         }
     }
     // update the view
@@ -152,15 +158,32 @@ void CelView::insertFrames(QStringList imagefilePaths, bool append)
     this->displayFrame();
 }
 
-void CelView::replaceCurrentFrame(QString imagefilePath)
+void CelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
 {
-    D1GfxFrame *frame = this->gfx->replaceFrame(this->currentFrameIndex, imagefilePath);
+    QImage image = QImage(imagefilePath);
 
-    if (frame != nullptr) {
-        // update the view
-        this->initialize(this->gfx);
-        this->displayFrame();
+    if (!image.isNull()) {
+        this->gfx->insertFrame(index, image);
+        return;
     }
+    if (mode != IMAGE_FILE_MODE::AUTO) {
+        QMessageBox::critical(nullptr, "Error", "Failed open image file: " + imagefilePath);
+    }
+}
+
+void CelView::replaceCurrentFrame(const QString &imagefilePath)
+{
+    QImage image = QImage(imagefilePath);
+
+    if (image.isNull()) {
+        return;
+    }
+
+    this->gfx->replaceFrame(this->currentFrameIndex, image);
+
+    // update the view
+    this->initialize(this->gfx);
+    this->displayFrame();
 }
 
 void CelView::removeCurrentFrame()
@@ -486,5 +509,5 @@ void CelView::dropEvent(QDropEvent *event)
         filePaths.append(url.toLocalFile());
     }
     // try to insert as frames
-    ((MainWindow *)this->window())->openImageFiles(filePaths, false);
+    ((MainWindow *)this->window())->openImageFiles(IMAGE_FILE_MODE::AUTO, filePaths, false);
 }

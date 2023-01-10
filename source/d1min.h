@@ -19,6 +19,9 @@ public:
     bool save(const SaveAsParam &params);
 
     QImage getSubtileImage(int subtileIndex);
+    void insertSubtile(int subtileIndex, const QImage &image);
+    void createSubtile();
+    void removeSubtile(int subtileIndex);
 
     QString getFilePath();
     int getSubtileCount();
@@ -27,8 +30,6 @@ public:
     quint16 getSubtileHeight();
     void setSubtileHeight(int height);
     QList<quint16> &getCelFrameIndices(int subtileIndex);
-    void createSubtile();
-    void removeSubtile(int subtileIndex);
 
 private:
     QString minFilePath;

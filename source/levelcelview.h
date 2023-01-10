@@ -6,6 +6,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneDragDropEvent>
 #include <QGraphicsSceneMouseEvent>
+#include <QImage>
 #include <QPoint>
 #include <QTimer>
 #include <QWidget>
@@ -25,6 +26,8 @@ namespace Ui {
 class LevelCelScene;
 class LevelCelView;
 } // namespace Ui
+
+enum class IMAGE_FILE_MODE;
 
 class LevelCelScene : public QGraphicsScene {
     Q_OBJECT
@@ -59,17 +62,30 @@ public:
     int getCurrentSubtileIndex();
     int getCurrentTileIndex();
     void framePixelClicked(unsigned x, unsigned y);
-    void insertFrames(const QStringList &imagefilePaths, bool append);
+    void insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void replaceCurrentFrame(const QString &imagefilePath);
     void removeCurrentFrame();
     void createSubtile();
     void cloneSubtile();
+    void replaceCurrentSubtile(const QString &imagefilePath);
     void removeCurrentSubtile();
     void createTile();
     void cloneTile();
+    void replaceCurrentTile(const QString &imagefilePath);
     void removeCurrentTile();
 
     void displayFrame();
+
+private:
+    void update();
+    void insertFrame(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
+    void insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
+    void insertSubtile(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
+    void insertSubtiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
+    void insertTile(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
+    void insertTiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
+    void assignFrames(const QImage &image, int subtileIndex, int frameIndex);
+    void assignSubtiles(const QImage &image, int tileIndex, int subtileIndex);
 
 signals:
     void frameRefreshed();

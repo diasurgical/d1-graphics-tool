@@ -29,7 +29,7 @@ static quint8 getPalColor(D1Pal *pal, QColor color)
     return res;
 }
 
-bool D1ImageFrame::load(D1GfxFrame &frame, QImage &image, bool clipped, D1Pal *pal)
+bool D1ImageFrame::load(D1GfxFrame &frame, const QImage &image, bool clipped, D1Pal *pal)
 {
     frame.clipped = clipped;
     frame.width = image.width();
@@ -42,7 +42,7 @@ bool D1ImageFrame::load(D1GfxFrame &frame, QImage &image, bool clipped, D1Pal *p
         for (int x = 0; x < frame.width; x++) {
             QColor color = image.pixelColor(x, y);
             // if (color == QColor(Qt::transparent)) {
-            if (color.alpha() < 128) {
+            if (color.alpha() < COLOR_ALPHA_LIMIT) {
                 pixelLine.append(D1GfxPixel(true, 0));
             } else {
                 pixelLine.append(D1GfxPixel(false, getPalColor(pal, color)));
