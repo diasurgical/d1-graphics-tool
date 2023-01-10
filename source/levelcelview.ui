@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>683</width>
+    <width>874</width>
     <height>521</height>
    </rect>
   </property>
@@ -1010,7 +1010,7 @@
         <item row="2" column="14">
          <widget class="QLineEdit" name="minFrameWidthEdit">
           <property name="enabled">
-           <bool>true</bool>
+           <bool>false</bool>
           </property>
           <property name="minimumSize">
            <size>
