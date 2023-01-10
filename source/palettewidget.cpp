@@ -376,7 +376,7 @@ void PaletteWidget::initializeUi()
     this->ui->monsterTrnPushButton->setVisible(trnMode);
     this->ui->translationClearPushButton->setVisible(trnMode);
     this->ui->translationPickPushButton->setVisible(trnMode);
-    this->ui->colorLineEdit->setReadOnly(!trnMode);
+    this->ui->colorLineEdit->setReadOnly(trnMode);
     this->ui->colorPickPushButton->setVisible(!trnMode);
     this->ui->colorClearPushButton->setVisible(!trnMode);
     this->ui->translationIndexLineEdit->setVisible(trnMode);
