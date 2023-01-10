@@ -131,6 +131,10 @@ bool ExportDialog::exportLevelTiles25D(QProgressDialog &progress)
         return true;
     }
     // one file for all tiles
+    if (tileFrom != 0 || tileTo < count - 1) {
+        outputFilePathBase += QString::number(tileFrom + 1) + "_" + QString::number(tileTo + 1);
+    }
+    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
 
     unsigned tileWidth = this->min->getSubtileWidth() * 2 * MICRO_WIDTH;
     unsigned tileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT + 32;
@@ -195,7 +199,6 @@ bool ExportDialog::exportLevelTiles25D(QProgressDialog &progress)
 
     painter.end();
 
-    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
     tempOutputImage.save(outputFilePath);
     return true;
 }
@@ -247,6 +250,10 @@ bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
         return true;
     }
     // one file for all tiles
+    if (tileFrom != 0 || tileTo < count - 1) {
+        outputFilePathBase += QString::number(tileFrom + 1) + "_" + QString::number(tileTo + 1);
+    }
+    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
 
     unsigned tileWidth = this->min->getSubtileWidth() * MICRO_WIDTH * TILE_WIDTH * TILE_HEIGHT;
     unsigned tileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
@@ -312,7 +319,6 @@ bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
 
     painter.end();
 
-    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
     tempOutputImage.save(outputFilePath);
     return true;
 }
@@ -364,6 +370,10 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
         return true;
     }
     // one file for all subtiles
+    if (subtileFrom != 0 || subtileTo < count - 1) {
+        outputFilePathBase += QString::number(subtileFrom + 1) + "_" + QString::number(subtileTo + 1);
+    }
+    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
 
     unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
     unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
@@ -430,7 +440,6 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
 
     painter.end();
 
-    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
     tempOutputImage.save(outputFilePath);
     return true;
 }
@@ -482,6 +491,11 @@ bool ExportDialog::exportFrames(QProgressDialog &progress)
         return true;
     }
     // one file for all frames
+    if (frameFrom != 0 || frameTo < count - 1) {
+        outputFilePathBase += QString::number(frameFrom + 1) + "_" + QString::number(frameTo + 1);
+    }
+    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
+
     QImage tempOutputImage;
     int tempOutputImageWidth = 0;
     int tempOutputImageHeight = 0;
@@ -604,7 +618,6 @@ bool ExportDialog::exportFrames(QProgressDialog &progress)
 
     painter.end();
 
-    QString outputFilePath = outputFilePathBase + this->getFileFormatExtension();
     tempOutputImage.save(outputFilePath);
     return true;
 }
