@@ -68,7 +68,7 @@ bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, const O
 
     frame.clipped = false;
     quint16 width = 0;
-    if (params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
+    if (params.clipped == OPEN_CLIPPED_TYPE::AUTODETECT) {
         // Assume the presence of the {CEL FRAME HEADER}
         QDataStream in(rawData);
         in.setByteOrder(QDataStream::LittleEndian);
@@ -79,7 +79,7 @@ bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, const O
         width = D1Cl2Frame::computeWidthFromHeader(rawData, isClx);
         frame.clipped = true;
     } else {
-        if (params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
+        if (params.clipped == OPEN_CLIPPED_TYPE::TRUE) {
             QDataStream in(rawData);
             in.setByteOrder(QDataStream::LittleEndian);
             quint16 offset;
@@ -409,10 +409,10 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const SaveAsPa
     // update type
     gfx.type = groupped ? D1CEL_TYPE::V2_MULTIPLE_GROUPS : D1CEL_TYPE::V2_MONO_GROUP;
     // update clipped info
-    bool clippedForced = params.clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    bool clippedForced = params.clipped != SAVE_CLIPPED_TYPE::AUTODETECT;
     for (int n = 0; n < numFrames; n++) {
         D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
+        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPED_TYPE::TRUE) || (!clippedForced && frame->isClipped());
     }
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;

@@ -51,7 +51,9 @@ protected:
     int width = 0;
     int height = 0;
     QList<QList<D1GfxPixel>> pixels;
+    // fields of cel/cl2-frames
     bool clipped = false;
+    // fields of tileset-frames
     D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::Unknown;
 };
 
@@ -81,7 +83,7 @@ public:
     D1GfxFrame *replaceFrame(int frameIndex, const QImage &image);
     void removeFrame(quint16 frameIndex);
 
-    D1CEL_TYPE getType();
+    D1CEL_TYPE getType() const;
     void setType(D1CEL_TYPE type);
     QString getFilePath();
     D1Pal *getPalette();

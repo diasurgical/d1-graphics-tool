@@ -195,10 +195,10 @@ bool D1Cel::writeFileData(D1Gfx &gfx, QFile &outFile, const SaveAsParam &params)
     // update type
     gfx.type = D1CEL_TYPE::V1_REGULAR;
     // update clipped info
-    bool clippedForced = params.clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    bool clippedForced = params.clipped != SAVE_CLIPPED_TYPE::AUTODETECT;
     for (int n = 0; n < numFrames; n++) {
         D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
+        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPED_TYPE::TRUE) || (!clippedForced && frame->isClipped());
     }
     // calculate header size
     int HEADER_SIZE = 4 + 4 + numFrames * 4;
@@ -278,10 +278,10 @@ bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, const SaveAsParam &par
     // update type
     gfx.type = D1CEL_TYPE::V1_COMPILATION;
     // update clipped info
-    bool clippedForced = params.clipped != SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    bool clippedForced = params.clipped != SAVE_CLIPPED_TYPE::AUTODETECT;
     for (int n = 0; n < numFrames; n++) {
         D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPING_TYPE::CLIPPED_TRUE) || (!clippedForced && frame->isClipped());
+        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPED_TYPE::TRUE) || (!clippedForced && frame->isClipped());
     }
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;

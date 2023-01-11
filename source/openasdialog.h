@@ -3,25 +3,25 @@
 #include <QDialog>
 #include <QJsonObject>
 
-enum class OPEN_CLIPPING_TYPE {
-    CLIPPED_AUTODETECT,
-    CLIPPED_TRUE,
-    CLIPPED_FALSE,
+enum class OPEN_CLIPPED_TYPE {
+    AUTODETECT,
+    TRUE,
+    FALSE,
 };
 
 enum class OPEN_TILESET_TYPE {
-    TILESET_AUTODETECT,
-    TILESET_TRUE,
-    TILESET_FALSE,
+    AUTODETECT,
+    TRUE,
+    FALSE,
 };
 
 class OpenAsParam {
 public:
     QString celFilePath;
-    OPEN_TILESET_TYPE isTileset = OPEN_TILESET_TYPE::TILESET_AUTODETECT;
+    OPEN_TILESET_TYPE isTileset = OPEN_TILESET_TYPE::AUTODETECT;
 
     quint16 celWidth = 0;
-    OPEN_CLIPPING_TYPE clipped = OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+    OPEN_CLIPPED_TYPE clipped = OPEN_CLIPPED_TYPE::AUTODETECT;
 
     QString tilFilePath;
     QString minFilePath;

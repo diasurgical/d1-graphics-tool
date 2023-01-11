@@ -149,11 +149,11 @@ void SaveAsDialog::on_saveButton_clicked()
     // celSettingsGroupBox: groupNum, clipped
     params.groupNum = this->ui->celGroupEdit->text().toUShort();
     if (this->ui->celClippedYesRadioButton->isChecked()) {
-        params.clipped = SAVE_CLIPPING_TYPE::CLIPPED_TRUE;
+        params.clipped = SAVE_CLIPPED_TYPE::TRUE;
     } else if (this->ui->celClippedNoRadioButton->isChecked()) {
-        params.clipped = SAVE_CLIPPING_TYPE::CLIPPED_FALSE;
+        params.clipped = SAVE_CLIPPED_TYPE::FALSE;
     } else {
-        params.clipped = SAVE_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+        params.clipped = SAVE_CLIPPED_TYPE::AUTODETECT;
     }
     // tilSettingsGroupBox: min, til, sol and amp files
     params.minFilePath = this->ui->outputMinFileEdit->text();

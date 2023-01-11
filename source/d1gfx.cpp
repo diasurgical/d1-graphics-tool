@@ -163,7 +163,7 @@ void D1Gfx::removeFrame(quint16 idx)
     }
 }
 
-D1CEL_TYPE D1Gfx::getType()
+D1CEL_TYPE D1Gfx::getType() const
 {
     return this->type;
 }

@@ -164,20 +164,20 @@ void OpenAsDialog::on_openButton_clicked()
         return;
     }
     if (ui->isTilesetYesRadioButton->isChecked()) {
-        params.isTileset = OPEN_TILESET_TYPE::TILESET_TRUE;
+        params.isTileset = OPEN_TILESET_TYPE::TRUE;
     } else if (ui->isTilesetNoRadioButton->isChecked()) {
-        params.isTileset = OPEN_TILESET_TYPE::TILESET_FALSE;
+        params.isTileset = OPEN_TILESET_TYPE::FALSE;
     } else {
-        params.isTileset = OPEN_TILESET_TYPE::TILESET_AUTODETECT;
+        params.isTileset = OPEN_TILESET_TYPE::AUTODETECT;
     }
     // cel/cl2: clipped, width
     params.celWidth = this->ui->celWidthEdit->text().toUShort();
     if (ui->celClippedYesRadioButton->isChecked()) {
-        params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_TRUE;
+        params.clipped = OPEN_CLIPPED_TYPE::TRUE;
     } else if (ui->celClippedNoRadioButton->isChecked()) {
-        params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_FALSE;
+        params.clipped = OPEN_CLIPPED_TYPE::FALSE;
     } else {
-        params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT;
+        params.clipped = OPEN_CLIPPED_TYPE::AUTODETECT;
     }
     params.tilFilePath = ui->tilFileEdit->text();
     params.minFilePath = ui->minFileEdit->text();

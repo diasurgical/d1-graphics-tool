@@ -24,7 +24,7 @@ bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, const OpenAsParam &
     quint32 frameDataStartOffset = 0;
     quint16 width = 0;
     frame.clipped = false;
-    if (params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_AUTODETECT) {
+    if (params.clipped == OPEN_CLIPPED_TYPE::AUTODETECT) {
         // Checking the presence of the {CEL FRAME HEADER}
         if ((quint8)rawData[0] == 0x0A && (quint8)rawData[1] == 0x00) {
             frameDataStartOffset += 0x0A;
@@ -33,7 +33,7 @@ bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, const OpenAsParam &
             frame.clipped = true;
         }
     } else {
-        if (params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE) {
+        if (params.clipped == OPEN_CLIPPED_TYPE::TRUE) {
             QDataStream in(rawData);
             in.setByteOrder(QDataStream::LittleEndian);
             quint16 offset;

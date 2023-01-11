@@ -444,23 +444,23 @@ bool MainWindow::hasImageUrl(const QMimeData *mimeData)
 void MainWindow::on_actionNew_CEL_triggered()
 {
     OpenAsParam params;
-    params.isTileset = OPEN_TILESET_TYPE::TILESET_FALSE;
-    params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_FALSE;
+    params.isTileset = OPEN_TILESET_TYPE::FALSE;
+    params.clipped = OPEN_CLIPPED_TYPE::FALSE;
     this->openFile(params);
 }
 
 void MainWindow::on_actionNew_CL2_triggered()
 {
     OpenAsParam params;
-    params.isTileset = OPEN_TILESET_TYPE::TILESET_FALSE;
-    params.clipped = OPEN_CLIPPING_TYPE::CLIPPED_TRUE;
+    params.isTileset = OPEN_TILESET_TYPE::FALSE;
+    params.clipped = OPEN_CLIPPED_TYPE::TRUE;
     this->openFile(params);
 }
 
 void MainWindow::on_actionNew_Tileset_triggered()
 {
     OpenAsParam params;
-    params.isTileset = OPEN_TILESET_TYPE::TILESET_TRUE;
+    params.isTileset = OPEN_TILESET_TYPE::TRUE;
     this->openFile(params);
 }
 
@@ -559,8 +559,8 @@ void MainWindow::openFile(const OpenAsParam &params)
         solFilePath = basePath + ".sol";
     }
 
-    bool isTileset = params.isTileset == OPEN_TILESET_TYPE::TILESET_TRUE;
-    if (params.isTileset == OPEN_TILESET_TYPE::TILESET_AUTODETECT) {
+    bool isTileset = params.isTileset == OPEN_TILESET_TYPE::TRUE;
+    if (params.isTileset == OPEN_TILESET_TYPE::AUTODETECT) {
         isTileset = openFilePath.toLower().endsWith(".cel") && QFileInfo::exists(tilFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(solFilePath);
     }
 
@@ -622,7 +622,7 @@ void MainWindow::openFile(const OpenAsParam &params)
         }
     } else {
         // openFilePath.isEmpty()
-        this->gfx->setType(params.clipped == OPEN_CLIPPING_TYPE::CLIPPED_TRUE ? D1CEL_TYPE::V2_MONO_GROUP : D1CEL_TYPE::V1_REGULAR);
+        this->gfx->setType(params.clipped == OPEN_CLIPPED_TYPE::TRUE ? D1CEL_TYPE::V2_MONO_GROUP : D1CEL_TYPE::V1_REGULAR);
     }
 
     // Add palette widgets for PAL and TRNs
