@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - File dialogs start from the last used folder/file (even after restart)
 - Export to any kind of image format which are supported by Qt (JPEG, WEBP, etc...)
 - Option to limit the range of the exported items
+- Added jobs to cleanup tilesets
 
 ### Fixed
 - Memory leaks

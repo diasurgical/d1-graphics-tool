@@ -99,8 +99,6 @@ public slots:
     void on_actionReplace_Tile_triggered();
     void on_actionDel_Tile_triggered();
 
-    void on_actionReportUse_Tileset_triggered();
-
 private slots:
     void on_actionNew_CEL_triggered();
     void on_actionNew_CL2_triggered();
@@ -114,6 +112,12 @@ private slots:
     void on_actionExport_triggered();
     void on_actionSettings_triggered();
     void on_actionQuit_triggered();
+
+    void on_actionReportUse_Tileset_triggered();
+    void on_actionResetFrameTypes_Tileset_triggered();
+    void on_actionCleanupFrames_Tileset_triggered();
+    void on_actionCleanupSubtiles_Tileset_triggered();
+    void on_actionCleanupTileset_Tileset_triggered();
 
     void on_actionNew_PAL_triggered();
     void on_actionOpen_PAL_triggered();
@@ -149,7 +153,6 @@ private:
     QMenu *frameMenu;
     QMenu *subtileMenu;
     QMenu *tileMenu;
-    QMenu *tilesetMenu;
 
     QUndoStack *undoStack;
     QAction *undoAction;

@@ -79,14 +79,18 @@ public:
     void replaceCurrentTile(const QString &imagefilePath);
     void removeCurrentTile();
 
-    void collectFrameUsers(int frameIndex, QList<int> &users);
-    void collectSubtileUsers(int subtileIndex, QList<int> &users);
     void reportUsage();
+    void resetFrameTypes();
+    void cleanupFrames();
+    void cleanupSubtiles();
+    void cleanupTileset();
 
     void displayFrame();
 
 private:
     void update();
+    void collectFrameUsers(int frameIndex, QList<int> &users) const;
+    void collectSubtileUsers(int subtileIndex, QList<int> &users) const;
     void insertFrame(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
     void insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void insertSubtile(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
@@ -95,6 +99,10 @@ private:
     void insertTiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void assignFrames(const QImage &image, int subtileIndex, int frameIndex);
     void assignSubtiles(const QImage &image, int tileIndex, int subtileIndex);
+    void removeFrame(int frameIndex);
+    void removeSubtile(int subtileIndex);
+    void removeUnusedFrames(QString &report);
+    void removeUnusedSubtiles(QString &report);
 
 signals:
     void frameRefreshed();

@@ -127,6 +127,20 @@
     <addaction name="actionAbout"/>
     <addaction name="actionAbout_Qt"/>
    </widget>
+   <widget class="QMenu" name="menuTileset">
+    <property name="title">
+     <string>Tileset</string>
+    </property>
+    <property name="toolTipsVisible">
+     <bool>true</bool>
+    </property>
+    <addaction name="actionReportUse_Tileset"/>
+    <addaction name="actionResetFrameTypes_Tileset"/>
+    <addaction name="separator"/>
+    <addaction name="actionCleanupFrames_Tileset"/>
+    <addaction name="actionCleanupSubtiles_Tileset"/>
+    <addaction name="actionCleanupTileset_Tileset"/>
+   </widget>
    <widget class="QMenu" name="menuPalette">
     <property name="title">
      <string>Palette</string>
@@ -156,6 +170,7 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuTileset"/>
    <addaction name="menuPalette"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -259,36 +274,44 @@
     <string>Settings</string>
    </property>
   </action>
-  <action name="actionCreate_Subtile">
+  <action name="actionReportUse_Tileset">
    <property name="text">
-    <string>Create Subtile</string>
+    <string>Usage Report</string>
    </property>
    <property name="toolTip">
-    <string>Create a new subtile</string>
+    <string>List the uses of the current frame/subtile/tile</string>
    </property>
   </action>
-  <action name="actionDel_Subtile">
+  <action name="actionResetFrameTypes_Tileset">
    <property name="text">
-    <string>Del Subtile</string>
+    <string>Reset Frame Types</string>
    </property>
    <property name="toolTip">
-    <string>Delete the current subtile</string>
+    <string>Reinitialize the frame types of every frame</string>
    </property>
   </action>
-  <action name="actionCreate_Tile">
+  <action name="actionCleanupFrames_Tileset">
    <property name="text">
-    <string>Create Tile</string>
+    <string>Cleanup frames</string>
    </property>
    <property name="toolTip">
-    <string>Create a new tile</string>
+    <string>Eliminate unused frames</string>
    </property>
   </action>
-  <action name="actionDel_Tile">
+  <action name="actionCleanupSubtiles_Tileset">
    <property name="text">
-    <string>Del Tile</string>
+    <string>Cleanup Subtiles</string>
    </property>
    <property name="toolTip">
-    <string>Delete the current tile</string>
+    <string>Eliminate unused subtiles</string>
+   </property>
+  </action>
+  <action name="actionCleanupTileset_Tileset">
+   <property name="text">
+    <string>Cleanup Tileset</string>
+   </property>
+   <property name="toolTip">
+    <string>Eliminate unused subtiles and frames</string>
    </property>
   </action>
   <action name="actionSave_PAL">

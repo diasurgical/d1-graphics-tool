@@ -85,12 +85,6 @@ MainWindow::MainWindow(QWidget *parent)
     this->tileMenu->addAction("Delete", this, SLOT(on_actionDel_Tile_triggered()))->setToolTip("Delete the current tile");
     this->ui->menuEdit->addMenu(this->tileMenu);
 
-    // Initialize 'Tileset' submenu of 'Edit'
-    this->tilesetMenu = new QMenu("Tileset");
-    this->tilesetMenu->setToolTipsVisible(true);
-    this->tilesetMenu->addAction("Usage Report", this, SLOT(on_actionReportUse_Tileset_triggered()))->setToolTip("List the uses of the current frame/subtile/tile.");
-    this->ui->menuEdit->addMenu(this->tilesetMenu);
-
     this->on_actionClose_triggered();
     setAcceptDrops(true);
 }
@@ -116,7 +110,6 @@ MainWindow::~MainWindow()
     delete this->frameMenu;
     delete this->subtileMenu;
     delete this->tileMenu;
-    delete this->tilesetMenu;
     delete this->palHits;
 }
 
@@ -745,7 +738,8 @@ void MainWindow::openFile(const OpenAsParam &params)
 
     this->subtileMenu->setEnabled(isTileset);
     this->tileMenu->setEnabled(isTileset);
-    this->tilesetMenu->setEnabled(isTileset);
+
+    this->ui->menuTileset->setEnabled(isTileset);
 
     this->updateWindow();
 
@@ -974,6 +968,7 @@ void MainWindow::on_actionClose_triggered()
 
     // update available menu entries
     this->ui->menuEdit->setEnabled(false);
+    this->ui->menuTileset->setEnabled(false);
     this->ui->menuPalette->setEnabled(false);
     this->ui->actionExport->setEnabled(false);
     this->ui->actionSave->setEnabled(false);
@@ -1142,6 +1137,50 @@ void MainWindow::on_actionDel_Tile_triggered()
 void MainWindow::on_actionReportUse_Tileset_triggered()
 {
     this->levelCelView->reportUsage();
+}
+
+void MainWindow::on_actionResetFrameTypes_Tileset_triggered()
+{
+    this->ui->statusBar->showMessage("Processing...");
+    this->ui->statusBar->repaint();
+
+    this->levelCelView->resetFrameTypes();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::on_actionCleanupFrames_Tileset_triggered()
+{
+    this->ui->statusBar->showMessage("Processing...");
+    this->ui->statusBar->repaint();
+
+    this->levelCelView->cleanupFrames();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::on_actionCleanupSubtiles_Tileset_triggered()
+{
+    this->ui->statusBar->showMessage("Processing...");
+    this->ui->statusBar->repaint();
+
+    this->levelCelView->cleanupSubtiles();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::on_actionCleanupTileset_Tileset_triggered()
+{
+    this->ui->statusBar->showMessage("Processing...");
+    this->ui->statusBar->repaint();
+
+    this->levelCelView->cleanupTileset();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
 }
 
 void MainWindow::on_actionNew_PAL_triggered()
