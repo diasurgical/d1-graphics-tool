@@ -788,7 +788,7 @@ void LevelCelView::reportUsage()
         QList<int> frameUsers;
         this->collectFrameUsers(this->currentFrameIndex, frameUsers);
 
-        frameUses = "Frame " + QString::number(this->currentFrameIndex);
+        frameUses = "Frame " + QString::number(this->currentFrameIndex + 1);
         if (frameUsers.isEmpty()) {
             frameUses += " is not used by any subtile.";
         } else {
@@ -807,7 +807,7 @@ void LevelCelView::reportUsage()
         QList<int> subtileUsers;
         this->collectSubtileUsers(this->currentSubtileIndex, subtileUsers);
 
-        subtileUses = "Subtile " + QString::number(this->currentSubtileIndex);
+        subtileUses = "Subtile " + QString::number(this->currentSubtileIndex + 1);
         if (subtileUsers.isEmpty()) {
             subtileUses += " is not used by any tile.";
         } else {
