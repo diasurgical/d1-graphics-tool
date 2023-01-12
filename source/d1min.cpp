@@ -288,38 +288,9 @@ QList<quint16> &D1Min::getCelFrameIndices(int subtileIndex)
     return const_cast<QList<quint16> &>(this->celFrameIndices.at(subtileIndex));
 }
 
-void D1Min::insertSubtile(int subtileIndex, const QImage &image)
+void D1Min::insertSubtile(int subtileIndex, const QList<quint16> &frameIndicesList)
 {
-    QList<quint16> celFrameIndicesList;
-
-    int frameIndex = this->gfx->getFrameCount();
-    QImage subImage = QImage(MICRO_WIDTH, MICRO_HEIGHT, QImage::Format_ARGB32);
-    for (int y = 0; y < image.height(); y += MICRO_HEIGHT) {
-        for (int x = 0; x < image.width(); x += MICRO_WIDTH) {
-            // subImage.fill(Qt::transparent);
-
-            bool hasColor = false;
-            for (int j = 0; j < MICRO_HEIGHT; j++) {
-                for (int i = 0; i < MICRO_WIDTH; i++) {
-                    const QColor color = image.pixelColor(x + i, y + j);
-                    if (color.alpha() >= COLOR_ALPHA_LIMIT) {
-                        hasColor = true;
-                    }
-                    subImage.setPixelColor(i, j, color);
-                }
-            }
-
-            celFrameIndicesList.append(hasColor ? frameIndex + 1 : 0);
-
-            if (!hasColor) {
-                continue;
-            }
-
-            this->gfx->insertFrame(frameIndex, subImage);
-            frameIndex++;
-        }
-    }
-    this->celFrameIndices.insert(subtileIndex, celFrameIndicesList);
+    this->celFrameIndices.insert(subtileIndex, frameIndicesList);
 }
 
 void D1Min::createSubtile()

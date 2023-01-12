@@ -95,6 +95,11 @@ quint8 D1Sol::getSubtileProperties(int subtileIndex)
     return this->subProperties.at(subtileIndex);
 }
 
+void D1Sol::insertSubtile(int subtileIndex, quint8 value)
+{
+    this->subProperties.insert(subtileIndex, value);
+}
+
 void D1Sol::setSubtileProperties(int subtileIndex, quint8 value)
 {
     this->subProperties[subtileIndex] = value;

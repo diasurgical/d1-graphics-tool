@@ -167,35 +167,8 @@ QList<quint16> &D1Til::getSubtileIndices(int tileIndex)
     return const_cast<QList<quint16> &>(this->subtileIndices.at(tileIndex));
 }
 
-void D1Til::insertTile(int tileIndex, const QImage &image)
+void D1Til::insertTile(int tileIndex, const QList<quint16> &subtileIndices)
 {
-    QList<quint16> subtileIndices;
-
-    unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
-    unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
-
-    QImage subImage = QImage(subtileWidth, subtileHeight, QImage::Format_ARGB32);
-    for (int y = 0; y < image.height(); y += subtileHeight) {
-        for (int x = 0; x < image.width(); x += subtileWidth) {
-            // subImage.fill(Qt::transparent);
-
-            // bool hasColor = false;
-            for (unsigned j = 0; j < subtileHeight; j++) {
-                for (unsigned i = 0; i < subtileWidth; i++) {
-                    const QColor color = image.pixelColor(x + i, y + j);
-                    // if (color.alpha() >= COLOR_ALPHA_LIMIT) {
-                    //    hasColor = true;
-                    // }
-                    subImage.setPixelColor(i, j, color);
-                }
-            }
-
-            int index = this->min->getSubtileCount();
-            subtileIndices.append(index);
-            this->min->insertSubtile(index, subImage);
-        }
-    }
-
     this->subtileIndices.insert(tileIndex, subtileIndices);
 }
 
