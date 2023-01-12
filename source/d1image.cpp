@@ -43,9 +43,9 @@ bool D1ImageFrame::load(D1GfxFrame &frame, const QImage &image, bool clipped, D1
             QColor color = image.pixelColor(x, y);
             // if (color == QColor(Qt::transparent)) {
             if (color.alpha() < COLOR_ALPHA_LIMIT) {
-                pixelLine.append(D1GfxPixel(true, 0));
+                pixelLine.append(D1GfxPixel::transparentPixel());
             } else {
-                pixelLine.append(D1GfxPixel(false, getPalColor(pal, color)));
+                pixelLine.append(D1GfxPixel::colorPixel(getPalColor(pal, color)));
             }
         }
         frame.pixels.append(pixelLine);

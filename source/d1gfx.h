@@ -15,14 +15,19 @@
 
 class D1GfxPixel {
 public:
-    D1GfxPixel() = default;
-    D1GfxPixel(bool, quint8);
+    static D1GfxPixel transparentPixel();
+    static D1GfxPixel colorPixel(quint8 color);
+
     ~D1GfxPixel() = default;
 
     bool isTransparent() const;
     quint8 getPaletteIndex() const;
 
+    friend bool operator==(const D1GfxPixel &lhs, const D1GfxPixel &rhs);
+
 private:
+    D1GfxPixel() = default;
+
     bool transparent = false;
     quint8 paletteIndex = 0;
 };

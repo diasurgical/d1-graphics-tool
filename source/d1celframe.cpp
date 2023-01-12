@@ -67,7 +67,7 @@ bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, const OpenAsParam &
                 return false;
 
             for (int i = 0; i < (256 - readByte); i++)
-                pixelLine.append(D1GfxPixel(true, 0));
+                pixelLine.append(D1GfxPixel::transparentPixel());
         } else {
             // Palette indices group
             // A pixel line can't exceed the image width
@@ -76,7 +76,7 @@ bool D1CelFrame::load(D1GfxFrame &frame, QByteArray rawData, const OpenAsParam &
 
             for (int i = 0; i < readByte; i++) {
                 o++;
-                pixelLine.append(D1GfxPixel(false, rawData[o]));
+                pixelLine.append(D1GfxPixel::colorPixel(rawData[o]));
             }
         }
 
