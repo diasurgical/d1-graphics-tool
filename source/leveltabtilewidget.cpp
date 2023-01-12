@@ -88,7 +88,7 @@ void LevelTabTileWidget::update()
     while (this->ui->subtilesComboBox->count() < subtiles.count())
         this->ui->subtilesComboBox->insertItem(0, QString::number(++i));
     for (i = 0; i < subtiles.count(); i++) {
-        this->ui->subtilesComboBox->setItemText(i, QString::number(subtiles[i]));
+        this->ui->subtilesComboBox->setItemText(i, QString::number(subtiles[i] + 1));
     }
     if (this->lastTileIndex != tileIdx) {
         this->lastTileIndex = tileIdx;
@@ -103,7 +103,7 @@ void LevelTabTileWidget::update()
 void LevelTabTileWidget::updateSubtilesSelection(int index)
 {
     this->lastSubTileEntryIndex = index;
-    int subtileIdx = this->ui->subtilesComboBox->currentText().toInt();
+    int subtileIdx = this->ui->subtilesComboBox->currentText().toInt() - 1;
 
     this->ui->subtilesPrevButton->setEnabled(subtileIdx > 0);
     this->ui->subtilesNextButton->setEnabled(subtileIdx < this->min->getSubtileCount() - 1);
@@ -212,7 +212,7 @@ void LevelTabTileWidget::on_subtilesPrevButton_clicked()
 
     subtileIndices[index] = subtileIdx;
 
-    // this->ui->subtilesComboBox->setItemText(index, QString::number(subtileIdx));
+    // this->ui->subtilesComboBox->setItemText(index, QString::number(subtileIdx + 1));
     // this->updateSubtilesSelection(index);
 
     this->levelCelView->displayFrame();
@@ -228,7 +228,7 @@ void LevelTabTileWidget::on_subtilesComboBox_activated(int index)
 void LevelTabTileWidget::on_subtilesComboBox_currentTextChanged(const QString &arg1)
 {
     int index = this->lastSubTileEntryIndex;
-    int subtileIdx = this->ui->subtilesComboBox->currentText().toInt();
+    int subtileIdx = this->ui->subtilesComboBox->currentText().toInt() - 1;
 
     if (this->onUpdate || this->ui->subtilesComboBox->currentIndex() != index)
         return; // on update or side effect of combobox activated -> ignore
@@ -238,7 +238,7 @@ void LevelTabTileWidget::on_subtilesComboBox_currentTextChanged(const QString &a
 
         this->til->getSubtileIndices(tileIdx)[index] = subtileIdx;
 
-        // this->ui->subtilesComboBox->setItemText(index, QString::number(subtileIdx));
+        // this->ui->subtilesComboBox->setItemText(index, QString::number(subtileIdx + 1));
         // this->updateSubtilesSelection(index);
 
         this->levelCelView->displayFrame();
@@ -258,7 +258,7 @@ void LevelTabTileWidget::on_subtilesNextButton_clicked()
 
     subtileIndices[index] = subtileIdx;
 
-    // this->ui->subtilesComboBox->setItemText(index, QString::number(subtileIdx));
+    // this->ui->subtilesComboBox->setItemText(index, QString::number(subtileIdx + 1));
     // this->updateSubtilesSelection(index);
 
     this->levelCelView->displayFrame();
