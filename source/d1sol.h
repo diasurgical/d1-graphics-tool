@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QList>
+#include <QMap>
 
 #include "saveasdialog.h"
 
@@ -17,6 +18,7 @@ public:
     void insertSubtile(int subtileIndex, quint8 value);
     void createSubtile();
     void removeSubtile(int subtileIndex);
+    void remapSubtiles(const QMap<unsigned, unsigned> &remap);
 
     QString getFilePath();
     quint16 getSubtileCount();

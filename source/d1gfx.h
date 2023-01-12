@@ -87,6 +87,7 @@ public:
     D1GfxFrame *insertFrame(int frameIndex, const QImage &image);
     D1GfxFrame *replaceFrame(int frameIndex, const QImage &image);
     void removeFrame(quint16 frameIndex);
+    void remapFrames(const QMap<unsigned, unsigned> &remap);
 
     D1CEL_TYPE getType() const;
     void setType(D1CEL_TYPE type);

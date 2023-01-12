@@ -1270,6 +1270,97 @@ void LevelCelView::compressTileset()
     QMessageBox::information(this, "Information", framesReport);
 }
 
+bool LevelCelView::sortFrames_impl()
+{
+    QMap<unsigned, unsigned> remap;
+    bool change = false;
+    unsigned idx = 1;
+
+    for (int i = 0; i < this->min->getSubtileCount(); i++) {
+        QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
+        for (auto sit = frameIndices.begin(); sit != frameIndices.end(); ++sit) {
+            if (*sit == 0) {
+                continue;
+            }
+            auto mit = remap.find(*sit);
+            if (mit != remap.end()) {
+                *sit = mit.value();
+            } else {
+                remap[*sit] = idx;
+                change |= *sit != idx;
+                *sit = idx;
+                idx++;
+            }
+        }
+    }
+    QMap<unsigned, unsigned> backmap;
+    for (auto iter = remap.cbegin(); iter != remap.cend(); ++iter) {
+        backmap[iter.value()] = iter.key();
+    }
+    this->gfx->remapFrames(backmap);
+    return change;
+}
+
+bool LevelCelView::sortSubtiles_impl()
+{
+    QMap<unsigned, unsigned> remap;
+    bool change = false;
+    unsigned idx = 0;
+
+    for (int i = 0; i < this->til->getTileCount(); i++) {
+        QList<quint16> &subtileIndices = this->til->getSubtileIndices(i);
+        for (auto sit = subtileIndices.begin(); sit != subtileIndices.end(); ++sit) {
+            auto mit = remap.find(*sit);
+            if (mit != remap.end()) {
+                *sit = mit.value();
+            } else {
+                remap[*sit] = idx;
+                change |= *sit != idx;
+                *sit = idx;
+                idx++;
+            }
+        }
+    }
+    QMap<unsigned, unsigned> backmap;
+    for (auto iter = remap.cbegin(); iter != remap.cend(); ++iter) {
+        backmap[iter.value()] = iter.key();
+    }
+    this->min->remapSubtiles(backmap);
+    this->sol->remapSubtiles(backmap);
+    return change;
+}
+
+void LevelCelView::sortFrames()
+{
+    if (this->sortFrames_impl()) {
+        // update the view
+        this->update();
+        this->displayFrame();
+    }
+}
+
+void LevelCelView::sortSubtiles()
+{
+    if (this->sortSubtiles_impl()) {
+        // update the view
+        this->update();
+        this->displayFrame();
+    }
+}
+
+void LevelCelView::sortTileset()
+{
+    bool change = false;
+
+    change |= this->sortSubtiles_impl();
+    change |= this->sortFrames_impl();
+    if (change) {
+        // update the view
+        this->update();
+        this->displayFrame();
+    }
+}
+
 void LevelCelView::displayFrame()
 {
     quint16 minPosX = 0;

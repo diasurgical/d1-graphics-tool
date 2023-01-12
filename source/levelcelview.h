@@ -87,6 +87,9 @@ public:
     void compressSubtiles();
     void compressTiles();
     void compressTileset();
+    void sortFrames();
+    void sortSubtiles();
+    void sortTileset();
 
     void displayFrame();
 
@@ -110,6 +113,8 @@ private:
     void removeUnusedSubtiles(QString &report);
     void reuseFrames(QString &report);
     void reuseSubtiles(QString &report);
+    bool sortFrames_impl();
+    bool sortSubtiles_impl();
 
 signals:
     void frameRefreshed();

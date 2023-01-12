@@ -114,3 +114,13 @@ void D1Sol::removeSubtile(int subtileIndex)
 {
     this->subProperties.removeAt(subtileIndex);
 }
+
+void D1Sol::remapSubtiles(const QMap<unsigned, unsigned> &remap)
+{
+    QList<quint8> newSubProperties;
+
+    for (auto iter = remap.cbegin(); iter != remap.cend(); ++iter) {
+        newSubProperties.append(this->subProperties.at(iter.value()));
+    }
+    this->subProperties.swap(newSubProperties);
+}

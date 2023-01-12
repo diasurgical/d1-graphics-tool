@@ -121,6 +121,9 @@ private slots:
     void on_actionCompressSubtiles_Tileset_triggered();
     void on_actionCompressTiles_Tileset_triggered();
     void on_actionCompressTileset_Tileset_triggered();
+    void on_actionSortFrames_Tileset_triggered();
+    void on_actionSortSubtiles_Tileset_triggered();
+    void on_actionSortTileset_Tileset_triggered();
 
     void on_actionNew_PAL_triggered();
     void on_actionOpen_PAL_triggered();
