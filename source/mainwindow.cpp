@@ -1183,6 +1183,39 @@ void MainWindow::on_actionCleanupTileset_Tileset_triggered()
     this->ui->statusBar->clearMessage();
 }
 
+void MainWindow::on_actionCompressSubtiles_Tileset_triggered()
+{
+    this->ui->statusBar->showMessage("Processing...");
+    this->ui->statusBar->repaint();
+
+    this->levelCelView->compressSubtiles();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::on_actionCompressTiles_Tileset_triggered()
+{
+    this->ui->statusBar->showMessage("Processing...");
+    this->ui->statusBar->repaint();
+
+    this->levelCelView->compressTiles();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::on_actionCompressTileset_Tileset_triggered()
+{
+    this->ui->statusBar->showMessage("Processing...");
+    this->ui->statusBar->repaint();
+
+    this->levelCelView->compressTileset();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
 void MainWindow::on_actionNew_PAL_triggered()
 {
     QString palFilePath = this->fileDialog(FILE_DIALOG_MODE::SAVE_CONF, "New Palette File", "PAL Files (*.pal *.PAL)");

@@ -118,6 +118,9 @@ private slots:
     void on_actionCleanupFrames_Tileset_triggered();
     void on_actionCleanupSubtiles_Tileset_triggered();
     void on_actionCleanupTileset_Tileset_triggered();
+    void on_actionCompressSubtiles_Tileset_triggered();
+    void on_actionCompressTiles_Tileset_triggered();
+    void on_actionCompressTileset_Tileset_triggered();
 
     void on_actionNew_PAL_triggered();
     void on_actionOpen_PAL_triggered();

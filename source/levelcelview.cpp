@@ -1,6 +1,7 @@
 #include "levelcelview.h"
 
 #include <algorithm>
+#include <set>
 
 #include <QAction>
 #include <QFileInfo>
@@ -1051,6 +1052,208 @@ void LevelCelView::cleanupTileset()
 
     if (framesReport.isEmpty() && subtilesReport.isEmpty()) {
         framesReport = "Every subtile and frame are used.";
+    } else {
+        // update the view
+        this->update();
+        this->displayFrame();
+
+        if (!subtilesReport.isEmpty()) {
+            if (!framesReport.isEmpty()) {
+                framesReport += "\n\n";
+            }
+            framesReport += subtilesReport;
+        }
+    }
+
+    QMessageBox::information(this, "Information", framesReport);
+}
+
+void LevelCelView::reuseFrames(QString &report)
+{
+    QList<QPair<int, int>> frameRemoved;
+    std::set<int> removedIndices;
+
+    for (int i = 0; i < this->gfx->getFrameCount(); i++) {
+        for (int j = i + 1; j < this->gfx->getFrameCount(); j++) {
+            D1GfxFrame *frame0 = this->gfx->getFrame(i);
+            D1GfxFrame *frame1 = this->gfx->getFrame(j);
+            int width = frame0->getWidth();
+            int height = frame0->getHeight();
+            if (width != frame1->getWidth() || height != frame1->getHeight()) {
+                continue; // should not happen, but better safe than sorry
+            }
+            bool match = true;
+            for (int y = 0; y < height && match; y++) {
+                for (int x = 0; x < width; x++) {
+                    if (frame0->getPixel(x, y) == frame1->getPixel(x, y)) {
+                        continue;
+                    }
+                    match = false;
+                    break;
+                }
+            }
+            if (!match) {
+                continue;
+            }
+            // reuse frame0 instead of frame1
+            const unsigned refIndex = j + 1;
+            for (int n = 0; n < this->min->getSubtileCount(); n++) {
+                QList<quint16> &frameIndices = this->min->getCelFrameIndices(n);
+                for (auto iter = frameIndices.begin(); iter != frameIndices.end(); iter++) {
+                    if (*iter == refIndex) {
+                        *iter = i + 1;
+                    }
+                }
+            }
+            // eliminate frame1
+            this->removeFrame(j);
+            // calculate the original indices
+            int originalIndexI = i;
+            for (auto iter = removedIndices.cbegin(); iter != removedIndices.cend(); ++iter) {
+                if (*iter <= originalIndexI) {
+                    originalIndexI++;
+                    continue;
+                }
+                break;
+            }
+            int originalIndexJ = j;
+            for (auto iter = removedIndices.cbegin(); iter != removedIndices.cend(); ++iter) {
+                if (*iter <= originalIndexJ) {
+                    originalIndexJ++;
+                    continue;
+                }
+                break;
+            }
+            removedIndices.insert(originalIndexJ);
+            frameRemoved.append(qMakePair(originalIndexI, originalIndexJ));
+            j--;
+        }
+    }
+
+    if (frameRemoved.isEmpty()) {
+        return;
+    }
+
+    report = "Using frame ";
+    for (auto iter = frameRemoved.cbegin(); iter != frameRemoved.cend(); ++iter) {
+        report += QString::number(iter->first + 1) + " instead of " + QString::number(iter->second + 1) + ", ";
+    }
+    report.chop(2);
+    report += ".";
+}
+
+void LevelCelView::reuseSubtiles(QString &report)
+{
+    QList<QPair<int, int>> subtileRemoved;
+    std::set<int> removedIndices;
+
+    for (int i = 0; i < this->min->getSubtileCount(); i++) {
+        for (int j = i + 1; j < this->min->getSubtileCount(); j++) {
+            QList<quint16> &frameIndices0 = this->min->getCelFrameIndices(i);
+            QList<quint16> &frameIndices1 = this->min->getCelFrameIndices(j);
+            if (frameIndices0.count() != frameIndices1.count()) {
+                continue; // should not happen, but better safe than sorry
+            }
+            bool match = true;
+            for (int x = 0; x < frameIndices0.count(); x++) {
+                if (frameIndices0[x] == frameIndices1[x]) {
+                    continue;
+                }
+                match = false;
+                break;
+            }
+            if (!match) {
+                continue;
+            }
+            // use subtile 'i' instead of subtile 'j'
+            const unsigned refIndex = j;
+            for (int n = 0; n < this->til->getTileCount(); n++) {
+                QList<quint16> &subtileIndices = this->til->getSubtileIndices(n);
+                for (auto iter = subtileIndices.begin(); iter != subtileIndices.end(); iter++) {
+                    if (*iter == refIndex) {
+                        *iter = i;
+                    }
+                }
+            }
+            // eliminate subtile 'j'
+            this->removeSubtile(j);
+            // calculate the original indices
+            int originalIndexI = i;
+            for (auto iter = removedIndices.cbegin(); iter != removedIndices.cend(); ++iter) {
+                if (*iter <= originalIndexI) {
+                    originalIndexI++;
+                    continue;
+                }
+                break;
+            }
+            int originalIndexJ = j;
+            for (auto iter = removedIndices.cbegin(); iter != removedIndices.cend(); ++iter) {
+                if (*iter <= originalIndexJ) {
+                    originalIndexJ++;
+                    continue;
+                }
+                break;
+            }
+            removedIndices.insert(originalIndexJ);
+            subtileRemoved.append(qMakePair(originalIndexI, originalIndexJ));
+            j--;
+        }
+    }
+
+    if (subtileRemoved.isEmpty()) {
+        return;
+    }
+
+    report = "Using subtile ";
+    for (auto iter = subtileRemoved.cbegin(); iter != subtileRemoved.cend(); ++iter) {
+        report += QString::number(iter->first + 1) + " instead of " + QString::number(iter->second + 1) + ", ";
+    }
+    report.chop(2);
+    report += ".";
+}
+
+void LevelCelView::compressSubtiles()
+{
+    // reuse frames
+    QString report;
+    this->reuseFrames(report);
+
+    if (report.isEmpty()) {
+        report = "All frames are unique.";
+    } else {
+        // update the view
+        this->update();
+        this->displayFrame();
+    }
+    QMessageBox::information(this, "Information", report);
+}
+
+void LevelCelView::compressTiles()
+{
+    // reuse subtiles
+    QString report;
+    this->reuseSubtiles(report);
+
+    if (report.isEmpty()) {
+        report = "All subtiles are unique.";
+    } else {
+        // update the view
+        this->update();
+        this->displayFrame();
+    }
+    QMessageBox::information(this, "Information", report);
+}
+
+void LevelCelView::compressTileset()
+{
+    QString framesReport;
+    this->reuseFrames(framesReport);
+
+    QString subtilesReport;
+    this->reuseSubtiles(subtilesReport);
+
+    if (framesReport.isEmpty() && subtilesReport.isEmpty()) {
+        framesReport = "Every subtile and frame are unique.";
     } else {
         // update the view
         this->update();

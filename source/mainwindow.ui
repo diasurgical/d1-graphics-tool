@@ -140,6 +140,10 @@
     <addaction name="actionCleanupFrames_Tileset"/>
     <addaction name="actionCleanupSubtiles_Tileset"/>
     <addaction name="actionCleanupTileset_Tileset"/>
+    <addaction name="separator"/>
+    <addaction name="actionCompressSubtiles_Tileset"/>
+    <addaction name="actionCompressTiles_Tileset"/>
+    <addaction name="actionCompressTileset_Tileset"/>
    </widget>
    <widget class="QMenu" name="menuPalette">
     <property name="title">
@@ -312,6 +316,30 @@
    </property>
    <property name="toolTip">
     <string>Eliminate unused subtiles and frames</string>
+   </property>
+  </action>
+  <action name="actionCompressSubtiles_Tileset">
+   <property name="text">
+    <string>Compress Subtiles</string>
+   </property>
+   <property name="toolTip">
+    <string>Reuse frames in subtiles</string>
+   </property>
+  </action>
+  <action name="actionCompressTiles_Tileset">
+   <property name="text">
+    <string>Compress Tiles</string>
+   </property>
+   <property name="toolTip">
+    <string>Reuse subtiles in tiles</string>
+   </property>
+  </action>
+  <action name="actionCompressTileset_Tileset">
+   <property name="text">
+    <string>Compress Tileset</string>
+   </property>
+   <property name="toolTip">
+    <string>Reuse subtiles in tiles and frames in subtiles</string>
    </property>
   </action>
   <action name="actionSave_PAL">
