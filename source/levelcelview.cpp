@@ -307,7 +307,7 @@ void LevelCelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QString &i
     }
 
     if (mode == IMAGE_FILE_MODE::AUTO
-        && image.width() != MICRO_WIDTH && image.height() != MICRO_HEIGHT && image.width() != MICRO_WIDTH * EXPORT_LVLFRAMES_PER_LINE) {
+        && (image.width() != MICRO_WIDTH || image.height() != MICRO_HEIGHT) && image.width() != MICRO_WIDTH * EXPORT_LVLFRAMES_PER_LINE) {
         // not a column of micros
         // not a row or micros
         // not a grouped micros from an export -> ignore
@@ -415,7 +415,7 @@ void LevelCelView::insertSubtile(IMAGE_FILE_MODE mode, int index, const QString 
     }
 
     if (mode == IMAGE_FILE_MODE::AUTO
-        && image.width() != subtileWidth && image.height() != subtileHeight && image.width() != subtileWidth * EXPORT_SUBTILES_PER_LINE) {
+        && (image.width() != subtileWidth || image.height() != subtileHeight) && image.width() != subtileWidth * EXPORT_SUBTILES_PER_LINE) {
         // not a column of subtiles
         // not a row or subtiles
         // not a grouped subtiles from an export -> ignore
@@ -484,7 +484,7 @@ void LevelCelView::insertTile(IMAGE_FILE_MODE mode, int index, const QString &im
     }
 
     /*if (mode == IMAGE_FILE_MODE::AUTO
-        && image.width() != subtileWidth && image.height() != subtileHeight && image.width() != subtileWidth * EXPORT_TILES_PER_LINE) {
+        && (image.width() != subtileWidth || image.height() != subtileHeight) && image.width() != subtileWidth * EXPORT_TILES_PER_LINE) {
         // not a column of tiles
         // not a row or tiles
         // not a grouped tiles from an export -> ignore
