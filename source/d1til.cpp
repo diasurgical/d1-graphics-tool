@@ -1,6 +1,7 @@
 #include "d1til.h"
 
 #include <QBuffer>
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>

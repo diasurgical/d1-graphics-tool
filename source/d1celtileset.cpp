@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include <QByteArray>
 #include <QDataStream>
+#include <QDebug>
 #include <QMessageBox>
 
 #include "d1celtilesetframe.h"

@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 
+#include "config.h"
 #include "mainwindow.h"
 #include "ui_palettewidget.h"
 
@@ -264,9 +265,8 @@ QPushButton *PaletteWidget::addButton(QStyle::StandardPixmap type, QString toolt
     return button;
 }
 
-PaletteWidget::PaletteWidget(QJsonObject *config, QUndoStack *us, QString title)
+PaletteWidget::PaletteWidget(QUndoStack *us, QString title)
     : QWidget(nullptr)
-    , configuration(config)
     , undoStack(us)
     , ui(new Ui::PaletteWidget())
     , scene(new PaletteScene(this))
@@ -424,10 +424,10 @@ void PaletteWidget::initializeDisplayComboBox()
 void PaletteWidget::reloadConfig()
 {
     this->paletteDefaultColor = QColor(
-        this->configuration->value("PaletteDefaultColor").toString());
+        Config::value("PaletteDefaultColor").toString());
 
     this->selectionBorderColor = QColor(
-        this->configuration->value("PaletteSelectionBorderColor").toString());
+        Config::value("PaletteSelectionBorderColor").toString());
 }
 
 void PaletteWidget::selectColor(quint8 index)

@@ -69,7 +69,6 @@ public:
     static bool hasImageUrl(const QMimeData *mimeData);
 
 private:
-    void loadConfiguration();
     void updateWindow();
     bool loadPal(QString palFilePath);
     bool loadTrn1(QString trnfilePath);
@@ -152,7 +151,6 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    QJsonObject *configuration = new QJsonObject();
     QString lastFilePath;
 
     QMenu *newMenu;

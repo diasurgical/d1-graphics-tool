@@ -16,6 +16,8 @@ set(PROJECT_SOURCES
         source/celview.cpp
         source/celview.h
         source/celview.ui
+        source/config.cpp
+        source/config.h
         source/d1amp.cpp
         source/d1amp.h
         source/d1cel.cpp

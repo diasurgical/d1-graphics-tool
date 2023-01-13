@@ -20,6 +20,7 @@
 #include <QUndoCommand>
 #include <QUndoStack>
 
+#include "config.h"
 #include "d1cel.h"
 #include "d1celtileset.h"
 #include "d1cl2.h"
@@ -31,8 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     // QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling, true );
 
-    this->loadConfiguration();
-    this->lastFilePath = this->configuration->value("LastFilePath").toString();
+    this->lastFilePath = Config::value("LastFilePath").toString();
 
     ui->setupUi(this);
 
@@ -94,11 +94,9 @@ MainWindow::~MainWindow()
     // close modal windows
     this->on_actionClose_triggered();
     // store last path
-    this->configuration->insert("LastFilePath", this->lastFilePath);
-    this->settingsDialog->storeConfiguration(configuration);
+    Config::insert("LastFilePath", this->lastFilePath);
     // cleanup memory
     delete ui;
-    delete configuration;
     delete openAsDialog;
     delete saveAsDialog;
     delete settingsDialog;
@@ -148,48 +146,6 @@ void MainWindow::setTrn2(QString path)
 QString MainWindow::getLastFilePath()
 {
     return this->lastFilePath;
-}
-
-void MainWindow::loadConfiguration()
-{
-    QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
-    bool configurationModified = false;
-
-    // If configuration file exists load it otherwise create it
-    if (QFile::exists(jsonFilePath)) {
-        QFile loadJson(jsonFilePath);
-        loadJson.open(QIODevice::ReadOnly);
-        QJsonDocument loadJsonDoc = QJsonDocument::fromJson(loadJson.readAll());
-        delete this->configuration;
-        this->configuration = new QJsonObject(loadJsonDoc.object());
-        loadJson.close();
-
-        if (!this->configuration->contains("LastFilePath")) {
-            this->configuration->insert("LastFilePath", jsonFilePath);
-            configurationModified = true;
-        }
-        if (!this->configuration->contains("PaletteDefaultColor")) {
-            this->configuration->insert("PaletteDefaultColor", "#FF00FF");
-            configurationModified = true;
-        }
-        if (!this->configuration->contains("PaletteSelectionBorderColor")) {
-            this->configuration->insert("PaletteSelectionBorderColor", "#FF0000");
-            configurationModified = true;
-        }
-    } else {
-        this->configuration->insert("LastFilePath", jsonFilePath);
-        this->configuration->insert("PaletteDefaultColor", "#FF00FF");
-        this->configuration->insert("PaletteSelectionBorderColor", "#FF0000");
-        configurationModified = true;
-    }
-
-    if (configurationModified) {
-        QFile saveJson(jsonFilePath);
-        saveJson.open(QIODevice::WriteOnly);
-        QJsonDocument saveDoc(*this->configuration);
-        saveJson.write(saveDoc.toJson());
-        saveJson.close();
-    }
 }
 
 void MainWindow::updateWindow()
@@ -619,9 +575,9 @@ void MainWindow::openFile(const OpenAsParam &params)
     }
 
     // Add palette widgets for PAL and TRNs
-    this->palWidget = new PaletteWidget(this->configuration, this->undoStack, "Palette");
-    this->trn2Widget = new PaletteWidget(this->configuration, this->undoStack, "Translation");
-    this->trn1Widget = new PaletteWidget(this->configuration, this->undoStack, "Unique translation");
+    this->palWidget = new PaletteWidget(this->undoStack, "Palette");
+    this->trn2Widget = new PaletteWidget(this->undoStack, "Translation");
+    this->trn1Widget = new PaletteWidget(this->undoStack, "Unique translation");
     this->ui->palFrame->layout()->addWidget(this->palWidget);
     this->ui->palFrame->layout()->addWidget(this->trn2Widget);
     this->ui->palFrame->layout()->addWidget(this->trn1Widget);
@@ -920,7 +876,7 @@ void MainWindow::addTiles(bool append)
 
 void MainWindow::on_actionOpenAs_triggered()
 {
-    this->openAsDialog->initialize(this->configuration);
+    this->openAsDialog->initialize();
     this->openAsDialog->show();
 }
 
@@ -936,7 +892,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-    this->saveAsDialog->initialize(this->configuration, this->gfx, this->min, this->til, this->sol, this->amp);
+    this->saveAsDialog->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
     this->saveAsDialog->show();
 }
 
@@ -978,13 +934,13 @@ void MainWindow::on_actionClose_triggered()
 
 void MainWindow::on_actionSettings_triggered()
 {
-    this->settingsDialog->initialize(this->configuration);
+    this->settingsDialog->initialize();
     this->settingsDialog->show();
 }
 
 void MainWindow::on_actionExport_triggered()
 {
-    this->exportDialog->initialize(this->configuration, this->gfx, this->min, this->til, this->sol, this->amp);
+    this->exportDialog->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
     this->exportDialog->show();
 }
 

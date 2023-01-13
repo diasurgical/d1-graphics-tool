@@ -2,8 +2,8 @@
 
 #include <QColorDialog>
 #include <QFileDialog>
-#include <QJsonDocument>
 
+#include "config.h"
 #include "ui_settingsdialog.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent)
@@ -18,33 +18,13 @@ SettingsDialog::~SettingsDialog()
     delete ui;
 }
 
-void SettingsDialog::initialize(QJsonObject *cfg)
+void SettingsDialog::initialize()
 {
-    this->configuration = cfg;
-
-    QColor palDefaultColor = QColor(this->configuration->value("PaletteDefaultColor").toString());
+    QColor palDefaultColor = QColor(Config::value("PaletteDefaultColor").toString());
     this->ui->defaultPaletteColorLineEdit->setText(palDefaultColor.name());
 
-    QColor palSelectionBorderColor = QColor(this->configuration->value("PaletteSelectionBorderColor").toString());
+    QColor palSelectionBorderColor = QColor(Config::value("PaletteSelectionBorderColor").toString());
     this->ui->paletteSelectionBorderColorLineEdit->setText(palSelectionBorderColor.name());
-}
-
-void SettingsDialog::storeConfiguration(QJsonObject *cfg)
-{
-    QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
-
-    QFile saveJson(jsonFilePath);
-    saveJson.open(QIODevice::WriteOnly);
-    QJsonDocument saveDoc(*cfg);
-    saveJson.write(saveDoc.toJson());
-    saveJson.close();
-}
-
-void SettingsDialog::saveConfiguration()
-{
-    SettingsDialog::storeConfiguration(this->configuration);
-
-    emit this->configurationSaved();
 }
 
 void SettingsDialog::on_defaultPaletteColorPushButton_clicked()
@@ -63,13 +43,15 @@ void SettingsDialog::on_settingsOkButton_clicked()
 {
     // PaletteDefaultColor
     QColor palDefaultColor = QColor(ui->defaultPaletteColorLineEdit->text());
-    this->configuration->insert("PaletteDefaultColor", palDefaultColor.name());
+    Config::insert("PaletteDefaultColor", palDefaultColor.name());
 
     // PaletteSelectionBorderColor
     QColor palSelectionBorderColor = QColor(ui->paletteSelectionBorderColorLineEdit->text());
-    this->configuration->insert("PaletteSelectionBorderColor", palSelectionBorderColor.name());
+    Config::insert("PaletteSelectionBorderColor", palSelectionBorderColor.name());
 
-    this->saveConfiguration();
+    Config::storeConfiguration();
+
+    emit this->configurationSaved();
 
     this->close();
 }

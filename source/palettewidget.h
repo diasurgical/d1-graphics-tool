@@ -2,7 +2,6 @@
 
 #include <QDirIterator>
 #include <QGraphicsScene>
-#include <QJsonObject>
 #include <QMouseEvent>
 #include <QStyle>
 #include <QUndoCommand>
@@ -124,7 +123,7 @@ class PaletteWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PaletteWidget(QJsonObject *configuration, QUndoStack *undoStack, QString title);
+    explicit PaletteWidget(QUndoStack *undoStack, QString title);
     ~PaletteWidget();
 
     void setPal(D1Pal *p);
@@ -214,7 +213,6 @@ private slots:
     void on_monsterTrnPushButton_clicked();
 
 private:
-    QJsonObject *configuration;
     QUndoStack *undoStack;
     Ui::PaletteWidget *ui;
     bool isLevelCel;

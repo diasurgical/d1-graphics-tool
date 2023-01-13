@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QDialog>
-#include <QJsonObject>
 
 namespace Ui {
 class SettingsDialog;
@@ -14,12 +13,7 @@ public:
     explicit SettingsDialog(QWidget *parent = nullptr);
     ~SettingsDialog();
 
-    void initialize(QJsonObject *);
-
-    static void storeConfiguration(QJsonObject *cfg);
-
-private:
-    void saveConfiguration();
+    void initialize();
 
 signals:
     void configurationSaved();
@@ -32,5 +26,4 @@ private slots:
 
 private:
     Ui::SettingsDialog *ui;
-    QJsonObject *configuration;
 };

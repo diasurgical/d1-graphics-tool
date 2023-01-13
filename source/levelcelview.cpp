@@ -4,6 +4,7 @@
 #include <set>
 
 #include <QAction>
+#include <QDebug>
 #include <QFileInfo>
 #include <QGraphicsPixmapItem>
 #include <QMenu>

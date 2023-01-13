@@ -23,10 +23,8 @@ SaveAsDialog::~SaveAsDialog()
     delete ui;
 }
 
-void SaveAsDialog::initialize(QJsonObject *cfg, D1Gfx *g, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp)
+void SaveAsDialog::initialize(D1Gfx *g, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp)
 {
-    // initialize the configuration pointer
-    this->configuration = cfg;
     this->gfx = g;
     this->isTileset = this->gfx->getType() == D1CEL_TYPE::V1_LEVEL;
 

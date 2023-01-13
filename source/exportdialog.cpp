@@ -20,10 +20,8 @@ ExportDialog::~ExportDialog()
     delete ui;
 }
 
-void ExportDialog::initialize(QJsonObject *cfg, D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
+void ExportDialog::initialize(D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
 {
-    this->configuration = cfg;
-
     this->gfx = g;
     this->min = m;
     this->til = t;

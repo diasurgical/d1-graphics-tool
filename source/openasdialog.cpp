@@ -19,11 +19,8 @@ OpenAsDialog::~OpenAsDialog()
     delete ui;
 }
 
-void OpenAsDialog::initialize(QJsonObject *cfg)
+void OpenAsDialog::initialize()
 {
-    // initialize the configuration pointer
-    this->configuration = cfg;
-
     // clear the input fields
     ui->inputFileEdit->setText("");
     ui->isTilesetAutoRadioButton->setChecked(true);

@@ -26,7 +26,7 @@ public:
     explicit ExportDialog(QWidget *parent = nullptr);
     ~ExportDialog();
 
-    void initialize(QJsonObject *cfg, D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
+    void initialize(D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
 
 private slots:
     void on_outputFolderBrowseButton_clicked();
@@ -42,7 +42,6 @@ private:
     bool exportFrames(QProgressDialog &progress);
 
     Ui::ExportDialog *ui;
-    QJsonObject *configuration;
 
     D1Gfx *gfx = nullptr;
     D1Min *min = nullptr;

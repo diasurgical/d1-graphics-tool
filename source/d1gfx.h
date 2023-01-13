@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QImage>
+#include <QMap>
 #include <QtEndian>
 
 #include "d1celtilesetframe.h"

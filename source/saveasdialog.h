@@ -1,7 +1,6 @@
 #pragma once
 
 #include <QDialog>
-#include <QJsonObject>
 #include <QString>
 
 class D1Gfx;
@@ -38,12 +37,10 @@ public:
     explicit SaveAsDialog(QWidget *parent = nullptr);
     ~SaveAsDialog();
 
-    void initialize(QJsonObject *cfg, D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
+    void initialize(D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
 
 private:
     void update();
-
-private slots:
     void on_outputCelFileBrowseButton_clicked();
     void on_outputMinFileBrowseButton_clicked();
     void on_outputTilFileBrowseButton_clicked();
@@ -54,7 +51,6 @@ private slots:
 
 private:
     Ui::SaveAsDialog *ui;
-    QJsonObject *configuration;
     D1Gfx *gfx;
     bool isTileset;
 };
