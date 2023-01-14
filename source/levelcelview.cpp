@@ -951,32 +951,49 @@ void LevelCelView::reportUsage()
     QMessageBox::information(this, "Information", msg);
 }
 
+static const char *getFrameTypeName(D1CEL_FRAME_TYPE type)
+{
+    switch (type) {
+    case D1CEL_FRAME_TYPE::Square:
+        return "Square";
+    case D1CEL_FRAME_TYPE::TransparentSquare:
+        return "Transparent square";
+    case D1CEL_FRAME_TYPE::LeftTriangle:
+        return "Left Triangle";
+    case D1CEL_FRAME_TYPE::RightTriangle:
+        return "Right Triangle";
+    case D1CEL_FRAME_TYPE::LeftTrapezoid:
+        return "Left Trapezoid";
+    case D1CEL_FRAME_TYPE::RightTrapezoid:
+        return "Right Trapezoid";
+    default:
+        return "Unknown";
+    }
+}
+
 void LevelCelView::resetFrameTypes()
 {
-    QList<int> changes;
+    QString report;
 
     for (int i = 0; i < this->gfx->getFrameCount(); i++) {
         D1GfxFrame *frame = this->gfx->getFrame(i);
         D1CEL_FRAME_TYPE prevType = frame->getFrameType();
         LevelTabFrameWidget::selectFrameType(frame);
-        if (prevType != frame->getFrameType()) {
-            changes.append(i);
+        D1CEL_FRAME_TYPE newType = frame->getFrameType();
+        if (prevType != newType) {
+            QString line = "Changed Frame %1 from '%2' to '%3'.\n";
+            line = line.arg(i + 1).arg(getFrameTypeName(prevType)).arg(getFrameTypeName(newType));
+            report.append(line);
         }
     }
 
-    QString report;
-    if (changes.isEmpty()) {
+    if (report.isEmpty()) {
         report = "No change was necessary.";
     } else {
         // update the view
         this->tabFrameWidget->update();
 
-        report = "Updated frame ";
-        for (auto iter = changes.cbegin(); iter != changes.cend(); ++iter) {
-            report += QString::number(*iter + 1) + ", ";
-        }
-        report.chop(2);
-        report += ".";
+        report.chop(1);
     }
     QMessageBox::information(this, "Information", report);
 }
