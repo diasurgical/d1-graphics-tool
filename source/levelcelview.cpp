@@ -998,6 +998,34 @@ void LevelCelView::resetFrameTypes()
     QMessageBox::information(this, "Information", report);
 }
 
+void LevelCelView::inefficientFrames()
+{
+    QString report;
+    int limit = 10;
+
+    for (int i = 0; i < this->gfx->getFrameCount(); i++) {
+        D1GfxFrame *frame = this->gfx->getFrame(i);
+        if (frame->getFrameType() != D1CEL_FRAME_TYPE::TransparentSquare) {
+            continue;
+        }
+        int diff = limit;
+        D1CEL_FRAME_TYPE effType = LevelTabFrameWidget::altFrameType(frame, &diff);
+        if (effType != D1CEL_FRAME_TYPE::TransparentSquare) {
+            diff = limit - diff;
+            QString line = "Frame %1 could be '%2' by changing %3 pixel%4.\n";
+            line = line.arg(i + 1).arg(getFrameTypeName(effType)).arg(diff).arg(diff == 1 ? "" : "s");
+            report.append(line);
+        }
+    }
+
+    if (report.isEmpty()) {
+        report = "The frames are optimal.";
+    } else {
+        report.chop(1);
+    }
+    QMessageBox::information(this, "Information", report);
+}
+
 void LevelCelView::removeUnusedFrames(QString &report)
 {
     // collect every frame uses

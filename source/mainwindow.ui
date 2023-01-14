@@ -136,6 +136,7 @@
     </property>
     <addaction name="actionReportUse_Tileset"/>
     <addaction name="actionResetFrameTypes_Tileset"/>
+    <addaction name="actionInefficientFrames_Tileset"/>
     <addaction name="separator"/>
     <addaction name="actionCleanupFrames_Tileset"/>
     <addaction name="actionCleanupSubtiles_Tileset"/>
@@ -296,6 +297,14 @@
    </property>
    <property name="toolTip">
     <string>Reinitialize the frame types of every frame</string>
+   </property>
+  </action>
+  <action name="actionInefficientFrames_Tileset">
+   <property name="text">
+    <string>Inefficient Frames</string>
+   </property>
+   <property name="toolTip">
+    <string>List frames which are almost standard</string>
    </property>
   </action>
   <action name="actionCleanupFrames_Tileset">

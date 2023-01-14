@@ -54,11 +54,11 @@ static bool prepareMsgNonTransparent(QString &msg, int x, int y)
     return false;
 }
 
-static bool validSquare(const D1GfxFrame *frame, QString &msg)
+static bool validSquare(const D1GfxFrame *frame, QString &msg, int *limit)
 {
     for (int y = 0; y < MICRO_HEIGHT; y++) {
         for (int x = 0; x < MICRO_WIDTH; x++) {
-            if (frame->getPixel(x, y).isTransparent()) {
+            if (frame->getPixel(x, y).isTransparent() && --*limit < 0) {
                 return prepareMsgTransparent(msg, x, y);
             }
         }
@@ -66,16 +66,16 @@ static bool validSquare(const D1GfxFrame *frame, QString &msg)
     return true;
 }
 
-static bool validBottomLeftTriangle(const D1GfxFrame *frame, QString &msg)
+static bool validBottomLeftTriangle(const D1GfxFrame *frame, QString &msg, int *limit)
 {
     for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
         for (int x = 0; x < MICRO_WIDTH; x++) {
             if (frame->getPixel(x, y).isTransparent()) {
-                if (x >= (y * 2 - MICRO_WIDTH)) {
+                if (x >= (y * 2 - MICRO_WIDTH) && --*limit < 0) {
                     return prepareMsgTransparent(msg, x, y);
                 }
             } else {
-                if (x < (y * 2 - MICRO_WIDTH)) {
+                if (x < (y * 2 - MICRO_WIDTH) && --*limit < 0) {
                     return prepareMsgNonTransparent(msg, x, y);
                 }
             }
@@ -84,16 +84,16 @@ static bool validBottomLeftTriangle(const D1GfxFrame *frame, QString &msg)
     return true;
 }
 
-static bool validBottomRightTriangle(const D1GfxFrame *frame, QString &msg)
+static bool validBottomRightTriangle(const D1GfxFrame *frame, QString &msg, int *limit)
 {
     for (int y = MICRO_HEIGHT / 2; y < MICRO_HEIGHT; y++) {
         for (int x = 0; x < MICRO_WIDTH; x++) {
             if (frame->getPixel(x, y).isTransparent()) {
-                if (x < (2 * MICRO_WIDTH - y * 2)) {
+                if (x < (2 * MICRO_WIDTH - y * 2) && --*limit < 0) {
                     return prepareMsgTransparent(msg, x, y);
                 }
             } else {
-                if (x >= (2 * MICRO_WIDTH - y * 2)) {
+                if (x >= (2 * MICRO_WIDTH - y * 2) && --*limit < 0) {
                     return prepareMsgNonTransparent(msg, x, y);
                 }
             }
@@ -102,19 +102,19 @@ static bool validBottomRightTriangle(const D1GfxFrame *frame, QString &msg)
     return true;
 }
 
-static bool validLeftTriangle(const D1GfxFrame *frame, QString &msg)
+static bool validLeftTriangle(const D1GfxFrame *frame, QString &msg, int *limit)
 {
-    if (!validBottomLeftTriangle(frame, msg)) {
+    if (!validBottomLeftTriangle(frame, msg, limit)) {
         return false;
     }
     for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
         for (int x = 0; x < MICRO_WIDTH; x++) {
             if (frame->getPixel(x, y).isTransparent()) {
-                if (x >= (MICRO_WIDTH - y * 2)) {
+                if (x >= (MICRO_WIDTH - y * 2) && --*limit < 0) {
                     return prepareMsgTransparent(msg, x, y);
                 }
             } else {
-                if (x < (MICRO_WIDTH - y * 2)) {
+                if (x < (MICRO_WIDTH - y * 2) && --*limit < 0) {
                     return prepareMsgNonTransparent(msg, x, y);
                 }
             }
@@ -123,19 +123,19 @@ static bool validLeftTriangle(const D1GfxFrame *frame, QString &msg)
     return true;
 }
 
-static bool validRightTriangle(const D1GfxFrame *frame, QString &msg)
+static bool validRightTriangle(const D1GfxFrame *frame, QString &msg, int *limit)
 {
-    if (!validBottomRightTriangle(frame, msg)) {
+    if (!validBottomRightTriangle(frame, msg, limit)) {
         return false;
     }
     for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
         for (int x = 0; x < MICRO_WIDTH; x++) {
             if (frame->getPixel(x, y).isTransparent()) {
-                if (x < y * 2) {
+                if (x < y * 2 && --*limit < 0) {
                     return prepareMsgTransparent(msg, x, y);
                 }
             } else {
-                if (x >= y * 2) {
+                if (x >= y * 2 && --*limit < 0) {
                     return prepareMsgNonTransparent(msg, x, y);
                 }
             }
@@ -144,11 +144,11 @@ static bool validRightTriangle(const D1GfxFrame *frame, QString &msg)
     return true;
 }
 
-static bool validTopHalfSquare(const D1GfxFrame *frame, QString &msg)
+static bool validTopHalfSquare(const D1GfxFrame *frame, QString &msg, int *limit)
 {
     for (int y = 0; y < MICRO_HEIGHT / 2; y++) {
         for (int x = 0; x < MICRO_WIDTH; x++) {
-            if (frame->getPixel(x, y).isTransparent()) {
+            if (frame->getPixel(x, y).isTransparent() && --*limit < 0) {
                 return prepareMsgTransparent(msg, x, y);
             }
         }
@@ -156,35 +156,47 @@ static bool validTopHalfSquare(const D1GfxFrame *frame, QString &msg)
     return true;
 }
 
-static bool validLeftTrapezoid(const D1GfxFrame *frame, QString &msg)
+static bool validLeftTrapezoid(const D1GfxFrame *frame, QString &msg, int *limit)
 {
-    return validBottomLeftTriangle(frame, msg) && validTopHalfSquare(frame, msg);
+    return validBottomLeftTriangle(frame, msg, limit) && validTopHalfSquare(frame, msg, limit);
 }
 
-static bool validRightTrapezoid(const D1GfxFrame *frame, QString &msg)
+static bool validRightTrapezoid(const D1GfxFrame *frame, QString &msg, int *limit)
 {
-    return validBottomRightTriangle(frame, msg) && validTopHalfSquare(frame, msg);
+    return validBottomRightTriangle(frame, msg, limit) && validTopHalfSquare(frame, msg, limit);
+}
+
+D1CEL_FRAME_TYPE LevelTabFrameWidget::altFrameType(D1GfxFrame *frame, int *limit)
+{
+    D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::TransparentSquare;
+    QString tmp;
+    int limitSquare = *limit, limitLeftTriangle = *limit, limitRightTriangle = *limit, limitLeftTrapezoid = *limit, limitRightTrapezoid = *limit;
+
+    if (frame->getWidth() == MICRO_WIDTH && frame->getHeight() == MICRO_HEIGHT) {
+        if (validSquare(frame, tmp, &limitSquare)) {
+            frameType = D1CEL_FRAME_TYPE::Square;
+            *limit = limitSquare;
+        } else if (validLeftTriangle(frame, tmp, &limitLeftTriangle)) {
+            frameType = D1CEL_FRAME_TYPE::LeftTriangle;
+            *limit = limitLeftTriangle;
+        } else if (validRightTriangle(frame, tmp, &limitRightTriangle)) {
+            frameType = D1CEL_FRAME_TYPE::RightTriangle;
+            *limit = limitRightTriangle;
+        } else if (validLeftTrapezoid(frame, tmp, &limitLeftTrapezoid)) {
+            frameType = D1CEL_FRAME_TYPE::LeftTrapezoid;
+            *limit = limitLeftTrapezoid;
+        } else if (validRightTrapezoid(frame, tmp, &limitRightTrapezoid)) {
+            frameType = D1CEL_FRAME_TYPE::RightTrapezoid;
+            *limit = limitRightTrapezoid;
+        }
+    }
+    return frameType;
 }
 
 void LevelTabFrameWidget::selectFrameType(D1GfxFrame *frame)
 {
-    D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::TransparentSquare;
-    QString tmp;
-
-    if (frame->getWidth() == MICRO_WIDTH && frame->getHeight() == MICRO_HEIGHT) {
-        if (validSquare(frame, tmp)) {
-            frameType = D1CEL_FRAME_TYPE::Square;
-        } else if (validLeftTriangle(frame, tmp)) {
-            frameType = D1CEL_FRAME_TYPE::LeftTriangle;
-        } else if (validRightTriangle(frame, tmp)) {
-            frameType = D1CEL_FRAME_TYPE::RightTriangle;
-        } else if (validLeftTrapezoid(frame, tmp)) {
-            frameType = D1CEL_FRAME_TYPE::LeftTrapezoid;
-        } else if (validRightTrapezoid(frame, tmp)) {
-            frameType = D1CEL_FRAME_TYPE::RightTrapezoid;
-        }
-    }
-
+    int limit = 0;
+    D1CEL_FRAME_TYPE frameType = LevelTabFrameWidget::altFrameType(frame, &limit);
     frame->setFrameType(frameType);
 }
 
@@ -200,43 +212,48 @@ void LevelTabFrameWidget::validate()
     } else if (frame->getHeight() != MICRO_HEIGHT) {
         error = "Invalid height. Must be 32px wide.";
     } else {
+        int limit = 0;
         switch (frame->getFrameType()) {
         case D1CEL_FRAME_TYPE::Square:
-            validSquare(frame, error);
+            validSquare(frame, error, &limit);
             break;
         case D1CEL_FRAME_TYPE::TransparentSquare:
-            if (validSquare(frame, tmp)) {
+            if (validSquare(frame, tmp, &limit)) {
                 warning = "Suggested type: 'Square'";
                 break;
             }
-            if (validLeftTriangle(frame, tmp)) {
+            limit = 0;
+            if (validLeftTriangle(frame, tmp, &limit)) {
                 warning = "Suggested type: 'Left Triangle'";
                 break;
             }
-            if (validRightTriangle(frame, tmp)) {
+            limit = 0;
+            if (validRightTriangle(frame, tmp, &limit)) {
                 warning = "Suggested type: 'Right Triangle'";
                 break;
             }
-            if (validLeftTrapezoid(frame, tmp)) {
+            limit = 0;
+            if (validLeftTrapezoid(frame, tmp, &limit)) {
                 warning = "Suggested type: 'Left Trapezoid'";
                 break;
             }
-            if (validRightTrapezoid(frame, tmp)) {
+            limit = 0;
+            if (validRightTrapezoid(frame, tmp, &limit)) {
                 warning = "Suggested type: 'Right Trapezoid'";
                 break;
             }
             break;
         case D1CEL_FRAME_TYPE::LeftTriangle:
-            validLeftTriangle(frame, error);
+            validLeftTriangle(frame, error, &limit);
             break;
         case D1CEL_FRAME_TYPE::RightTriangle:
-            validRightTriangle(frame, error);
+            validRightTriangle(frame, error, &limit);
             break;
         case D1CEL_FRAME_TYPE::LeftTrapezoid:
-            validLeftTrapezoid(frame, error);
+            validLeftTrapezoid(frame, error, &limit);
             break;
         case D1CEL_FRAME_TYPE::RightTrapezoid:
-            validRightTrapezoid(frame, error);
+            validRightTrapezoid(frame, error, &limit);
             break;
         }
     }

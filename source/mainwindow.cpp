@@ -1106,6 +1106,17 @@ void MainWindow::on_actionResetFrameTypes_Tileset_triggered()
     this->ui->statusBar->clearMessage();
 }
 
+void MainWindow::on_actionInefficientFrames_Tileset_triggered()
+{
+    this->ui->statusBar->showMessage("Processing...");
+    this->ui->statusBar->repaint();
+
+    this->levelCelView->inefficientFrames();
+
+    // Clear loading message from status bar
+    this->ui->statusBar->clearMessage();
+}
+
 void MainWindow::on_actionCleanupFrames_Tileset_triggered()
 {
     this->ui->statusBar->showMessage("Processing...");
