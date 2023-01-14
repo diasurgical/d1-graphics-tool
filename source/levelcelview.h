@@ -97,12 +97,15 @@ private:
     void update();
     void collectFrameUsers(int frameIndex, QList<int> &users) const;
     void collectSubtileUsers(int subtileIndex, QList<int> &users) const;
+    void insertFrames(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertFrames(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
     void insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void insertSubtile(int subtileIndex, const QImage &image);
+    void insertSubtiles(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertSubtiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
     void insertSubtiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void insertTile(int tileIndex, const QImage &image);
+    void insertTiles(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertTiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
     void insertTiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void assignFrames(const QImage &image, int subtileIndex, int frameIndex);

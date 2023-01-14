@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QFileInfo>
 #include <QGraphicsPixmapItem>
+#include <QImageReader>
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
@@ -295,16 +296,8 @@ void LevelCelView::assignFrames(const QImage &image, int subtileIndex, int frame
     }
 }
 
-void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, int index, const QImage &image)
 {
-    QImage image = QImage(imagefilePath);
-    if (image.isNull()) {
-        if (mode != IMAGE_FILE_MODE::AUTO) {
-            QMessageBox::critical(nullptr, "Error", "Failed open image file: " + imagefilePath);
-        }
-        return;
-    }
-
     if ((image.width() % MICRO_WIDTH) != 0 || (image.height() % MICRO_HEIGHT) != 0) {
         return;
     }
@@ -320,6 +313,25 @@ void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, int index, const QString &
     }
 
     this->assignFrames(image, -1, index);
+}
+
+void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+{
+    QImageReader reader = QImageReader(imagefilePath);
+    int numImages = 0;
+
+    while (true) {
+        QImage image = reader.read();
+        if (image.isNull()) {
+            break;
+        }
+        this->insertFrames(mode, index + numImages, image);
+        numImages++;
+    }
+
+    if (mode != IMAGE_FILE_MODE::AUTO && numImages == 0) {
+        QMessageBox::critical(this, "Error", "Failed read image file: " + imagefilePath);
+    }
 }
 
 void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append)
@@ -402,16 +414,8 @@ void LevelCelView::assignSubtiles(const QImage &image, int tileIndex, int subtil
     }
 }
 
-void LevelCelView::insertSubtiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+void LevelCelView::insertSubtiles(IMAGE_FILE_MODE mode, int index, const QImage &image)
 {
-    QImage image = QImage(imagefilePath);
-    if (image.isNull()) {
-        if (mode != IMAGE_FILE_MODE::AUTO) {
-            QMessageBox::critical(nullptr, "Error", "Failed open image file: " + imagefilePath);
-        }
-        return;
-    }
-
     unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
     unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
 
@@ -430,6 +434,25 @@ void LevelCelView::insertSubtiles(IMAGE_FILE_MODE mode, int index, const QString
     }
 
     this->assignSubtiles(image, -1, index);
+}
+
+void LevelCelView::insertSubtiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+{
+    QImageReader reader = QImageReader(imagefilePath);
+    int numImages = 0;
+
+    while (true) {
+        QImage image = reader.read();
+        if (image.isNull()) {
+            break;
+        }
+        this->insertSubtiles(mode, index + numImages, image);
+        numImages++;
+    }
+
+    if (mode != IMAGE_FILE_MODE::AUTO && numImages == 0) {
+        QMessageBox::critical(this, "Error", "Failed read image file: " + imagefilePath);
+    }
 }
 
 void LevelCelView::insertSubtiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append)
@@ -540,16 +563,8 @@ void LevelCelView::insertTile(int tileIndex, const QImage &image)
     this->til->insertTile(tileIndex, subtileIndices);
 }
 
-void LevelCelView::insertTiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+void LevelCelView::insertTiles(IMAGE_FILE_MODE mode, int index, const QImage &image)
 {
-    QImage image = QImage(imagefilePath);
-    if (image.isNull()) {
-        if (mode != IMAGE_FILE_MODE::AUTO) {
-            QMessageBox::critical(nullptr, "Error", "Failed open image file: " + imagefilePath);
-        }
-        return;
-    }
-
     unsigned tileWidth = this->min->getSubtileWidth() * MICRO_WIDTH * TILE_WIDTH * TILE_HEIGHT;
     unsigned tileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
 
@@ -588,6 +603,25 @@ void LevelCelView::insertTiles(IMAGE_FILE_MODE mode, int index, const QString &i
             this->insertTile(index, subImage);
             index++;
         }
+    }
+}
+
+void LevelCelView::insertTiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+{
+    QImageReader reader = QImageReader(imagefilePath);
+    int numImages = 0;
+
+    while (true) {
+        QImage image = reader.read();
+        if (image.isNull()) {
+            break;
+        }
+        this->insertTiles(mode, index + numImages, image);
+        numImages++;
+    }
+
+    if (mode != IMAGE_FILE_MODE::AUTO && numImages == 0) {
+        QMessageBox::critical(this, "Error", "Failed read image file: " + imagefilePath);
     }
 }
 
