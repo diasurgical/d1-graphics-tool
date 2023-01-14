@@ -154,10 +154,10 @@ private:
     Ui::MainWindow *ui;
     QString lastFilePath;
 
-    QMenu *newMenu;
-    QMenu *frameMenu;
-    QMenu *subtileMenu;
-    QMenu *tileMenu;
+    QMenu newMenu = QMenu("New");
+    QMenu frameMenu = QMenu("Frame");
+    QMenu subtileMenu = QMenu("Subtile");
+    QMenu tileMenu = QMenu("Tile");
 
     QUndoStack *undoStack;
     QAction *undoAction;
@@ -170,10 +170,10 @@ private:
     QPointer<PaletteWidget> trn1Widget;
     QPointer<PaletteWidget> trn2Widget;
 
-    QPointer<OpenAsDialog> openAsDialog = new OpenAsDialog(this);
-    QPointer<SaveAsDialog> saveAsDialog = new SaveAsDialog(this);
-    QPointer<SettingsDialog> settingsDialog = new SettingsDialog(this);
-    QPointer<ExportDialog> exportDialog = new ExportDialog(this);
+    OpenAsDialog openAsDialog = OpenAsDialog(this);
+    SaveAsDialog saveAsDialog = SaveAsDialog(this);
+    SettingsDialog settingsDialog = SettingsDialog(this);
+    ExportDialog exportDialog = ExportDialog(this);
 
     QPointer<D1Pal> pal;
     QPointer<D1Trn> trn1;

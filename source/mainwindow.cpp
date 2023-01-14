@@ -37,12 +37,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     // initialize 'new' submenu of 'File'
-    this->newMenu = new QMenu("New");
-    this->newMenu->addAction("CEL gfx", this, SLOT(on_actionNew_CEL_triggered()));
-    this->newMenu->addAction("CL2 gfx", this, SLOT(on_actionNew_CL2_triggered()));
-    this->newMenu->addAction("Tileset", this, SLOT(on_actionNew_Tileset_triggered()));
+    this->newMenu.addAction("CEL gfx", this, SLOT(on_actionNew_CEL_triggered()));
+    this->newMenu.addAction("CL2 gfx", this, SLOT(on_actionNew_CL2_triggered()));
+    this->newMenu.addAction("Tileset", this, SLOT(on_actionNew_Tileset_triggered()));
     QAction *firstFileAction = (QAction *)this->ui->menuFile->actions()[0];
-    this->ui->menuFile->insertMenu(firstFileAction, this->newMenu);
+    this->ui->menuFile->insertMenu(firstFileAction, &this->newMenu);
 
     // Initialize 'Undo/Redo' of 'Edit
     this->undoStack = new QUndoStack(this);
@@ -55,35 +54,32 @@ MainWindow::MainWindow(QWidget *parent)
     this->ui->menuEdit->addSeparator();
 
     // Initialize 'Frame' submenu of 'Edit'
-    this->frameMenu = new QMenu("Frame");
-    this->frameMenu->setToolTipsVisible(true);
-    this->frameMenu->addAction("Insert", this, SLOT(on_actionInsert_Frame_triggered()))->setToolTip("Add new frames before the current one");
-    this->frameMenu->addAction("Add", this, SLOT(on_actionAdd_Frame_triggered()))->setToolTip("Add new frames at the end");
-    this->frameMenu->addAction("Replace", this, SLOT(on_actionReplace_Frame_triggered()))->setToolTip("Replace the current frame");
-    this->frameMenu->addAction("Delete", this, SLOT(on_actionDel_Frame_triggered()))->setToolTip("Delete the current frame");
-    this->ui->menuEdit->addMenu(this->frameMenu);
+    this->frameMenu.setToolTipsVisible(true);
+    this->frameMenu.addAction("Insert", this, SLOT(on_actionInsert_Frame_triggered()))->setToolTip("Add new frames before the current one");
+    this->frameMenu.addAction("Add", this, SLOT(on_actionAdd_Frame_triggered()))->setToolTip("Add new frames at the end");
+    this->frameMenu.addAction("Replace", this, SLOT(on_actionReplace_Frame_triggered()))->setToolTip("Replace the current frame");
+    this->frameMenu.addAction("Delete", this, SLOT(on_actionDel_Frame_triggered()))->setToolTip("Delete the current frame");
+    this->ui->menuEdit->addMenu(&this->frameMenu);
 
     // Initialize 'Subtile' submenu of 'Edit'
-    this->subtileMenu = new QMenu("Subtile");
-    this->subtileMenu->setToolTipsVisible(true);
-    this->subtileMenu->addAction("Create", this, SLOT(on_actionCreate_Subtile_triggered()))->setToolTip("Create a new subtile");
-    this->subtileMenu->addAction("Insert", this, SLOT(on_actionInsert_Subtile_triggered()))->setToolTip("Add new subtiles before the current one");
-    this->subtileMenu->addAction("Add", this, SLOT(on_actionAdd_Subtile_triggered()))->setToolTip("Add new subtiles at the end");
-    this->subtileMenu->addAction("Clone", this, SLOT(on_actionClone_Subtile_triggered()))->setToolTip("Add new subtiles at the end based on the current one");
-    this->subtileMenu->addAction("Replace", this, SLOT(on_actionReplace_Subtile_triggered()))->setToolTip("Replace the current subtile");
-    this->subtileMenu->addAction("Delete", this, SLOT(on_actionDel_Subtile_triggered()))->setToolTip("Delete the current subtile");
-    this->ui->menuEdit->addMenu(this->subtileMenu);
+    this->subtileMenu.setToolTipsVisible(true);
+    this->subtileMenu.addAction("Create", this, SLOT(on_actionCreate_Subtile_triggered()))->setToolTip("Create a new subtile");
+    this->subtileMenu.addAction("Insert", this, SLOT(on_actionInsert_Subtile_triggered()))->setToolTip("Add new subtiles before the current one");
+    this->subtileMenu.addAction("Add", this, SLOT(on_actionAdd_Subtile_triggered()))->setToolTip("Add new subtiles at the end");
+    this->subtileMenu.addAction("Clone", this, SLOT(on_actionClone_Subtile_triggered()))->setToolTip("Add new subtiles at the end based on the current one");
+    this->subtileMenu.addAction("Replace", this, SLOT(on_actionReplace_Subtile_triggered()))->setToolTip("Replace the current subtile");
+    this->subtileMenu.addAction("Delete", this, SLOT(on_actionDel_Subtile_triggered()))->setToolTip("Delete the current subtile");
+    this->ui->menuEdit->addMenu(&this->subtileMenu);
 
     // Initialize 'Tile' submenu of 'Edit'
-    this->tileMenu = new QMenu("Tile");
-    this->tileMenu->setToolTipsVisible(true);
-    this->tileMenu->addAction("Create", this, SLOT(on_actionCreate_Tile_triggered()))->setToolTip("Create a new tile");
-    this->tileMenu->addAction("Insert", this, SLOT(on_actionInsert_Tile_triggered()))->setToolTip("Add new tiles before the current one");
-    this->tileMenu->addAction("Add", this, SLOT(on_actionAdd_Tile_triggered()))->setToolTip("Add new tiles at the end");
-    this->tileMenu->addAction("Clone", this, SLOT(on_actionClone_Tile_triggered()))->setToolTip("Add new tile at the end based on the current one");
-    this->tileMenu->addAction("Replace", this, SLOT(on_actionReplace_Tile_triggered()))->setToolTip("Replace the current tile");
-    this->tileMenu->addAction("Delete", this, SLOT(on_actionDel_Tile_triggered()))->setToolTip("Delete the current tile");
-    this->ui->menuEdit->addMenu(this->tileMenu);
+    this->tileMenu.setToolTipsVisible(true);
+    this->tileMenu.addAction("Create", this, SLOT(on_actionCreate_Tile_triggered()))->setToolTip("Create a new tile");
+    this->tileMenu.addAction("Insert", this, SLOT(on_actionInsert_Tile_triggered()))->setToolTip("Add new tiles before the current one");
+    this->tileMenu.addAction("Add", this, SLOT(on_actionAdd_Tile_triggered()))->setToolTip("Add new tiles at the end");
+    this->tileMenu.addAction("Clone", this, SLOT(on_actionClone_Tile_triggered()))->setToolTip("Add new tile at the end based on the current one");
+    this->tileMenu.addAction("Replace", this, SLOT(on_actionReplace_Tile_triggered()))->setToolTip("Replace the current tile");
+    this->tileMenu.addAction("Delete", this, SLOT(on_actionDel_Tile_triggered()))->setToolTip("Delete the current tile");
+    this->ui->menuEdit->addMenu(&this->tileMenu);
 
     this->on_actionClose_triggered();
     setAcceptDrops(true);
@@ -97,18 +93,9 @@ MainWindow::~MainWindow()
     Config::insert("LastFilePath", this->lastFilePath);
     // cleanup memory
     delete ui;
-    delete openAsDialog;
-    delete saveAsDialog;
-    delete settingsDialog;
-    delete exportDialog;
-    delete this->newMenu;
     delete this->undoStack;
     delete this->undoAction;
     delete this->redoAction;
-    delete this->frameMenu;
-    delete this->subtileMenu;
-    delete this->tileMenu;
-    delete this->palHits;
 }
 
 void MainWindow::setPal(QString path)
@@ -156,16 +143,16 @@ void MainWindow::updateWindow()
     this->undoStack->clear();
     // update menu options
     bool hasFrame = this->gfx->getFrameCount() != 0;
-    this->frameMenu->actions()[2]->setEnabled(hasFrame); // replace frame
-    this->frameMenu->actions()[3]->setEnabled(hasFrame); // delete frame
+    this->frameMenu.actions()[2]->setEnabled(hasFrame); // replace frame
+    this->frameMenu.actions()[3]->setEnabled(hasFrame); // delete frame
     if (this->levelCelView != nullptr) {
         bool hasSubtile = this->min->getSubtileCount() != 0;
-        this->subtileMenu->actions()[3]->setEnabled(hasSubtile); // replace subtile
-        this->subtileMenu->actions()[4]->setEnabled(hasSubtile); // delete subtile
-        this->tileMenu->actions()[0]->setEnabled(hasSubtile);    // create tile
+        this->subtileMenu.actions()[3]->setEnabled(hasSubtile); // replace subtile
+        this->subtileMenu.actions()[4]->setEnabled(hasSubtile); // delete subtile
+        this->tileMenu.actions()[0]->setEnabled(hasSubtile);    // create tile
         bool hasTile = this->til->getTileCount() != 0;
-        this->tileMenu->actions()[3]->setEnabled(hasTile); // replace tile
-        this->tileMenu->actions()[4]->setEnabled(hasTile); // delete tile
+        this->tileMenu.actions()[3]->setEnabled(hasTile); // replace tile
+        this->tileMenu.actions()[4]->setEnabled(hasTile); // delete tile
     }
 }
 
@@ -583,10 +570,10 @@ void MainWindow::openFile(const OpenAsParam &params)
     this->ui->palFrame->layout()->addWidget(this->trn1Widget);
 
     // Configuration update triggers refresh of the palette widgets
-    QObject::connect(this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::reloadConfig);
-    QObject::connect(this->settingsDialog, &SettingsDialog::configurationSaved, this->trn1Widget, &PaletteWidget::reloadConfig);
-    QObject::connect(this->settingsDialog, &SettingsDialog::configurationSaved, this->trn2Widget, &PaletteWidget::reloadConfig);
-    QObject::connect(this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::refresh);
+    QObject::connect(&this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::reloadConfig);
+    QObject::connect(&this->settingsDialog, &SettingsDialog::configurationSaved, this->trn1Widget, &PaletteWidget::reloadConfig);
+    QObject::connect(&this->settingsDialog, &SettingsDialog::configurationSaved, this->trn2Widget, &PaletteWidget::reloadConfig);
+    QObject::connect(&this->settingsDialog, &SettingsDialog::configurationSaved, this->palWidget, &PaletteWidget::refresh);
 
     // Palette and translation file selection
     // When a .pal or .trn file is selected in the PaletteWidget update the pal or trn
@@ -692,8 +679,8 @@ void MainWindow::openFile(const OpenAsParam &params)
     this->ui->actionSaveAs->setEnabled(true);
     this->ui->actionClose->setEnabled(true);
 
-    this->subtileMenu->setEnabled(isTileset);
-    this->tileMenu->setEnabled(isTileset);
+    this->subtileMenu.setEnabled(isTileset);
+    this->tileMenu.setEnabled(isTileset);
 
     this->ui->menuTileset->setEnabled(isTileset);
 
@@ -876,8 +863,8 @@ void MainWindow::addTiles(bool append)
 
 void MainWindow::on_actionOpenAs_triggered()
 {
-    this->openAsDialog->initialize();
-    this->openAsDialog->show();
+    this->openAsDialog.initialize();
+    this->openAsDialog.show();
 }
 
 void MainWindow::on_actionSave_triggered()
@@ -892,8 +879,8 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-    this->saveAsDialog->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
-    this->saveAsDialog->show();
+    this->saveAsDialog.initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->saveAsDialog.show();
 }
 
 void MainWindow::on_actionClose_triggered()
@@ -934,14 +921,14 @@ void MainWindow::on_actionClose_triggered()
 
 void MainWindow::on_actionSettings_triggered()
 {
-    this->settingsDialog->initialize();
-    this->settingsDialog->show();
+    this->settingsDialog.initialize();
+    this->settingsDialog.show();
 }
 
 void MainWindow::on_actionExport_triggered()
 {
-    this->exportDialog->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
-    this->exportDialog->show();
+    this->exportDialog.initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->exportDialog.show();
 }
 
 void MainWindow::on_actionQuit_triggered()
