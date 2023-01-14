@@ -11,6 +11,7 @@
 #include <QTimer>
 #include <QWidget>
 
+#include "celview.h"
 #include "d1amp.h"
 #include "d1gfx.h"
 #include "d1min.h"
@@ -23,31 +24,10 @@
 #define CEL_SCENE_SPACING 8
 
 namespace Ui {
-class LevelCelScene;
 class LevelCelView;
 } // namespace Ui
 
 enum class IMAGE_FILE_MODE;
-
-class LevelCelScene : public QGraphicsScene {
-    Q_OBJECT
-
-public:
-    LevelCelScene(QWidget *view);
-
-protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-    void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
-    void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
-    void dropEvent(QGraphicsSceneDragDropEvent *event);
-    void contextMenuEvent(QContextMenuEvent *event);
-
-signals:
-    void framePixelClicked(unsigned x, unsigned y);
-
-private:
-    QWidget *view;
-};
 
 class LevelCelView : public QWidget {
     Q_OBJECT
@@ -124,9 +104,6 @@ signals:
     void frameRefreshed();
     void colorIndexClicked(quint8);
 
-public slots:
-    void ShowContextMenu(const QPoint &pos);
-
 private slots:
     void on_firstFrameButton_clicked();
     void on_previousFrameButton_clicked();
@@ -156,23 +133,23 @@ private slots:
     void on_playDelayEdit_textChanged(const QString &text);
     void on_playButton_clicked();
     void on_stopButton_clicked();
+
+    void on_addTileButton_clicked();
+    void on_cloneTileButton_clicked();
+    void on_addSubTileButton_clicked();
+    void on_cloneSubTileButton_clicked();
+
     void playGroup();
 
     void dragEnterEvent(QDragEnterEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void dropEvent(QDropEvent *event);
 
-    void on_addTileButton_clicked();
-
-    void on_cloneTileButton_clicked();
-
-    void on_addSubTileButton_clicked();
-
-    void on_cloneSubTileButton_clicked();
+    void ShowContextMenu(const QPoint &pos);
 
 private:
     Ui::LevelCelView *ui;
-    LevelCelScene *celScene;
+    CelScene *celScene;
     LevelTabTileWidget *tabTileWidget = new LevelTabTileWidget();
     LevelTabSubTileWidget *tabSubTileWidget = new LevelTabSubTileWidget();
     LevelTabFrameWidget *tabFrameWidget = new LevelTabFrameWidget();

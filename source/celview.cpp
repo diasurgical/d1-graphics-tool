@@ -62,19 +62,19 @@ void CelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 void CelScene::contextMenuEvent(QContextMenuEvent *event)
 {
-    ((CelView *)this->view)->ShowContextMenu(event->globalPos());
+    emit this->showContextMenu(event->globalPos());
 }
 
 CelView::CelView(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::CelView)
+    , ui(new Ui::CelView())
     , celScene(new CelScene(this))
 {
-    ui->setupUi(this);
-    ui->celGraphicsView->setScene(this->celScene);
-    ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
-    ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
-    ui->stopButton->setEnabled(false);
+    this->ui->setupUi(this);
+    this->ui->celGraphicsView->setScene(this->celScene);
+    this->ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
+    this->ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
+    this->ui->stopButton->setEnabled(false);
     this->playTimer.connect(&this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()));
 
     // If a pixel of the frame was clicked get pixel color index and notify the palette widgets
@@ -83,6 +83,7 @@ CelView::CelView(QWidget *parent)
     // setup context menu
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(ShowContextMenu(const QPoint &)));
+    QObject::connect(this->celScene, &CelScene::showContextMenu, this, &CelView::ShowContextMenu);
 
     setAcceptDrops(true);
 }

@@ -16,78 +16,28 @@
 #include "mainwindow.h"
 #include "ui_levelcelview.h"
 
-LevelCelScene::LevelCelScene(QWidget *v)
-    : QGraphicsScene()
-    , view(v)
-{
-}
-
-void LevelCelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
-{
-    if (event->button() != Qt::LeftButton) {
-        return;
-    }
-
-    int x = event->scenePos().x();
-    int y = event->scenePos().y();
-
-    qDebug() << "Clicked: " << x << "," << y;
-
-    emit this->framePixelClicked(x, y);
-}
-
-void LevelCelScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
-{
-    this->dragMoveEvent(event);
-}
-
-void LevelCelScene::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
-{
-    if (MainWindow::hasImageUrl(event->mimeData())) {
-        event->acceptProposedAction();
-    } else {
-        event->ignore();
-    }
-}
-
-void LevelCelScene::dropEvent(QGraphicsSceneDragDropEvent *event)
-{
-    event->acceptProposedAction();
-
-    QStringList filePaths;
-    for (const QUrl &url : event->mimeData()->urls()) {
-        filePaths.append(url.toLocalFile());
-    }
-    // try to insert as frames
-    ((MainWindow *)this->view->window())->openImageFiles(IMAGE_FILE_MODE::AUTO, filePaths, false);
-}
-
-void LevelCelScene::contextMenuEvent(QContextMenuEvent *event)
-{
-    ((LevelCelView *)this->view)->ShowContextMenu(event->globalPos());
-}
-
 LevelCelView::LevelCelView(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::LevelCelView)
-    , celScene(new LevelCelScene(this))
+    , ui(new Ui::LevelCelView())
+    , celScene(new CelScene(this))
 {
-    ui->setupUi(this);
-    ui->celGraphicsView->setScene(this->celScene);
-    ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
-    ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
-    ui->stopButton->setEnabled(false);
+    this->ui->setupUi(this);
+    this->ui->celGraphicsView->setScene(this->celScene);
+    this->ui->zoomEdit->setText(QString::number(this->currentZoomFactor));
+    this->ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
+    this->ui->stopButton->setEnabled(false);
     this->playTimer.connect(&this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()));
-    ui->tilesTabs->addTab(this->tabTileWidget, "Tile properties");
-    ui->tilesTabs->addTab(this->tabSubTileWidget, "Subtile properties");
-    ui->tilesTabs->addTab(this->tabFrameWidget, "Frame properties");
+    this->ui->tilesTabs->addTab(this->tabTileWidget, "Tile properties");
+    this->ui->tilesTabs->addTab(this->tabSubTileWidget, "Subtile properties");
+    this->ui->tilesTabs->addTab(this->tabFrameWidget, "Frame properties");
 
     // If a pixel of the frame, subtile or tile was clicked get pixel color index and notify the palette widgets
-    QObject::connect(this->celScene, &LevelCelScene::framePixelClicked, this, &LevelCelView::framePixelClicked);
+    QObject::connect(this->celScene, &CelScene::framePixelClicked, this, &LevelCelView::framePixelClicked);
 
     // setup context menu
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     QObject::connect(this, SIGNAL(customContextMenuRequested(const QPoint &)), this, SLOT(ShowContextMenu(const QPoint &)));
+    QObject::connect(this->celScene, &CelScene::showContextMenu, this, &LevelCelView::ShowContextMenu);
 
     setAcceptDrops(true);
 }
@@ -179,7 +129,7 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
         // When a CEL frame is clicked in the subtile, display the corresponding CEL frame
 
         // Adjust coordinates
-        unsigned stx = x - celFrameWidth - CEL_SCENE_SPACING * 2;
+        unsigned stx = x - (celFrameWidth + CEL_SCENE_SPACING * 2);
         unsigned sty = y - CEL_SCENE_SPACING;
 
         // qDebug() << "Subtile clicked: " << stx << "," << sty;
@@ -195,12 +145,12 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
     } else if (x >= (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3)
         && x < (celFrameWidth + subtileWidth + tileWidth + CEL_SCENE_SPACING * 3)
         && y >= CEL_SCENE_SPACING
-        && y < tileHeight + CEL_SCENE_SPACING
+        && y < (tileHeight + CEL_SCENE_SPACING)
         && this->til->getTileCount() != 0) {
         // When a subtile is clicked in the tile, display the corresponding subtile
 
         // Adjust coordinates
-        unsigned tx = x - celFrameWidth - subtileWidth - CEL_SCENE_SPACING * 3;
+        unsigned tx = x - (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3);
         unsigned ty = y - CEL_SCENE_SPACING;
 
         // qDebug() << "Tile clicked" << tx << "," << ty;

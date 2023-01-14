@@ -16,7 +16,6 @@
 #define CEL_SCENE_SPACING 8
 
 namespace Ui {
-class CelScene;
 class CelView;
 } // namespace Ui
 
@@ -37,6 +36,7 @@ private slots:
 
 signals:
     void framePixelClicked(unsigned x, unsigned y);
+    void showContextMenu(const QPoint &pos);
 
 private:
     QWidget *view;
@@ -67,9 +67,6 @@ private:
     void updateGroupIndex();
     void setGroupIndex();
 
-public slots:
-    void ShowContextMenu(const QPoint &pos);
-
 private slots:
     void on_firstFrameButton_clicked();
     void on_previousFrameButton_clicked();
@@ -95,6 +92,8 @@ private slots:
     void dragEnterEvent(QDragEnterEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void dropEvent(QDropEvent *event);
+
+    void ShowContextMenu(const QPoint &pos);
 
 private:
     Ui::CelView *ui;
