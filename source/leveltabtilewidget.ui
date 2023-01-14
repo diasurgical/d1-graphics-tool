@@ -63,7 +63,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Automap type :</string>
+          <string>Automap type:</string>
          </property>
         </widget>
        </item>
@@ -252,7 +252,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Subtiles :</string>
+          <string>Subtiles:</string>
          </property>
         </widget>
        </item>

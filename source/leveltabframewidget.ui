@@ -60,7 +60,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Encoding :</string>
+          <string>Encoding:</string>
          </property>
         </widget>
        </item>
