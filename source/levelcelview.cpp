@@ -1124,11 +1124,11 @@ void LevelCelView::cleanupSubtiles()
 
 void LevelCelView::cleanupTileset()
 {
-    QString framesReport;
-    this->removeUnusedFrames(framesReport);
-
     QString subtilesReport;
     this->removeUnusedSubtiles(subtilesReport);
+
+    QString framesReport;
+    this->removeUnusedFrames(framesReport);
 
     if (framesReport.isEmpty() && subtilesReport.isEmpty()) {
         framesReport = "Every subtile and frame are used.";
