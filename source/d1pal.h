@@ -28,11 +28,9 @@ public:
     static constexpr const char *DEFAULT_NAME = "_default.pal";
 
     D1Pal() = default;
-    ~D1Pal();
+    ~D1Pal() = default;
 
     bool load(QString);
-    bool loadRegularPalette(QFile &file);
-    bool loadJascPalette(QFile &file);
     bool save(QString);
 
     bool isModified() const;
@@ -45,9 +43,12 @@ public:
     void cycleColors(D1PAL_CYCLE_TYPE type);
 
 private:
-    D1PAL_TYPE type = D1PAL_TYPE::REGULAR;
-    bool modified = false;
+    void loadRegularPalette(QFile &file);
+    bool loadJascPalette(QFile &file);
+
+private:
     QString palFilePath;
-    QColor *colors = new QColor[D1PAL_COLORS];
+    bool modified;
+    QColor colors[D1PAL_COLORS];
     quint8 currentCycleCounter = 3;
 };

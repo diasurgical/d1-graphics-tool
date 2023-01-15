@@ -5,7 +5,6 @@
 #include "d1pal.h"
 
 #define D1TRN_TRANSLATIONS 256
-#define D1TRN_TRANSLATIONS_BYTES 256
 
 class D1Trn : public QObject {
     Q_OBJECT
@@ -16,7 +15,7 @@ public:
 
     D1Trn() = default;
     D1Trn(D1Pal *pal);
-    ~D1Trn();
+    ~D1Trn() = default;
 
     bool load(QString);
     bool save(QString);
@@ -29,14 +28,13 @@ public:
     QString getFilePath();
     quint8 getTranslation(quint8);
     void setTranslation(quint8, quint8);
-    D1Pal *getPalette();
     void setPalette(D1Pal *pal);
     D1Pal *getResultingPalette();
 
 private:
-    bool modified = false;
     QString trnFilePath;
-    quint8 *translations = new quint8[D1TRN_TRANSLATIONS];
+    bool modified;
+    quint8 translations[D1TRN_TRANSLATIONS];
     QPointer<D1Pal> palette;
-    QPointer<D1Pal> resultingPalette = new D1Pal();
+    D1Pal resultingPalette;
 };

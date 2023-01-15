@@ -1,58 +1,42 @@
 #include "d1pal.h"
 
+#include <QDataStream>
 #include <QTextStream>
-
-D1Pal::~D1Pal()
-{
-    delete[] colors;
-}
 
 bool D1Pal::load(QString filePath)
 {
-    if (!QFile::exists(filePath))
-        return false;
-
     QFile file = QFile(filePath);
 
     if (!file.open(QIODevice::ReadOnly))
         return false;
 
-    // Check if the palette is a JASC palette
-    if (file.read(8) == QString("JASC-PAL").toUtf8())
-        this->type = D1PAL_TYPE::JASC;
-    else
-        this->type = D1PAL_TYPE::REGULAR;
-    file.seek(0);
-
-    bool result;
-    if (this->type == D1PAL_TYPE::REGULAR) {
-        result = this->loadRegularPalette(file);
-    } else {
-        result = this->loadJascPalette(file);
+    if (file.size() == D1PAL_SIZE_BYTES) {
+        this->loadRegularPalette(file);
+    } else if (!this->loadJascPalette(file)) {
+        return false;
     }
 
     this->palFilePath = filePath;
-    return result;
+    this->modified = false;
+    return true;
 }
 
-bool D1Pal::loadRegularPalette(QFile &file)
+void D1Pal::loadRegularPalette(QFile &file)
 {
-    if (file.size() != D1PAL_SIZE_BYTES)
-        return false;
+    QDataStream in(&file);
 
     for (int i = 0; i < D1PAL_COLORS; i++) {
-        QByteArray colorBytes = file.read(3);
+        quint8 red;
+        in >> red;
 
-        quint8 red = colorBytes[0];
-        quint8 green = colorBytes[1];
-        quint8 blue = colorBytes[2];
+        quint8 green;
+        in >> green;
+
+        quint8 blue;
+        in >> blue;
 
         this->colors[i] = QColor(red, green, blue);
     }
-
-    this->modified = false;
-
-    return true;
 }
 
 bool D1Pal::loadJascPalette(QFile &file)
@@ -66,53 +50,52 @@ bool D1Pal::loadJascPalette(QFile &file)
         line = txt.readLine();
         lineNumber++;
 
+        if (lineNumber == 1 && line != "JASC-PAL")
+            return false;
         if (lineNumber == 3 && line != "256")
             return false;
 
-        if (lineNumber > 3) {
-            lineParts = line.split(" ");
+        if (lineNumber <= 3)
+            continue;
+        if (lineNumber > 256 + 3)
+            continue;
 
-            if (lineParts.size() != 3) {
-                return false;
-            }
-
-            quint8 red = lineParts[0].toInt();
-            quint8 green = lineParts[1].toInt();
-            quint8 blue = lineParts[2].toInt();
-            this->colors[lineNumber - 4] = QColor(red, green, blue);
+        lineParts = line.split(" ");
+        if (lineParts.size() != 3) {
+            return false;
         }
+
+        quint8 red = lineParts[0].toInt();
+        quint8 green = lineParts[1].toInt();
+        quint8 blue = lineParts[2].toInt();
+        // assert(D1PAL_COLORS == 256);
+        this->colors[lineNumber - 4] = QColor(red, green, blue);
     }
 
-    this->modified = false;
-
-    return true;
+    return lineNumber >= D1PAL_COLORS + 3;
 }
 
 bool D1Pal::save(QString filePath)
 {
     QFile file = QFile(filePath);
 
-    if (!file.open(QIODevice::ReadWrite))
+    if (!file.open(QIODevice::WriteOnly))
         return false;
 
+    QDataStream out(&file);
     for (int i = 0; i < D1PAL_COLORS; i++) {
         QColor color = this->colors[i];
+        quint8 byteToWrite;
 
-        QByteArray colorBytes;
-        colorBytes.resize(3);
-        colorBytes[0] = color.red();
-        colorBytes[1] = color.green();
-        colorBytes[2] = color.blue();
+        byteToWrite = color.red();
+        out << byteToWrite;
 
-        if (file.write(colorBytes) == -1)
-            return false;
+        byteToWrite = color.green();
+        out << byteToWrite;
+
+        byteToWrite = color.blue();
+        out << byteToWrite;
     }
-
-    if (!file.flush())
-        return false;
-
-    if (file.size() != D1PAL_SIZE_BYTES)
-        return false;
 
     if (this->palFilePath == filePath) {
         this->modified = false;
