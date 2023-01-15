@@ -10,13 +10,12 @@
 class D1GfxFrame;
 
 enum class D1CEL_FRAME_TYPE {
-    Square,
-    TransparentSquare,
-    LeftTriangle,
-    RightTriangle,
-    LeftTrapezoid,
-    RightTrapezoid,
-    Unknown = -1,
+    Square,            // opaque square (bitmap)
+    TransparentSquare, // bitmap with transparent pixels
+    LeftTriangle,      // opaque triangle on its left edge
+    RightTriangle,     // opaque triangle on its right edge
+    LeftTrapezoid,     // bottom half is a left triangle, upper half is a square
+    RightTrapezoid,    // bottom half is a right triangle, upper half is a square
 };
 
 class D1CelTilesetFrame {

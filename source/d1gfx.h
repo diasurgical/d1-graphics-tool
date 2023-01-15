@@ -60,7 +60,7 @@ protected:
     // fields of cel/cl2-frames
     bool clipped = false;
     // fields of tileset-frames
-    D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::Unknown;
+    D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::TransparentSquare;
 };
 
 enum class D1CEL_TYPE {
@@ -69,7 +69,6 @@ enum class D1CEL_TYPE {
     V1_LEVEL,
     V2_MONO_GROUP,
     V2_MULTIPLE_GROUPS,
-    UNKNOWN = -1,
 };
 
 class D1Gfx : public QObject {
@@ -103,7 +102,7 @@ public:
     int getFrameHeight(int frameIndex);
 
 protected:
-    D1CEL_TYPE type = D1CEL_TYPE::UNKNOWN;
+    D1CEL_TYPE type = D1CEL_TYPE::V1_REGULAR;
     QString gfxFilePath;
     D1Pal *palette = nullptr;
     QList<QPair<quint16, quint16>> groupFrameIndices;

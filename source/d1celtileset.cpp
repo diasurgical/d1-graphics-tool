@@ -108,6 +108,9 @@ bool D1CelTileset::load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFra
     }
 
     gfx.groupFrameIndices.clear();
+    gfx.groupFrameIndices.append(qMakePair(0, numFrames - 1));
+
+    gfx.type = D1CEL_TYPE::V1_LEVEL;
 
     // CEL FRAMES OFFSETS CALCULATION
     QList<QPair<quint32, quint32>> frameOffsets;
@@ -120,8 +123,6 @@ bool D1CelTileset::load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFra
 
         frameOffsets.append(qMakePair(celFrameStartOffset, celFrameEndOffset));
     }
-
-    gfx.type = D1CEL_TYPE::V1_LEVEL;
 
     // BUILDING {CEL FRAMES}
     gfx.frames.clear();
@@ -139,7 +140,7 @@ bool D1CelTileset::load(D1Gfx &gfx, std::map<unsigned, D1CEL_FRAME_TYPE> &celFra
         }
         D1GfxFrame frame;
         if (!D1CelTilesetFrame::load(frame, frameType, celFrameRawData, params)) {
-            // TODO: log?
+            // TODO: log + add placeholder?
             continue;
         }
         gfx.frames.append(frame);

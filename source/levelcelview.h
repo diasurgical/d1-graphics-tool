@@ -21,8 +21,6 @@
 #include "leveltabsubtilewidget.h"
 #include "leveltabtilewidget.h"
 
-#define CEL_SCENE_SPACING 8
-
 namespace Ui {
 class LevelCelView;
 } // namespace Ui

@@ -43,11 +43,12 @@ bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
     quint32 fileSizeDword;
     in >> fileSizeDword;
 
-    gfx.groupFrameIndices.clear();
+    D1CEL_TYPE type = fileBuffer.size() == fileSizeDword ? D1CEL_TYPE::V1_REGULAR : D1CEL_TYPE::V1_COMPILATION;
 
     QList<QPair<quint32, quint32>> frameOffsets;
-    if (fileBuffer.size() == fileSizeDword) {
+    if (type == D1CEL_TYPE::V1_REGULAR) {
         // Going through all frames of the CEL
+        gfx.groupFrameIndices.clear();
         gfx.groupFrameIndices.append(qMakePair(0, firstDword - 1));
         for (unsigned int i = 1; i <= firstDword; i++) {
             fileBuffer.seek(i * 4);
@@ -58,7 +59,6 @@ bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
 
             frameOffsets.append(qMakePair(celFrameStartOffset, celFrameEndOffset));
         }
-        gfx.type = D1CEL_TYPE::V1_REGULAR;
     } else {
         // Read offset of the last CEL of the CEL compilation
         fileBuffer.seek(firstDword - 4);
@@ -89,9 +89,8 @@ bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
             return false;
         }
 
-        gfx.type = D1CEL_TYPE::V1_COMPILATION;
-
         // Going through all CELs
+        gfx.groupFrameIndices.clear();
         for (unsigned int i = 0; i * 4 < firstDword; i++) {
             fileBuffer.seek(i * 4);
             quint32 celOffset;
@@ -121,6 +120,8 @@ bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
         }
     }
 
+    gfx.type = type;
+
     // CEL FRAMES OFFSETS CALCULATION
 
     // BUILDING {CEL FRAMES}
@@ -132,7 +133,7 @@ bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
 
         D1GfxFrame frame;
         if (!D1CelFrame::load(frame, celFrameRawData, params)) {
-            // TODO: log?
+            // TODO: log + add placeholder?
             continue;
         }
         gfx.frames.append(frame);

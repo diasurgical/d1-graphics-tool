@@ -187,9 +187,8 @@ bool D1Cl2::load(D1Gfx &gfx, QString filePath, bool isClx, const OpenAsParam &pa
 
     // If the dword is not equal to the file size then
     // check if it's a CL2 with multiple groups
-    if (fileBuffer.size() == fileSizeDword) {
-        gfx.type = D1CEL_TYPE::V2_MONO_GROUP;
-    } else {
+    D1CEL_TYPE type = fileBuffer.size() == fileSizeDword ? D1CEL_TYPE::V2_MONO_GROUP : D1CEL_TYPE::V2_MULTIPLE_GROUPS;
+    if (type == D1CEL_TYPE::V2_MULTIPLE_GROUPS) {
         // Read offset of the last CL2 group header
         fileBuffer.seek(firstDword - 4);
         quint32 lastCl2GroupHeaderOffset;
@@ -215,12 +214,12 @@ bool D1Cl2::load(D1Gfx &gfx, QString filePath, bool isClx, const OpenAsParam &pa
         // to have an offset from the beginning of the file
         fileSizeDword += lastCl2GroupHeaderOffset;
 
-        if (fileBuffer.size() == fileSizeDword) {
-            gfx.type = D1CEL_TYPE::V2_MULTIPLE_GROUPS;
-        } else {
+        if (fileBuffer.size() != fileSizeDword) {
             return false;
         }
     }
+
+    gfx.type = type;
 
     // CL2 FRAMES OFFSETS CALCULATION
     gfx.groupFrameIndices.clear();
@@ -279,7 +278,7 @@ bool D1Cl2::load(D1Gfx &gfx, QString filePath, bool isClx, const OpenAsParam &pa
 
         D1GfxFrame frame;
         if (!D1Cl2Frame::load(frame, cl2FrameRawData, isClx, params)) {
-            // TODO: log?
+            // TODO: log + add placeholder?
             continue;
         }
         gfx.frames.append(frame);
