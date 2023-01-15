@@ -916,6 +916,8 @@ static const char *getFrameTypeName(D1CEL_FRAME_TYPE type)
         return "Left Trapezoid";
     case D1CEL_FRAME_TYPE::RightTrapezoid:
         return "Right Trapezoid";
+    case D1CEL_FRAME_TYPE::Empty:
+        return "Empty";
     default:
         return "Unknown";
     }

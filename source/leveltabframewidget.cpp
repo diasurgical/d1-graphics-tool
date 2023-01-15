@@ -166,11 +166,23 @@ static bool validRightTrapezoid(const D1GfxFrame *frame, QString &msg, int *limi
     return validBottomRightTriangle(frame, msg, limit) && validTopHalfSquare(frame, msg, limit);
 }
 
+static bool validEmpty(const D1GfxFrame *frame, QString &msg, int *limit)
+{
+    for (int y = 0; y < MICRO_HEIGHT; y++) {
+        for (int x = 0; x < MICRO_WIDTH; x++) {
+            if (!frame->getPixel(x, y).isTransparent() && --*limit < 0) {
+                return prepareMsgNonTransparent(msg, x, y);
+            }
+        }
+    }
+    return true;
+}
+
 D1CEL_FRAME_TYPE LevelTabFrameWidget::altFrameType(D1GfxFrame *frame, int *limit)
 {
     D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::TransparentSquare;
     QString tmp;
-    int limitSquare = *limit, limitLeftTriangle = *limit, limitRightTriangle = *limit, limitLeftTrapezoid = *limit, limitRightTrapezoid = *limit;
+    int limitSquare = *limit, limitLeftTriangle = *limit, limitRightTriangle = *limit, limitLeftTrapezoid = *limit, limitRightTrapezoid = *limit, limitEmpty = *limit;
 
     if (frame->getWidth() == MICRO_WIDTH && frame->getHeight() == MICRO_HEIGHT) {
         if (validSquare(frame, tmp, &limitSquare)) {
@@ -188,6 +200,9 @@ D1CEL_FRAME_TYPE LevelTabFrameWidget::altFrameType(D1GfxFrame *frame, int *limit
         } else if (validRightTrapezoid(frame, tmp, &limitRightTrapezoid)) {
             frameType = D1CEL_FRAME_TYPE::RightTrapezoid;
             *limit = limitRightTrapezoid;
+        } else if (limitEmpty > 0 && validEmpty(frame, tmp, &limitEmpty)) {
+            frameType = D1CEL_FRAME_TYPE::Empty;
+            *limit = limitEmpty;
         }
     }
     return frameType;

@@ -16,6 +16,7 @@ enum class D1CEL_FRAME_TYPE {
     RightTriangle,     // opaque triangle on its right edge
     LeftTrapezoid,     // bottom half is a left triangle, upper half is a square
     RightTrapezoid,    // bottom half is a right triangle, upper half is a square
+    Empty = -1,        // transparent frame (only for efficiency tests)
 };
 
 class D1CelTilesetFrame {
