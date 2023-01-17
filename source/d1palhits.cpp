@@ -1,24 +1,21 @@
 #include "d1palhits.h"
 
-D1PalHits::D1PalHits(D1Gfx *g)
+D1PalHits::D1PalHits(D1Gfx *g, D1Min *m, D1Til *t)
     : gfx(g)
-{
-    D1PalHits::buildPalHits();
-}
-
-D1PalHits::D1PalHits(D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s)
-    : isLevelCel(true)
-    , gfx(g)
     , min(m)
     , til(t)
-    , sol(s)
 {
-    D1PalHits::buildPalHits();
+    this->update();
+}
+
+void D1PalHits::update()
+{
+    this->buildPalHits();
     this->buildSubtilePalHits();
     this->buildTilePalHits();
 }
 
-D1PALHITS_MODE D1PalHits::getMode()
+D1PALHITS_MODE D1PalHits::getMode() const
 {
     return this->mode;
 }
@@ -30,34 +27,28 @@ void D1PalHits::setMode(D1PALHITS_MODE m)
 
 void D1PalHits::buildPalHits()
 {
-    D1GfxFrame *frame = nullptr;
-    quint8 paletteIndex = 0;
-
     // Go through all frames
     this->framePalHits.clear();
     this->allFramesPalHits.clear();
     for (int i = 0; i < this->gfx->getFrameCount(); i++) {
-        QMap<quint8, quint32> frameHits;
+        QMap<quint8, int> frameHits;
 
         // Get frame pointer
-        frame = this->gfx->getFrame(i);
+        D1GfxFrame *frame = this->gfx->getFrame(i);
 
         // Go through every pixels of the frame
-        for (int jx = 0; jx < frame->getWidth(); jx++) {
-            for (int jy = 0; jy < frame->getHeight(); jy++) {
+        for (int x = 0; x < frame->getWidth(); x++) {
+            for (int y = 0; y < frame->getHeight(); y++) {
                 // Retrieve the color of the pixel
-                paletteIndex = frame->getPixel(jx, jy).getPaletteIndex();
+                D1GfxPixel pixel = frame->getPixel(x, y);
+                if (pixel.isTransparent())
+                    continue;
+                quint8 paletteIndex = pixel.getPaletteIndex();
 
                 // Add one hit to the frameHits and allFramesPalHits maps
-                if (frameHits.contains(paletteIndex))
-                    frameHits.insert(paletteIndex, frameHits.value(paletteIndex) + 1);
-                else
-                    frameHits.insert(paletteIndex, 1);
+                frameHits.insert(paletteIndex, frameHits.value(paletteIndex) + 1);
 
-                if (frameHits.contains(paletteIndex))
-                    this->allFramesPalHits.insert(paletteIndex, frameHits.value(paletteIndex) + 1);
-                else
-                    this->allFramesPalHits.insert(paletteIndex, 1);
+                this->allFramesPalHits.insert(paletteIndex, frameHits.value(paletteIndex) + 1);
             }
         }
 
@@ -67,10 +58,14 @@ void D1PalHits::buildPalHits()
 
 void D1PalHits::buildSubtilePalHits()
 {
-    // Go through all sub-tiles
     this->subtilePalHits.clear();
+
+    if (this->min == nullptr) {
+        return;
+    }
+    // Go through all sub-tiles
     for (int i = 0; i < this->min->getSubtileCount(); i++) {
-        QMap<quint8, quint32> subtileHits;
+        QMap<quint8, int> subtileHits;
 
         // Retrieve the CEL frame indices of the current sub-tile
         QList<quint16> &celFrameIndices = this->min->getCelFrameIndices(i);
@@ -80,7 +75,7 @@ void D1PalHits::buildSubtilePalHits()
             frameIndex--;
 
             // Go through the hits of the CEL frame and add them to the subtile hits
-            QMapIterator<quint8, quint32> it2(this->framePalHits.value(frameIndex));
+            QMapIterator<quint8, int> it2(this->framePalHits.value(frameIndex));
             while (it2.hasNext()) {
                 it2.next();
                 subtileHits.insert(it2.key(), it2.value());
@@ -93,10 +88,13 @@ void D1PalHits::buildSubtilePalHits()
 
 void D1PalHits::buildTilePalHits()
 {
-    // Go through all tiles
     this->tilePalHits.clear();
+    if (this->til == nullptr) {
+        return;
+    }
+    // Go through all tiles
     for (int i = 0; i < this->til->getTileCount(); i++) {
-        QMap<quint8, quint32> tileHits;
+        QMap<quint8, int> tileHits;
 
         // Retrieve the sub-tile indices of the current tile
         QList<quint16> &subtileIndices = this->til->getSubtileIndices(i);
@@ -104,7 +102,7 @@ void D1PalHits::buildTilePalHits()
         // Go through the sub-tiles
         for (quint16 subtileIndex : subtileIndices) {
             // Go through the hits of the sub-tile and add them to the tile hits
-            QMapIterator<quint8, quint32> it2(this->subtilePalHits.value(subtileIndex));
+            QMapIterator<quint8, int> it2(this->subtilePalHits.value(subtileIndex));
             while (it2.hasNext()) {
                 it2.next();
                 tileHits.insert(it2.key(), it2.value());
@@ -115,38 +113,27 @@ void D1PalHits::buildTilePalHits()
     }
 }
 
-quint32 D1PalHits::getIndexHits(quint8 colorIndex)
+int D1PalHits::getIndexHits(quint8 colorIndex, int itemIndex) const
 {
-    if (this->mode == D1PALHITS_MODE::ALL_COLORS)
+    switch (this->mode) {
+    case D1PALHITS_MODE::ALL_COLORS:
         return 1;
-
-    if (this->mode == D1PALHITS_MODE::ALL_FRAMES) {
-        if (!this->allFramesPalHits.contains(colorIndex))
-            return 0;
-
-        return this->allFramesPalHits[colorIndex];
-    }
-
-    return 0;
-}
-
-quint32 D1PalHits::getIndexHits(quint8 colorIndex, quint32 itemIndex)
-{
-    if (this->mode == D1PALHITS_MODE::CURRENT_TILE) {
-        if (!this->tilePalHits.contains(itemIndex) || !this->tilePalHits[itemIndex].contains(colorIndex))
-            return 0;
-
-        return this->tilePalHits[itemIndex][colorIndex];
-    } else if (this->mode == D1PALHITS_MODE::CURRENT_SUBTILE) {
-        if (!this->subtilePalHits.contains(itemIndex) || !this->subtilePalHits[itemIndex].contains(colorIndex))
-            return 0;
-
-        return this->subtilePalHits[itemIndex][colorIndex];
-    } else if (this->mode == D1PALHITS_MODE::CURRENT_FRAME) {
-        if (!this->framePalHits.contains(itemIndex) || !this->framePalHits[itemIndex].contains(colorIndex))
-            return 0;
-
-        return this->framePalHits[itemIndex][colorIndex];
+    case D1PALHITS_MODE::ALL_FRAMES:
+        if (this->allFramesPalHits.contains(colorIndex))
+            return this->allFramesPalHits[colorIndex];
+        break;
+    case D1PALHITS_MODE::CURRENT_TILE:
+        if (this->tilePalHits.contains(itemIndex) && this->tilePalHits[itemIndex].contains(colorIndex))
+            return this->tilePalHits[itemIndex][colorIndex];
+        break;
+    case D1PALHITS_MODE::CURRENT_SUBTILE:
+        if (this->subtilePalHits.contains(itemIndex) && this->subtilePalHits[itemIndex].contains(colorIndex))
+            return this->subtilePalHits[itemIndex][colorIndex];
+        break;
+    case D1PALHITS_MODE::CURRENT_FRAME:
+        if (this->framePalHits.contains(itemIndex) && this->framePalHits[itemIndex].contains(colorIndex))
+            return this->framePalHits[itemIndex][colorIndex];
+        break;
     }
 
     return 0;

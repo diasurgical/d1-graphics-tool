@@ -319,7 +319,6 @@ bool PaletteWidget::isTrnWidget()
 void PaletteWidget::initialize(D1Pal *p, CelView *c, D1PalHits *ph)
 {
     this->isTrn = false;
-    this->isLevelCel = false;
     this->pal = p;
     this->trn = nullptr;
     this->celView = c;
@@ -332,7 +331,6 @@ void PaletteWidget::initialize(D1Pal *p, CelView *c, D1PalHits *ph)
 void PaletteWidget::initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph)
 {
     this->isTrn = false;
-    this->isLevelCel = true;
     this->pal = p;
     this->trn = nullptr;
     this->celView = nullptr;
@@ -345,7 +343,6 @@ void PaletteWidget::initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph)
 void PaletteWidget::initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph)
 {
     this->isTrn = true;
-    this->isLevelCel = false;
     this->pal = p;
     this->trn = t;
     this->celView = c;
@@ -358,7 +355,6 @@ void PaletteWidget::initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph)
 void PaletteWidget::initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *ph)
 {
     this->isTrn = true;
-    this->isLevelCel = true;
     this->pal = p;
     this->trn = t;
     this->celView = nullptr;
@@ -410,7 +406,7 @@ void PaletteWidget::initializeDisplayComboBox()
 
     if (!this->isTrn) {
         ui->displayComboBox->addItem("Show all frames hits", QVariant((int)COLORFILTER_TYPE::USED));
-        if (this->isLevelCel) {
+        if (this->levelCelView != nullptr) {
             ui->displayComboBox->addItem("Show current tile hits", QVariant((int)COLORFILTER_TYPE::TILE));
             ui->displayComboBox->addItem("Show current sub-tile hits", QVariant((int)COLORFILTER_TYPE::SUBTILE));
         }
@@ -572,7 +568,7 @@ bool PaletteWidget::displayColor(int colorIndex)
     switch (this->palHits->getMode()) {
     case D1PALHITS_MODE::ALL_COLORS:
     case D1PALHITS_MODE::ALL_FRAMES:
-        return this->palHits->getIndexHits(colorIndex) != 0;
+        return this->palHits->getIndexHits(colorIndex, 0) != 0;
     case D1PALHITS_MODE::CURRENT_TILE:
         itemIndex = this->levelCelView->getCurrentTileIndex();
         break;
@@ -580,7 +576,7 @@ bool PaletteWidget::displayColor(int colorIndex)
         itemIndex = this->levelCelView->getCurrentSubtileIndex();
         break;
     case D1PALHITS_MODE::CURRENT_FRAME:
-        itemIndex = this->isLevelCel ? this->levelCelView->getCurrentFrameIndex() : this->celView->getCurrentFrameIndex();
+        itemIndex = this->levelCelView != nullptr ? this->levelCelView->getCurrentFrameIndex() : this->celView->getCurrentFrameIndex();
         break;
     }
 
@@ -824,24 +820,26 @@ void PaletteWidget::on_pathComboBox_activated(int index)
 
 void PaletteWidget::on_displayComboBox_activated(int index)
 {
-    switch (this->ui->displayComboBox->currentData().value<COLORFILTER_TYPE>()) {
-    case COLORFILTER_TYPE::NONE:
-        if (!this->isTrn) {
-            this->palHits->setMode(D1PALHITS_MODE::ALL_COLORS);
+    if (!this->isTrn) {
+        D1PALHITS_MODE mode = D1PALHITS_MODE::ALL_COLORS;
+        switch (this->ui->displayComboBox->currentData().value<COLORFILTER_TYPE>()) {
+        case COLORFILTER_TYPE::NONE:
+            mode = D1PALHITS_MODE::ALL_COLORS;
+            break;
+        case COLORFILTER_TYPE::USED:
+            mode = D1PALHITS_MODE::ALL_FRAMES;
+            break;
+        case COLORFILTER_TYPE::TILE:
+            mode = D1PALHITS_MODE::CURRENT_TILE;
+            break;
+        case COLORFILTER_TYPE::SUBTILE:
+            mode = D1PALHITS_MODE::CURRENT_SUBTILE;
+            break;
+        case COLORFILTER_TYPE::FRAME:
+            mode = D1PALHITS_MODE::CURRENT_FRAME;
+            break;
         }
-        break;
-    case COLORFILTER_TYPE::USED:
-        this->palHits->setMode(D1PALHITS_MODE::ALL_FRAMES);
-        break;
-    case COLORFILTER_TYPE::TILE:
-        this->palHits->setMode(D1PALHITS_MODE::CURRENT_TILE);
-        break;
-    case COLORFILTER_TYPE::SUBTILE:
-        this->palHits->setMode(D1PALHITS_MODE::CURRENT_SUBTILE);
-        break;
-    case COLORFILTER_TYPE::FRAME:
-        this->palHits->setMode(D1PALHITS_MODE::CURRENT_FRAME);
-        break;
+        this->palHits->setMode(mode);
     }
 
     this->refresh();

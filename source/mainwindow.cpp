@@ -145,7 +145,7 @@ QString MainWindow::getLastFilePath()
 void MainWindow::updateWindow()
 {
     // rebuild palette hits
-    this->palHits->buildPalHits();
+    this->palHits->update();
     this->palWidget->refresh();
     this->undoStack->clear();
     // update menu options
@@ -627,7 +627,7 @@ void MainWindow::openFile(const OpenAsParam &params)
         QObject::connect(this->levelCelView, &LevelCelView::frameRefreshed, this->palWidget, &PaletteWidget::refresh);
 
         // Initialize palette widgets
-        this->palHits = new D1PalHits(this->gfx, this->min, this->til, this->sol);
+        this->palHits = new D1PalHits(this->gfx, this->min, this->til);
         this->palWidget->initialize(this->pal, this->levelCelView, this->palHits);
         this->trn1Widget->initialize(this->pal, this->trn1, this->levelCelView, this->palHits);
         this->trn2Widget->initialize(this->trn1->getResultingPalette(), this->trn2, this->levelCelView, this->palHits);

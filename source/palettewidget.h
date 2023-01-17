@@ -216,7 +216,6 @@ private slots:
 private:
     QUndoStack *undoStack;
     Ui::PaletteWidget *ui;
-    bool isLevelCel;
     bool isTrn;
 
     CelView *celView;
