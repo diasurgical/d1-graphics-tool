@@ -1103,17 +1103,22 @@
           </property>
           <item>
            <property name="text">
-            <string>Caves</string>
+            <string>Caves (L3)</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Nest</string>
+            <string>Hell (L4)</string>
            </property>
           </item>
           <item>
            <property name="text">
-            <string>Crypt</string>
+            <string>Nest (L5)</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Crypt (L6)</string>
            </property>
           </item>
          </widget>

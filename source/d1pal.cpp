@@ -146,6 +146,7 @@ void D1Pal::cycleColors(D1PAL_CYCLE_TYPE type)
 
     switch (type) {
     case D1PAL_CYCLE_TYPE::CAVES:
+    case D1PAL_CYCLE_TYPE::HELL:
         celColor = this->colors[1];
         for (i = 1; i < 31; i++) {
             this->colors[i] = this->colors[i + 1];

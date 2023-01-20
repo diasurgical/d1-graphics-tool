@@ -292,22 +292,15 @@ void CelView::playGroup()
         this->currentFrameIndex = groupFrameIndices.first;
 
     MainWindow *mw = (MainWindow *)this->window();
-    switch (this->ui->playComboBox->currentIndex()) {
-    case 0: // normal
-        this->displayFrame();
-        break;
-    case 1:
-        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::CAVES);
-        break;
-    case 2:
-        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::NEST);
-        break;
-    case 3:
-        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::CRYPT);
-        break;
-    }
 
-    // this->displayFrame();
+    int cycleType = this->ui->playComboBox->currentIndex();
+    if (cycleType == 0) {
+        // normal playback
+        this->displayFrame();
+    } else {
+        mw->nextPaletteCycle((D1PAL_CYCLE_TYPE)(cycleType - 1));
+        // this->displayFrame();
+    }
 }
 
 void CelView::ShowContextMenu(const QPoint &pos)

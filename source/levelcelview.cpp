@@ -1439,17 +1439,7 @@ void LevelCelView::playGroup()
 {
     MainWindow *mw = (MainWindow *)this->window();
 
-    switch (this->ui->playComboBox->currentIndex()) {
-    case 0: // caves
-        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::CAVES);
-        break;
-    case 1: // nest
-        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::NEST);
-        break;
-    case 2: // crypt
-        mw->nextPaletteCycle(D1PAL_CYCLE_TYPE::CRYPT);
-        break;
-    }
+    mw->nextPaletteCycle((D1PAL_CYCLE_TYPE)this->ui->playComboBox->currentIndex());
 
     // this->displayFrame();
 }
