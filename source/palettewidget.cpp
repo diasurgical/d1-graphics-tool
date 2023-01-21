@@ -252,7 +252,7 @@ void PaletteScene::contextMenuEvent(QContextMenuEvent *event)
 
 QPushButton *PaletteWidget::addButton(QStyle::StandardPixmap type, QString tooltip, void (PaletteWidget::*callback)(void))
 {
-    QPushButton *button = new QPushButton(this->style()->standardIcon(type), tr(""), nullptr);
+    QPushButton *button = new QPushButton(this->style()->standardIcon(type), "", nullptr);
     constexpr int iconSize = 16;
     button->setToolTip(tooltip);
     button->setIconSize(QSize(iconSize, iconSize));

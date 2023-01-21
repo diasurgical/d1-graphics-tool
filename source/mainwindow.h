@@ -21,6 +21,7 @@
 #include "palettewidget.h"
 #include "settingsdialog.h"
 
+#define D1_GRAPHICS_TOOL_TITLE "Diablo 1 Graphics Tool"
 #define D1_GRAPHICS_TOOL_VERSION "1.0.0"
 
 enum class FILE_DIALOG_MODE {
@@ -44,7 +45,7 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow();
     ~MainWindow();
 
     void setPal(QString);

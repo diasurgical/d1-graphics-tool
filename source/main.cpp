@@ -24,7 +24,6 @@ int main(int argc, char *argv[])
     int result;
     { // run the application
         MainWindow w;
-        w.setWindowTitle("Diablo 1 Graphics Tool");
         w.show();
 
         result = a.exec();

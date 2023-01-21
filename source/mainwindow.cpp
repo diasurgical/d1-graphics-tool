@@ -28,15 +28,17 @@
 #include "d1cl2.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+MainWindow::MainWindow()
+    : QMainWindow(nullptr)
+    , ui(new Ui::MainWindow())
 {
     // QCoreApplication::setAttribute( Qt::AA_EnableHighDpiScaling, true );
 
     this->lastFilePath = Config::value("LastFilePath").toString();
 
     ui->setupUi(this);
+
+    this->setWindowTitle(D1_GRAPHICS_TOOL_TITLE);
 
     // initialize 'new' submenu of 'File'
     this->newMenu.addAction("Sprite", this, SLOT(on_actionNew_Sprite_triggered()));
@@ -1659,35 +1661,36 @@ void MainWindow::on_actionClose_Translation_2_triggered()
     this->trn2Widget->selectPath(D1Trn::IDENTITY_PATH);
 }
 
+#if defined(Q_OS_WIN)
+#define OS_TYPE "Windows"
+#elif defined(Q_OS_QNX)
+#define OS_TYPE "qnx"
+#elif defined(Q_OS_ANDROID)
+#define OS_TYPE "android"
+#elif defined(Q_OS_IOS)
+#define OS_TYPE "iOS"
+#elif defined(Q_OS_TVOS)
+#define OS_TYPE "tvOS"
+#elif defined(Q_OS_WATCHOS)
+#define OS_TYPE "watchOS"
+#elif defined(Q_OS_MACOS)
+#define OS_TYPE "macOS"
+#elif defined(Q_OS_DARWIN)
+#define OS_TYPE "darwin"
+#elif defined(Q_OS_WASM)
+#define OS_TYPE "wasm"
+#elif defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD)
+#define OS_TYPE "linux"
+#else
+#define OS_TYPE tr("unknown")
+#endif
+
 void MainWindow::on_actionAbout_triggered()
 {
-    QString architecture;
-    QString operatingSystem;
-
-#ifdef Q_PROCESSOR_X86_64
-    architecture = "(64-bit)";
-#endif
-
-#ifdef Q_PROCESSOR_X86_32
-    architecture = "(32-bit)";
-#endif
-
-#ifdef Q_OS_WIN
-    operatingSystem = "Windows";
-#endif
-
-#ifdef Q_OS_MAC
-    operatingSystem = "macOS";
-#endif
-
-#ifdef Q_OS_LINUX
-    operatingSystem = "Linux";
-#endif
-
-    QMessageBox::about(this, "About", "Diablo 1 Graphics Tool " + QString(D1_GRAPHICS_TOOL_VERSION) + " (" + operatingSystem + ") " + architecture);
+    QMessageBox::about(this, tr("About"), QStringLiteral("%1 %2 (%3) (%4-bit)").arg(D1_GRAPHICS_TOOL_TITLE).arg(D1_GRAPHICS_TOOL_VERSION).arg(OS_TYPE).arg(sizeof(void *) == 8 ? "64" : "32"));
 }
 
 void MainWindow::on_actionAbout_Qt_triggered()
 {
-    QMessageBox::aboutQt(this, "About Qt");
+    QMessageBox::aboutQt(this, tr("About Qt"));
 }
