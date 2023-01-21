@@ -71,10 +71,11 @@ void ExportDialog::on_outputFolderBrowseButton_clicked()
 
 bool ExportDialog::exportLevelTiles25D(QProgressDialog &progress)
 {
-    progress.setLabelText("Exporting " + QFileInfo(this->til->getFilePath()).fileName() + " 2.5d level tiles...");
+    QString fileName = QFileInfo(this->til->getFilePath()).fileName();
 
-    QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
-        + QFileInfo(this->til->getFilePath()).fileName().replace(".", "_25d_");
+    progress.setLabelText("Exporting " + fileName + " 2.5d level tiles...");
+
+    QString outputFilePathBase = ui->outputFolderEdit->text() + "/" + fileName.replace(".", "_25d_");
 
     int count = this->til->getTileCount();
     int tileFrom = this->ui->contentRangeFromEdit->text().toUInt();
@@ -191,10 +192,11 @@ bool ExportDialog::exportLevelTiles25D(QProgressDialog &progress)
 
 bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
 {
-    progress.setLabelText("Exporting " + QFileInfo(this->min->getFilePath()).fileName() + " flat level tiles...");
+    QString fileName = QFileInfo(this->til->getFilePath()).fileName();
 
-    QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
-        + QFileInfo(this->til->getFilePath()).fileName().replace(".", "_flat_");
+    progress.setLabelText("Exporting " + fileName + " flat level tiles...");
+
+    QString outputFilePathBase = ui->outputFolderEdit->text() + "/" + fileName.replace(".", "_flat_");
 
     int count = this->til->getTileCount();
     int tileFrom = this->ui->contentRangeFromEdit->text().toUInt();
@@ -311,10 +313,11 @@ bool ExportDialog::exportLevelTiles(QProgressDialog &progress)
 
 bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
 {
-    progress.setLabelText("Exporting " + QFileInfo(this->min->getFilePath()).fileName() + " level subtiles...");
+    QString fileName = QFileInfo(this->min->getFilePath()).fileName();
 
-    QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
-        + QFileInfo(this->min->getFilePath()).fileName().replace(".", "_");
+    progress.setLabelText("Exporting " + fileName + " level subtiles...");
+
+    QString outputFilePathBase = ui->outputFolderEdit->text() + "/" + fileName.replace(".", "_");
 
     int count = this->min->getSubtileCount();
     int subtileFrom = this->ui->contentRangeFromEdit->text().toUInt();
@@ -432,10 +435,11 @@ bool ExportDialog::exportLevelSubtiles(QProgressDialog &progress)
 
 bool ExportDialog::exportFrames(QProgressDialog &progress)
 {
-    progress.setLabelText("Exporting " + QFileInfo(this->gfx->getFilePath()).fileName() + " frames...");
+    QString fileName = QFileInfo(this->gfx->getFilePath()).fileName();
 
-    QString outputFilePathBase = ui->outputFolderEdit->text() + "/"
-        + QFileInfo(this->gfx->getFilePath()).fileName().replace(".", "_");
+    progress.setLabelText("Exporting " + fileName + " frames...");
+
+    QString outputFilePathBase = ui->outputFolderEdit->text() + "/" + fileName.replace(".", "_");
 
     int count = this->gfx->getFrameCount();
     int frameFrom = this->ui->contentRangeFromEdit->text().toUInt();
