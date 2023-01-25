@@ -189,9 +189,9 @@ void PaletteScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 void PaletteScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-    // if (event->button() != Qt::LeftButton) {
-    //    return;
-    // }
+    if (!(event->buttons() & Qt::LeftButton)) {
+        return;
+    }
 
     QPointF pos = event->scenePos();
 
