@@ -71,6 +71,13 @@ void LevelCelView::update()
     QFileInfo ampFileInfo(this->amp->getFilePath());
     ui->celLabel->setText(gfxFileInfo.fileName() + ", " + minFileInfo.fileName() + ", " + tilFileInfo.fileName() + ", " + solFileInfo.fileName() + ", " + ampFileInfo.fileName());
 
+    if (this->mode == TILESET_MODE::FREE)
+        ui->modeLabel->setText("");
+    else if (this->mode == TILESET_MODE::SUBTILE)
+        ui->modeLabel->setText("Subtile mode");
+    else if (this->mode == TILESET_MODE::TILE)
+        ui->modeLabel->setText("Tile mode");
+
     ui->frameNumberEdit->setText(
         QString::number(this->gfx->getFrameCount()));
 
@@ -113,6 +120,8 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
     unsigned subtileShiftY = subtileWidth / 4;
     unsigned tileHeight = subtileHeight + 2 * subtileShiftY;
 
+    this->mode = TILESET_MODE::FREE;
+
     if (x >= CEL_SCENE_SPACING && x < (celFrameWidth + CEL_SCENE_SPACING)
         && y >= CEL_SCENE_SPACING && y < (celFrameHeight + CEL_SCENE_SPACING)
         && this->gfx->getFrameCount() != 0) {
@@ -126,6 +135,7 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
         && y >= CEL_SCENE_SPACING
         && y < (subtileHeight + CEL_SCENE_SPACING)
         && this->min->getSubtileCount() != 0) {
+        this->mode = TILESET_MODE::SUBTILE;
         // When a CEL frame is clicked in the subtile, display the corresponding CEL frame
 
         // Adjust coordinates
@@ -135,6 +145,7 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
         // qDebug() << "Subtile clicked: " << stx << "," << sty;
 
         int stFrame = (sty / MICRO_HEIGHT) * TILE_WIDTH + (stx / MICRO_WIDTH);
+        this->editIndex = stFrame;
         QList<quint16> &minFrames = this->min->getCelFrameIndices(this->currentSubtileIndex);
         quint16 frameIndex = minFrames.count() > stFrame ? minFrames.at(stFrame) : 0;
 
@@ -147,6 +158,7 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
         && y >= CEL_SCENE_SPACING
         && y < (tileHeight + CEL_SCENE_SPACING)
         && this->til->getTileCount() != 0) {
+        this->mode = TILESET_MODE::TILE;
         // When a subtile is clicked in the tile, display the corresponding subtile
 
         // Adjust coordinates
@@ -186,6 +198,7 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
             else
                 tSubtile = 3;
         }
+        this->editIndex = tSubtile;
 
         QList<quint16> &tilSubtiles = this->til->getSubtileIndices(this->currentTileIndex);
         if (tilSubtiles.count() > tSubtile) {
@@ -193,6 +206,8 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
             this->displayFrame();
         }
     }
+
+    this->update();
 }
 
 void LevelCelView::insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append)
@@ -1614,6 +1629,14 @@ void LevelCelView::ShowContextMenu(const QPoint &pos)
 void LevelCelView::on_firstFrameButton_clicked()
 {
     this->currentFrameIndex = 0;
+
+    if (this->mode == TILESET_MODE::SUBTILE) {
+        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+    } else {
+        this->mode = TILESET_MODE::FREE;
+        this->update();
+    }
+
     this->displayFrame();
 }
 
@@ -1623,6 +1646,13 @@ void LevelCelView::on_previousFrameButton_clicked()
         this->currentFrameIndex--;
     else
         this->currentFrameIndex = std::max(0, this->gfx->getFrameCount() - 1);
+
+    if (this->mode == TILESET_MODE::SUBTILE) {
+        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+    } else {
+        this->mode = TILESET_MODE::FREE;
+        this->update();
+    }
 
     this->displayFrame();
 }
@@ -1634,12 +1664,27 @@ void LevelCelView::on_nextFrameButton_clicked()
     else
         this->currentFrameIndex = 0;
 
+    if (this->mode == TILESET_MODE::SUBTILE) {
+        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+    } else {
+        this->mode = TILESET_MODE::FREE;
+        this->update();
+    }
+
     this->displayFrame();
 }
 
 void LevelCelView::on_lastFrameButton_clicked()
 {
     this->currentFrameIndex = std::max(0, this->gfx->getFrameCount() - 1);
+
+    if (this->mode == TILESET_MODE::SUBTILE) {
+        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+    } else {
+        this->mode = TILESET_MODE::FREE;
+        this->update();
+    }
+
     this->displayFrame();
 }
 
@@ -1649,6 +1694,14 @@ void LevelCelView::on_frameIndexEdit_returnPressed()
 
     if (frameIndex >= 0 && frameIndex < this->gfx->getFrameCount()) {
         this->currentFrameIndex = frameIndex;
+
+        if (this->mode == TILESET_MODE::SUBTILE) {
+            this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+        } else {
+            this->mode = TILESET_MODE::FREE;
+            this->update();
+        }
+
         this->displayFrame();
     }
 }
@@ -1656,6 +1709,14 @@ void LevelCelView::on_frameIndexEdit_returnPressed()
 void LevelCelView::on_firstSubtileButton_clicked()
 {
     this->currentSubtileIndex = 0;
+
+    if (this->mode == TILESET_MODE::TILE) {
+        this->til->getSubtileIndices(this->currentTileIndex)[this->editIndex] = this->currentSubtileIndex;
+    } else {
+        this->mode = TILESET_MODE::FREE;
+        this->update();
+    }
+
     this->displayFrame();
 }
 
@@ -1665,6 +1726,13 @@ void LevelCelView::on_previousSubtileButton_clicked()
         this->currentSubtileIndex--;
     else
         this->currentSubtileIndex = std::max(0, this->min->getSubtileCount() - 1);
+
+    if (this->mode == TILESET_MODE::TILE) {
+        this->til->getSubtileIndices(this->currentTileIndex)[this->editIndex] = this->currentSubtileIndex;
+    } else {
+        this->mode = TILESET_MODE::FREE;
+        this->update();
+    }
 
     this->displayFrame();
 }
@@ -1676,12 +1744,27 @@ void LevelCelView::on_nextSubtileButton_clicked()
     else
         this->currentSubtileIndex = 0;
 
+    if (this->mode == TILESET_MODE::TILE) {
+        this->til->getSubtileIndices(this->currentTileIndex)[this->editIndex] = this->currentSubtileIndex;
+    } else {
+        this->mode = TILESET_MODE::FREE;
+        this->update();
+    }
+
     this->displayFrame();
 }
 
 void LevelCelView::on_lastSubtileButton_clicked()
 {
     this->currentSubtileIndex = std::max(0, this->min->getSubtileCount() - 1);
+
+    if (this->mode == TILESET_MODE::TILE) {
+        this->til->getSubtileIndices(this->currentTileIndex)[this->editIndex] = this->currentSubtileIndex;
+    } else {
+        this->mode = TILESET_MODE::FREE;
+        this->update();
+    }
+
     this->displayFrame();
 }
 
@@ -1691,6 +1774,14 @@ void LevelCelView::on_subtileIndexEdit_returnPressed()
 
     if (subtileIndex >= 0 && subtileIndex < this->min->getSubtileCount()) {
         this->currentSubtileIndex = subtileIndex;
+
+        if (this->mode == TILESET_MODE::TILE) {
+            this->til->getSubtileIndices(this->currentTileIndex)[this->editIndex] = this->currentSubtileIndex;
+        } else {
+            this->mode = TILESET_MODE::FREE;
+            this->update();
+        }
+
         this->displayFrame();
     }
 }
@@ -1698,6 +1789,9 @@ void LevelCelView::on_subtileIndexEdit_returnPressed()
 void LevelCelView::on_firstTileButton_clicked()
 {
     this->currentTileIndex = 0;
+
+    this->mode = TILESET_MODE::FREE;
+    this->update();
     this->displayFrame();
 }
 
@@ -1708,6 +1802,8 @@ void LevelCelView::on_previousTileButton_clicked()
     else
         this->currentTileIndex = std::max(0, this->til->getTileCount() - 1);
 
+    this->mode = TILESET_MODE::FREE;
+    this->update();
     this->displayFrame();
 }
 
@@ -1718,12 +1814,17 @@ void LevelCelView::on_nextTileButton_clicked()
     else
         this->currentTileIndex = 0;
 
+    this->mode = TILESET_MODE::FREE;
+    this->update();
     this->displayFrame();
 }
 
 void LevelCelView::on_lastTileButton_clicked()
 {
     this->currentTileIndex = std::max(0, this->til->getTileCount() - 1);
+
+    this->mode = TILESET_MODE::FREE;
+    this->update();
     this->displayFrame();
 }
 
@@ -1733,6 +1834,9 @@ void LevelCelView::on_tileIndexEdit_returnPressed()
 
     if (tileIndex >= 0 && tileIndex < this->til->getTileCount()) {
         this->currentTileIndex = tileIndex;
+
+        this->mode = TILESET_MODE::FREE;
+        this->update();
         this->displayFrame();
     }
 }

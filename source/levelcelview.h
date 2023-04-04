@@ -27,6 +27,12 @@ class LevelCelView;
 
 enum class IMAGE_FILE_MODE;
 
+enum class TILESET_MODE {
+    FREE,    // Free navigation
+    SUBTILE, // Subtile editing
+    TILE,    // Edit tile
+};
+
 class LevelCelView : public QWidget {
     Q_OBJECT
 
@@ -151,6 +157,9 @@ private:
     LevelTabTileWidget *tabTileWidget = new LevelTabTileWidget();
     LevelTabSubTileWidget *tabSubTileWidget = new LevelTabSubTileWidget();
     LevelTabFrameWidget *tabFrameWidget = new LevelTabFrameWidget();
+
+    TILESET_MODE mode = TILESET_MODE::FREE;
+    int editIndex = 0;
 
     D1Gfx *gfx;
     D1Min *min;

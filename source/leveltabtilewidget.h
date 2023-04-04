@@ -33,13 +33,7 @@ private slots:
     void on_amp6_clicked();
     void on_amp7_clicked();
 
-    void on_subtilesPrevButton_clicked();
-    void on_subtilesComboBox_activated(int index);
-    void on_subtilesComboBox_currentTextChanged(const QString &arg1);
-    void on_subtilesNextButton_clicked();
-
 private:
-    void updateSubtilesSelection(int index);
     void updateAmpType();
     void updateAmpProperty();
     quint8 readAmpType();

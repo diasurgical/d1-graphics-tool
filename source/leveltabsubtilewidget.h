@@ -30,13 +30,7 @@ private slots:
     void on_sol5_clicked();
     void on_sol7_clicked();
 
-    void on_framesPrevButton_clicked();
-    void on_framesComboBox_activated(int index);
-    void on_framesComboBox_currentTextChanged(const QString &arg1);
-    void on_framesNextButton_clicked();
-
 private:
-    void updateFramesSelection(int index);
     void updateSolProperty();
     quint8 readSol();
 
