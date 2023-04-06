@@ -37,8 +37,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     // initialize 'new' submenu of 'File'
-    this->newMenu.addAction("CEL gfx", this, SLOT(on_actionNew_CEL_triggered()));
-    this->newMenu.addAction("CL2 gfx", this, SLOT(on_actionNew_CL2_triggered()));
+    this->newMenu.addAction("Sprite", this, SLOT(on_actionNew_Sprite_triggered()));
     this->newMenu.addAction("Tileset", this, SLOT(on_actionNew_Tileset_triggered()));
     QAction *firstFileAction = (QAction *)this->ui->menuFile->actions()[0];
     this->ui->menuFile->insertMenu(firstFileAction, &this->newMenu);
@@ -377,19 +376,10 @@ bool MainWindow::hasImageUrl(const QMimeData *mimeData)
     return false;
 }
 
-void MainWindow::on_actionNew_CEL_triggered()
+void MainWindow::on_actionNew_Sprite_triggered()
 {
     OpenAsParam params;
     params.isTileset = OPEN_TILESET_TYPE::FALSE;
-    params.clipped = OPEN_CLIPPED_TYPE::FALSE;
-    this->openFile(params);
-}
-
-void MainWindow::on_actionNew_CL2_triggered()
-{
-    OpenAsParam params;
-    params.isTileset = OPEN_TILESET_TYPE::FALSE;
-    params.clipped = OPEN_CLIPPED_TYPE::TRUE;
     this->openFile(params);
 }
 

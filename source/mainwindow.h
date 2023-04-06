@@ -99,8 +99,7 @@ public slots:
     void on_actionDel_Tile_triggered();
 
 private slots:
-    void on_actionNew_CEL_triggered();
-    void on_actionNew_CL2_triggered();
+    void on_actionNew_Sprite_triggered();
     void on_actionNew_Tileset_triggered();
 
     void on_actionOpen_triggered();
