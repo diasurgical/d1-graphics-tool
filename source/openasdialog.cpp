@@ -50,7 +50,7 @@ void OpenAsDialog::update()
 void OpenAsDialog::on_inputFileBrowseButton_clicked()
 {
     MainWindow *qw = (MainWindow *)this->parentWidget();
-    QString openFilePath = qw->fileDialog(FILE_DIALOG_MODE::OPEN, "Open Graphics", "CEL/CL2 Files (*.cel *.CEL *.cl2 *.CL2)"); // "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX);;TIL Files (*.til *.TIL)");
+    QString openFilePath = qw->fileDialog(FILE_DIALOG_MODE::OPEN, "Open Graphics", "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX)");
 
     if (openFilePath.isEmpty())
         return;

@@ -2,8 +2,8 @@
 
 #include <QList>
 #include <QMap>
-
-#include "saveasdialog.h"
+#include <QObject>
+#include <QString>
 
 class D1Sol : public QObject {
     Q_OBJECT
@@ -13,7 +13,7 @@ public:
     ~D1Sol() = default;
 
     bool load(QString filePath);
-    bool save(const SaveAsParam &params);
+    bool save(const QString &gfxPath);
 
     void insertSubtile(int subtileIndex, quint8 value);
     void createSubtile();

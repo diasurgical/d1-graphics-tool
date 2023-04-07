@@ -182,30 +182,18 @@ bool D1CelTileset::writeFileData(D1Gfx &gfx, QFile &outFile)
     return true;
 }
 
-bool D1CelTileset::save(D1Gfx &gfx, const SaveAsParam &params)
+bool D1CelTileset::save(D1Gfx &gfx, const QString &gfxPath)
 {
-    QString filePath = gfx.gfxFilePath;
-    if (!params.celFilePath.isEmpty()) {
-        filePath = params.celFilePath;
-        if (QFile::exists(filePath)) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
-            if (reply != QMessageBox::Yes) {
-                return false;
-            }
-        }
-    }
-
-    QFile outFile = QFile(filePath);
+    QFile outFile = QFile(gfxPath);
     if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
-        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + gfxPath);
         return false;
     }
 
     bool result = D1CelTileset::writeFileData(gfx, outFile);
 
     if (result) {
-        gfx.gfxFilePath = filePath; // D1CelTileset::load(gfx, filePath);
+        gfx.gfxFilePath = gfxPath;
     }
     return result;
 }

@@ -2,9 +2,9 @@
 
 #include <QImage>
 #include <QList>
+#include <QString>
 
 #include "d1min.h"
-#include "saveasdialog.h"
 
 #define TILE_WIDTH 2
 #define TILE_HEIGHT 2
@@ -17,7 +17,7 @@ public:
     ~D1Til() = default;
 
     bool load(QString filePath, D1Min *min);
-    bool save(const SaveAsParam &params);
+    bool save(const QString &gfxPath);
 
     QImage getTileImage(int tileIndex);
     QImage getFlatTileImage(int tileIndex);

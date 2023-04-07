@@ -3,6 +3,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMimeData>
+#include <QString>
 #include <QStringList>
 #include <QUndoCommand>
 
@@ -18,7 +19,6 @@
 #include "levelcelview.h"
 #include "openasdialog.h"
 #include "palettewidget.h"
-#include "saveasdialog.h"
 #include "settingsdialog.h"
 
 #define D1_GRAPHICS_TOOL_VERSION "0.5.0"
@@ -54,7 +54,7 @@ public:
     void openFile(const OpenAsParam &params);
     void openImageFiles(IMAGE_FILE_MODE mode, QStringList filePaths, bool append);
     void openPalFiles(QStringList filePaths, PaletteWidget *widget);
-    void saveFile(const SaveAsParam &params);
+    void saveFile(const QString &gfxPath);
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
 
@@ -170,7 +170,6 @@ private:
     QPointer<PaletteWidget> trn2Widget;
 
     OpenAsDialog openAsDialog = OpenAsDialog(this);
-    SaveAsDialog saveAsDialog = SaveAsDialog(this);
     SettingsDialog settingsDialog = SettingsDialog(this);
     ExportDialog exportDialog = ExportDialog(this);
 

@@ -46,19 +46,11 @@ bool D1Sol::load(QString filePath)
     return true;
 }
 
-bool D1Sol::save(const SaveAsParam &params)
+bool D1Sol::save(const QString &gfxPath)
 {
-    QString filePath = this->getFilePath();
-    if (!params.solFilePath.isEmpty()) {
-        filePath = params.solFilePath;
-        if (QFile::exists(filePath)) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
-            if (reply != QMessageBox::Yes) {
-                return false;
-            }
-        }
-    }
+    QString filePath = gfxPath;
+    filePath.chop(3);
+    filePath += "sol";
 
     QFile outFile = QFile(filePath);
     if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
@@ -72,7 +64,7 @@ bool D1Sol::save(const SaveAsParam &params)
         out << this->subProperties[i];
     }
 
-    this->solFilePath = filePath; // this->load(filePath);
+    this->solFilePath = filePath;
 
     return true;
 }

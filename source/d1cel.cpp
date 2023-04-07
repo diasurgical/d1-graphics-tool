@@ -189,18 +189,12 @@ static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, int subHeaderSize
     return pBuf;
 }
 
-bool D1Cel::writeFileData(D1Gfx &gfx, QFile &outFile, const SaveAsParam &params)
+bool D1Cel::writeFileData(D1Gfx &gfx, QFile &outFile)
 {
     const int numFrames = gfx.frames.count();
 
     // update type
     gfx.type = D1CEL_TYPE::V1_REGULAR;
-    // update clipped info
-    bool clippedForced = params.clipped != SAVE_CLIPPED_TYPE::AUTODETECT;
-    for (int n = 0; n < numFrames; n++) {
-        D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPED_TYPE::TRUE) || (!clippedForced && frame->isClipped());
-    }
     // calculate header size
     int HEADER_SIZE = 4 + 4 + numFrames * 4;
     // calculate sub header size
@@ -243,47 +237,23 @@ bool D1Cel::writeFileData(D1Gfx &gfx, QFile &outFile, const SaveAsParam &params)
     return true;
 }
 
-bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, const SaveAsParam &params)
+bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile)
 {
     const int numFrames = gfx.frames.count();
 
     // calculate header size
-    int numGroups = params.groupNum;
     int headerSize = 0;
-    if (numGroups == 0) {
-        numGroups = gfx.getGroupCount();
-        for (int i = 0; i < numGroups; i++) {
-            QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
-            int ni = gfi.second - gfi.first + 1;
-            headerSize += 4 + 4 * (ni + 1);
-        }
-    } else {
-        // update group indices
-        if (numFrames == 0 || (numFrames % numGroups) != 0) {
-            QMessageBox::critical(nullptr, "Error", "Frames can not be split to equal groups.");
-            return false;
-        }
-        // update group indices
-        gfx.groupFrameIndices.clear();
-        for (int i = 0; i < numGroups; i++) {
-            int ni = numFrames / numGroups;
-            gfx.groupFrameIndices.append(qMakePair(i * ni, i * ni + ni - 1));
-            headerSize += 4 + 4 * (ni + 1);
-        }
+    int numGroups = gfx.getGroupCount();
+    for (int i = 0; i < numGroups; i++) {
+        QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
+        int ni = gfi.second - gfi.first + 1;
+        headerSize += 4 + 4 * (ni + 1);
     }
 
-    // if (numGroups > 1) {
     headerSize += sizeof(quint32) * numGroups;
-    // }
 
     // update type
     gfx.type = D1CEL_TYPE::V1_COMPILATION;
-    // update clipped info
-    bool clippedForced = params.clipped != SAVE_CLIPPED_TYPE::AUTODETECT;
-    for (int n = 0; n < numFrames; n++) {
-        D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPED_TYPE::TRUE) || (!clippedForced && frame->isClipped());
-    }
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
     for (int n = 0; n < numFrames; n++) {
@@ -333,42 +303,25 @@ bool D1Cel::writeCompFileData(D1Gfx &gfx, QFile &outFile, const SaveAsParam &par
     return true;
 }
 
-bool D1Cel::save(D1Gfx &gfx, const SaveAsParam &params)
+bool D1Cel::save(D1Gfx &gfx, const QString &gfxPath)
 {
-    QString filePath = gfx.gfxFilePath;
-    if (!params.celFilePath.isEmpty()) {
-        filePath = params.celFilePath;
-        if (QFile::exists(filePath)) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
-            if (reply != QMessageBox::Yes) {
-                return false;
-            }
-        }
-    }
-
-    QFile outFile = QFile(filePath);
+    QFile outFile = QFile(gfxPath);
     if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
-        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + gfxPath);
         return false;
     }
 
-    D1CEL_TYPE type;
-    if (params.groupNum == 0) {
-        type = gfx.type;
-    } else {
-        type = params.groupNum > 1 ? D1CEL_TYPE::V1_COMPILATION : D1CEL_TYPE::V1_REGULAR;
-    }
+    D1CEL_TYPE type = gfx.type;
 
     bool result;
     if (type == D1CEL_TYPE::V1_COMPILATION) {
-        result = D1Cel::writeCompFileData(gfx, outFile, params);
+        result = D1Cel::writeCompFileData(gfx, outFile);
     } else {
-        result = D1Cel::writeFileData(gfx, outFile, params);
+        result = D1Cel::writeFileData(gfx, outFile);
     }
 
     if (result) {
-        gfx.gfxFilePath = filePath; //  D1Cel::load(gfx, filePath);
+        gfx.gfxFilePath = gfxPath;
     }
     return result;
 }

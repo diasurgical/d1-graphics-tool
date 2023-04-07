@@ -70,19 +70,11 @@ bool D1Amp::load(QString filePath, int tileCount, const OpenAsParam &params)
     return true;
 }
 
-bool D1Amp::save(const SaveAsParam &params)
+bool D1Amp::save(const QString &gfxPath)
 {
-    QString filePath = this->getFilePath();
-    if (!params.ampFilePath.isEmpty()) {
-        filePath = params.ampFilePath;
-        if (QFile::exists(filePath)) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
-            if (reply != QMessageBox::Yes) {
-                return false;
-            }
-        }
-    }
+    QString filePath = gfxPath;
+    filePath.chop(3);
+    filePath += "amp";
 
     QFile outFile = QFile(filePath);
     if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
@@ -97,7 +89,7 @@ bool D1Amp::save(const SaveAsParam &params)
         out << this->properties[i];
     }
 
-    this->ampFilePath = filePath; // this->load(filePath, allocate);
+    this->ampFilePath = filePath;
 
     return true;
 }

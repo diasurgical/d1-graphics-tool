@@ -71,9 +71,6 @@ set(PROJECT_SOURCES
         source/palettewidget.cpp
         source/palettewidget.h
         source/palettewidget.ui
-        source/saveasdialog.cpp
-        source/saveasdialog.h
-        source/saveasdialog.ui
         source/settingsdialog.cpp
         source/settingsdialog.h
         source/settingsdialog.ui

@@ -5,11 +5,11 @@
 #include <QImage>
 #include <QList>
 #include <QMap>
+#include <QString>
 
 #include "d1celtilesetframe.h"
 #include "d1gfx.h"
 #include "d1sol.h"
-#include "saveasdialog.h"
 
 class D1Min : public QObject {
     Q_OBJECT
@@ -19,7 +19,7 @@ public:
     ~D1Min() = default;
 
     bool load(QString minFilePath, D1Gfx *gfx, D1Sol *sol, std::map<unsigned, D1CEL_FRAME_TYPE> &celFrameTypes, const OpenAsParam &params);
-    bool save(const SaveAsParam &params);
+    bool save(const QString &gfxPath);
 
     QImage getSubtileImage(int subtileIndex);
 

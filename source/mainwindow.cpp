@@ -741,31 +741,22 @@ void MainWindow::openPalFiles(QStringList filePaths, PaletteWidget *widget)
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::saveFile(const SaveAsParam &params)
+void MainWindow::saveFile(const QString &gfxPath)
 {
     this->ui->statusBar->showMessage("Saving...");
     this->ui->statusBar->repaint();
 
     bool change = false;
-    QString filePath = params.celFilePath.isEmpty() ? this->gfx->getFilePath() : params.celFilePath;
+    QString filePath = gfxPath.isEmpty() ? this->gfx->getFilePath() : gfxPath;
     if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL) {
-        if (!filePath.toLower().endsWith("cel")) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to save as " + filePath + "? Data conversion is not supported.", QMessageBox::Yes | QMessageBox::No);
-            if (reply != QMessageBox::Yes) {
-                // Clear loading message from status bar
-                this->ui->statusBar->clearMessage();
-                return;
-            }
-        }
-        change = D1CelTileset::save(*this->gfx, params);
+        change = D1CelTileset::save(*this->gfx, gfxPath);
     } else {
         if (filePath.toLower().endsWith("cel")) {
-            change = D1Cel::save(*this->gfx, params);
+            change = D1Cel::save(*this->gfx, gfxPath);
         } else if (filePath.toLower().endsWith("cl2")) {
-            change = D1Cl2::save(*this->gfx, false, params);
+            change = D1Cl2::save(*this->gfx, false, gfxPath);
         } else if (filePath.toLower().endsWith("clx")) {
-            change = D1Cl2::save(*this->gfx, true, params);
+            change = D1Cl2::save(*this->gfx, true, gfxPath);
         } else {
             QMessageBox::critical(this, "Error", "Not supported.");
             // Clear loading message from status bar
@@ -775,16 +766,16 @@ void MainWindow::saveFile(const SaveAsParam &params)
     }
 
     if (this->min != nullptr) {
-        change |= this->min->save(params);
+        change |= this->min->save(gfxPath);
     }
     if (this->til != nullptr) {
-        change |= this->til->save(params);
+        change |= this->til->save(gfxPath);
     }
     if (this->sol != nullptr) {
-        change |= this->sol->save(params);
+        change |= this->sol->save(gfxPath);
     }
     if (this->amp != nullptr) {
-        change |= this->amp->save(params);
+        change |= this->amp->save(gfxPath);
     }
 
     if (change) {
@@ -863,14 +854,56 @@ void MainWindow::on_actionSave_triggered()
         this->on_actionSaveAs_triggered();
         return;
     }
-    SaveAsParam params;
-    this->saveFile(params);
+    this->saveFile(this->gfx->getFilePath());
 }
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-    this->saveAsDialog.initialize(this->gfx, this->min, this->til, this->sol, this->amp);
-    this->saveAsDialog.show();
+    bool isTileset = this->gfx->getType() == D1CEL_TYPE::V1_LEVEL;
+
+    const char *filter = "CEL Files (*.cel)";
+    if (!isTileset) {
+        filter = "CEL/CL2/CLX Files (*.cel *.cl2 *.clx)";
+        if (this->gfx->getGroupCount() != 1) {
+            filter = "CL2/CLX Files (*.cl2 *.clx)";
+        }
+    }
+
+    QString filePath = this->fileDialog(FILE_DIALOG_MODE::SAVE_NO_CONF, "Save Graphics as...", filter);
+    if (filePath.isEmpty()) {
+        return;
+    }
+
+    QFileInfo fileInfo(filePath);
+    if (fileInfo.suffix().isEmpty()) {
+        filePath += isTileset ? ".cel" : ".cl2";
+    }
+
+    if (isTileset && fileInfo.suffix() != "cel") {
+        QMessageBox::critical(nullptr, "Error", "Only .cel is supported for tilesets.");
+        return;
+    }
+
+    if (this->gfx->getGroupCount() != 1 && fileInfo.suffix() == "cel") {
+        QMessageBox::critical(nullptr, "Error", "Group are not supported in cel files.");
+        return;
+    }
+
+    bool fileExists = QFile::exists(filePath);
+    if (isTileset) {
+        QString basePath = filePath;
+        basePath.chop(3);
+        fileExists |= QFile::exists(basePath + "min");
+        fileExists |= QFile::exists(basePath + "til");
+        fileExists |= QFile::exists(basePath + "sol");
+        fileExists |= QFile::exists(basePath + "amp");
+    }
+
+    if (fileExists && QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite?", QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+        return;
+    }
+
+    this->saveFile(filePath);
 }
 
 void MainWindow::on_actionClose_triggered()

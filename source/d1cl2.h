@@ -5,7 +5,6 @@
 
 #include "d1gfx.h"
 #include "openasdialog.h"
-#include "saveasdialog.h"
 
 class D1Cl2Frame {
     friend class D1Cl2;
@@ -20,8 +19,8 @@ private:
 class D1Cl2 {
 public:
     static bool load(D1Gfx &gfx, QString cl2FilePath, bool isClx, const OpenAsParam &params);
-    static bool save(D1Gfx &gfx, bool isClx, const SaveAsParam &params);
+    static bool save(D1Gfx &gfx, bool isClx, const QString &gfxPath);
 
 protected:
-    static bool writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const SaveAsParam &params);
+    static bool writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const QString &gfxPath);
 };

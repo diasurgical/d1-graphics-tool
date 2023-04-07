@@ -372,47 +372,25 @@ static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, bool isClx, int s
     return pBuf;
 }
 
-bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const SaveAsParam &params)
+bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const QString &gfxPath)
 {
     const int numFrames = gfx.frames.count();
 
     // calculate header size
     bool groupped = false;
-    int numGroups = params.groupNum;
     int headerSize = 0;
-    if (numGroups == 0) {
-        numGroups = gfx.getGroupCount();
-        groupped = numGroups > 1;
-        for (int i = 0; i < numGroups; i++) {
-            QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
-            int ni = gfi.second - gfi.first + 1;
-            headerSize += 4 + 4 * (ni + 1);
-        }
-    } else {
-        if (numFrames == 0 || (numFrames % numGroups) != 0) {
-            QMessageBox::critical(nullptr, "Error", "Frames can not be split to equal groups.");
-            return false;
-        }
-        groupped = true;
-        // update group indices
-        gfx.groupFrameIndices.clear();
-        for (int i = 0; i < numGroups; i++) {
-            int ni = numFrames / numGroups;
-            gfx.groupFrameIndices.append(qMakePair(i * ni, i * ni + ni - 1));
-            headerSize += 4 + 4 * (ni + 1);
-        }
+    int numGroups = gfx.getGroupCount();
+    groupped = numGroups > 1;
+    for (int i = 0; i < numGroups; i++) {
+        QPair<quint16, quint16> gfi = gfx.getGroupFrameIndices(i);
+        int ni = gfi.second - gfi.first + 1;
+        headerSize += 4 + 4 * (ni + 1);
     }
     if (groupped) {
         headerSize += sizeof(quint32) * numGroups;
     }
     // update type
     gfx.type = groupped ? D1CEL_TYPE::V2_MULTIPLE_GROUPS : D1CEL_TYPE::V2_MONO_GROUP;
-    // update clipped info
-    bool clippedForced = params.clipped != SAVE_CLIPPED_TYPE::AUTODETECT;
-    for (int n = 0; n < numFrames; n++) {
-        D1GfxFrame *frame = gfx.getFrame(n);
-        frame->clipped = (clippedForced && params.clipped == SAVE_CLIPPED_TYPE::TRUE) || (!clippedForced && frame->isClipped());
-    }
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
     for (int n = 0; n < numFrames; n++) {
@@ -472,30 +450,18 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const SaveAsPa
     return true;
 }
 
-bool D1Cl2::save(D1Gfx &gfx, bool isClx, const SaveAsParam &params)
+bool D1Cl2::save(D1Gfx &gfx, bool isClx, const QString &gfxPath)
 {
-    QString filePath = gfx.gfxFilePath;
-    if (!params.celFilePath.isEmpty()) {
-        filePath = params.celFilePath;
-        if (QFile::exists(filePath)) {
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(nullptr, "Confirmation", "Are you sure you want to overwrite " + filePath + "?", QMessageBox::Yes | QMessageBox::No);
-            if (reply != QMessageBox::Yes) {
-                return false;
-            }
-        }
-    }
-
-    QFile outFile = QFile(filePath);
+    QFile outFile = QFile(gfxPath);
     if (!outFile.open(QIODevice::WriteOnly | QFile::Truncate)) {
-        QMessageBox::critical(nullptr, "Error", "Failed open file: " + filePath);
+        QMessageBox::critical(nullptr, "Error", "Failed open file: " + gfxPath);
         return false;
     }
 
-    bool result = D1Cl2::writeFileData(gfx, outFile, isClx, params);
+    bool result = D1Cl2::writeFileData(gfx, outFile, isClx, gfxPath);
 
     if (result) {
-        gfx.gfxFilePath = filePath; // D1Cl2::load(gfx, filePath);
+        gfx.gfxFilePath = gfxPath;
     }
     return result;
 }

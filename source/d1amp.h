@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QList>
+#include <QString>
 
 #include "openasdialog.h"
-#include "saveasdialog.h"
 
 class D1Amp : public QObject {
     Q_OBJECT
@@ -13,7 +13,7 @@ public:
     ~D1Amp() = default;
 
     bool load(QString filePath, int tileCount, const OpenAsParam &params);
-    bool save(const SaveAsParam &params);
+    bool save(const QString &gfxPath);
 
     QString getFilePath();
     quint8 getTileType(quint16);
