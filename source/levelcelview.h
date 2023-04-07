@@ -65,16 +65,12 @@ public:
 
     void reportUsage();
     void resetFrameTypes();
-    void inefficientFrames();
     void cleanupFrames();
     void cleanupSubtiles();
     void cleanupTileset();
-    void compressSubtiles();
-    void compressTiles();
     void compressTileset();
     void sortFrames();
     void sortSubtiles();
-    void sortTileset();
 
     void displayFrame();
 

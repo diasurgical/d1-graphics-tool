@@ -135,20 +135,15 @@
      <bool>true</bool>
     </property>
     <addaction name="actionReportUse_Tileset"/>
-    <addaction name="actionResetFrameTypes_Tileset"/>
-    <addaction name="actionInefficientFrames_Tileset"/>
     <addaction name="separator"/>
-    <addaction name="actionCleanupFrames_Tileset"/>
-    <addaction name="actionCleanupSubtiles_Tileset"/>
-    <addaction name="actionCleanupTileset_Tileset"/>
-    <addaction name="separator"/>
-    <addaction name="actionCompressSubtiles_Tileset"/>
-    <addaction name="actionCompressTiles_Tileset"/>
     <addaction name="actionCompressTileset_Tileset"/>
+    <addaction name="actionResetFrameTypes_Tileset"/>
     <addaction name="separator"/>
-    <addaction name="actionSortFrames_Tileset"/>
+    <addaction name="actionCleanupSubtiles_Tileset"/>
+    <addaction name="actionCleanupFrames_Tileset"/>
+    <addaction name="separator"/>
     <addaction name="actionSortSubtiles_Tileset"/>
-    <addaction name="actionSortTileset_Tileset"/>
+    <addaction name="actionSortFrames_Tileset"/>
    </widget>
    <widget class="QMenu" name="menuPalette">
     <property name="title">
@@ -293,18 +288,10 @@
   </action>
   <action name="actionResetFrameTypes_Tileset">
    <property name="text">
-    <string>Reset Frame Types</string>
+    <string>Optimize Frames</string>
    </property>
    <property name="toolTip">
-    <string>Reinitialize the frame types of every frame</string>
-   </property>
-  </action>
-  <action name="actionInefficientFrames_Tileset">
-   <property name="text">
-    <string>Inefficient Frames</string>
-   </property>
-   <property name="toolTip">
-    <string>List frames which are almost standard</string>
+    <string>Use optimal compression type for all frames</string>
    </property>
   </action>
   <action name="actionCleanupFrames_Tileset">
@@ -312,7 +299,7 @@
     <string>Cleanup frames</string>
    </property>
    <property name="toolTip">
-    <string>Eliminate unused frames</string>
+    <string>Delete frames not used by any subtile</string>
    </property>
   </action>
   <action name="actionCleanupSubtiles_Tileset">
@@ -320,39 +307,15 @@
     <string>Cleanup Subtiles</string>
    </property>
    <property name="toolTip">
-    <string>Eliminate unused subtiles</string>
-   </property>
-  </action>
-  <action name="actionCleanupTileset_Tileset">
-   <property name="text">
-    <string>Cleanup Tileset</string>
-   </property>
-   <property name="toolTip">
-    <string>Eliminate unused subtiles and frames</string>
-   </property>
-  </action>
-  <action name="actionCompressSubtiles_Tileset">
-   <property name="text">
-    <string>Compress Subtiles</string>
-   </property>
-   <property name="toolTip">
-    <string>Reuse frames in subtiles</string>
-   </property>
-  </action>
-  <action name="actionCompressTiles_Tileset">
-   <property name="text">
-    <string>Compress Tiles</string>
-   </property>
-   <property name="toolTip">
-    <string>Reuse subtiles in tiles</string>
+    <string>Delete subtiles not used by any tile</string>
    </property>
   </action>
   <action name="actionCompressTileset_Tileset">
    <property name="text">
-    <string>Compress Tileset</string>
+    <string>Deduplicate Tileset</string>
    </property>
    <property name="toolTip">
-    <string>Reuse subtiles in tiles and frames in subtiles</string>
+    <string>Deduplicate frames and subtiles</string>
    </property>
   </action>
   <action name="actionSortFrames_Tileset">
@@ -369,14 +332,6 @@
    </property>
    <property name="toolTip">
     <string>Sort the subtiles based on the tiles</string>
-   </property>
-  </action>
-  <action name="actionSortTileset_Tileset">
-   <property name="text">
-    <string>Sort Tileset</string>
-   </property>
-   <property name="toolTip">
-    <string>Sort the subtiles and frames based on the tiles</string>
    </property>
   </action>
   <action name="actionSave_PAL">

@@ -1116,17 +1116,6 @@ void MainWindow::on_actionResetFrameTypes_Tileset_triggered()
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::on_actionInefficientFrames_Tileset_triggered()
-{
-    this->ui->statusBar->showMessage("Processing...");
-    this->ui->statusBar->repaint();
-
-    this->levelCelView->inefficientFrames();
-
-    // Clear loading message from status bar
-    this->ui->statusBar->clearMessage();
-}
-
 void MainWindow::on_actionCleanupFrames_Tileset_triggered()
 {
     this->ui->statusBar->showMessage("Processing...");
@@ -1144,39 +1133,6 @@ void MainWindow::on_actionCleanupSubtiles_Tileset_triggered()
     this->ui->statusBar->repaint();
 
     this->levelCelView->cleanupSubtiles();
-
-    // Clear loading message from status bar
-    this->ui->statusBar->clearMessage();
-}
-
-void MainWindow::on_actionCleanupTileset_Tileset_triggered()
-{
-    this->ui->statusBar->showMessage("Processing...");
-    this->ui->statusBar->repaint();
-
-    this->levelCelView->cleanupTileset();
-
-    // Clear loading message from status bar
-    this->ui->statusBar->clearMessage();
-}
-
-void MainWindow::on_actionCompressSubtiles_Tileset_triggered()
-{
-    this->ui->statusBar->showMessage("Processing...");
-    this->ui->statusBar->repaint();
-
-    this->levelCelView->compressSubtiles();
-
-    // Clear loading message from status bar
-    this->ui->statusBar->clearMessage();
-}
-
-void MainWindow::on_actionCompressTiles_Tileset_triggered()
-{
-    this->ui->statusBar->showMessage("Processing...");
-    this->ui->statusBar->repaint();
-
-    this->levelCelView->compressTiles();
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
@@ -1210,17 +1166,6 @@ void MainWindow::on_actionSortSubtiles_Tileset_triggered()
     this->ui->statusBar->repaint();
 
     this->levelCelView->sortSubtiles();
-
-    // Clear loading message from status bar
-    this->ui->statusBar->clearMessage();
-}
-
-void MainWindow::on_actionSortTileset_Tileset_triggered()
-{
-    this->ui->statusBar->showMessage("Processing...");
-    this->ui->statusBar->repaint();
-
-    this->levelCelView->sortTileset();
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
