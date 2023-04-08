@@ -98,6 +98,10 @@ public slots:
     void on_actionReplace_Tile_triggered();
     void on_actionDel_Tile_triggered();
 
+    void buildRecentFilesMenu();
+    void addRecentFile(QString filePath);
+    void on_actionClear_History_triggered();
+
 private slots:
     void on_actionNew_Sprite_triggered();
     void on_actionNew_Tileset_triggered();

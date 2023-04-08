@@ -19,22 +19,17 @@ void Config::loadConfiguration()
         QJsonDocument loadJsonDoc = QJsonDocument::fromJson(loadJson.readAll());
         theConfig = loadJsonDoc.object();
         loadJson.close();
+    }
 
-        if (!theConfig.contains("LastFilePath")) {
-            theConfig.insert("LastFilePath", jsonFilePath);
-            configurationModified = true;
-        }
-        if (!theConfig.contains("PaletteDefaultColor")) {
-            theConfig.insert("PaletteDefaultColor", "#FF00FF");
-            configurationModified = true;
-        }
-        if (!theConfig.contains("PaletteSelectionBorderColor")) {
-            theConfig.insert("PaletteSelectionBorderColor", "#FF0000");
-            configurationModified = true;
-        }
-    } else {
+    if (!theConfig.contains("LastFilePath")) {
         theConfig.insert("LastFilePath", jsonFilePath);
+        configurationModified = true;
+    }
+    if (!theConfig.contains("PaletteDefaultColor")) {
         theConfig.insert("PaletteDefaultColor", "#FF00FF");
+        configurationModified = true;
+    }
+    if (!theConfig.contains("PaletteSelectionBorderColor")) {
         theConfig.insert("PaletteSelectionBorderColor", "#FF0000");
         configurationModified = true;
     }

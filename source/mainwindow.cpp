@@ -46,8 +46,12 @@ MainWindow::MainWindow(QWidget *parent)
     this->undoStack = new QUndoStack(this);
     this->undoAction = undoStack->createUndoAction(this, "Undo");
     this->undoAction->setShortcuts(QKeySequence::Undo);
+    this->ui->menuEdit->addAction(this->undoAction);
     this->redoAction = undoStack->createRedoAction(this, "Redo");
     this->redoAction->setShortcuts(QKeySequence::Redo);
+    this->ui->menuEdit->addAction(this->redoAction);
+    this->ui->menuEdit->addSeparator();
+
     this->ui->menuEdit->addAction(this->undoAction);
     this->ui->menuEdit->addAction(this->redoAction);
     this->ui->menuEdit->addSeparator();
@@ -79,6 +83,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->tileMenu.addAction("Replace", this, SLOT(on_actionReplace_Tile_triggered()))->setToolTip("Replace the current tile");
     this->tileMenu.addAction("Delete", this, SLOT(on_actionDel_Tile_triggered()))->setToolTip("Delete the current tile");
     this->ui->menuEdit->addMenu(&this->tileMenu);
+
+    this->buildRecentFilesMenu();
 
     this->on_actionClose_triggered();
     setAcceptDrops(true);
@@ -446,6 +452,8 @@ void MainWindow::openFile(const OpenAsParam &params)
         && !openFilePath.endsWith(".clx")) {
         return;
     }
+
+    this->addRecentFile(openFilePath);
 
     this->on_actionClose_triggered();
 
@@ -1098,6 +1106,51 @@ void MainWindow::on_actionDel_Tile_triggered()
 {
     this->levelCelView->removeCurrentTile();
     this->updateWindow();
+}
+
+void MainWindow::buildRecentFilesMenu()
+{
+    this->ui->menuOpen_Recent->clear();
+    for (int i = 0; i < 10; i++) {
+        QString recentFile = Config::value("RecentFile" + QString::number(i)).toString();
+        if (recentFile.isEmpty())
+            break;
+
+        QFileInfo fileInfo(recentFile);
+        QAction *recentFileAction = this->ui->menuOpen_Recent->addAction(fileInfo.fileName());
+        connect(recentFileAction, &QAction::triggered, this, [this, filePath = recentFile] {
+            OpenAsParam params;
+            params.celFilePath = filePath;
+            this->openFile(params);
+        });
+    }
+
+    this->ui->menuOpen_Recent->addSeparator();
+    this->ui->menuOpen_Recent->addAction("Clear History", this, SLOT(on_actionClear_History_triggered()));
+}
+
+void MainWindow::addRecentFile(QString filePath)
+{
+    for (int i = 0; i < 10; i++) {
+        QString recentFile = Config::value("RecentFile" + QString::number(i)).toString();
+        if (recentFile.isEmpty())
+            break;
+        if (recentFile == filePath)
+            return;
+    }
+    for (int i = 0; i < 9; i++) {
+        Config::insert("RecentFile" + QString::number(9 - i), Config::value("RecentFile" + QString::number(8 - i)).toString());
+    }
+    Config::insert("RecentFile0", filePath);
+    this->buildRecentFilesMenu();
+}
+
+void MainWindow::on_actionClear_History_triggered()
+{
+    for (int i = 0; i < 10; i++) {
+        Config::insert("RecentFile" + QString::number(i), "");
+    }
+    this->buildRecentFilesMenu();
 }
 
 void MainWindow::on_actionReportUse_Tileset_triggered()

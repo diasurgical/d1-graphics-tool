@@ -105,19 +105,34 @@
    </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1200</width>
+     <height>22</height>
+    </rect>
+   </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuOpen_Recent">
+     <property name="title">
+      <string>Open Recent</string>
+     </property>
+    </widget>
     <addaction name="actionOpen"/>
     <addaction name="actionOpenAs"/>
+    <addaction name="menuOpen_Recent"/>
+    <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
-    <addaction name="actionClose"/>
     <addaction name="actionExport"/>
     <addaction name="separator"/>
     <addaction name="actionSettings"/>
     <addaction name="separator"/>
+    <addaction name="actionClose"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -408,6 +423,11 @@
    </property>
    <property name="toolTip">
     <string>Clone current tile</string>
+   </property>
+  </action>
+  <action name="actionClear_History">
+   <property name="text">
+    <string>Clear History</string>
    </property>
   </action>
  </widget>
