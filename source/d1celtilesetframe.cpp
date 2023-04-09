@@ -14,7 +14,6 @@ bool D1CelTilesetFrame::load(D1GfxFrame &frame, D1CEL_FRAME_TYPE type, QByteArra
     frame.width = MICRO_WIDTH;
     frame.height = MICRO_HEIGHT;
     frame.frameType = type;
-    frame.clipped = false;
     switch (type) {
     case D1CEL_FRAME_TYPE::Square:
         D1CelTilesetFrame::LoadSquare(frame, rawData);

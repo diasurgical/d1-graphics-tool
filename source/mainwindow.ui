@@ -143,6 +143,9 @@
     <addaction name="actionAbout_Qt"/>
    </widget>
    <widget class="QMenu" name="menuTileset">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="title">
      <string>Tileset</string>
     </property>
@@ -187,8 +190,18 @@
      <string>Edit</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuSprite">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="title">
+     <string>Sprite</string>
+    </property>
+    <addaction name="actionCelHeader"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuSprite"/>
    <addaction name="menuTileset"/>
    <addaction name="menuPalette"/>
    <addaction name="menuHelp"/>
@@ -294,6 +307,9 @@
    </property>
   </action>
   <action name="actionReportUse_Tileset">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Usage Report</string>
    </property>
@@ -428,6 +444,20 @@
   <action name="actionClear_History">
    <property name="text">
     <string>Clear History</string>
+   </property>
+  </action>
+  <action name="actionCelHeader">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Include header</string>
+   </property>
+   <property name="toolTip">
+    <string>Write the clipping header format if saved as CEL</string>
    </property>
   </action>
  </widget>

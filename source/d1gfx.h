@@ -49,7 +49,6 @@ public:
     int getWidth() const;
     int getHeight() const;
     D1GfxPixel getPixel(int x, int y) const;
-    bool isClipped() const;
     D1CEL_FRAME_TYPE getFrameType() const;
     void setFrameType(D1CEL_FRAME_TYPE type);
 
@@ -57,18 +56,8 @@ protected:
     int width = 0;
     int height = 0;
     QList<QList<D1GfxPixel>> pixels;
-    // fields of cel/cl2-frames
-    bool clipped = false;
     // fields of tileset-frames
     D1CEL_FRAME_TYPE frameType = D1CEL_FRAME_TYPE::TransparentSquare;
-};
-
-enum class D1CEL_TYPE {
-    V1_REGULAR,
-    V1_COMPILATION,
-    V1_LEVEL,
-    V2_MONO_GROUP,
-    V2_MULTIPLE_GROUPS,
 };
 
 class D1Gfx : public QObject {
@@ -89,8 +78,9 @@ public:
     void removeFrame(quint16 frameIndex);
     void remapFrames(const QMap<unsigned, unsigned> &remap);
 
-    D1CEL_TYPE getType() const;
-    void setType(D1CEL_TYPE type);
+    bool isTileset() const;
+    bool hasHeader() const;
+    void setHasHeader(bool hasHeader);
     QString getFilePath();
     D1Pal *getPalette();
     void setPalette(D1Pal *pal);
@@ -102,7 +92,8 @@ public:
     int getFrameHeight(int frameIndex);
 
 protected:
-    D1CEL_TYPE type = D1CEL_TYPE::V1_REGULAR;
+    bool isTileset_ = false;
+    bool hasHeader_ = true;
     QString gfxFilePath;
     D1Pal *palette = nullptr;
     QList<QPair<quint16, quint16>> groupFrameIndices;

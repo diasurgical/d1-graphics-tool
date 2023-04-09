@@ -45,24 +45,12 @@ void ExportDialog::initialize(D1Gfx *g, D1Min *m, D1Til *t, D1Sol *s, D1Amp *a)
     fmtBox->addItems(formatTxts);
     fmtBox->setCurrentIndex(fmtBox->findText(lastFmt));
 
-    // initialize files count
-    /*this->ui->filesCountComboBox->setEnabled(multiFrame);
-    if (!multiFrame) {
-        this->ui->filesCountComboBox->setCurrentIndex(0);
-    }*/
-
     // initialize content type
-    bool isTileset = this->gfx->getType() == D1CEL_TYPE::V1_LEVEL;
+    bool isTileset = this->gfx->isTileset();
     this->ui->contentTypeComboBox->setEnabled(isTileset);
     if (!isTileset) {
         this->ui->contentTypeComboBox->setCurrentIndex(0);
     }
-
-    // initialize content placement
-    /*this->ui->contentPlacementComboBox->setEnabled(multiFrame);
-    if (!multiFrame) {
-        this->ui->contentPlacementComboBox->setCurrentIndex(0);
-    }*/
 }
 
 QString ExportDialog::getFileFormatExtension()
@@ -500,7 +488,7 @@ bool ExportDialog::exportFrames(QProgressDialog &progress)
 
     int placement = this->ui->contentPlacementComboBox->currentIndex();
     if (placement == 0) { // grouped
-        if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL) {
+        if (this->gfx->isTileset()) {
             // artifical grouping of a tileset
             int groupImageWidth = 0;
             int groupImageHeight = 0;
@@ -549,7 +537,7 @@ bool ExportDialog::exportFrames(QProgressDialog &progress)
     QPainter painter(&tempOutputImage);
 
     if (placement == 0) { // grouped
-        if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL) {
+        if (this->gfx->isTileset()) {
             // artifical grouping of a tileset
             int cursorY = 0;
             int cursorX = 0;

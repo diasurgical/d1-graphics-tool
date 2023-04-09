@@ -29,9 +29,8 @@ static quint8 getPalColor(D1Pal *pal, QColor color)
     return res;
 }
 
-bool D1ImageFrame::load(D1GfxFrame &frame, const QImage &image, bool clipped, D1Pal *pal)
+bool D1ImageFrame::load(D1GfxFrame &frame, const QImage &image, D1Pal *pal)
 {
-    frame.clipped = clipped;
     frame.width = image.width();
     frame.height = image.height();
 

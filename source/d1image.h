@@ -11,5 +11,5 @@
 
 class D1ImageFrame {
 public:
-    static bool load(D1GfxFrame &frame, const QImage &image, bool clipped, D1Pal *pal);
+    static bool load(D1GfxFrame &frame, const QImage &image, D1Pal *pal);
 };

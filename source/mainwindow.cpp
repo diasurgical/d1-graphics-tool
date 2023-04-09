@@ -554,9 +554,6 @@ void MainWindow::openFile(const OpenAsParam &params)
             QMessageBox::critical(this, "Error", "Failed loading CLX file: " + openFilePath);
             return;
         }
-    } else {
-        // openFilePath.isEmpty()
-        this->gfx->setType(params.clipped == OPEN_CLIPPED_TYPE::TRUE ? D1CEL_TYPE::V2_MONO_GROUP : D1CEL_TYPE::V1_REGULAR);
     }
 
     // Add palette widgets for PAL and TRNs
@@ -670,6 +667,8 @@ void MainWindow::openFile(const OpenAsParam &params)
     // this->ui->palFrame->layout()->addWidget( this->palView );
 
     // update available menu entries
+    this->ui->menuSprite->setEnabled(!isTileset);
+    this->ui->actionCelHeader->setChecked(this->gfx->hasHeader());
     this->ui->menuEdit->setEnabled(true);
     this->ui->menuPalette->setEnabled(true);
     this->ui->actionExport->setEnabled(true);
@@ -756,10 +755,11 @@ void MainWindow::saveFile(const QString &gfxPath)
 
     bool change = false;
     QString filePath = gfxPath.isEmpty() ? this->gfx->getFilePath() : gfxPath;
-    if (this->gfx->getType() == D1CEL_TYPE::V1_LEVEL) {
+    if (this->gfx->isTileset()) {
         change = D1CelTileset::save(*this->gfx, gfxPath);
     } else {
         if (filePath.toLower().endsWith("cel")) {
+            this->gfx->setHasHeader(this->ui->actionCelHeader->isChecked());
             change = D1Cel::save(*this->gfx, gfxPath);
         } else if (filePath.toLower().endsWith("cl2")) {
             change = D1Cl2::save(*this->gfx, false, gfxPath);
@@ -867,7 +867,7 @@ void MainWindow::on_actionSave_triggered()
 
 void MainWindow::on_actionSaveAs_triggered()
 {
-    bool isTileset = this->gfx->getType() == D1CEL_TYPE::V1_LEVEL;
+    bool isTileset = this->gfx->isTileset();
 
     const char *filter = "CEL Files (*.cel)";
     if (!isTileset) {
@@ -889,11 +889,6 @@ void MainWindow::on_actionSaveAs_triggered()
 
     if (isTileset && fileInfo.suffix() != "cel") {
         QMessageBox::critical(nullptr, "Error", "Only .cel is supported for tilesets.");
-        return;
-    }
-
-    if (this->gfx->getGroupCount() != 1 && fileInfo.suffix() == "cel") {
-        QMessageBox::critical(nullptr, "Error", "Group are not supported in cel files.");
         return;
     }
 
@@ -942,6 +937,7 @@ void MainWindow::on_actionClose_triggered()
 
     // update available menu entries
     this->ui->menuEdit->setEnabled(false);
+    this->ui->menuSprite->setEnabled(false);
     this->ui->menuTileset->setEnabled(false);
     this->ui->menuPalette->setEnabled(false);
     this->ui->actionExport->setEnabled(false);

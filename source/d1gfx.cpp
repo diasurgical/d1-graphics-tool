@@ -51,11 +51,6 @@ D1GfxPixel D1GfxFrame::getPixel(int x, int y) const
     return D1GfxPixel::transparentPixel();
 }
 
-bool D1GfxFrame::isClipped() const
-{
-    return this->clipped;
-}
-
 D1CEL_FRAME_TYPE D1GfxFrame::getFrameType() const
 {
     return this->frameType;
@@ -116,16 +111,8 @@ QImage D1Gfx::getFrameImage(quint16 frameIndex)
 
 D1GfxFrame *D1Gfx::insertFrame(int idx, const QImage &image)
 {
-    bool clipped;
-
-    if (!this->frames.isEmpty()) {
-        clipped = this->frames[0].isClipped();
-    } else {
-        clipped = this->type == D1CEL_TYPE::V2_MONO_GROUP || this->type == D1CEL_TYPE::V2_MULTIPLE_GROUPS;
-    }
-
     D1GfxFrame frame;
-    D1ImageFrame::load(frame, image, clipped, this->palette);
+    D1ImageFrame::load(frame, image, this->palette);
     this->frames.insert(idx, frame);
 
     if (this->groupFrameIndices.isEmpty()) {
@@ -150,10 +137,8 @@ D1GfxFrame *D1Gfx::insertFrame(int idx, const QImage &image)
 
 D1GfxFrame *D1Gfx::replaceFrame(int idx, const QImage &image)
 {
-    bool clipped = this->frames[idx].isClipped();
-
     D1GfxFrame frame;
-    D1ImageFrame::load(frame, image, clipped, this->palette);
+    D1ImageFrame::load(frame, image, this->palette);
     this->frames[idx] = frame;
 
     return &this->frames[idx];
@@ -188,14 +173,19 @@ void D1Gfx::remapFrames(const QMap<unsigned, unsigned> &remap)
     this->frames.swap(newFrames);
 }
 
-D1CEL_TYPE D1Gfx::getType() const
+bool D1Gfx::isTileset() const
 {
-    return this->type;
+    return this->isTileset_;
 }
 
-void D1Gfx::setType(D1CEL_TYPE type)
+bool D1Gfx::hasHeader() const
 {
-    this->type = type;
+    return this->hasHeader_;
+}
+
+void D1Gfx::setHasHeader(bool hasHeader)
+{
+    this->hasHeader_ = hasHeader;
 }
 
 QString D1Gfx::getFilePath()
