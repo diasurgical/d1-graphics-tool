@@ -115,6 +115,8 @@ private slots:
     void on_actionSettings_triggered();
     void on_actionQuit_triggered();
 
+    void on_actionRegroupFrames_triggered();
+
     void on_actionReportUse_Tileset_triggered();
     void on_actionResetFrameTypes_Tileset_triggered();
     void on_actionCleanupFrames_Tileset_triggered();

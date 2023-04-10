@@ -122,7 +122,6 @@ bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
 
     // BUILDING {CEL FRAMES}
 
-
     if (params.clipped == OPEN_CLIPPED_TYPE::AUTODETECT) {
         fileBuffer.seek(frameOffsets[0].first);
         QDataStream header(fileBuffer.read(2));

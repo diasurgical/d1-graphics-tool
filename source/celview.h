@@ -55,6 +55,7 @@ public:
     void insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void replaceCurrentFrame(const QString &imagefilePath);
     void removeCurrentFrame();
+    void regroupFrames(int numGroups);
 
     void displayFrame();
 
@@ -63,6 +64,7 @@ signals:
     void colorIndexClicked(quint8);
 
 private:
+    void update();
     void insertFrame(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
     void updateGroupIndex();
     void setGroupIndex();

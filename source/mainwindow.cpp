@@ -6,6 +6,7 @@
 #include <QFileInfo>
 #include <QGraphicsScene>
 #include <QImageReader>
+#include <QInputDialog>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
@@ -394,6 +395,23 @@ void MainWindow::on_actionNew_Tileset_triggered()
     OpenAsParam params;
     params.isTileset = OPEN_TILESET_TYPE::TRUE;
     this->openFile(params);
+}
+
+void MainWindow::on_actionRegroupFrames_triggered()
+{
+    bool ok;
+    int numGroups = QInputDialog::getInt(this, "Regroup Frames", "Groups:", 8, 1, 127, 1, &ok, Qt::WindowFlags());
+    if (!ok)
+        return;
+
+    // update group indices
+    const int numFrames = this->gfx->getFrameCount();
+    if (numFrames == 0 || (numFrames % numGroups) != 0) {
+        QMessageBox::critical(nullptr, "Error", QString::number(numFrames) + " frames can not be split equally in " + QString::number(numGroups) + " groups.");
+        return;
+    }
+
+    this->celView->regroupFrames(numGroups);
 }
 
 void MainWindow::on_actionOpen_triggered()

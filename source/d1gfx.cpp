@@ -163,6 +163,18 @@ void D1Gfx::removeFrame(quint16 idx)
     }
 }
 
+void D1Gfx::regroupFrames(int numGroups)
+{
+    const int numFrames = this->frames.count();
+
+    // update group indices
+    this->groupFrameIndices.clear();
+    for (int i = 0; i < numGroups; i++) {
+        int ni = numFrames / numGroups;
+        this->groupFrameIndices.append(qMakePair(i * ni, i * ni + ni - 1));
+    }
+}
+
 void D1Gfx::remapFrames(const QMap<unsigned, unsigned> &remap)
 {
     QList<D1GfxFrame> newFrames;

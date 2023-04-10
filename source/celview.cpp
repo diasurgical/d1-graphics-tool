@@ -99,8 +99,8 @@ void CelView::initialize(D1Gfx *g)
     this->gfx = g;
 
     // Displaying CEL file path information
-    QFileInfo celFileInfo(this->gfx->getFilePath());
-    ui->celLabel->setText(celFileInfo.fileName());
+    QFileInfo gfxFileInfo(this->gfx->getFilePath());
+    ui->celLabel->setText(gfxFileInfo.fileName());
 
     ui->groupNumberEdit->setText(
         QString::number(this->gfx->getGroupCount()));
@@ -208,6 +208,12 @@ void CelView::removeCurrentFrame()
     this->displayFrame();
 }
 
+void CelView::regroupFrames(int numGroups)
+{
+    this->gfx->regroupFrames(numGroups);
+    this->on_firstFrameButton_clicked();
+}
+
 void CelView::displayFrame()
 {
     this->celScene->clear();
@@ -239,6 +245,9 @@ void CelView::displayFrame()
     // Set current group text
     this->ui->groupIndexEdit->setText(
         QString::number(this->gfx->getGroupCount() != 0 ? this->currentGroupIndex + 1 : 0));
+
+    ui->groupNumberEdit->setText(
+        QString::number(this->gfx->getGroupCount() != 0 ? this->gfx->getGroupCount() : 0));
 
     // Set current frame text
     this->ui->frameIndexEdit->setText(

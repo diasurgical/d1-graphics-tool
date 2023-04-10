@@ -76,6 +76,7 @@ public:
     D1GfxFrame *insertFrame(int frameIndex, const QImage &image);
     D1GfxFrame *replaceFrame(int frameIndex, const QImage &image);
     void removeFrame(quint16 frameIndex);
+    void regroupFrames(int count);
     void remapFrames(const QMap<unsigned, unsigned> &remap);
 
     bool isTileset() const;
