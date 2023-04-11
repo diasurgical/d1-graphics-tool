@@ -273,83 +273,151 @@ bool D1Cl2::load(D1Gfx &gfx, QString filePath, bool isClx, const OpenAsParam &pa
     return true;
 }
 
+namespace {
+
+quint8 *AppendClxFillRun(uint8_t color, unsigned width, quint8 *pBuf)
+{
+    while (width >= 0x3F) {
+        *pBuf = 0x80;
+        pBuf++;
+        *pBuf = color;
+        pBuf++;
+        width -= 0x3F;
+    }
+    if (width == 0)
+        return pBuf;
+    *pBuf = 0xBF - width;
+    pBuf++;
+    *pBuf = color;
+    pBuf++;
+    return pBuf;
+}
+
+quint8 *AppendClxPixelsRun(D1GfxFrame *frame, int x, int y, unsigned width, quint8 *pBuf)
+{
+    while (width >= 0x41) {
+        *pBuf = 0xBF;
+        pBuf++;
+        for (size_t i = 0; i < 0x41; ++i) {
+            *pBuf = frame->getPixel(x + i, y).getPaletteIndex();
+            pBuf++;
+        }
+        width -= 0x41;
+        x += 0x41;
+    }
+    if (width == 0)
+        return pBuf;
+    *pBuf = 256 - width;
+    pBuf++;
+    for (size_t i = 0; i < width; ++i) {
+        *pBuf = frame->getPixel(x + i, y).getPaletteIndex();
+        pBuf++;
+    }
+
+    return pBuf;
+}
+
+quint8 *AppendClxTransparentRun(unsigned width, quint8 *pBuf)
+{
+    while (width >= 0x7F) {
+        *pBuf = 0x7F;
+        pBuf++;
+        width -= 0x7F;
+    }
+    if (width == 0)
+        return pBuf;
+    *pBuf = width;
+    pBuf++;
+    return pBuf;
+}
+
+quint8 *AppendClxPixelsOrFillRun(D1GfxFrame *frame, int x, int y, unsigned length, quint8 *pBuf)
+{
+    int beginX = x;
+    int prevColorX = x;
+    unsigned prevColorRunLength = 1;
+    uint8_t prevColor = frame->getPixel(x, y).getPaletteIndex();
+    x++;
+    while (--length > 0) {
+        const uint8_t color = frame->getPixel(x, y).getPaletteIndex();
+        if (prevColor == color) {
+            ++prevColorRunLength;
+        } else {
+            // A tunable parameter that decides at which minimum length we encode a fill run.
+            // 3 appears to be optimal for most of our data (much better than 2, rarely very slightly worse than 4).
+            constexpr unsigned MinFillRunLength = 3;
+            if (prevColorRunLength >= MinFillRunLength) {
+                pBuf = AppendClxPixelsRun(frame, beginX, y, prevColorX - beginX, pBuf);
+                pBuf = AppendClxFillRun(prevColor, prevColorRunLength, pBuf);
+                beginX = x;
+            }
+            prevColorX = x;
+            prevColorRunLength = 1;
+            prevColor = color;
+        }
+        x++;
+    }
+
+    // Here we use 2 instead of `MinFillRunLength` because we know that this run
+    // is followed by transparent pixels.
+    // Width=2 Fill command takes 2 bytes, while the Pixels command is 3 bytes.
+    if (prevColorRunLength >= 2) {
+        pBuf = AppendClxPixelsRun(frame, beginX, y, prevColorX - beginX, pBuf);
+        pBuf = AppendClxFillRun(prevColor, prevColorRunLength, pBuf);
+    } else {
+        pBuf = AppendClxPixelsRun(frame, beginX, y, prevColorX - beginX + prevColorRunLength, pBuf);
+    }
+    return pBuf;
+}
+
+} // namespace
+
 static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, bool isClx, int subHeaderSize)
 {
-    const int RLE_LEN = 3; // number of matching colors to switch from bmp encoding to RLE
-
     // convert one image to cl2-data
-    quint8 *pHeader = pBuf;
+    quint16 *pHeader = reinterpret_cast<quint16 *>(pBuf);
     // add CL2 FRAME HEADER
-    *(quint16 *)&pBuf[0] = SwapLE16(subHeaderSize); // SUB_HEADER_SIZE
-    *(quint32 *)&pBuf[2] = 0;
-    *(quint32 *)&pBuf[6] = 0;
+    pHeader[0] = SwapLE16(subHeaderSize); // SUB_HEADER_SIZE
+    pHeader[1] = 0; // row  -32
+    pHeader[2] = 0; // row  -64
+    pHeader[3] = 0; // row  -96
+    pHeader[4] = 0; // row -128
     pBuf += subHeaderSize;
 
-    quint8 *pHead = pBuf;
-    quint8 col, lastCol;
-    quint8 colMatches = 0;
-    bool alpha = false;
-    bool first = true;
+    unsigned transparentRunWidth = 0;
     for (int i = 1; i <= frame->getHeight(); i++) {
         if ((i % CEL_BLOCK_HEIGHT) == 1) {
-            pHead = pBuf;
-            *(quint16 *)(&pHeader[(i / CEL_BLOCK_HEIGHT) * 2]) = SwapLE16(pHead - pHeader); // pHead - buf - SUB_HEADER_SIZE;
-
-            colMatches = 0;
-            alpha = false;
-        }
-        first = true;
-        for (int j = 0; j < frame->getWidth(); j++) {
-            D1GfxPixel pixel = frame->getPixel(j, frame->getHeight() - i);
-            if (!pixel.isTransparent()) {
-                // add opaque pixel
-                col = pixel.getPaletteIndex();
-                if (alpha || first || col != lastCol)
-                    colMatches = 1;
-                else
-                    colMatches++;
-                if (colMatches < RLE_LEN || (char)*pHead <= -127) {
-                    // bmp encoding
-                    if (alpha || (char)*pHead <= -65 || first) {
-                        pHead = pBuf;
-                        pBuf++;
-                        colMatches = 1;
-                    }
-                    *pBuf = col;
-                    pBuf++;
-                } else {
-                    // RLE encoding
-                    if (colMatches == RLE_LEN) {
-                        memset(pBuf - (RLE_LEN - 1), 0, RLE_LEN - 1);
-                        *pHead += RLE_LEN - 1;
-                        if (*pHead != 0) {
-                            pHead = pBuf - (RLE_LEN - 1);
-                        }
-                        *pHead = -65 - (RLE_LEN - 1);
-                        pBuf = pHead + 1;
-                        *pBuf = col;
-                        pBuf++;
-                    }
-                }
-                --*pHead;
-
-                lastCol = col;
-                alpha = false;
-            } else {
-                // add transparent pixel
-                if (!alpha || (char)*pHead >= 127) {
-                    pHead = pBuf;
-                    pBuf++;
-                }
-                ++*pHead;
-                alpha = true;
+            if (transparentRunWidth != 0) {
+                pBuf = AppendClxTransparentRun(transparentRunWidth, pBuf);
+                transparentRunWidth = 0;
             }
-            first = false;
+            pHeader[i / CEL_BLOCK_HEIGHT] = SwapLE16(pBuf - reinterpret_cast<quint8 *>(pHeader)); // buf - SUB_HEADER_SIZE;
+        }
+        int y = frame->getHeight() - i;
+        // Process line:
+        unsigned solidRunWidth = 0;
+        for (int x = 0; x < frame->getWidth(); x++) {
+            D1GfxPixel pixel = frame->getPixel(x, y);
+            if (pixel.isTransparent()) {
+                if (solidRunWidth != 0) {
+                    pBuf = AppendClxPixelsOrFillRun(frame, x - transparentRunWidth - solidRunWidth, y, solidRunWidth, pBuf);
+                    solidRunWidth = 0;
+                }
+                ++transparentRunWidth;
+            } else {
+                pBuf = AppendClxTransparentRun(transparentRunWidth, pBuf);
+                transparentRunWidth = 0;
+                ++solidRunWidth;
+            }
+        }
+        if (solidRunWidth != 0) {
+            pBuf = AppendClxPixelsOrFillRun(frame, frame->getWidth() - solidRunWidth, y, solidRunWidth, pBuf);
         }
     }
+    pBuf = AppendClxTransparentRun(transparentRunWidth, pBuf);
     if (isClx) {
-        *(quint16 *)&pHeader[2] = SwapLE16(frame->getWidth());
-        *(quint16 *)&pHeader[4] = SwapLE16(frame->getHeight());
+        pHeader[1] = SwapLE16(frame->getWidth());
+        pHeader[2] = SwapLE16(frame->getHeight());
     }
     return pBuf;
 }
