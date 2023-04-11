@@ -56,7 +56,10 @@ bool D1Til::load(QString filePath, D1Min *m)
         }
         this->subtileIndices.append(subtileIndicesList);
     }
+
     this->tilFilePath = filePath;
+    this->modified = false;
+
     return true;
 }
 
@@ -83,7 +86,8 @@ bool D1Til::save(const QString &gfxPath)
         }
     }
 
-    this->tilFilePath = filePath; // this->load(filePath);
+    this->tilFilePath = filePath;
+    this->modified = false;
 
     return true;
 }
@@ -145,6 +149,11 @@ QImage D1Til::getFlatTileImage(int tileIndex)
     return tile;
 }
 
+bool D1Til::isModified() const
+{
+    return this->modified;
+}
+
 QString D1Til::getFilePath()
 {
     return this->tilFilePath;
@@ -163,6 +172,7 @@ QList<quint16> &D1Til::getSubtileIndices(int tileIndex)
 void D1Til::insertTile(int tileIndex, const QList<quint16> &subtileIndices)
 {
     this->subtileIndices.insert(tileIndex, subtileIndices);
+    this->modified = true;
 }
 
 void D1Til::createTile()
@@ -173,9 +183,11 @@ void D1Til::createTile()
         subtileIndices.append(0);
     }
     this->subtileIndices.append(subtileIndices);
+    this->modified = true;
 }
 
 void D1Til::removeTile(int tileIndex)
 {
     this->subtileIndices.removeAt(tileIndex);
+    this->modified = true;
 }

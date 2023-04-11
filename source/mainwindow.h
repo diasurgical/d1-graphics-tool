@@ -58,7 +58,6 @@ public:
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
 
-    void initPaletteCycle();
     void nextPaletteCycle(D1PAL_CYCLE_TYPE type);
     void resetPaletteCycle();
 
@@ -67,6 +66,9 @@ public:
     QStringList filesDialog(const char *title, const char *filter);
 
     static bool hasImageUrl(const QMimeData *mimeData);
+
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
     void updateWindow();
@@ -110,7 +112,9 @@ private slots:
     void on_actionOpenAs_triggered();
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
+    bool isOkToQuit();
     void on_actionClose_triggered();
+    void closeAllElements();
     void on_actionExport_triggered();
     void on_actionSettings_triggered();
     void on_actionQuit_triggered();
@@ -189,6 +193,4 @@ private:
 
     // Palette hits are instantiated in main window to make them available to the three PaletteWidgets
     QPointer<D1PalHits> palHits;
-    // buffer to store the original colors in case of color cycling
-    QColor origCyclePalette[32];
 };

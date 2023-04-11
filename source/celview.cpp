@@ -486,8 +486,6 @@ void CelView::on_playButton_clicked()
     this->ui->playComboBox->setEnabled(false);
     // enable the stop button
     this->ui->stopButton->setEnabled(true);
-    // preserve the palette
-    ((MainWindow *)this->window())->initPaletteCycle();
 
     this->playTimer.start(this->currentPlayDelay);
 }

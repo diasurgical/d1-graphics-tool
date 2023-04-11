@@ -15,6 +15,7 @@ public:
     bool load(QString filePath, int tileCount, const OpenAsParam &params);
     bool save(const QString &gfxPath);
 
+    bool isModified() const;
     QString getFilePath();
     quint8 getTileType(quint16);
     quint8 getTileProperties(quint16);
@@ -24,6 +25,7 @@ public:
     void removeTile(int tileIndex);
 
 private:
+    bool modified;
     QString ampFilePath;
     QList<quint8> types;
     QList<quint8> properties;

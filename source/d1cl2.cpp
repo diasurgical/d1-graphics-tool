@@ -378,10 +378,10 @@ static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, bool isClx, int s
     quint16 *pHeader = reinterpret_cast<quint16 *>(pBuf);
     // add CL2 FRAME HEADER
     pHeader[0] = SwapLE16(subHeaderSize); // SUB_HEADER_SIZE
-    pHeader[1] = 0; // row  -32
-    pHeader[2] = 0; // row  -64
-    pHeader[3] = 0; // row  -96
-    pHeader[4] = 0; // row -128
+    pHeader[1] = 0;                       // row  -32
+    pHeader[2] = 0;                       // row  -64
+    pHeader[3] = 0;                       // row  -96
+    pHeader[4] = 0;                       // row -128
     pBuf += subHeaderSize;
 
     unsigned transparentRunWidth = 0;
@@ -502,10 +502,11 @@ bool D1Cl2::save(D1Gfx &gfx, bool isClx, const QString &gfxPath)
         return false;
     }
 
-    bool result = D1Cl2::writeFileData(gfx, outFile, isClx, gfxPath);
+    bool success = D1Cl2::writeFileData(gfx, outFile, isClx, gfxPath);
 
-    if (result) {
+    if (success) {
+        gfx.modified = false;
         gfx.gfxFilePath = gfxPath;
     }
-    return result;
+    return success;
 }

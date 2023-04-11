@@ -189,10 +189,11 @@ bool D1CelTileset::save(D1Gfx &gfx, const QString &gfxPath)
         return false;
     }
 
-    bool result = D1CelTileset::writeFileData(gfx, outFile);
+    bool success = D1CelTileset::writeFileData(gfx, outFile);
 
-    if (result) {
+    if (success) {
+        gfx.modified = false;
         gfx.gfxFilePath = gfxPath;
     }
-    return result;
+    return success;
 }

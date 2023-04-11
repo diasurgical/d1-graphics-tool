@@ -315,15 +315,16 @@ bool D1Cel::save(D1Gfx &gfx, const QString &gfxPath)
         return false;
     }
 
-    bool result;
+    bool success;
     if (gfx.getGroupCount() > 1) {
-        result = D1Cel::writeCompFileData(gfx, outFile);
+        success = D1Cel::writeCompFileData(gfx, outFile);
     } else {
-        result = D1Cel::writeFileData(gfx, outFile);
+        success = D1Cel::writeFileData(gfx, outFile);
     }
 
-    if (result) {
+    if (success) {
+        gfx.modified = false;
         gfx.gfxFilePath = gfxPath;
     }
-    return result;
+    return success;
 }

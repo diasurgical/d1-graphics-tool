@@ -20,6 +20,7 @@
 #include <QTime>
 #include <QUndoCommand>
 #include <QUndoStack>
+#include <QtWidgets>
 
 #include "config.h"
 #include "d1cel.h"
@@ -87,14 +88,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     this->buildRecentFilesMenu();
 
-    this->on_actionClose_triggered();
+    this->closeAllElements();
     setAcceptDrops(true);
 }
 
 MainWindow::~MainWindow()
 {
     // close modal windows
-    this->on_actionClose_triggered();
+    this->closeAllElements();
     // store last path
     Config::insert("LastFilePath", this->lastFilePath);
     // cleanup memory
@@ -284,17 +285,9 @@ void MainWindow::paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_
     }
 }
 
-void MainWindow::initPaletteCycle()
-{
-    for (int i = 0; i < 32; i++)
-        this->origCyclePalette[i] = this->pal->getColor(i);
-}
-
 void MainWindow::resetPaletteCycle()
 {
-    for (int i = 0; i < 32; i++)
-        this->pal->setColor(i, this->origCyclePalette[i]);
-
+    this->pal->resetColors();
     this->palWidget->modify();
 }
 
@@ -473,7 +466,11 @@ void MainWindow::openFile(const OpenAsParam &params)
 
     this->addRecentFile(openFilePath);
 
-    this->on_actionClose_triggered();
+    if (!this->isOkToQuit()) {
+        return;
+    }
+
+    this->closeAllElements();
 
     this->ui->statusBar->showMessage("Loading...");
     this->ui->statusBar->repaint();
@@ -791,6 +788,8 @@ void MainWindow::saveFile(const QString &gfxPath)
         }
     }
 
+    this->gfx->setModified(false);
+
     if (this->min != nullptr) {
         change |= this->min->save(gfxPath);
     }
@@ -903,9 +902,7 @@ void MainWindow::on_actionSaveAs_triggered()
     QFileInfo fileInfo(filePath);
     if (fileInfo.suffix().isEmpty()) {
         filePath += isTileset ? ".cel" : ".cl2";
-    }
-
-    if (isTileset && fileInfo.suffix() != "cel") {
+    } else if (isTileset && fileInfo.suffix() != "cel") {
         QMessageBox::critical(nullptr, "Error", "Only .cel is supported for tilesets.");
         return;
     }
@@ -927,7 +924,76 @@ void MainWindow::on_actionSaveAs_triggered()
     this->saveFile(filePath);
 }
 
+namespace {
+
+bool QuestionDiscardChanges(bool isModified, QString filePath)
+{
+    if (isModified) {
+        QString message = "Discard unsaved changes?";
+        if (!filePath.isEmpty()) {
+            QFileInfo fileInfo(filePath);
+            message = "Discard changes to " + fileInfo.fileName() + "?";
+        }
+
+        if (QMessageBox::question(nullptr, "Confirmation", message, QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+} // namespace
+
+bool MainWindow::isOkToQuit()
+{
+    for (D1Pal *pallete : this->pals) {
+        if (!QuestionDiscardChanges(pallete->isModified(), pallete->getFilePath())) {
+            return false;
+        }
+    }
+
+    for (D1Trn *translation : this->trn1s) {
+        if (!QuestionDiscardChanges(translation->isModified(), translation->getFilePath())) {
+            return false;
+        }
+    }
+
+    for (D1Trn *translation : this->trn2s) {
+        if (!QuestionDiscardChanges(translation->isModified(), translation->getFilePath())) {
+            return false;
+        }
+    }
+
+    if (this->min != nullptr && !QuestionDiscardChanges(this->min->isModified(), this->min->getFilePath())) {
+        return false;
+    }
+    if (this->til != nullptr && !QuestionDiscardChanges(this->til->isModified(), this->til->getFilePath())) {
+        return false;
+    }
+    if (this->sol != nullptr && !QuestionDiscardChanges(this->sol->isModified(), this->sol->getFilePath())) {
+        return false;
+    }
+    if (this->amp != nullptr && !QuestionDiscardChanges(this->amp->isModified(), this->amp->getFilePath())) {
+        return false;
+    }
+    if (this->gfx != nullptr && !QuestionDiscardChanges(this->gfx->isModified(), this->gfx->getFilePath())) {
+        return false;
+    }
+
+    return true;
+}
+
 void MainWindow::on_actionClose_triggered()
+{
+    if (!this->isOkToQuit()) {
+        return;
+    }
+
+    this->closeAllElements();
+}
+
+void MainWindow::closeAllElements()
 {
     this->undoStack->clear();
 
@@ -979,6 +1045,16 @@ void MainWindow::on_actionExport_triggered()
 void MainWindow::on_actionQuit_triggered()
 {
     qApp->quit();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (!this->isOkToQuit()) {
+        event->ignore();
+        return;
+    }
+
+    event->accept();
 }
 
 void MainWindow::on_actionInsert_Frame_triggered()
@@ -1250,6 +1326,14 @@ void MainWindow::on_actionNew_PAL_triggered()
     QString path = palFileInfo.absoluteFilePath();
     QString name = palFileInfo.fileName();
 
+    if (palFileInfo.suffix().isEmpty()) {
+        path += ".pal";
+        name += ".pal";
+    } else if (palFileInfo.suffix() != "pal") {
+        QMessageBox::critical(nullptr, "Error", "Only .pal is supported for palettes.");
+        return;
+    }
+
     D1Pal *newPal = new D1Pal();
     if (!newPal->load(D1Pal::DEFAULT_PATH)) {
         delete newPal;
@@ -1299,14 +1383,22 @@ void MainWindow::on_actionSave_PAL_as_triggered()
         return;
     }
 
+    QFileInfo palFileInfo(palFilePath);
+    QString path = palFileInfo.absoluteFilePath();
+    QString name = palFileInfo.fileName();
+
+    if (palFileInfo.suffix().isEmpty()) {
+        path += ".pal";
+        name += ".pal";
+    } else if (palFileInfo.suffix() != "pal") {
+        QMessageBox::critical(nullptr, "Error", "Only .pal is supported for palettes.");
+        return;
+    }
+
     if (!this->pal->save(palFilePath)) {
         QMessageBox::critical(this, "Error", "Could not save PAL file.");
         return;
     }
-
-    QFileInfo palFileInfo(palFilePath);
-    QString path = palFileInfo.absoluteFilePath();
-    QString name = palFileInfo.fileName();
 
     D1Pal *newPal = new D1Pal();
     if (!newPal->load(path)) {
@@ -1348,6 +1440,14 @@ void MainWindow::on_actionNew_Translation_1_triggered()
     QFileInfo trnFileInfo(trnFilePath);
     QString path = trnFileInfo.absoluteFilePath();
     QString name = trnFileInfo.fileName();
+
+    if (trnFileInfo.suffix().isEmpty()) {
+        path += ".trn";
+        name += ".trn";
+    } else if (trnFileInfo.suffix() != "trn") {
+        QMessageBox::critical(nullptr, "Error", "Only .trn is supported for translations.");
+        return;
+    }
 
     D1Trn *newTrn = new D1Trn(this->pal);
     if (!newTrn->load(D1Trn::IDENTITY_PATH)) {
@@ -1398,14 +1498,22 @@ void MainWindow::on_actionSave_Translation_1_as_triggered()
         return;
     }
 
+    QFileInfo trnFileInfo(trnFilePath);
+    QString path = trnFileInfo.absoluteFilePath();
+    QString name = trnFileInfo.fileName();
+
+    if (trnFileInfo.suffix().isEmpty()) {
+        path += ".trn";
+        name += ".trn";
+    } else if (trnFileInfo.suffix() != "trn") {
+        QMessageBox::critical(nullptr, "Error", "Only .trn is supported for translations.");
+        return;
+    }
+
     if (!this->trn1->save(trnFilePath)) {
         QMessageBox::critical(this, "Error", "Could not save TRN file.");
         return;
     }
-
-    QFileInfo trnFileInfo(trnFilePath);
-    QString path = trnFileInfo.absoluteFilePath();
-    QString name = trnFileInfo.fileName();
 
     D1Trn *newTrn = new D1Trn(this->pal);
     if (!newTrn->load(path)) {
@@ -1447,6 +1555,14 @@ void MainWindow::on_actionNew_Translation_2_triggered()
     QFileInfo trnFileInfo(trnFilePath);
     QString path = trnFileInfo.absoluteFilePath();
     QString name = trnFileInfo.fileName();
+
+    if (trnFileInfo.suffix().isEmpty()) {
+        path += ".trn";
+        name += ".trn";
+    } else if (trnFileInfo.suffix() != "trn") {
+        QMessageBox::critical(nullptr, "Error", "Only .trn is supported for translations.");
+        return;
+    }
 
     D1Trn *newTrn = new D1Trn(this->trn1->getResultingPalette());
     if (!newTrn->load(D1Trn::IDENTITY_PATH)) {
@@ -1497,14 +1613,22 @@ void MainWindow::on_actionSave_Translation_2_as_triggered()
         return;
     }
 
+    QFileInfo trnFileInfo(trnFilePath);
+    QString path = trnFileInfo.absoluteFilePath();
+    QString name = trnFileInfo.fileName();
+
+    if (trnFileInfo.suffix().isEmpty()) {
+        path += ".trn";
+        name += ".trn";
+    } else if (trnFileInfo.suffix() != "trn") {
+        QMessageBox::critical(nullptr, "Error", "Only .trn is supported for translations.");
+        return;
+    }
+
     if (!this->trn2->save(trnFilePath)) {
         QMessageBox::critical(this, "Error", "Could not save TRN file.");
         return;
     }
-
-    QFileInfo trnFileInfo(trnFilePath);
-    QString path = trnFileInfo.absoluteFilePath();
-    QString name = trnFileInfo.fileName();
 
     D1Trn *newTrn = new D1Trn(this->trn1->getResultingPalette());
     if (!newTrn->load(path)) {

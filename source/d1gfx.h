@@ -71,7 +71,6 @@ public:
     D1Gfx() = default;
     ~D1Gfx() = default;
 
-    bool isFrameSizeConstant();
     QImage getFrameImage(quint16 frameIndex);
     D1GfxFrame *insertFrame(int frameIndex, const QImage &image);
     D1GfxFrame *replaceFrame(int frameIndex, const QImage &image);
@@ -79,6 +78,8 @@ public:
     void regroupFrames(int count);
     void remapFrames(const QMap<unsigned, unsigned> &remap);
 
+    bool isModified() const;
+    void setModified(bool isModified);
     bool isTileset() const;
     bool hasHeader() const;
     void setHasHeader(bool hasHeader);
@@ -93,6 +94,7 @@ public:
     int getFrameHeight(int frameIndex);
 
 protected:
+    bool modified = false;
     bool isTileset_ = false;
     bool hasHeader_ = true;
     QString gfxFilePath;

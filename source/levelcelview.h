@@ -123,7 +123,6 @@ private slots:
     void on_lastTileButton_clicked();
     void on_tileIndexEdit_returnPressed();
 
-    void on_minFrameWidthEdit_returnPressed();
     void on_minFrameHeightEdit_returnPressed();
 
     void on_zoomOutButton_clicked();

@@ -948,6 +948,7 @@ void LevelCelView::resetFrameTypes()
         LevelTabFrameWidget::selectFrameType(frame);
         D1CEL_FRAME_TYPE newType = frame->getFrameType();
         if (prevType != newType) {
+            this->gfx->setModified(true);
             QString line = "Changed Frame %1 from '%2' to '%3'.\n";
             line = line.arg(i + 1).arg(getFrameTypeName(prevType)).arg(getFrameTypeName(newType));
             report.append(line);
@@ -1768,14 +1769,6 @@ void LevelCelView::on_tileIndexEdit_returnPressed()
     }
 }
 
-void LevelCelView::on_minFrameWidthEdit_returnPressed()
-{
-    unsigned width = this->ui->minFrameWidthEdit->text().toUInt();
-
-    this->min->setSubtileWidth(width);
-    this->displayFrame();
-}
-
 void LevelCelView::on_minFrameHeightEdit_returnPressed()
 {
     unsigned height = this->ui->minFrameHeightEdit->text().toUInt();
@@ -1832,8 +1825,6 @@ void LevelCelView::on_playButton_clicked()
     this->ui->playComboBox->setEnabled(false);
     // enable the stop button
     this->ui->stopButton->setEnabled(true);
-    // preserve the palette
-    ((MainWindow *)this->window())->initPaletteCycle();
 
     this->playTimer.start(this->currentPlayDelay);
 }

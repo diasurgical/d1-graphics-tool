@@ -61,24 +61,6 @@ void D1GfxFrame::setFrameType(D1CEL_FRAME_TYPE type)
     this->frameType = type;
 }
 
-bool D1Gfx::isFrameSizeConstant()
-{
-    if (this->frames.isEmpty()) {
-        return false;
-    }
-
-    int frameWidth = this->frames[0].getWidth();
-    int frameHeight = this->frames[0].getHeight();
-
-    for (int i = 1; i < this->frames.count(); i++) {
-        if (this->frames[i].getWidth() != frameWidth
-            || this->frames[i].getHeight() != frameHeight)
-            return false;
-    }
-
-    return true;
-}
-
 // builds QImage from a D1CelFrame of given index
 QImage D1Gfx::getFrameImage(quint16 frameIndex)
 {
@@ -132,6 +114,7 @@ D1GfxFrame *D1Gfx::insertFrame(int idx, const QImage &image)
             this->groupFrameIndices[i].second++;
         }
     }
+    this->modified = true;
     return &this->frames[idx];
 }
 
@@ -141,6 +124,7 @@ D1GfxFrame *D1Gfx::replaceFrame(int idx, const QImage &image)
     D1ImageFrame::load(frame, image, this->palette);
     this->frames[idx] = frame;
 
+    this->modified = true;
     return &this->frames[idx];
 }
 
@@ -161,6 +145,7 @@ void D1Gfx::removeFrame(quint16 idx)
         }
         this->groupFrameIndices[i].second--;
     }
+    this->modified = true;
 }
 
 void D1Gfx::regroupFrames(int numGroups)
@@ -173,6 +158,7 @@ void D1Gfx::regroupFrames(int numGroups)
         int ni = numFrames / numGroups;
         this->groupFrameIndices.append(qMakePair(i * ni, i * ni + ni - 1));
     }
+    this->modified = true;
 }
 
 void D1Gfx::remapFrames(const QMap<unsigned, unsigned> &remap)
@@ -183,6 +169,17 @@ void D1Gfx::remapFrames(const QMap<unsigned, unsigned> &remap)
         newFrames.append(this->frames.at(iter.value() - 1));
     }
     this->frames.swap(newFrames);
+    this->modified = true;
+}
+
+bool D1Gfx::isModified() const
+{
+    return this->modified;
+}
+
+void D1Gfx::setModified(bool isModified)
+{
+    this->modified = isModified;
 }
 
 bool D1Gfx::isTileset() const

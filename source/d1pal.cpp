@@ -16,6 +16,9 @@ bool D1Pal::load(QString filePath)
         return false;
     }
 
+    for (int i = 0; i < 32; i++)
+        this->origCyclePalette[i] = this->colors[i];
+
     this->palFilePath = filePath;
     this->modified = false;
     return true;
@@ -125,7 +128,15 @@ QColor D1Pal::getColor(quint8 index)
 void D1Pal::setColor(quint8 index, QColor color)
 {
     this->colors[index] = color;
+    if (index < 32)
+        this->origCyclePalette[index] = color;
     this->modified = true;
+}
+
+void D1Pal::resetColors()
+{
+    for (int i = 0; i < 32; i++)
+        this->colors[i] = this->origCyclePalette[i];
 }
 
 void D1Pal::cycleColors(D1PAL_CYCLE_TYPE type)
@@ -135,58 +146,43 @@ void D1Pal::cycleColors(D1PAL_CYCLE_TYPE type)
 
     switch (type) {
     case D1PAL_CYCLE_TYPE::CAVES:
-        // celColor = this->getColor(1);
         celColor = this->colors[1];
         for (i = 1; i < 31; i++) {
-            // this->setColor(i, this->getColor(i + 1));
             this->colors[i] = this->colors[i + 1];
         }
-        // this->setColor(i, celColor);
         this->colors[i] = celColor;
         break;
     case D1PAL_CYCLE_TYPE::NEST:
         if (--this->currentCycleCounter != 0)
             break;
         this->currentCycleCounter = 3;
-        // celColor = this->getColor(8);
         celColor = this->colors[8];
         for (i = 8; i > 1; i--) {
-            // this->setColor(i, this->getColor(i - 1));
             this->colors[i] = this->colors[i - 1];
         }
-        // this->setColor(i, celColor);
         this->colors[i] = celColor;
 
-        // celColor = this->getColor(15);
         celColor = this->colors[15];
         for (i = 15; i > 9; i--) {
-            // this->setColor(i, this->getColor(i - 1));
             this->colors[i] = this->colors[i - 1];
         }
-        // this->setColor(i, celColor);
         this->colors[i] = celColor;
         break;
     case D1PAL_CYCLE_TYPE::CRYPT:
         if (--this->currentCycleCounter == 0) {
             this->currentCycleCounter = 3;
 
-            // celColor = this->getColor(15);
             celColor = this->colors[15];
             for (i = 15; i > 1; i--) {
-                // this->setColor(i, this->getColor(i - 1));
                 this->colors[i] = this->colors[i - 1];
             }
-            // this->setColor(i, celColor);
             this->colors[i] = celColor;
         }
 
-        // celColor = this->getColor(31);
         celColor = this->colors[31];
         for (i = 31; i > 16; i--) {
-            // this->setColor(i, this->getColor(i - 1));
             this->colors[i] = this->colors[i - 1];
         }
-        // this->setColor(i, celColor);
         this->colors[i] = celColor;
         break;
     }

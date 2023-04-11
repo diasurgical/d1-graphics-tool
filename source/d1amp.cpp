@@ -67,6 +67,7 @@ bool D1Amp::load(QString filePath, int tileCount, const OpenAsParam &params)
     }
 
     this->ampFilePath = filePath;
+    this->modified = false;
     return true;
 }
 
@@ -90,8 +91,14 @@ bool D1Amp::save(const QString &gfxPath)
     }
 
     this->ampFilePath = filePath;
+    this->modified = false;
 
     return true;
+}
+
+bool D1Amp::isModified() const
+{
+    return this->modified;
 }
 
 QString D1Amp::getFilePath()
@@ -118,21 +125,25 @@ quint8 D1Amp::getTileProperties(quint16 tileIndex)
 void D1Amp::setTileType(quint16 tileIndex, quint8 value)
 {
     this->types[tileIndex] = value;
+    this->modified = true;
 }
 
 void D1Amp::setTileProperties(quint16 tileIndex, quint8 value)
 {
     this->properties[tileIndex] = value;
+    this->modified = true;
 }
 
 void D1Amp::createTile()
 {
     this->types.append(0);
     this->properties.append(0);
+    this->modified = true;
 }
 
 void D1Amp::removeTile(int tileIndex)
 {
     this->types.removeAt(tileIndex);
     this->properties.removeAt(tileIndex);
+    this->modified = true;
 }

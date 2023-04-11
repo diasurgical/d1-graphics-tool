@@ -40,6 +40,7 @@ public:
     QColor getColor(quint8);
     void setColor(quint8, QColor);
 
+    void resetColors();
     void cycleColors(D1PAL_CYCLE_TYPE type);
 
 private:
@@ -51,4 +52,6 @@ private:
     bool modified;
     QColor colors[D1PAL_COLORS];
     quint8 currentCycleCounter = 3;
+    // buffer to store the original colors in case of color cycling
+    QColor origCyclePalette[32];
 };

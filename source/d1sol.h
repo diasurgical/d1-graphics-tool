@@ -20,12 +20,14 @@ public:
     void removeSubtile(int subtileIndex);
     void remapSubtiles(const QMap<unsigned, unsigned> &remap);
 
+    bool isModified() const;
     QString getFilePath();
     quint16 getSubtileCount();
     quint8 getSubtileProperties(int subtileIndex);
     void setSubtileProperties(int subtileIndex, quint8 value);
 
 private:
+    bool modified;
     QString solFilePath;
     QList<quint8> subProperties;
 };

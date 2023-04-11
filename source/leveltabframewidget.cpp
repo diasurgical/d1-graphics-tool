@@ -289,7 +289,11 @@ void LevelTabFrameWidget::on_frameTypeComboBox_activated(int index)
     int frameIdx = this->levelCelView->getCurrentFrameIndex();
     D1GfxFrame *frame = this->gfx->getFrame(frameIdx);
 
-    frame->setFrameType((D1CEL_FRAME_TYPE)index);
+    D1CEL_FRAME_TYPE frameType = (D1CEL_FRAME_TYPE)index;
+    if (frame->getFrameType() != frameType) {
+        frame->setFrameType(frameType);
+        this->gfx->setModified(true);
+    }
 
     this->validate();
 }

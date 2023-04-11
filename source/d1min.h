@@ -28,15 +28,16 @@ public:
     void removeSubtile(int subtileIndex);
     void remapSubtiles(const QMap<unsigned, unsigned> &remap);
 
+    bool isModified() const;
     QString getFilePath();
     int getSubtileCount();
     quint16 getSubtileWidth();
-    void setSubtileWidth(int width);
     quint16 getSubtileHeight();
     void setSubtileHeight(int height);
     QList<quint16> &getCelFrameIndices(int subtileIndex);
 
 private:
+    bool modified;
     QString minFilePath;
     D1Gfx *gfx = nullptr;
     quint8 subtileWidth;
