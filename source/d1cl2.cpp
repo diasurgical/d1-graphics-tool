@@ -298,7 +298,7 @@ quint8 *AppendClxPixelsRun(D1GfxFrame *frame, int x, int y, unsigned width, quin
     while (width >= 0x41) {
         *pBuf = 0xBF;
         pBuf++;
-        for (size_t i = 0; i < 0x41; ++i) {
+        for (int i = 0; i < 0x41; ++i) {
             *pBuf = frame->getPixel(x + i, y).getPaletteIndex();
             pBuf++;
         }
@@ -309,7 +309,7 @@ quint8 *AppendClxPixelsRun(D1GfxFrame *frame, int x, int y, unsigned width, quin
         return pBuf;
     *pBuf = 256 - width;
     pBuf++;
-    for (size_t i = 0; i < width; ++i) {
+    for (int i = 0; i < width; ++i) {
         *pBuf = frame->getPixel(x + i, y).getPaletteIndex();
         pBuf++;
     }
