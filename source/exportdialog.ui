@@ -57,7 +57,7 @@
        <widget class="QComboBox" name="formatComboBox"/>
       </item>
       <item row="0" column="2">
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer1">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -85,7 +85,7 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer2">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -144,7 +144,7 @@
        </widget>
       </item>
       <item row="0" column="2">
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer3">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -189,7 +189,7 @@
        </widget>
       </item>
       <item row="1" column="2">
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer4">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -308,7 +308,7 @@
        </widget>
       </item>
       <item row="2" column="2">
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer5">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -336,7 +336,7 @@
        <number>4</number>
       </property>
       <item>
-       <spacer name="horizontalSpacer">
+       <spacer name="horizontalSpacer6">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
