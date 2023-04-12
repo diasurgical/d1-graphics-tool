@@ -94,7 +94,7 @@ bool D1Min::load(QString filePath, D1Gfx *g, D1Sol *sol, std::map<unsigned, D1CE
     }
 
     this->minFilePath = filePath;
-    this->modified = true;
+    this->modified = false;
 
     return true;
 }
@@ -126,7 +126,7 @@ bool D1Min::save(const QString &gfxPath)
     }
 
     this->minFilePath = filePath;
-    this->modified = true;
+    this->modified = false;
 
     return true;
 }
