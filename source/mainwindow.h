@@ -66,8 +66,6 @@ public:
     QStringList filesDialog(const char *title, const char *filter);
 
     static bool hasImageUrl(const QMimeData *mimeData);
-
-protected:
     void closeEvent(QCloseEvent *event) override;
 
 private:
