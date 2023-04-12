@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(D1GraphicsTool VERSION 0.5.0 LANGUAGES CXX)
+project(D1GraphicsTool VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)

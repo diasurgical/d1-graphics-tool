@@ -21,7 +21,7 @@
 #include "palettewidget.h"
 #include "settingsdialog.h"
 
-#define D1_GRAPHICS_TOOL_VERSION "0.5.0"
+#define D1_GRAPHICS_TOOL_VERSION "1.0.0"
 
 enum class FILE_DIALOG_MODE {
     OPEN,         // open existing
