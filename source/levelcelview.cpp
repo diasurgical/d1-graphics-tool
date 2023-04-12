@@ -107,6 +107,54 @@ int LevelCelView::getCurrentTileIndex()
     return this->currentTileIndex;
 }
 
+namespace {
+
+int getClickedSubtile(unsigned x, unsigned y, unsigned width, unsigned height)
+{
+    //   |   |
+    //   |   |
+    //  2| 0 |1
+    //   |   |
+    //   |   |
+
+    // The perspective lets us know the floor heigth based on the width
+    int wallHeight = height - (width / 4 + width / 8);
+
+    if (y < wallHeight) {
+        if (x < width / 4) {
+            return 2;
+        }
+        if (x > width - width / 4) {
+            return 1;
+        }
+        return 0;
+    }
+
+    //    \0/
+    //  2  X  1
+    //    / \
+    //   / 3 \
+    //  /     \
+
+    y -= height - width / 2;
+
+    int y1 = width / 2 * x / width; // y of 1st diagonal at x
+    int y2 = width / 2 - y1;        // y of 2nd diagonal at x
+
+    if (y < y1) {
+        if (y < y2)
+            return 0; // top
+        else
+            return 1; // right
+    } else {
+        if (y < y2)
+            return 2; // left
+        else
+            return 3; // bottom
+    }
+}
+} // namespace
+
 void LevelCelView::framePixelClicked(unsigned x, unsigned y)
 {
     quint8 index = 0;
@@ -165,44 +213,11 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
         unsigned tx = x - (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3);
         unsigned ty = y - CEL_SCENE_SPACING;
 
-        // qDebug() << "Tile clicked" << tx << "," << ty;
-
-        // Split the area based on the ground squares
-        // f(x)\ 0 /
-        //      \ /
-        //   2   *   1
-        //      / \
-        // g(x)/ 3 \
-        //
-        // f(x) = (tileHeight - 2 * subtileShiftY) + 0.5x
-        unsigned ftx = (tileHeight - 2 * subtileShiftY) + tx / 2;
-        // g(tx) = tileHeight - 0.5x
-        unsigned gtx = tileHeight - tx / 2;
-        // qDebug() << "fx=" << ftx << ", gx=" << gtx;
-        int tSubtile = 0;
-        if (ty < ftx) {
-            if (ty < gtx) {
-                // limit the area of 0 horizontally
-                if (tx < subtileWidth / 2)
-                    tSubtile = 2;
-                else if (tx >= (subtileWidth / 2 + subtileWidth))
-                    tSubtile = 1;
-                else
-                    tSubtile = 0;
-            } else {
-                tSubtile = 1;
-            }
-        } else {
-            if (ty < gtx)
-                tSubtile = 2;
-            else
-                tSubtile = 3;
-        }
-        this->editIndex = tSubtile;
+        this->editIndex = getClickedSubtile(tx, ty, tileWidth, tileHeight);
 
         QList<quint16> &tilSubtiles = this->til->getSubtileIndices(this->currentTileIndex);
-        if (tilSubtiles.count() > tSubtile) {
-            this->currentSubtileIndex = tilSubtiles.at(tSubtile);
+        if (tilSubtiles.count() > this->editIndex) {
+            this->currentSubtileIndex = tilSubtiles.at(this->editIndex);
             this->displayFrame();
         }
     }
