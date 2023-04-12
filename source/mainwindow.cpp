@@ -379,14 +379,14 @@ bool MainWindow::hasImageUrl(const QMimeData *mimeData)
 void MainWindow::on_actionNew_Sprite_triggered()
 {
     OpenAsParam params;
-    params.isTileset = OPEN_TILESET_TYPE::FALSE;
+    params.isTileset = OPEN_TILESET_TYPE::No;
     this->openFile(params);
 }
 
 void MainWindow::on_actionNew_Tileset_triggered()
 {
     OpenAsParam params;
-    params.isTileset = OPEN_TILESET_TYPE::TRUE;
+    params.isTileset = OPEN_TILESET_TYPE::Yes;
     this->openFile(params);
 }
 
@@ -508,8 +508,8 @@ void MainWindow::openFile(const OpenAsParam &params)
         solFilePath = basePath + ".sol";
     }
 
-    bool isTileset = params.isTileset == OPEN_TILESET_TYPE::TRUE;
-    if (params.isTileset == OPEN_TILESET_TYPE::AUTODETECT) {
+    bool isTileset = params.isTileset == OPEN_TILESET_TYPE::Yes;
+    if (params.isTileset == OPEN_TILESET_TYPE::Auto) {
         isTileset = openFilePath.toLower().endsWith(".cel") && QFileInfo::exists(tilFilePath) && QFileInfo::exists(minFilePath) && QFileInfo::exists(solFilePath);
     }
 

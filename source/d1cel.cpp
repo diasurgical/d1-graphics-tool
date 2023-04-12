@@ -122,7 +122,7 @@ bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
 
     // BUILDING {CEL FRAMES}
 
-    if (params.clipped == OPEN_CLIPPED_TYPE::AUTODETECT) {
+    if (params.clipped == OPEN_CLIPPED_TYPE::Auto) {
         fileBuffer.seek(frameOffsets[0].first);
         QDataStream header(fileBuffer.read(2));
         header.setByteOrder(QDataStream::LittleEndian);
@@ -130,7 +130,7 @@ bool D1Cel::load(D1Gfx &gfx, QString filePath, const OpenAsParam &params)
         header >> offset;
         gfx.setHasHeader(offset == 0x0A);
     } else {
-        gfx.setHasHeader(params.clipped == OPEN_CLIPPED_TYPE::TRUE);
+        gfx.setHasHeader(params.clipped == OPEN_CLIPPED_TYPE::Yes);
     }
 
     gfx.frames.clear();

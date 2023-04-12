@@ -67,7 +67,7 @@ bool D1Cl2Frame::load(D1GfxFrame &frame, QByteArray rawData, bool isClx, const O
     quint32 frameDataStartOffset = 0;
 
     quint16 width = 0;
-    if (params.clipped != OPEN_CLIPPED_TYPE::FALSE) {
+    if (params.clipped != OPEN_CLIPPED_TYPE::No) {
         QDataStream in(rawData);
         in.setByteOrder(QDataStream::LittleEndian);
         quint16 offset;
