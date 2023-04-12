@@ -3,24 +3,24 @@
 #include <QDialog>
 
 enum class OPEN_CLIPPED_TYPE {
-    AUTODETECT,
-    TRUE,
-    FALSE,
+    Auto,
+    Yes,
+    No,
 };
 
 enum class OPEN_TILESET_TYPE {
-    AUTODETECT,
-    TRUE,
-    FALSE,
+    Auto,
+    Yes,
+    No,
 };
 
 class OpenAsParam {
 public:
     QString celFilePath;
-    OPEN_TILESET_TYPE isTileset = OPEN_TILESET_TYPE::AUTODETECT;
+    OPEN_TILESET_TYPE isTileset = OPEN_TILESET_TYPE::Auto;
 
     quint16 celWidth = 0;
-    OPEN_CLIPPED_TYPE clipped = OPEN_CLIPPED_TYPE::AUTODETECT;
+    OPEN_CLIPPED_TYPE clipped = OPEN_CLIPPED_TYPE::Auto;
 
     QString tilFilePath;
     QString minFilePath;
