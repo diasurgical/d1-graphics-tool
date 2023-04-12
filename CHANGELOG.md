@@ -6,30 +6,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- Configurable playback speed
-- Palette cycling animation of Diablo 1 and Hellfire
-- Save menu option to store the current graphics
-- Save as menu option to convert between cel/cl2, add new groups or store to a different location
-- Open as menu option to open files with parameters
-  1. use width 96 to open wlbat.cl2, whbat.cl2 and wmbat.cl2 graphics of the warrior
-  2. use height of 8 to open the hellfire town tileset
-- New menu option to open a clean cel, cl2 or tileset graphics
-- Drag and drop support
-- Edit fields to modify subtiles of tiles, frames of subtiles, frame-types
-- Subtile height is editable
-- Button to apply trn-adjustments of the game (done to normal monster-trns)
-- Context menu + menu option to add, insert, delete or replace frames
-- Context menu + menu option to create, add, insert, delete or replace tiles and subtiles
-- Context menu to undo/redo the modifications of the palette/translation
-- Icon buttons to create/load/save palette/translation in place
-- File dialogs start from the last used folder/file (even after restart)
-- Export to any kind of image format which are supported by Qt (JPEG, WEBP, etc...)
-- Option to limit the range of the exported items
-- Added jobs to cleanup tilesets
+- Create new sprites or tilesets.
+- Ability to save graphics in Diablo 1 formats.
+- Ability to add, insert, delete and replace frames.
+- Ability to modify the tiles and subtiles.
+- Ability to create, add, insert, delete or replace tiles and subtiles.
+- Ability to optimize tilesets.
+- View and edit tilset properties
+- Subtile height is now editable.
+- Export to any image format supported by Qt (JPEG, WEBP, etc.).
+- Option to limit the range of exported items.
+- Context menu to undo/redo modifications of the palette/translation.
+- Drag and drop support.
+- Recent files list.
+- Icon buttons to create, load, and save palette/translation in place.
+- Open As menu option to open bugged files.
+  (use width 96 to open wlbat.cl2, whbat.cl2 and wmbat.cl2 graphics of the warrior)
+- File dialogs start from the last used folder/file (even after restart).
+- Configurable playback speed.
+- Palette cycling animation of Diablo 1 and Hellfire.
+- Button to apply trn-adjustments of the game (done to normal monster-trns).
 
 ### Fixed
-- Memory leaks
-- Bunch of bugfixes
+- Memory leaks.
+- A bunch of bug fixes.
 
 ## 0.5.0 - 2021-08-12
 ### Added
