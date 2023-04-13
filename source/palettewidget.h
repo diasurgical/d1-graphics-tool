@@ -155,6 +155,7 @@ public:
     void finishColorSelection();
 
     // Display functions
+    bool displayColor(int index);
     void displayColors();
     void displaySelection();
     void temporarilyDisplayAllColors();

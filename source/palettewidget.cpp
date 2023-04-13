@@ -565,6 +565,28 @@ void PaletteWidget::finishColorSelection()
     this->refresh();
 }
 
+bool PaletteWidget::displayColor(int colorIndex)
+{
+    quint32 itemIndex;
+
+    switch (this->palHits->getMode()) {
+    case D1PALHITS_MODE::ALL_COLORS:
+    case D1PALHITS_MODE::ALL_FRAMES:
+        return this->palHits->getIndexHits(colorIndex) != 0;
+    case D1PALHITS_MODE::CURRENT_TILE:
+        itemIndex = this->levelCelView->getCurrentTileIndex();
+        break;
+    case D1PALHITS_MODE::CURRENT_SUBTILE:
+        itemIndex = this->levelCelView->getCurrentSubtileIndex();
+        break;
+    case D1PALHITS_MODE::CURRENT_FRAME:
+        itemIndex = this->isLevelCel ? this->levelCelView->getCurrentFrameIndex() : this->celView->getCurrentFrameIndex();
+        break;
+    }
+
+    return this->palHits->getIndexHits(colorIndex, itemIndex) != 0;
+}
+
 void PaletteWidget::displayColors()
 {
     // delta
@@ -584,24 +606,7 @@ void PaletteWidget::displayColors()
     QPen pen(Qt::NoPen);
 
     for (int i = 0; i < D1PAL_COLORS; i++) {
-        // Check palette display filter
-        quint32 indexHits = 0;
-
-        // if user just click "Pick" button to select color in parent palette or translation, display all colors
-        if (this->temporarilyDisplayingAllColors || this->palHits->getMode() == D1PALHITS_MODE::ALL_COLORS)
-            indexHits = 1;
-        else if (this->palHits->getMode() == D1PALHITS_MODE::ALL_FRAMES)
-            indexHits = this->palHits->getIndexHits(i);
-        else if (this->palHits->getMode() == D1PALHITS_MODE::CURRENT_TILE)
-            indexHits = this->palHits->getIndexHits(i, this->levelCelView->getCurrentTileIndex());
-        else if (this->palHits->getMode() == D1PALHITS_MODE::CURRENT_SUBTILE)
-            indexHits = this->palHits->getIndexHits(i, this->levelCelView->getCurrentSubtileIndex());
-        else if (this->palHits->getMode() == D1PALHITS_MODE::CURRENT_FRAME && !this->isLevelCel)
-            indexHits = this->palHits->getIndexHits(i, this->celView->getCurrentFrameIndex());
-        else if (this->palHits->getMode() == D1PALHITS_MODE::CURRENT_FRAME && this->isLevelCel)
-            indexHits = this->palHits->getIndexHits(i, this->levelCelView->getCurrentFrameIndex());
-
-        if (indexHits == 0)
+        if (!this->temporarilyDisplayingAllColors && !this->displayColor(i))
             continue;
 
         // Check translation display filter
