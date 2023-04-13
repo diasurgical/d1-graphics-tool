@@ -567,18 +567,13 @@ void PaletteWidget::finishColorSelection()
 
 void PaletteWidget::displayColors()
 {
-    // Positions
-    int x = 0;
-    int y = 0;
-
-    // X delta
-    int dx = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
-    // Y delta
-    int dy = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
+    // delta
+    const int dx = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
+    const int dy = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE;
 
     // Color width
-    int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE - 2 * PALETTE_COLOR_SPACING;
-    int bsw = PALETTE_COLOR_SPACING;
+    const int w = PALETTE_WIDTH / PALETTE_COLORS_PER_LINE - 2 * PALETTE_COLOR_SPACING;
+    const int bsw = PALETTE_COLOR_SPACING;
 
     // Removing existing items
     this->scene->clear();
@@ -586,26 +581,11 @@ void PaletteWidget::displayColors()
     // Setting background color
     this->scene->setBackgroundBrush(Qt::white);
 
-    // Displaying palette colors
-    bool displayColor;
-    quint32 indexHits;
+    QPen pen(Qt::NoPen);
+
     for (int i = 0; i < D1PAL_COLORS; i++) {
-        // Go to next line
-        if (i % PALETTE_COLORS_PER_LINE == 0 && i != 0) {
-            x = 0;
-            y += dy;
-        }
-
-        QBrush brush;
-        if (!this->isTrn)
-            brush = QBrush(this->pal->getColor(i));
-        else
-            brush = QBrush(this->trn->getResultingPalette()->getColor(i));
-        QPen pen(Qt::NoPen);
-
         // Check palette display filter
-        displayColor = true;
-        indexHits = 0;
+        quint32 indexHits = 0;
 
         // if user just click "Pick" button to select color in parent palette or translation, display all colors
         if (this->temporarilyDisplayingAllColors || this->palHits->getMode() == D1PALHITS_MODE::ALL_COLORS)
@@ -622,17 +602,18 @@ void PaletteWidget::displayColors()
             indexHits = this->palHits->getIndexHits(i, this->levelCelView->getCurrentFrameIndex());
 
         if (indexHits == 0)
-            displayColor = false;
+            continue;
 
         // Check translation display filter
         if (this->isTrn && ui->displayComboBox->currentData().value<COLORFILTER_TYPE>() == COLORFILTER_TYPE::TRANSLATED // "Show translated colors"
             && this->trn->getTranslation(i) == i)
-            displayColor = false;
+            continue;
 
-        if (displayColor)
-            this->scene->addRect(x + bsw, y + bsw, w, w, pen, brush);
+        int x = i % PALETTE_COLORS_PER_LINE;
+        int y = i / PALETTE_COLORS_PER_LINE;
 
-        x += dx;
+        QBrush brush = QBrush(this->isTrn ? this->trn->getResultingPalette()->getColor(i) : this->pal->getColor(i));
+        this->scene->addRect(x * dx + bsw, y * dy + bsw, w, w, pen, brush);
     }
 }
 
