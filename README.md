@@ -1,7 +1,7 @@
 # Diablo 1 Graphics Tool
 [![Downloads](https://img.shields.io/github/downloads/diasurgical/d1-graphics-tool/total.svg)](https://github.com/diasurgical/d1-graphics-tool/releases)
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/v/release/diasurgical/d1-graphics-tool?include_prereleases)
-![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/downloads-pre/diasurgical/d1-graphics-tool/latest/total)
+[![Downloads](https://img.shields.io/github/v/release/diasurgical/d1-graphics-tool)](https://github.com/diasurgical/d1-graphics-tool/releases)
+[![Downloads](https://img.shields.io/github/downloads-pre/diasurgical/d1-graphics-tool/latest/total)](https://github.com/diasurgical/d1-graphics-tool/releases)
 [![Windows-x64](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows.yml/badge.svg)](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows.yml)
 [![Windows-x86](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows-32.yml/badge.svg)](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows-32.yml)
 [![Linux](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/linux.yml/badge.svg)](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/linux.yml)
