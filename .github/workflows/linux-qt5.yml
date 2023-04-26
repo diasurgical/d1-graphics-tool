@@ -1,4 +1,4 @@
-name: Linux Qt6
+name: Linux Qt5
 
 on:
   push:
@@ -9,12 +9,12 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get update && sudo apt-get install cmake qt6-base-dev libgl1-mesa-dev
+      run: sudo apt-get update && sudo apt-get install cmake qtbase5-dev
     - name: configure
       run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo
     - name: make
@@ -23,5 +23,5 @@ jobs:
       if: ${{ !env.ACT }}
       uses: actions/upload-artifact@v2
       with:
-        name: D1GraphicsTool-Linux-x64
+        name: D1GraphicsTool-Linux-x64-qt5
         path: build/D1GraphicsTool

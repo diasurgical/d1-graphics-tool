@@ -306,10 +306,12 @@ static QString prepareFilePath(QString filePath, const char *filter)
         QString pattern = QString(filter);
         pattern = pattern.mid(pattern.lastIndexOf('(', pattern.length() - 1) + 1, -1);
         pattern.chop(1);
-        QStringList patterns = pattern.split(QRegularExpression(" "), Qt::SkipEmptyParts);
+        QStringList patterns = pattern.split(QRegularExpression(" "));
         bool match = false;
         for (int i = 0; i < patterns.size(); i++) {
             pattern = patterns.at(i);
+            if (pattern.isEmpty())
+                continue;
             // convert filter to regular expression
             for (int n = 0; n < pattern.size(); n++) {
                 if (pattern[n] == '*') {

@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QDebug>
 #include <QFile>
 
 #include "config.h"

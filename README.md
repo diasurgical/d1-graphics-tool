@@ -5,6 +5,7 @@
 [![Windows-x64](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows.yml/badge.svg)](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows.yml)
 [![Windows-x86](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows-32.yml/badge.svg)](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/windows-32.yml)
 [![Linux](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/linux.yml/badge.svg)](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/linux.yml)
+[![Linux](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/linux-qt5.yml/badge.svg)](https://github.com/diasurgical/d1-graphics-tool/actions/workflows/linux-qt5.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/diasurgical/d1-graphics-tool/badge)](https://www.codefactor.io/repository/github/diasurgical/d1-graphics-tool)
 
 Diablo 1 Graphics Tool can display and edit Diablo 1 assets (CEL/CL2 graphics files and PAL/TRN/TIL/MIN/SOL/AMP metadata).
