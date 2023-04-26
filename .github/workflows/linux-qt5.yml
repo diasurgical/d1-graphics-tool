@@ -1,4 +1,4 @@
-name: Linux
+name: Linux Qt5
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: dependencies
-      run: sudo apt-get update && sudo apt-get install cmake qtbase5-dev
+      run: sudo apt-get update && sudo apt-get install cmake qtbase5-dev qtdeclarative5-dev
     - name: configure
       run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo
     - name: make
