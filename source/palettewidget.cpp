@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include <QColorDialog>
+#include <QDebug>
 #include <QMessageBox>
 #include <QMimeData>
 
