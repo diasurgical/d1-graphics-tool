@@ -1,0 +1,27 @@
+name: Linux
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: dependencies
+      run: sudo apt-get update && sudo apt-get install cmake qtbase5-dev
+    - name: configure
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo
+    - name: make
+      run: cmake --build build -j $(nproc)
+    - name: Upload-Package
+      if: ${{ !env.ACT }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: D1GraphicsTool-Linux-x64-qt5
+        path: build/D1GraphicsTool
