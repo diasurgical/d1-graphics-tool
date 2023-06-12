@@ -22,7 +22,7 @@ jobs:
         arch: 'win32_msvc2019'
 
     - name: Configure
-      run: cmake -S. -Bbuild -A Win32
+      run: cmake -S. -Bbuild -A Win32 -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
     - name: Make
       run: cmake --build build -j $(nproc)
