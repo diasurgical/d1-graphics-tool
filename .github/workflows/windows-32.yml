@@ -22,7 +22,7 @@ jobs:
         arch: 'win32_msvc2019'
 
     - name: Configure
-      run: cmake -S. -Bbuild -A Win32 -DCMAKE_BUILD_TYPE=Release
+      run: cmake -S. -Bbuild -A Win32
 
     - name: Make
       run: cmake --build build --config Release -j $(nproc)
