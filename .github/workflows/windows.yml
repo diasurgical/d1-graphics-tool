@@ -22,7 +22,7 @@ jobs:
         cache: 'true'
 
     - name: Configure
-      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
+      run: cmake -S. -Bbuild
 
     - name: Make
       run: cmake --build build --config Release -j $(nproc)
