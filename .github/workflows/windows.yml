@@ -22,7 +22,7 @@ jobs:
         cache: 'true'
 
     - name: Configure
-      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 
     - name: Make
       run: cmake --build build -j $(nproc)
@@ -30,7 +30,7 @@ jobs:
     - name: Package
       run: |
         mkdir dist
-        copy build\Debug\D1GraphicsTool.exe dist
+        copy build\Release\D1GraphicsTool.exe dist
         cd dist
         windeployqt D1GraphicsTool.exe --no-compiler-runtime --no-opengl-sw --no-system-d3d-compiler --no-virtualkeyboard --no-translations --no-quick-import
       shell: cmd
