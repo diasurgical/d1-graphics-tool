@@ -22,7 +22,7 @@ jobs:
         cache: 'true'
 
     - name: Configure
-      run: cmake -S. -Bbuild
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo
 
     - name: Make
       run: cmake --build build -j $(nproc)
