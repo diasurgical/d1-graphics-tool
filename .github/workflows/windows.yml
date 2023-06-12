@@ -22,10 +22,10 @@ jobs:
         cache: 'true'
 
     - name: Configure
-      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release -G Ninja
+      run: cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release
 
     - name: Make
-      run: cmake --build build -j $(nproc)
+      run: cmake --build build --config Release -j $(nproc)
 
     - name: Package
       run: |
