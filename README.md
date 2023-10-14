@@ -1,4 +1,5 @@
 # Diablo 1 Graphics Tool
+
 [![Downloads](https://img.shields.io/github/downloads/diasurgical/d1-graphics-tool/total.svg)](https://github.com/diasurgical/d1-graphics-tool/releases)
 [![Downloads](https://img.shields.io/github/v/release/diasurgical/d1-graphics-tool)](https://github.com/diasurgical/d1-graphics-tool/releases)
 [![Downloads](https://img.shields.io/github/downloads-pre/diasurgical/d1-graphics-tool/latest/total)](https://github.com/diasurgical/d1-graphics-tool/releases)
