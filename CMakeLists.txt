@@ -108,3 +108,52 @@ install(TARGETS D1GraphicsTool
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(D1GraphicsTool)
 endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  string(TOLOWER ${PROJECT_NAME} project_name)
+  set(CPACK_PACKAGE_NAME ${project_name})
+
+  # Common *nix files
+  set(CPACK_STRIP_FILES TRUE)
+  install(TARGETS ${BIN_TARGET} DESTINATION bin)
+
+  set(desktop_file "${CMAKE_BINARY_DIR}/${PROJECT_NAME}")
+
+  install(FILES "${desktop_file}"
+    DESTINATION "/usr/bin/"
+    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+  )
+
+  install(FILES "${PROJECT_SOURCE_DIR}/debian/usr/share/applications/${PROJECT_NAME}.desktop"
+    DESTINATION "/usr/share/applications"
+  )
+
+  install(FILES "${PROJECT_SOURCE_DIR}/resources/icon.svg"
+    DESTINATION "/opt/d1-graphics-tool/"
+    RENAME "icon.svg"
+  )
+
+  # -G DEB
+  set(CPACK_PACKAGE_CONTACT "Anders Jenbo <anders@jenbo.dk>")
+  set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/diasurgical/d1-graphics-tool")
+  set(CPACK_PACKAGE_DESCRIPTION "Diablo 1 Graphics Tool can open CEL/CL2 graphics files and display them with chosen color palette (PAL) and color translation (TRN) files.")
+  set(CPACK_DEBIAN_PACKAGE_SECTION "graphics")
+  
+  if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6widgets6 (>= 6.2.4), qt6-qpa-plugins (>= 6.2.4)")
+  else()
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt5widgets5 (>= 5.15.0)")
+  endif()
+  set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+
+  find_program(DPKG dpkg)
+  if(DPKG)
+    list(APPEND CPACK_GENERATOR "DEB")
+  endif()
+
+  set(CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+  set(CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+  set(CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+  include(CPack)
+
+endif()
