@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>874</width>
-    <height>521</height>
+    <height>523</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -450,7 +450,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Tiles:</string>
+           <string>MegaTiles:</string>
           </property>
          </widget>
         </item>
@@ -979,7 +979,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Sub-tiles:</string>
+           <string>Tiles:</string>
           </property>
          </widget>
         </item>

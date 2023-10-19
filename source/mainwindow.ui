@@ -325,7 +325,7 @@
   </action>
   <action name="actionCleanupFrames_Tileset">
    <property name="text">
-    <string>Cleanup frames</string>
+    <string>Cleanup Frames</string>
    </property>
    <property name="toolTip">
     <string>Delete frames not used by any subtile</string>
@@ -333,7 +333,7 @@
   </action>
   <action name="actionCleanupSubtiles_Tileset">
    <property name="text">
-    <string>Cleanup Subtiles</string>
+    <string>Cleanup Tiles</string>
    </property>
    <property name="toolTip">
     <string>Delete subtiles not used by any tile</string>
@@ -357,7 +357,7 @@
   </action>
   <action name="actionSortSubtiles_Tileset">
    <property name="text">
-    <string>Sort Subtiles</string>
+    <string>Sort Tiles</string>
    </property>
    <property name="toolTip">
     <string>Sort the subtiles based on the tiles</string>
