@@ -1,15 +1,27 @@
 #include "config.h"
 
 #include <QCoreApplication>
+#include <QDebug>
+#include <QDir>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QStandardPaths>
 
 static QJsonObject theConfig;
+QString Config::jsonFilePath;
 
 void Config::loadConfiguration()
 {
-    QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
+    // create directories on the path if they do not exist
+    if (!Config::createDirectoriesOnPath()) {
+        qDebug() << "Couldn't resolve path for the config file. Configuration file won't be loaded.";
+        return;
+    }
+
+    // add filename to the absolute path
+    jsonFilePath += "/D1GraphicsTool.config.json";
+
     bool configurationModified = false;
 
     // If configuration file exists load it otherwise create it
@@ -41,13 +53,18 @@ void Config::loadConfiguration()
 
 void Config::storeConfiguration()
 {
-    QString jsonFilePath = QCoreApplication::applicationDirPath() + "/D1GraphicsTool.config.json";
-
     QFile saveJson(jsonFilePath);
     saveJson.open(QIODevice::WriteOnly);
     QJsonDocument saveDoc(theConfig);
     saveJson.write(saveDoc.toJson());
     saveJson.close();
+}
+
+bool Config::createDirectoriesOnPath()
+{
+    jsonFilePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+
+    return QDir().mkpath(jsonFilePath);
 }
 
 QJsonValue Config::value(const QString &name)
