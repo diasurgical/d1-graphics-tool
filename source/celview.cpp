@@ -22,6 +22,10 @@ CelScene::CelScene(QWidget *v)
 
 void CelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    // return if currently set drag mode is scroll hand drag
+    if (views()[0]->dragMode() == QGraphicsView::ScrollHandDrag)
+        return;
+
     if (event->button() != Qt::LeftButton) {
         return;
     }
