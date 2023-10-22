@@ -388,11 +388,19 @@ void CelView::on_frameIndexEdit_returnPressed()
 
 void CelView::on_firstGroupButton_clicked()
 {
+    // don't do anything if there's only one group
+    if (this->gfx->getGroupCount() == 1)
+        return;
+
     this->on_firstFrameButton_clicked();
 }
 
 void CelView::on_previousGroupButton_clicked()
 {
+    // don't do anything if there's only one group
+    if (this->gfx->getGroupCount() == 1)
+        return;
+
     if (this->currentGroupIndex >= 1)
         this->currentGroupIndex--;
     else
@@ -415,6 +423,10 @@ void CelView::on_groupIndexEdit_returnPressed()
 
 void CelView::on_nextGroupButton_clicked()
 {
+    // don't do anything if there's only one group
+    if (this->gfx->getGroupCount() == 1)
+        return;
+
     if (this->currentGroupIndex < (this->gfx->getGroupCount() - 1))
         this->currentGroupIndex++;
     else
@@ -426,6 +438,10 @@ void CelView::on_nextGroupButton_clicked()
 
 void CelView::on_lastGroupButton_clicked()
 {
+    // don't do anything if there's only one group
+    if (this->gfx->getGroupCount() == 1)
+        return;
+
     this->currentGroupIndex = std::max(0, this->gfx->getGroupCount() - 1);
     this->currentFrameIndex = this->gfx->getGroupFrameIndices(this->currentGroupIndex).first;
     this->displayFrame();
