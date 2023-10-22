@@ -25,7 +25,7 @@ bool D1GfxPixel::isTransparent() const
 
 quint8 D1GfxPixel::getPaletteIndex() const
 {
-    return this->paletteIndex;
+    return this->paletteIndex;;
 }
 
 bool operator==(const D1GfxPixel &lhs, const D1GfxPixel &rhs)
