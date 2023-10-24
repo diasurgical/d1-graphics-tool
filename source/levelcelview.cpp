@@ -27,8 +27,8 @@ LevelCelView::LevelCelView(QWidget *parent)
     this->ui->playDelayEdit->setText(QString::number(this->currentPlayDelay));
     this->ui->stopButton->setEnabled(false);
     this->playTimer.connect(&this->playTimer, SIGNAL(timeout()), this, SLOT(playGroup()));
-    this->ui->tilesTabs->addTab(this->tabTileWidget, "Tile properties");
-    this->ui->tilesTabs->addTab(this->tabSubTileWidget, "Subtile properties");
+    this->ui->tilesTabs->addTab(this->tabTileWidget, "MegaTile properties");
+    this->ui->tilesTabs->addTab(this->tabSubTileWidget, "Tile properties");
     this->ui->tilesTabs->addTab(this->tabFrameWidget, "Frame properties");
 
     // If a pixel of the frame, subtile or tile was clicked get pixel color index and notify the palette widgets
@@ -74,9 +74,9 @@ void LevelCelView::update()
     if (this->mode == TILESET_MODE::FREE)
         ui->modeLabel->setText("");
     else if (this->mode == TILESET_MODE::SUBTILE)
-        ui->modeLabel->setText("Subtile mode");
-    else if (this->mode == TILESET_MODE::TILE)
         ui->modeLabel->setText("Tile mode");
+    else if (this->mode == TILESET_MODE::TILE)
+        ui->modeLabel->setText("MegaTile mode");
 
     ui->frameNumberEdit->setText(
         QString::number(this->gfx->getFrameCount()));
@@ -692,7 +692,7 @@ void LevelCelView::removeCurrentFrame()
 
     if (!frameUsers.isEmpty()) {
         QMessageBox::StandardButton reply;
-        reply = QMessageBox::question(nullptr, "Confirmation", "The frame is used by Subtile " + QString::number(frameUsers.first() + 1) + " (and maybe others). Are you sure you want to proceed?", QMessageBox::Yes | QMessageBox::No);
+        reply = QMessageBox::question(nullptr, "Confirmation", "The frame is used by Tile " + QString::number(frameUsers.first() + 1) + " (and maybe others). Are you sure you want to proceed?", QMessageBox::Yes | QMessageBox::No);
         if (reply != QMessageBox::Yes) {
             return;
         }
@@ -778,7 +778,7 @@ void LevelCelView::removeCurrentSubtile()
     this->collectSubtileUsers(this->currentSubtileIndex, subtileUsers);
 
     if (!subtileUsers.isEmpty()) {
-        QMessageBox::critical(nullptr, "Error", "The subtile is used by Tile " + QString::number(subtileUsers.first() + 1) + " (and maybe others).");
+        QMessageBox::critical(nullptr, "Error", "The tile is used by MegaTile " + QString::number(subtileUsers.first() + 1) + " (and maybe others).");
         return;
     }
     // remove the current subtile
@@ -888,7 +888,7 @@ void LevelCelView::reportUsage()
         if (frameUsers.isEmpty()) {
             frameUses += " is not used by any subtile.";
         } else {
-            frameUses += " is used by subtile ";
+            frameUses += " is used by tile ";
             for (int user : frameUsers) {
                 frameUses += QString::number(user + 1) + ", ";
             }
@@ -903,11 +903,11 @@ void LevelCelView::reportUsage()
         QList<int> subtileUsers;
         this->collectSubtileUsers(this->currentSubtileIndex, subtileUsers);
 
-        subtileUses = "Subtile " + QString::number(this->currentSubtileIndex + 1);
+        subtileUses = "Tile " + QString::number(this->currentSubtileIndex + 1);
         if (subtileUsers.isEmpty()) {
-            subtileUses += " is not used by any tile.";
+            subtileUses += " is not used by any MegaTile.";
         } else {
-            subtileUses += " is used by tile ";
+            subtileUses += " is used by MegaTile ";
             for (int user : subtileUsers) {
                 subtileUses += QString::number(user + 1) + ", ";
             }
@@ -1481,7 +1481,7 @@ void LevelCelView::ShowContextMenu(const QPoint &pos)
 
     contextMenu.addMenu(&frameMenu);
 
-    QMenu subtileMenu(tr("Subtile"), this);
+    QMenu subtileMenu(tr("Tile"), this);
     subtileMenu.setToolTipsVisible(true);
 
     QAction action4("Create", this);
@@ -1517,7 +1517,7 @@ void LevelCelView::ShowContextMenu(const QPoint &pos)
 
     contextMenu.addMenu(&subtileMenu);
 
-    QMenu tileMenu(tr("Tile"), this);
+    QMenu tileMenu(tr("MegaTile"), this);
     tileMenu.setToolTipsVisible(true);
 
     QAction action9("Create", this);

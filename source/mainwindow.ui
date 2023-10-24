@@ -312,7 +312,7 @@
     <string>Usage Report</string>
    </property>
    <property name="toolTip">
-    <string>List the uses of the current frame/subtile/tile</string>
+    <string>List the uses of the current frame/tile/megatile</string>
    </property>
   </action>
   <action name="actionResetFrameTypes_Tileset">
@@ -328,7 +328,7 @@
     <string>Cleanup Frames</string>
    </property>
    <property name="toolTip">
-    <string>Delete frames not used by any subtile</string>
+    <string>Delete frames not used by any tile</string>
    </property>
   </action>
   <action name="actionCleanupSubtiles_Tileset">
@@ -336,7 +336,7 @@
     <string>Cleanup Tiles</string>
    </property>
    <property name="toolTip">
-    <string>Delete subtiles not used by any tile</string>
+    <string>Delete tiles not used by any megatile</string>
    </property>
   </action>
   <action name="actionCompressTileset_Tileset">
@@ -344,7 +344,7 @@
     <string>Deduplicate Tileset</string>
    </property>
    <property name="toolTip">
-    <string>Deduplicate frames and subtiles</string>
+    <string>Deduplicate frames and tiles</string>
    </property>
   </action>
   <action name="actionSortFrames_Tileset">
@@ -352,7 +352,7 @@
     <string>Sort Frames</string>
    </property>
    <property name="toolTip">
-    <string>Sort the frames based on the subtiles</string>
+    <string>Sort the frames based on the tiles</string>
    </property>
   </action>
   <action name="actionSortSubtiles_Tileset">
@@ -360,7 +360,7 @@
     <string>Sort Tiles</string>
    </property>
    <property name="toolTip">
-    <string>Sort the subtiles based on the tiles</string>
+    <string>Sort the tiles based on the megatiles</string>
    </property>
   </action>
   <action name="actionSave_PAL">
