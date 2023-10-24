@@ -161,8 +161,8 @@ private:
 
     QMenu newMenu = QMenu("New");
     QMenu frameMenu = QMenu("Frame");
-    QMenu subtileMenu = QMenu("Subtile");
-    QMenu tileMenu = QMenu("Tile");
+    QMenu subtileMenu = QMenu("Tile");
+    QMenu tileMenu = QMenu("MegaTile");
 
     QUndoStack *undoStack;
     QAction *undoAction;
