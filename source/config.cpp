@@ -41,7 +41,7 @@ void Config::loadConfiguration()
     }
 
     if (!theConfig.contains("LastFilePath")) {
-        theConfig.insert("LastFilePath", jsonFilePath);
+        theConfig.insert("LastFilePath", QStandardPaths::writableLocation(QStandardPaths::HomeLocation) + "/");
         configurationModified = true;
     }
     if (!theConfig.contains("PaletteDefaultColor")) {
