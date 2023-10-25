@@ -12,5 +12,5 @@ public:
 private:
     static bool createDirectoriesOnPath();
 
-    static QString jsonFilePath;
+    static QString dirPath;
 };

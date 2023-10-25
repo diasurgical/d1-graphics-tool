@@ -9,7 +9,7 @@
 #include <QStandardPaths>
 
 static QJsonObject theConfig;
-QString Config::jsonFilePath;
+QString Config::dirPath;
 
 /**
  * @brief Loads current configuration from the config .json file
@@ -27,7 +27,7 @@ void Config::loadConfiguration()
     }
 
     // add filename to the absolute path
-    jsonFilePath += "/D1GraphicsTool.config.json";
+    QString jsonFilePath = dirPath + "/D1GraphicsTool.config.json";
 
     bool configurationModified = false;
 
@@ -60,10 +60,20 @@ void Config::loadConfiguration()
 
 /**
  * @brief Stores current configuration in the config .json file
+ *
+ * This function stores current configuration in the config .json
+ * file, and also - if user has deleted his app's config path durrent
+ * runtime, it will try to create it once again
  */
 void Config::storeConfiguration()
 {
-    QFile saveJson(jsonFilePath);
+    // create directories on the path upon closing program
+    if (!Config::createDirectoriesOnPath()) {
+        qDebug() << "Couldn't resolve path for the config file. Configuration file won't be saved.";
+        return;
+    }
+
+    QFile saveJson(dirPath + "/D1GraphicsTool.config.json");
     saveJson.open(QIODevice::WriteOnly);
     QJsonDocument saveDoc(theConfig);
     saveJson.write(saveDoc.toJson());
@@ -76,16 +86,13 @@ void Config::storeConfiguration()
  * This function creates directories on certain path. Path location depends on
  * if user is working on Windows or Mac/Linux.
  *
- * If the user works on Windows, it will save it under AppData/.config/[...].
- * On any other OS it will save it under /home/user/.config/diasurgical/[...]
- *
  * @return Returns true if path has been created or already existed - false otherwise
  */
 bool Config::createDirectoriesOnPath()
 {
-    jsonFilePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    dirPath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
 
-    return QDir().mkpath(jsonFilePath);
+    return QDir().mkpath(dirPath);
 }
 
 /**
