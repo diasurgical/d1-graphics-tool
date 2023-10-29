@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <set>
 
+#include "d1image.h"
+#include "mainwindow.h"
+#include "ui_levelcelview.h"
 #include <QAction>
 #include <QDebug>
 #include <QFileInfo>
@@ -11,10 +14,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
-
-#include "d1image.h"
-#include "mainwindow.h"
-#include "ui_levelcelview.h"
 
 LevelCelView::LevelCelView(QWidget *parent)
     : QWidget(parent)
@@ -279,6 +278,13 @@ void LevelCelView::assignFrames(const QImage &image, int subtileIndex, int frame
 void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, int index, const QImage &image)
 {
     if ((image.width() % MICRO_WIDTH) != 0 || (image.height() % MICRO_HEIGHT) != 0) {
+        QMessageBox::critical(this, tr("Error!"), tr("Wrong frame dimensions!\n"
+                                                     "Image should have dimensions %1x%2px (w x h).\n"
+                                                     "Image that you wanted to insert has %3x%4px dimensions.")
+                                                      .arg(MICRO_WIDTH)
+                                                      .arg(MICRO_HEIGHT)
+                                                      .arg(image.width())
+                                                      .arg(image.height()));
         return;
     }
 
@@ -400,6 +406,13 @@ void LevelCelView::insertSubtiles(IMAGE_FILE_MODE mode, int index, const QImage 
     unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
 
     if ((image.width() % subtileWidth) != 0 || (image.height() % subtileHeight) != 0) {
+        QMessageBox::critical(this, tr("Error!"), tr("Wrong tile dimensions!\n"
+                                                     "Image should have dimensions %1x%2px (w x h).\n"
+                                                     "Image that you wanted to insert has %3x%4px dimensions.")
+                                                      .arg(subtileWidth)
+                                                      .arg(subtileHeight)
+                                                      .arg(image.width())
+                                                      .arg(image.height()));
         return;
     }
 
@@ -549,6 +562,13 @@ void LevelCelView::insertTiles(IMAGE_FILE_MODE mode, int index, const QImage &im
     unsigned tileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
 
     if ((image.width() % tileWidth) != 0 || (image.height() % tileHeight) != 0) {
+        QMessageBox::critical(this, tr("Error!"), tr("Wrong MegaTile dimensions!\n"
+                                                     "Image should have dimensions %1x%2px (w x h).\n"
+                                                     "Image that you wanted to insert has %3x%4px dimensions.")
+                                                      .arg(tileWidth)
+                                                      .arg(tileHeight)
+                                                      .arg(image.width())
+                                                      .arg(image.height()));
         return;
     }
 
