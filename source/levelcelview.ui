@@ -174,7 +174,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Next group</string>
+           <string>Next MegaTile</string>
           </property>
           <property name="text">
            <string>&gt;</string>
@@ -196,7 +196,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Last group</string>
+           <string>Last tile</string>
           </property>
           <property name="text">
            <string>&gt;|</string>
@@ -412,7 +412,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Previous group</string>
+           <string>Previous tile</string>
           </property>
           <property name="text">
            <string>&lt;</string>
@@ -513,7 +513,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Last group</string>
+           <string>Last MegaTile</string>
           </property>
           <property name="text">
            <string>&gt;|</string>
@@ -592,7 +592,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Number of groups</string>
+           <string>Number of MegaTiles</string>
           </property>
           <property name="autoFillBackground">
            <bool>false</bool>
@@ -623,7 +623,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Current group</string>
+           <string>Current MegaTile</string>
           </property>
           <property name="text">
            <string>0</string>
@@ -742,7 +742,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Previous group</string>
+           <string>Previous MegaTile</string>
           </property>
           <property name="text">
            <string>&lt;</string>
@@ -786,7 +786,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Number of groups</string>
+           <string>Number of tiles</string>
           </property>
           <property name="autoFillBackground">
            <bool>false</bool>
@@ -910,7 +910,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Next group</string>
+           <string>Next tile</string>
           </property>
           <property name="text">
            <string>&gt;</string>
@@ -932,7 +932,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>Current group</string>
+           <string>Current tile</string>
           </property>
           <property name="text">
            <string>0</string>
@@ -998,7 +998,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>First group</string>
+           <string>First tile</string>
           </property>
           <property name="text">
            <string>|&lt;</string>
@@ -1067,7 +1067,7 @@
            </size>
           </property>
           <property name="toolTip">
-           <string>First group</string>
+           <string>First MegaTile</string>
           </property>
           <property name="text">
            <string>|&lt;</string>
