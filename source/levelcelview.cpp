@@ -572,14 +572,6 @@ void LevelCelView::insertTiles(IMAGE_FILE_MODE mode, int index, const QImage &im
         return;
     }
 
-    /*if (mode == IMAGE_FILE_MODE::AUTO
-        && (image.width() != subtileWidth || image.height() != subtileHeight) && image.width() != subtileWidth * EXPORT_TILES_PER_LINE) {
-        // not a column of tiles
-        // not a row or tiles
-        // not a grouped tiles from an export -> ignore
-        return;
-    }*/
-
     QImage subImage = QImage(tileWidth, tileHeight, QImage::Format_ARGB32);
     for (int y = 0; y < image.height(); y += tileHeight) {
         for (int x = 0; x < image.width(); x += tileWidth) {
