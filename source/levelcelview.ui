@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>874</width>
-    <height>523</height>
+    <height>528</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -84,7 +84,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QGraphicsView" name="celGraphicsView">
+       <widget class="View" name="celGraphicsView">
         <property name="minimumSize">
          <size>
           <width>500</width>
@@ -1146,6 +1146,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>View</class>
+   <extends>QGraphicsView</extends>
+   <header>view.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
