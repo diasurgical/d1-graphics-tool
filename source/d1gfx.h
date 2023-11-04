@@ -4,6 +4,8 @@
 #include <QMap>
 #include <QtEndian>
 
+#include <optional>
+
 #include "d1celtilesetframe.h"
 #include "d1pal.h"
 
@@ -72,9 +74,10 @@ public:
     ~D1Gfx() = default;
 
     QImage getFrameImage(quint16 frameIndex);
-    D1GfxFrame *insertFrame(int frameIndex, const QImage &image);
+    D1GfxFrame *insertFrame(int frameIdx, const QImage &image);
+    void insertFrameInGroup(int frameIdx, int groupIdx, const QImage &image);
     D1GfxFrame *replaceFrame(int frameIndex, const QImage &image);
-    void removeFrame(quint16 frameIndex);
+    std::optional<int> removeFrame(quint16 frameIndex);
     void regroupFrames(int count);
     void remapFrames(const QMap<unsigned, unsigned> &remap);
 
@@ -86,6 +89,7 @@ public:
     QString getFilePath();
     D1Pal *getPalette();
     void setPalette(D1Pal *pal);
+    void insertGroup(int groupIdx, int frameIdx, const QImage &image);
     int getGroupCount();
     QPair<quint16, quint16> getGroupFrameIndices(int groupIndex);
     int getFrameCount();

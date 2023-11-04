@@ -11,6 +11,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 
+#include "framecmds.h"
 #include "mainwindow.h"
 #include "ui_celview.h"
 
@@ -69,8 +70,9 @@ void CelScene::contextMenuEvent(QContextMenuEvent *event)
     emit this->showContextMenu(event->globalPos());
 }
 
-CelView::CelView(QWidget *parent)
+CelView::CelView(std::shared_ptr<QUndoStack> us, QWidget *parent)
     : QWidget(parent)
+    , undoStack(us)
     , ui(new Ui::CelView())
     , celScene(new CelScene(this))
 {
@@ -138,6 +140,8 @@ void CelView::insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefil
 {
     int prevFrameCount = this->gfx->getFrameCount();
 
+    // FIXME: remove that boolean variable and separate functions so there are both append and
+    // insert ones
     if (append) {
         // append the frame(s)
         for (int i = 0; i < imagefilePaths.count(); i++) {
@@ -165,6 +169,35 @@ void CelView::insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefil
     this->displayFrame();
 }
 
+void CelView::insertImageFile(int frameIdx, const QImage img)
+{
+    int prevFrameCount = this->gfx->getFrameCount();
+
+    // insert group with last frame that was deleted in it, or
+    // insert a frame in a group where it was before
+    if (!removedGroupIdxs.empty()) {
+        int removedGroupIdx = removedGroupIdxs.top();
+        this->gfx->insertGroup(removedGroupIdx, frameIdx, img);
+        removedGroupIdxs.pop();
+    } else {
+        int groupIdx = this->removedFrameGroupIdxs.top();
+        this->gfx->insertFrameInGroup(frameIdx, groupIdx, img);
+        this->removedFrameGroupIdxs.pop();
+    }
+
+    int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+    if (deltaFrameCount == 0) {
+        return; // no new frame -> done
+    }
+    // jump to the first appended frame
+    this->currentFrameIndex = frameIdx;
+    this->updateGroupIndex();
+
+    // update the view
+    this->initialize(this->gfx);
+    this->displayFrame();
+}
+
 void CelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
 {
     QImageReader reader = QImageReader(imagefilePath);
@@ -175,6 +208,7 @@ void CelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QString &imagef
         if (image.isNull()) {
             break;
         }
+
         this->gfx->insertFrame(index + numImages, image);
         numImages++;
     }
@@ -199,10 +233,29 @@ void CelView::replaceCurrentFrame(const QString &imagefilePath)
     this->displayFrame();
 }
 
-void CelView::removeCurrentFrame()
+void CelView::sendRemoveFrameCmd()
+{
+    // send a command to undostack, making deleting frame undo/redoable
+    RemoveFrameCommand *command = new RemoveFrameCommand(this->currentFrameIndex, this->gfx->getFrameImage(this->currentFrameIndex));
+    QObject::connect(command, &RemoveFrameCommand::removed, this, &CelView::removeCurrentFrame);
+    QObject::connect(command, &RemoveFrameCommand::inserted, this, &CelView::insertImageFile);
+
+    this->undoStack->push(command);
+}
+
+void CelView::removeCurrentFrame(int frameIdx)
 {
     // remove the frame
-    this->gfx->removeFrame(this->currentFrameIndex);
+    auto removedGroupIdx = this->gfx->removeFrame(frameIdx);
+
+    // if any group index has been removed, we have to store it so we can restore the group if we start inserting back frames
+    // otherwise we need to store current group index, so if user does undo operation on remove frame operation
+    // we can assign the frame to the correct group, where it was before
+    if (removedGroupIdx != std::nullopt)
+        removedGroupIdxs.push(*removedGroupIdx);
+    else
+        removedFrameGroupIdxs.push(this->currentGroupIndex);
+
     if (this->gfx->getFrameCount() == this->currentFrameIndex) {
         this->currentFrameIndex = std::max(0, this->currentFrameIndex - 1);
     }
@@ -264,7 +317,6 @@ void CelView::displayFrame()
 void CelView::updateGroupIndex()
 {
     QPair<quint16, quint16> groupFrameIndices = this->gfx->getGroupFrameIndices(this->currentGroupIndex);
-
     if (this->currentFrameIndex < groupFrameIndices.first || this->currentFrameIndex > groupFrameIndices.second) {
         this->setGroupIndex();
     }
@@ -272,6 +324,7 @@ void CelView::updateGroupIndex()
 
 void CelView::setGroupIndex()
 {
+    // FIXME: this probably can be rewritten in a different way
     QPair<quint16, quint16> groupFrameIndices;
     int i = 0;
 
@@ -283,6 +336,7 @@ void CelView::setGroupIndex()
             break;
         }
     }
+
     this->currentGroupIndex = i;
 }
 

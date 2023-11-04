@@ -1,11 +1,14 @@
 #include "levelcelview.h"
 
 #include <algorithm>
+#include <iostream>
 #include <set>
 
 #include "d1image.h"
+#include "framecmds.h"
 #include "mainwindow.h"
 #include "ui_levelcelview.h"
+
 #include <QAction>
 #include <QDebug>
 #include <QFileInfo>
@@ -15,8 +18,9 @@
 #include <QMessageBox>
 #include <QMimeData>
 
-LevelCelView::LevelCelView(QWidget *parent)
+LevelCelView::LevelCelView(std::shared_ptr<QUndoStack> us, QWidget *parent)
     : QWidget(parent)
+    , undoStack(us)
     , ui(new Ui::LevelCelView())
     , celScene(new CelScene(this))
 {
@@ -275,7 +279,7 @@ void LevelCelView::assignFrames(const QImage &image, int subtileIndex, int frame
     }
 }
 
-void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, int index, const QImage &image)
+void LevelCelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QImage &image)
 {
     if ((image.width() % MICRO_WIDTH) != 0 || (image.height() % MICRO_HEIGHT) != 0) {
         QMessageBox::critical(this, tr("Error!"), tr("Wrong frame dimensions!\n"
@@ -311,7 +315,7 @@ void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, int index, const QString &
         if (image.isNull()) {
             break;
         }
-        this->insertFrames(mode, index + numImages, image);
+        this->insertFrame(mode, index + numImages, image);
         numImages++;
     }
 
@@ -356,6 +360,44 @@ void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefi
             }
         }
     }
+    // update the view
+    this->update();
+    this->displayFrame();
+}
+
+void LevelCelView::insertFrame(int index, const QImage image)
+{
+    int prevFrameCount = this->gfx->getFrameCount();
+
+    this->insertFrame(IMAGE_FILE_MODE::FRAME, index, image);
+
+    int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+    if (deltaFrameCount == 0) {
+        return; // no new frame -> done
+    }
+
+    // FIXME: put that under some method in D1Min class
+    // shift every frame index after added index to the right
+    for (int i = 0; i < this->min->getSubtileCount(); i++) {
+        QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
+        for (int n = 0; n < frameIndices.count(); n++) {
+            if (frameIndices[n] > index) {
+                frameIndices[n] += 1;
+            }
+        }
+    }
+
+    // Restore frame index that was previously deleted in the tile. Index to frame list of the tile is held
+    // in the .first member of pair, and .second member holds index of the logical list which holds frame indices
+    // that make up the tile
+    auto &vec = tilesAndFramesIdxStack.top();
+    for (auto &pair : vec) {
+        QList<quint16> &frameIndices = this->min->getCelFrameIndices(pair.first);
+        frameIndices[pair.second] = index + 1;
+    }
+
+    tilesAndFramesIdxStack.pop();
+
     // update the view
     this->update();
     this->displayFrame();
@@ -681,11 +723,20 @@ void LevelCelView::removeFrame(int frameIndex)
     // shift references
     // - shift frame indices of the subtiles
     unsigned refIndex = frameIndex + 1;
+
+    tilesAndFramesIdxStack.push(std::vector<std::pair<int, int>>());
+
     for (int i = 0; i < this->min->getSubtileCount(); i++) {
         QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
         for (int n = 0; n < frameIndices.count(); n++) {
             if (frameIndices[n] >= refIndex) {
                 if (frameIndices[n] == refIndex) {
+                    // store tile index + frame indices list index, so it can get restored
+                    // if user does undo on the remove operation, note: we have to use std::vector
+                    // here, since 1 frame could be held in multiple tiles instances
+                    auto &vec = tilesAndFramesIdxStack.top();
+                    vec.emplace_back(std::make_pair(i, n));
+
                     frameIndices[n] = 0;
                 } else {
                     frameIndices[n] -= 1;
@@ -695,11 +746,14 @@ void LevelCelView::removeFrame(int frameIndex)
     }
 }
 
-void LevelCelView::removeCurrentFrame()
+void LevelCelView::sendRemoveFrameCmd()
 {
     // check if the current frame is used
     QList<int> frameUsers;
 
+    // FIXME: change this or make a new method which checks if there are any
+    // tiles/megatiles using this frame index returning true/false, instead
+    // of making a list, seems to be pointless the way it's working now
     this->collectFrameUsers(this->currentFrameIndex, frameUsers);
 
     if (!frameUsers.isEmpty()) {
@@ -709,9 +763,23 @@ void LevelCelView::removeCurrentFrame()
             return;
         }
     }
+
+    // send a command to undostack, making deleting frame undo/redoable
+    RemoveFrameCommand *command = new RemoveFrameCommand(this->currentFrameIndex, this->gfx->getFrameImage(this->currentFrameIndex));
+    QObject::connect(command, &RemoveFrameCommand::removed, this, &LevelCelView::removeCurrentFrame);
+    QObject::connect(command, &RemoveFrameCommand::inserted, this, static_cast<void (LevelCelView::*)(int, const QImage)>(&LevelCelView::insertFrame));
+
+    this->undoStack->push(command);
+}
+
+void LevelCelView::removeCurrentFrame(int frameIdx)
+{
     // remove the current frame
-    this->removeFrame(this->currentFrameIndex);
+    this->removeFrame(frameIdx);
+
     // update the view
+    // FIXME: decouple that somehow, why is it taking variables and then assigns it back
+    // to the same variables? Probably would be enough to call this->update()
     this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
     this->displayFrame();
 }
@@ -1458,6 +1526,8 @@ void LevelCelView::playGroup()
 
 void LevelCelView::ShowContextMenu(const QPoint &pos)
 {
+    // FIXME: it would be probably better to not get the backpointer, most of those
+    // methods are available in LevelCelView class
     MainWindow *mw = (MainWindow *)this->window();
 
     QMenu contextMenu(tr("Context menu"), this);

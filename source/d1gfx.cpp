@@ -1,5 +1,4 @@
 #include "d1gfx.h"
-
 #include "d1image.h"
 
 D1GfxPixel D1GfxPixel::transparentPixel()
@@ -91,31 +90,64 @@ QImage D1Gfx::getFrameImage(quint16 frameIndex)
     return image;
 }
 
-D1GfxFrame *D1Gfx::insertFrame(int idx, const QImage &image)
+void D1Gfx::insertGroup(int groupIdx, int frameIdx, const QImage &image)
 {
     D1GfxFrame frame;
     D1ImageFrame::load(frame, image, this->palette);
-    this->frames.insert(idx, frame);
+    this->frames.insert(frameIdx, frame);
+    this->groupFrameIndices.insert(groupIdx, QPair<int, int>(frameIdx, frameIdx));
+
+    // We have to increment first frame index in the group that follows the one that we have deleted,
+    // but only if the current group isn't the last one
+    for (int i = groupIdx + 1; i < this->groupFrameIndices.count(); i++) {
+        this->groupFrameIndices[i].first++;
+        this->groupFrameIndices[i].second++;
+    }
+}
+
+D1GfxFrame *D1Gfx::insertFrame(int frameIdx, const QImage &image)
+{
+    D1GfxFrame frame;
+    D1ImageFrame::load(frame, image, this->palette);
+    this->frames.insert(frameIdx, frame);
 
     if (this->groupFrameIndices.isEmpty()) {
         // create new group if this is the first frame
         this->groupFrameIndices.append(qMakePair(0, 0));
-    } else if (this->frames.count() == idx + 1) {
+    } else if (this->frames.count() == frameIdx + 1) {
         // extend the last group if appending a frame
-        this->groupFrameIndices.last().second = idx;
+        this->groupFrameIndices.last().second = frameIdx;
     } else {
         // extend the current group and adjust every group after it
         for (int i = 0; i < this->groupFrameIndices.count(); i++) {
-            if (this->groupFrameIndices[i].second < idx)
+            if (this->groupFrameIndices[i].second < frameIdx)
                 continue;
-            if (this->groupFrameIndices[i].first > idx) {
+            if (this->groupFrameIndices[i].first > frameIdx) {
                 this->groupFrameIndices[i].first++;
             }
             this->groupFrameIndices[i].second++;
         }
     }
+
     this->modified = true;
-    return &this->frames[idx];
+    return &this->frames[frameIdx];
+}
+
+void D1Gfx::insertFrameInGroup(int frameIdx, int groupIdx, const QImage &image)
+{
+    D1GfxFrame frame;
+    D1ImageFrame::load(frame, image, this->palette);
+    this->frames.insert(frameIdx, frame);
+
+    this->groupFrameIndices[groupIdx].second++;
+
+    // shift all indices in groups AFTER group in which frame has been added
+    for (int i = groupIdx + 1; i < this->groupFrameIndices.count(); i++) {
+        this->groupFrameIndices[i].first++;
+        this->groupFrameIndices[i].second++;
+    }
+
+    this->modified = true;
 }
 
 D1GfxFrame *D1Gfx::replaceFrame(int idx, const QImage &image)
@@ -128,14 +160,16 @@ D1GfxFrame *D1Gfx::replaceFrame(int idx, const QImage &image)
     return &this->frames[idx];
 }
 
-void D1Gfx::removeFrame(quint16 idx)
+std::optional<int> D1Gfx::removeFrame(quint16 idx)
 {
     this->frames.removeAt(idx);
+    std::optional<int> removedGroupIdx;
 
     for (int i = 0; i < this->groupFrameIndices.count(); i++) {
         if (this->groupFrameIndices[i].second < idx)
             continue;
         if (this->groupFrameIndices[i].second == idx && this->groupFrameIndices[i].first == idx) {
+            removedGroupIdx.emplace(i);
             this->groupFrameIndices.removeAt(i);
             i--;
             continue;
@@ -146,6 +180,8 @@ void D1Gfx::removeFrame(quint16 idx)
         this->groupFrameIndices[i].second--;
     }
     this->modified = true;
+
+    return removedGroupIdx;
 }
 
 void D1Gfx::regroupFrames(int numGroups)
