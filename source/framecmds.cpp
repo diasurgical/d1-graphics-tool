@@ -1,16 +1,18 @@
 #include "framecmds.h"
 
-RemoveFrameCommand::RemoveFrameCommand(D1Gfx *g, CelView *cv, QUndoCommand *parent)
-    : gfx(g)
-    , celview(cv)
-    , QUndoCommand(parent)
+RemoveFrameCommand::RemoveFrameCommand(int currentFrameIndex, const QImage img, QUndoCommand *parent)
+    : frameIndexToRevert(currentFrameIndex)
+    , imgToRevert(img)
 {
 }
 
 void RemoveFrameCommand::undo()
 {
+    emit this->inserted(frameIndexToRevert, imgToRevert);
 }
 
 void RemoveFrameCommand::redo()
 {
+    // emit this signal which will call LevelCelView/CelView::removeCurrentFrame
+    emit this->removed(frameIndexToRevert);
 }

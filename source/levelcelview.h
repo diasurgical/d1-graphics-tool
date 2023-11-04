@@ -9,7 +9,13 @@
 #include <QImage>
 #include <QPoint>
 #include <QTimer>
+#include <QUndoStack>
 #include <QWidget>
+
+#include <memory>
+#include <stack>
+#include <utility>
+#include <vector>
 
 #include "celview.h"
 #include "d1amp.h"
@@ -37,7 +43,7 @@ class LevelCelView : public QWidget {
     Q_OBJECT
 
 public:
-    explicit LevelCelView(QWidget *parent = nullptr);
+    explicit LevelCelView(std::shared_ptr<QUndoStack> us, QWidget *parent = nullptr);
     ~LevelCelView();
 
     void initialize(D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
@@ -51,7 +57,8 @@ public:
     void insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
 
     void replaceCurrentFrame(const QString &imagefilePath);
-    void removeCurrentFrame();
+    void sendRemoveFrameCmd();
+    void removeCurrentFrame(int idx);
 
     void createSubtile();
     void cloneSubtile();
@@ -78,7 +85,7 @@ private:
     void update();
     void collectFrameUsers(int frameIndex, QList<int> &users) const;
     void collectSubtileUsers(int subtileIndex, QList<int> &users) const;
-    void insertFrames(IMAGE_FILE_MODE mode, int index, const QImage &image);
+    void insertFrame(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertFrames(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
     void insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void insertSubtile(int subtileIndex, const QImage &image);
@@ -145,8 +152,10 @@ private slots:
     void dropEvent(QDropEvent *event);
 
     void ShowContextMenu(const QPoint &pos);
+    void insertFrame(int index, QImage image);
 
 private:
+    std::shared_ptr<QUndoStack> undoStack;
     Ui::LevelCelView *ui;
     CelScene *celScene;
     LevelTabTileWidget *tabTileWidget = new LevelTabTileWidget();
@@ -155,6 +164,8 @@ private:
 
     TILESET_MODE mode = TILESET_MODE::FREE;
     int editIndex = 0;
+
+    std::stack<std::vector<std::pair<int, int>>> tilesAndFramesIdxStack; // stores tile index + frame indices list index
 
     D1Gfx *gfx;
     D1Min *min;

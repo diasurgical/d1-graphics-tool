@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include <QDirIterator>
 #include <QGraphicsScene>
 #include <QMouseEvent>
@@ -123,7 +125,7 @@ class PaletteWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PaletteWidget(QUndoStack *undoStack, QString title);
+    explicit PaletteWidget(std::shared_ptr<QUndoStack> undoStack, QString title);
     ~PaletteWidget();
 
     void setPal(D1Pal *p);
@@ -214,7 +216,7 @@ private slots:
     void on_monsterTrnPushButton_clicked();
 
 private:
-    QUndoStack *undoStack;
+    std::shared_ptr<QUndoStack> undoStack;
     Ui::PaletteWidget *ui;
     bool isTrn;
 

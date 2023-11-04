@@ -7,6 +7,8 @@
 #include <QStringList>
 #include <QUndoCommand>
 
+#include <memory>
+
 #include "celview.h"
 #include "d1gfx.h"
 #include "d1min.h"
@@ -164,7 +166,7 @@ private:
     QMenu subtileMenu = QMenu("Tile");
     QMenu tileMenu = QMenu("MegaTile");
 
-    QUndoStack *undoStack;
+    std::shared_ptr<QUndoStack> undoStack;
     QAction *undoAction;
     QAction *redoAction;
 

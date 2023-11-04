@@ -47,7 +47,7 @@ MainWindow::MainWindow()
     this->ui->menuFile->insertMenu(firstFileAction, &this->newMenu);
 
     // Initialize 'Undo/Redo' of 'Edit
-    this->undoStack = new QUndoStack(this);
+    this->undoStack = std::make_shared<QUndoStack>(this);
     this->undoAction = undoStack->createUndoAction(this, "Undo");
     this->undoAction->setShortcuts(QKeySequence::Undo);
     this->ui->menuEdit->addAction(this->undoAction);
@@ -102,7 +102,6 @@ MainWindow::~MainWindow()
     Config::insert("LastFilePath", this->lastFilePath);
     // cleanup memory
     delete ui;
-    delete this->undoStack;
     delete this->undoAction;
     delete this->redoAction;
 }
@@ -149,7 +148,8 @@ void MainWindow::updateWindow()
     // rebuild palette hits
     this->palHits->update();
     this->palWidget->refresh();
-    this->undoStack->clear();
+    this->undoAction->setEnabled(this->undoStack->canUndo());
+
     // update menu options
     bool hasFrame = this->gfx->getFrameCount() != 0;
     this->frameMenu.actions()[2]->setEnabled(hasFrame); // replace frame
@@ -614,7 +614,7 @@ void MainWindow::openFile(const OpenAsParam &params)
     QObject::connect(this->trnUniqueWidget, &PaletteWidget::clearRootBorder, this->trnWidget, &PaletteWidget::clearBorder);
 
     if (isTileset) {
-        this->levelCelView = new LevelCelView();
+        this->levelCelView = new LevelCelView(this->undoStack);
         this->levelCelView->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
 
         // Refresh CEL view if a PAL or TRN is modified
@@ -640,7 +640,7 @@ void MainWindow::openFile(const OpenAsParam &params)
     }
     // Otherwise build a CelView
     else {
-        this->celView = new CelView();
+        this->celView = new CelView(this->undoStack);
         this->celView->initialize(this->gfx);
 
         // Refresh CEL view if a PAL or TRN is modified
@@ -1098,10 +1098,10 @@ void MainWindow::actionReplaceFrame_triggered()
 void MainWindow::actionDelFrame_triggered()
 {
     if (this->celView != nullptr) {
-        this->celView->removeCurrentFrame();
+        this->celView->sendRemoveFrameCmd();
     }
     if (this->levelCelView != nullptr) {
-        this->levelCelView->removeCurrentFrame();
+        this->levelCelView->sendRemoveFrameCmd();
     }
     this->updateWindow();
 }

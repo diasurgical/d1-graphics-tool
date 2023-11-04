@@ -8,15 +8,17 @@ class RemoveFrameCommand : public QObject, public QUndoCommand {
     Q_OBJECT
 
 public:
-    explicit RemoveFrameCommand(D1Gfx *g, CelView *cv, QUndoCommand *parent = nullptr);
+    explicit RemoveFrameCommand(int currentFrameIndex, const QImage img, QUndoCommand *parent = nullptr);
     ~RemoveFrameCommand() = default;
 
     void undo() override;
     void redo() override;
 
+signals:
+    void removed(int idxToRemove);
+    void inserted(int idxToRestore, const QImage imgToRestore);
+
 private:
-    QPointer<D1Gfx> gfx;
-    QPointer<CelView> celview;
-    QImage img;
-    int currentFrameIndex = 0;
+    QImage imgToRevert;
+    int frameIndexToRevert = 0;
 };

@@ -265,7 +265,7 @@ QPushButton *PaletteWidget::addButton(QStyle::StandardPixmap type, QString toolt
     return button;
 }
 
-PaletteWidget::PaletteWidget(QUndoStack *us, QString title)
+PaletteWidget::PaletteWidget(std::shared_ptr<QUndoStack> us, QString title)
     : QWidget(nullptr)
     , undoStack(us)
     , ui(new Ui::PaletteWidget())

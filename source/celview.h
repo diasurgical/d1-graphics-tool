@@ -9,7 +9,11 @@
 #include <QPoint>
 #include <QStringList>
 #include <QTimer>
+#include <QUndoStack>
 #include <QWidget>
+
+#include <memory>
+#include <stack>
 
 #include "d1gfx.h"
 
@@ -46,16 +50,18 @@ class CelView : public QWidget {
     Q_OBJECT
 
 public:
-    explicit CelView(QWidget *parent = nullptr);
+    explicit CelView(std::shared_ptr<QUndoStack> us, QWidget *parent = nullptr);
     ~CelView();
 
     void initialize(D1Gfx *gfx);
+    void sendRemoveFrameCmd();
     int getCurrentFrameIndex();
     void framePixelClicked(unsigned x, unsigned y);
     void insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
     void replaceCurrentFrame(const QString &imagefilePath);
-    void removeCurrentFrame();
+    void removeCurrentFrame(int frameIdx);
     void regroupFrames(int numGroups);
+    void updateGroupIndex();
 
     void displayFrame();
 
@@ -66,7 +72,6 @@ signals:
 private:
     void update();
     void insertFrame(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
-    void updateGroupIndex();
     void setGroupIndex();
 
 private slots:
@@ -96,8 +101,13 @@ private slots:
     void dropEvent(QDropEvent *event);
 
     void ShowContextMenu(const QPoint &pos);
+    void insertImageFile(int frameIdx, const QImage img);
 
 private:
+    std::stack<int> removedGroupIdxs;      // holds indexes of groups that have been removed, used for undo ops
+    std::stack<int> removedFrameGroupIdxs; // holds group indexes of frames that got removed, used for undo ops
+
+    std::shared_ptr<QUndoStack> undoStack;
     Ui::CelView *ui;
     CelScene *celScene;
 
