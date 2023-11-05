@@ -1576,7 +1576,7 @@ void LevelCelView::on_firstFrameButton_clicked()
     this->currentFrameIndex = 0;
 
     if (this->mode == TILESET_MODE::SUBTILE) {
-        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex + 1;
     } else {
         this->mode = TILESET_MODE::FREE;
         this->update();
@@ -1593,7 +1593,7 @@ void LevelCelView::on_previousFrameButton_clicked()
         this->currentFrameIndex = std::max(0, this->gfx->getFrameCount() - 1);
 
     if (this->mode == TILESET_MODE::SUBTILE) {
-        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex + 1;
     } else {
         this->mode = TILESET_MODE::FREE;
         this->update();
@@ -1610,7 +1610,7 @@ void LevelCelView::on_nextFrameButton_clicked()
         this->currentFrameIndex = 0;
 
     if (this->mode == TILESET_MODE::SUBTILE) {
-        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex + 1;
     } else {
         this->mode = TILESET_MODE::FREE;
         this->update();
@@ -1624,7 +1624,7 @@ void LevelCelView::on_lastFrameButton_clicked()
     this->currentFrameIndex = std::max(0, this->gfx->getFrameCount() - 1);
 
     if (this->mode == TILESET_MODE::SUBTILE) {
-        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+        this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex + 1;
     } else {
         this->mode = TILESET_MODE::FREE;
         this->update();
