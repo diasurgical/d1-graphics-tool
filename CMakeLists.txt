@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(D1GraphicsTool VERSION 1.0.0 LANGUAGES CXX)
+project(D1GraphicsTool VERSION 1.0.1 LANGUAGES CXX)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -142,7 +142,7 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/diasurgical/d1-graphics-tool")
   set(CPACK_PACKAGE_DESCRIPTION "Diablo 1 Graphics Tool can open CEL/CL2 graphics files and display them with chosen color palette (PAL) and color translation (TRN) files.")
   set(CPACK_DEBIAN_PACKAGE_SECTION "graphics")
-  
+
   if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     set(CPACK_DEBIAN_PACKAGE_DEPENDS "libqt6widgets6 (>= 6.2.4), qt6-qpa-plugins (>= 6.2.4)")
   else()

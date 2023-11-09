@@ -22,7 +22,7 @@
 #include "settingsdialog.h"
 
 #define D1_GRAPHICS_TOOL_TITLE "Diablo 1 Graphics Tool"
-#define D1_GRAPHICS_TOOL_VERSION "1.0.0"
+#define D1_GRAPHICS_TOOL_VERSION "1.0.1"
 
 enum class FILE_DIALOG_MODE {
     OPEN,         // open existing

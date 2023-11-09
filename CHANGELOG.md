@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.0.1 - 2023-11-09
+### Fixed
+- Windows: No longer requires MSVC installation to run.
+- Linux: Now depends on the correct version of Qt.
+- Linux: Settings are now saved correctly, and recent paths are remembered.
+- Frame counter no longer resets when only one frame exists.
+- Corrected the issue of the wrong frame being displayed in tile mode.
+
+### Changed
+- Aligned the tileset naming convention with other projects.
+
+### Added
+- Introduced an alert for users when an image doesn't fit in the tileset.
+- Users can now drag the view using the middle mouse button.
+
 ## 1.0.0 - 2023-04-12
 ### Added
 - Create new sprites or tilesets.
