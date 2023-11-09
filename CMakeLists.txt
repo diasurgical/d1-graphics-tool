@@ -16,68 +16,32 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 include_directories(source/)
 set(PROJECT_SOURCES
         source/celview.cpp
-        source/celview.h
-        source/celview.ui
         source/config.cpp
-        source/config.h
         source/d1amp.cpp
-        source/d1amp.h
         source/d1cel.cpp
         source/d1celframe.cpp
-        source/d1celframe.h
-        source/d1cel.h
         source/d1celtileset.cpp
         source/d1celtilesetframe.cpp
-        source/d1celtilesetframe.h
-        source/d1celtileset.h
         source/d1cl2.cpp
-        source/d1cl2.h
         source/d1gfx.cpp
-        source/d1gfx.h
         source/d1image.cpp
-        source/d1image.h
         source/d1min.cpp
-        source/d1min.h
         source/d1pal.cpp
-        source/d1pal.h
         source/d1palhits.cpp
-        source/d1palhits.h
         source/d1sol.cpp
-        source/d1sol.h
         source/d1til.cpp
-        source/d1til.h
         source/d1trn.cpp
-        source/d1trn.h
         source/exportdialog.cpp
-        source/exportdialog.h
-        source/exportdialog.ui
         source/view.cpp
-        source/view.h
         source/levelcelview.cpp
-        source/levelcelview.h
-        source/levelcelview.ui
         source/leveltabframewidget.cpp
-        source/leveltabframewidget.h
-        source/leveltabframewidget.ui
         source/leveltabsubtilewidget.cpp
-        source/leveltabsubtilewidget.h
-        source/leveltabsubtilewidget.ui
         source/leveltabtilewidget.cpp
-        source/leveltabtilewidget.h
-        source/leveltabtilewidget.ui
         source/main.cpp
         source/mainwindow.cpp
-        source/mainwindow.h
-        source/mainwindow.ui
         source/openasdialog.cpp
-        source/openasdialog.h
-        source/openasdialog.ui
         source/palettewidget.cpp
-        source/palettewidget.h
-        source/palettewidget.ui
         source/settingsdialog.cpp
-        source/settingsdialog.h
-        source/settingsdialog.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
