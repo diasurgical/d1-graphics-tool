@@ -1,7 +1,6 @@
 #include "levelcelview.h"
 
 #include <algorithm>
-#include <iostream>
 #include <set>
 
 #include "d1image.h"
@@ -281,6 +280,8 @@ void LevelCelView::assignFrames(const QImage &image, int subtileIndex, int frame
 
 void LevelCelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QImage &image)
 {
+    // FIXME: investigate if adding multiple frames, and having a frame that is not in
+    // proper dimensions will screw up frame list, especially in appending operations
     if ((image.width() % MICRO_WIDTH) != 0 || (image.height() % MICRO_HEIGHT) != 0) {
         QMessageBox::critical(this, tr("Error!"), tr("Wrong frame dimensions!\n"
                                                      "Image should have dimensions %1x%2px (w x h).\n"
@@ -305,51 +306,26 @@ void LevelCelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QImage &im
     this->assignFrames(image, -1, index);
 }
 
-void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
-{
-    QImageReader reader = QImageReader(imagefilePath);
-    int numImages = 0;
-
-    while (true) {
-        QImage image = reader.read();
-        if (image.isNull()) {
-            break;
-        }
-        this->insertFrame(mode, index + numImages, image);
-        numImages++;
-    }
-
-    if (mode != IMAGE_FILE_MODE::AUTO && numImages == 0) {
-        QMessageBox::critical(this, "Error", "Failed read image file: " + imagefilePath);
-    }
-}
-
-void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append)
+void LevelCelView::insertFrames(int startingIndex, const std::vector<QImage> &images, IMAGE_FILE_MODE mode)
 {
     int prevFrameCount = this->gfx->getFrameCount();
 
-    if (append) {
-        // append the frame(s)
-        for (int i = 0; i < imagefilePaths.count(); i++) {
-            this->insertFrames(mode, this->gfx->getFrameCount(), imagefilePaths[i]);
-        }
-        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
-        if (deltaFrameCount == 0) {
-            return; // no new frame -> done
-        }
-        // jump to the first appended frame
-        this->currentFrameIndex = prevFrameCount;
-    } else {
-        // insert the frame(s)
-        for (int i = imagefilePaths.count() - 1; i >= 0; i--) {
-            this->insertFrames(mode, this->currentFrameIndex, imagefilePaths[i]);
-        }
-        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
-        if (deltaFrameCount == 0) {
-            return; // no new frame -> done
-        }
+    for (int idx = 0; idx < images.size(); idx++) {
+        this->insertFrame(mode, startingIndex + idx, images[idx]);
+    }
+
+    int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+    if (deltaFrameCount == 0) {
+        return; // no new frame -> done
+    }
+
+    // If we are inserting (not appending), then we have to
+    // shift all tiles references higher than inserted frame's index to the right.
+    // Otherwise, if we are appending - just update currentFrameIndex to the one first
+    // appended frame
+    if (startingIndex + 1 != this->gfx->getFrameCount()) {
         // shift references
-        unsigned refIndex = this->currentFrameIndex + 1;
+        unsigned refIndex = startingIndex + 1;
         // shift frame indices of the subtiles
         for (int i = 0; i < this->min->getSubtileCount(); i++) {
             QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
@@ -359,10 +335,59 @@ void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefi
                 }
             }
         }
+    } else {
+        this->currentFrameIndex = prevFrameCount;
     }
+
+    // If this function is used in undo stack and this operation came after redo,
+    // then we have to renew previously used indices of frames
+    if (!tilesAndFramesIdxStack.empty()) {
+        for (int idx = 0; idx < images.size(); idx++) {
+            auto &vec = tilesAndFramesIdxStack.top();
+            for (auto &pair : vec) {
+                QList<quint16> &frameIndices = this->min->getCelFrameIndices(pair.first);
+                frameIndices[pair.second] = (startingIndex + idx) + 1;
+            }
+
+            tilesAndFramesIdxStack.pop();
+        }
+    }
+
     // update the view
     this->update();
     this->displayFrame();
+}
+
+void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append)
+{
+    if (append) {
+        // append the frame(s)
+        for (int i = 0; i < imagefilePaths.count(); i++) {
+            this->sendAddFrameCmd(mode, this->gfx->getFrameCount(), imagefilePaths[i]);
+        }
+    } else {
+        // insert the frame(s)
+        for (int i = imagefilePaths.count() - 1; i >= 0; i--) {
+            this->sendAddFrameCmd(mode, this->currentFrameIndex, imagefilePaths[i]);
+        }
+    }
+}
+
+void LevelCelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+{
+    AddFrameCommand *command;
+    try {
+        command = new AddFrameCommand(mode, index, imagefilePath);
+    } catch (...) {
+        QMessageBox::critical(this, "Error", "Failed to read image file: " + imagefilePath);
+        return;
+    }
+
+    // send a command to undostack, making adding frame undo/redoable
+    QObject::connect(command, &AddFrameCommand::added, this, static_cast<void (LevelCelView::*)(int startingIndex, const std::vector<QImage> &images, IMAGE_FILE_MODE mode)>(&LevelCelView::insertFrames));
+    QObject::connect(command, &AddFrameCommand::undoAdded, this, &LevelCelView::removeFrames);
+
+    undoStack->push(command);
 }
 
 void LevelCelView::insertFrame(int index, const QImage image)
@@ -720,12 +745,12 @@ void LevelCelView::removeFrame(int frameIndex)
     if (this->gfx->getFrameCount() == this->currentFrameIndex) {
         this->currentFrameIndex = std::max(0, this->currentFrameIndex - 1);
     }
-    // shift references
-    // - shift frame indices of the subtiles
     unsigned refIndex = frameIndex + 1;
 
     tilesAndFramesIdxStack.push(std::vector<std::pair<int, int>>());
 
+    // shift references
+    // - shift frame indices of the subtiles
     for (int i = 0; i < this->min->getSubtileCount(); i++) {
         QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
         for (int n = 0; n < frameIndices.count(); n++) {
@@ -781,6 +806,17 @@ void LevelCelView::removeCurrentFrame(int frameIdx)
     // FIXME: decouple that somehow, why is it taking variables and then assigns it back
     // to the same variables? Probably would be enough to call this->update()
     this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
+    this->displayFrame();
+}
+
+void LevelCelView::removeFrames(int startingIdx, int endingIndex)
+{
+    for (int idx = startingIdx; idx < endingIndex; idx++) {
+        this->removeCurrentFrame(idx);
+    }
+
+    // update the view
+    this->update();
     this->displayFrame();
 }
 
@@ -1711,7 +1747,7 @@ void LevelCelView::on_frameIndexEdit_returnPressed()
         this->currentFrameIndex = frameIndex;
 
         if (this->mode == TILESET_MODE::SUBTILE) {
-            this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex;
+            this->min->getCelFrameIndices(this->currentSubtileIndex)[this->editIndex] = this->currentFrameIndex + 1;
         } else {
             this->mode = TILESET_MODE::FREE;
             this->update();
