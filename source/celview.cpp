@@ -138,35 +138,19 @@ void CelView::framePixelClicked(unsigned x, unsigned y)
 
 void CelView::insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append)
 {
-    int prevFrameCount = this->gfx->getFrameCount();
-
     // FIXME: remove that boolean variable and separate functions so there are both append and
     // insert ones
     if (append) {
         // append the frame(s)
         for (int i = 0; i < imagefilePaths.count(); i++) {
-            this->insertFrame(mode, this->gfx->getFrameCount(), imagefilePaths[i]);
+            this->sendAddFrameCmd(mode, this->gfx->getFrameCount(), imagefilePaths[i]);
         }
-        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
-        if (deltaFrameCount == 0) {
-            return; // no new frame -> done
-        }
-        // jump to the first appended frame
-        this->currentFrameIndex = prevFrameCount;
-        this->updateGroupIndex();
     } else {
         // insert the frame(s)
         for (int i = imagefilePaths.count() - 1; i >= 0; i--) {
-            this->insertFrame(mode, this->currentFrameIndex, imagefilePaths[i]);
-        }
-        int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
-        if (deltaFrameCount == 0) {
-            return; // no new frame -> done
+            this->sendAddFrameCmd(mode, this->currentFrameIndex, imagefilePaths[i]);
         }
     }
-    // update the view
-    this->initialize(this->gfx);
-    this->displayFrame();
 }
 
 void CelView::insertImageFile(int frameIdx, const QImage img)
@@ -198,24 +182,61 @@ void CelView::insertImageFile(int frameIdx, const QImage img)
     this->displayFrame();
 }
 
-void CelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+void CelView::insertFrames(int startingIndex, const std::vector<QImage> &images)
 {
-    QImageReader reader = QImageReader(imagefilePath);
-    int numImages = 0;
+    int prevFrameCount = this->gfx->getFrameCount();
 
-    while (true) {
-        QImage image = reader.read();
-        if (image.isNull()) {
-            break;
-        }
-
-        this->gfx->insertFrame(index + numImages, image);
-        numImages++;
+    for (int idx = 0; idx < images.size(); idx++) {
+        this->gfx->insertFrame(startingIndex + idx, images[idx]);
     }
 
-    if (mode != IMAGE_FILE_MODE::AUTO && numImages == 0) {
-        QMessageBox::critical(this, "Error", "Failed read image file: " + imagefilePath);
+    int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
+    if (deltaFrameCount == 0) {
+        return; // no new frame -> done
     }
+
+    this->currentFrameIndex = startingIndex;
+    this->updateGroupIndex();
+
+    // update the view
+    this->initialize(this->gfx);
+    this->displayFrame();
+}
+
+void CelView::removeFrames(int startingIndex, int endingIndex)
+{
+    int idx = startingIndex;
+    while (startingIndex != endingIndex) {
+        this->removeCurrentFrame(idx);
+        startingIndex++;
+    }
+}
+
+void CelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
+{
+    AddFrameCommand *command;
+    try {
+        command = new AddFrameCommand(mode, index, imagefilePath);
+    } catch (...) {
+        QMessageBox::critical(this, "Error", "Failed to read image file: " + imagefilePath);
+        return;
+    }
+
+    // send a command to undostack, making adding frame undo/redoable
+    QObject::connect(command, &AddFrameCommand::added, this, &CelView::insertFrames);
+    QObject::connect(command, &AddFrameCommand::undoAdded, this, &CelView::removeFrames);
+
+    undoStack->push(command);
+}
+
+void CelView::sendRemoveFrameCmd()
+{
+    // send a command to undostack, making deleting frame undo/redoable
+    RemoveFrameCommand *command = new RemoveFrameCommand(this->currentFrameIndex, this->gfx->getFrameImage(this->currentFrameIndex));
+    QObject::connect(command, &RemoveFrameCommand::removed, this, &CelView::removeCurrentFrame);
+    QObject::connect(command, &RemoveFrameCommand::inserted, this, &CelView::insertImageFile);
+
+    this->undoStack->push(command);
 }
 
 void CelView::replaceCurrentFrame(const QString &imagefilePath)
@@ -231,16 +252,6 @@ void CelView::replaceCurrentFrame(const QString &imagefilePath)
     // update the view
     this->initialize(this->gfx);
     this->displayFrame();
-}
-
-void CelView::sendRemoveFrameCmd()
-{
-    // send a command to undostack, making deleting frame undo/redoable
-    RemoveFrameCommand *command = new RemoveFrameCommand(this->currentFrameIndex, this->gfx->getFrameImage(this->currentFrameIndex));
-    QObject::connect(command, &RemoveFrameCommand::removed, this, &CelView::removeCurrentFrame);
-    QObject::connect(command, &RemoveFrameCommand::inserted, this, &CelView::insertImageFile);
-
-    this->undoStack->push(command);
 }
 
 void CelView::removeCurrentFrame(int frameIdx)
