@@ -23,6 +23,26 @@ private:
     int frameIndexToRevert = 0;
 };
 
+class ReplaceFrameCommand : public QObject, public QUndoCommand {
+    Q_OBJECT
+
+public:
+    explicit ReplaceFrameCommand(int currentFrameIndex, const QImage imgToReplace, const QImage imgToRestore, QUndoCommand *parent = nullptr);
+    ~ReplaceFrameCommand() = default;
+
+    void undo() override;
+    void redo() override;
+
+signals:
+    void undoReplaced(int idxToRemove, const QImage imgToRestore);
+    void replaced(int idxToReplace, const QImage imgToReplace);
+
+private:
+    QImage imgToReplace;
+    QImage imgToRestore;
+    int frameIndexToReplace = 0;
+};
+
 class AddFrameCommand : public QObject, public QUndoCommand {
     Q_OBJECT
 

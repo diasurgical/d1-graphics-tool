@@ -60,7 +60,8 @@ public:
     int getCurrentFrameIndex();
     void framePixelClicked(unsigned x, unsigned y);
     void insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
-    void replaceCurrentFrame(const QString &imagefilePath);
+    void sendReplaceCurrentFrameCmd(const QString &imagefilePath);
+    void replaceCurrentFrame(int frameIdx, const QImage &image);
     void removeCurrentFrame(int frameIdx);
     void regroupFrames(int numGroups);
     void updateGroupIndex();

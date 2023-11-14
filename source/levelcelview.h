@@ -51,13 +51,15 @@ public:
     int getCurrentFrameIndex();
     int getCurrentSubtileIndex();
     int getCurrentTileIndex();
-    void replaceCurrentFrame(const QString &imagefilePath);
 
     void framePixelClicked(unsigned x, unsigned y);
 
     void insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
 
     void sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
+
+    void sendReplaceCurrentFrameCmd(const QString &imagefilePath);
+    void replaceCurrentFrame(int frameIdx, const QImage &image);
 
     void sendRemoveFrameCmd();
     void removeCurrentFrame(int idx);

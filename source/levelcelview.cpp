@@ -714,7 +714,7 @@ void LevelCelView::insertTiles(IMAGE_FILE_MODE mode, const QStringList &imagefil
     this->displayFrame();
 }
 
-void LevelCelView::replaceCurrentFrame(const QString &imagefilePath)
+void LevelCelView::sendReplaceCurrentFrameCmd(const QString &imagefilePath)
 {
     QImage image = QImage(imagefilePath);
 
@@ -728,7 +728,17 @@ void LevelCelView::replaceCurrentFrame(const QString &imagefilePath)
         return;
     }
 
-    D1GfxFrame *frame = this->gfx->replaceFrame(this->currentFrameIndex, image);
+    // send a command to undostack, making replacing frame undo/redoable
+    ReplaceFrameCommand *command = new ReplaceFrameCommand(this->currentFrameIndex, image, this->gfx->getFrameImage(this->currentFrameIndex));
+    QObject::connect(command, &ReplaceFrameCommand::replaced, this, &LevelCelView::replaceCurrentFrame);
+    QObject::connect(command, &ReplaceFrameCommand::undoReplaced, this, &LevelCelView::replaceCurrentFrame);
+
+    undoStack->push(command);
+}
+
+void LevelCelView::replaceCurrentFrame(int frameIdx, const QImage &image)
+{
+    D1GfxFrame *frame = this->gfx->replaceFrame(frameIdx, image);
 
     if (frame != nullptr) {
         LevelTabFrameWidget::selectFrameType(frame);
