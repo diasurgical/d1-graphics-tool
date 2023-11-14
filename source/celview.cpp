@@ -229,6 +229,31 @@ void CelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &im
     undoStack->push(command);
 }
 
+void CelView::replaceCurrentFrame(int frameIdx, const QImage &image)
+{
+    this->gfx->replaceFrame(frameIdx, image);
+
+    // update the view
+    this->initialize(this->gfx);
+    this->displayFrame();
+}
+
+void CelView::sendReplaceCurrentFrameCmd(const QString &imagefilePath)
+{
+    QImage image = QImage(imagefilePath);
+
+    if (image.isNull()) {
+        return;
+    }
+
+    // send a command to undostack, making replacing frame undo/redoable
+    ReplaceFrameCommand *command = new ReplaceFrameCommand(this->currentFrameIndex, image, this->gfx->getFrameImage(this->currentFrameIndex));
+    QObject::connect(command, &ReplaceFrameCommand::replaced, this, &CelView::replaceCurrentFrame);
+    QObject::connect(command, &ReplaceFrameCommand::undoReplaced, this, &CelView::replaceCurrentFrame);
+
+    undoStack->push(command);
+}
+
 void CelView::sendRemoveFrameCmd()
 {
     // send a command to undostack, making deleting frame undo/redoable
@@ -237,21 +262,6 @@ void CelView::sendRemoveFrameCmd()
     QObject::connect(command, &RemoveFrameCommand::inserted, this, &CelView::insertImageFile);
 
     this->undoStack->push(command);
-}
-
-void CelView::replaceCurrentFrame(const QString &imagefilePath)
-{
-    QImage image = QImage(imagefilePath);
-
-    if (image.isNull()) {
-        return;
-    }
-
-    this->gfx->replaceFrame(this->currentFrameIndex, image);
-
-    // update the view
-    this->initialize(this->gfx);
-    this->displayFrame();
 }
 
 void CelView::removeCurrentFrame(int frameIdx)

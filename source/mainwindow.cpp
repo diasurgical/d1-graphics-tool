@@ -1084,10 +1084,10 @@ void MainWindow::actionReplaceFrame_triggered()
     this->ui->statusBar->repaint();
 
     if (this->celView != nullptr) {
-        this->celView->replaceCurrentFrame(imgFilePath);
+        this->celView->sendReplaceCurrentFrameCmd(imgFilePath);
     }
     if (this->levelCelView != nullptr) {
-        this->levelCelView->replaceCurrentFrame(imgFilePath);
+        this->levelCelView->sendReplaceCurrentFrameCmd(imgFilePath);
     }
     this->updateWindow();
 

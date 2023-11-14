@@ -22,6 +22,24 @@ void RemoveFrameCommand::redo()
     emit this->removed(frameIndexToRevert);
 }
 
+ReplaceFrameCommand::ReplaceFrameCommand(int currentFrameIndex, const QImage imgToReplace, const QImage imgToRestore, QUndoCommand *parent)
+    : frameIndexToReplace(currentFrameIndex)
+    , imgToReplace(imgToReplace)
+    , imgToRestore(imgToRestore)
+{
+}
+
+void ReplaceFrameCommand::undo()
+{
+    emit this->undoReplaced(frameIndexToReplace, imgToRestore);
+}
+
+void ReplaceFrameCommand::redo()
+{
+    // emit this signal which will call LevelCelView/CelView::replaceCurrentFrame
+    emit this->replaced(frameIndexToReplace, imgToReplace);
+}
+
 AddFrameCommand::AddFrameCommand(IMAGE_FILE_MODE mode, int index, const QString imagefilePath, QUndoCommand *parent)
     : startingIndex(index)
     , mode(mode)
