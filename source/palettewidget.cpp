@@ -505,12 +505,12 @@ void PaletteWidget::ShowContextMenu(const QPoint &pos)
     contextMenu.setToolTipsVisible(true);
 
     QAction action0("Undo", this);
-    QObject::connect(&action0, SIGNAL(triggered()), this, SLOT(on_actionUndo_triggered()));
+    QObject::connect(&action0, SIGNAL(triggered()), this, SLOT(actionUndo_triggered()));
     action0.setEnabled(this->undoStack->canUndo());
     contextMenu.addAction(&action0);
 
     QAction action1("Redo", this);
-    QObject::connect(&action1, SIGNAL(triggered()), this, SLOT(on_actionRedo_triggered()));
+    QObject::connect(&action1, SIGNAL(triggered()), this, SLOT(actionRedo_triggered()));
     action1.setEnabled(this->undoStack->canRedo());
     contextMenu.addAction(&action1);
 
@@ -801,12 +801,12 @@ void PaletteWidget::on_closePushButtonClicked()
     ((MainWindow *)this->window())->paletteWidget_callback(this, PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_CLOSE);
 }
 
-void PaletteWidget::on_actionUndo_triggered()
+void PaletteWidget::actionUndo_triggered()
 {
     this->undoStack->undo();
 }
 
-void PaletteWidget::on_actionRedo_triggered()
+void PaletteWidget::actionRedo_triggered()
 {
     this->undoStack->redo();
 }
