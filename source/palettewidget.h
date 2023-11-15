@@ -200,8 +200,8 @@ private slots:
     void on_saveAsPushButtonClicked();
     void on_closePushButtonClicked();
 
-    void on_actionUndo_triggered();
-    void on_actionRedo_triggered();
+    void actionUndo_triggered();
+    void actionRedo_triggered();
 
     void on_pathComboBox_activated(int index);
     void on_displayComboBox_activated(int index);

@@ -41,8 +41,8 @@ MainWindow::MainWindow()
     this->setWindowTitle(D1_GRAPHICS_TOOL_TITLE);
 
     // initialize 'new' submenu of 'File'
-    this->newMenu.addAction("Sprite", this, SLOT(on_actionNew_Sprite_triggered()));
-    this->newMenu.addAction("Tileset", this, SLOT(on_actionNew_Tileset_triggered()));
+    this->newMenu.addAction("Sprite", this, SLOT(actionNewSprite_triggered()));
+    this->newMenu.addAction("Tileset", this, SLOT(actionNewTileset_triggered()));
     QAction *firstFileAction = (QAction *)this->ui->menuFile->actions()[0];
     this->ui->menuFile->insertMenu(firstFileAction, &this->newMenu);
 
@@ -62,30 +62,30 @@ MainWindow::MainWindow()
 
     // Initialize 'Frame' submenu of 'Edit'
     this->frameMenu.setToolTipsVisible(true);
-    this->frameMenu.addAction("Insert", this, SLOT(on_actionInsert_Frame_triggered()))->setToolTip("Add new frames before the current one");
-    this->frameMenu.addAction("Add", this, SLOT(on_actionAdd_Frame_triggered()))->setToolTip("Add new frames at the end");
-    this->frameMenu.addAction("Replace", this, SLOT(on_actionReplace_Frame_triggered()))->setToolTip("Replace the current frame");
-    this->frameMenu.addAction("Delete", this, SLOT(on_actionDel_Frame_triggered()))->setToolTip("Delete the current frame");
+    this->frameMenu.addAction("Insert", this, SLOT(actionInsertFrame_triggered()))->setToolTip("Add new frames before the current one");
+    this->frameMenu.addAction("Add", this, SLOT(actionAddFrame_triggered()))->setToolTip("Add new frames at the end");
+    this->frameMenu.addAction("Replace", this, SLOT(actionReplaceFrame_triggered()))->setToolTip("Replace the current frame");
+    this->frameMenu.addAction("Delete", this, SLOT(actionDelFrame_triggered()))->setToolTip("Delete the current frame");
     this->ui->menuEdit->addMenu(&this->frameMenu);
 
     // Initialize 'Subtile' submenu of 'Edit'
     this->subtileMenu.setToolTipsVisible(true);
-    this->subtileMenu.addAction("Create", this, SLOT(on_actionCreate_Subtile_triggered()))->setToolTip("Create a new tile");
-    this->subtileMenu.addAction("Insert", this, SLOT(on_actionInsert_Subtile_triggered()))->setToolTip("Add new tiles before the current one");
-    this->subtileMenu.addAction("Add", this, SLOT(on_actionAdd_Subtile_triggered()))->setToolTip("Add new tiles at the end");
-    this->subtileMenu.addAction("Clone", this, SLOT(on_actionClone_Subtile_triggered()))->setToolTip("Add new tiles at the end based on the current one");
-    this->subtileMenu.addAction("Replace", this, SLOT(on_actionReplace_Subtile_triggered()))->setToolTip("Replace the current tile");
-    this->subtileMenu.addAction("Delete", this, SLOT(on_actionDel_Subtile_triggered()))->setToolTip("Delete the current tile");
+    this->subtileMenu.addAction("Create", this, SLOT(actionCreateSubtile_triggered()))->setToolTip("Create a new tile");
+    this->subtileMenu.addAction("Insert", this, SLOT(actionInsertSubtile_triggered()))->setToolTip("Add new tiles before the current one");
+    this->subtileMenu.addAction("Add", this, SLOT(actionAddSubtile_triggered()))->setToolTip("Add new tiles at the end");
+    this->subtileMenu.addAction("Clone", this, SLOT(actionCloneSubtile_triggered()))->setToolTip("Add new tiles at the end based on the current one");
+    this->subtileMenu.addAction("Replace", this, SLOT(actionReplaceSubtile_triggered()))->setToolTip("Replace the current tile");
+    this->subtileMenu.addAction("Delete", this, SLOT(actionDelSubtile_triggered()))->setToolTip("Delete the current tile");
     this->ui->menuEdit->addMenu(&this->subtileMenu);
 
     // Initialize 'Tile' submenu of 'Edit'
     this->tileMenu.setToolTipsVisible(true);
-    this->tileMenu.addAction("Create", this, SLOT(on_actionCreate_Tile_triggered()))->setToolTip("Create a new megatile");
-    this->tileMenu.addAction("Insert", this, SLOT(on_actionInsert_Tile_triggered()))->setToolTip("Add new megatiles before the current one");
-    this->tileMenu.addAction("Add", this, SLOT(on_actionAdd_Tile_triggered()))->setToolTip("Add new megatiles at the end");
-    this->tileMenu.addAction("Clone", this, SLOT(on_actionClone_Tile_triggered()))->setToolTip("Add new megatile at the end based on the current one");
-    this->tileMenu.addAction("Replace", this, SLOT(on_actionReplace_Tile_triggered()))->setToolTip("Replace the current megatile");
-    this->tileMenu.addAction("Delete", this, SLOT(on_actionDel_Tile_triggered()))->setToolTip("Delete the current megatile");
+    this->tileMenu.addAction("Create", this, SLOT(actionCreateTile_triggered()))->setToolTip("Create a new megatile");
+    this->tileMenu.addAction("Insert", this, SLOT(actionInsertTile_triggered()))->setToolTip("Add new megatiles before the current one");
+    this->tileMenu.addAction("Add", this, SLOT(actionAddTile_triggered()))->setToolTip("Add new megatiles at the end");
+    this->tileMenu.addAction("Clone", this, SLOT(actionCloneTile_triggered()))->setToolTip("Add new megatile at the end based on the current one");
+    this->tileMenu.addAction("Replace", this, SLOT(actionReplaceTile_triggered()))->setToolTip("Replace the current megatile");
+    this->tileMenu.addAction("Delete", this, SLOT(actionDelTile_triggered()))->setToolTip("Delete the current megatile");
     this->ui->menuEdit->addMenu(&this->tileMenu);
 
     this->buildRecentFilesMenu();
@@ -380,14 +380,14 @@ bool MainWindow::hasImageUrl(const QMimeData *mimeData)
     return false;
 }
 
-void MainWindow::on_actionNew_Sprite_triggered()
+void MainWindow::actionNewSprite_triggered()
 {
     OpenAsParam params;
     params.isTileset = OPEN_TILESET_TYPE::No;
     this->openFile(params);
 }
 
-void MainWindow::on_actionNew_Tileset_triggered()
+void MainWindow::actionNewTileset_triggered()
 {
     OpenAsParam params;
     params.isTileset = OPEN_TILESET_TYPE::Yes;
@@ -1061,17 +1061,17 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::on_actionInsert_Frame_triggered()
+void MainWindow::actionInsertFrame_triggered()
 {
     this->addFrames(false);
 }
 
-void MainWindow::on_actionAdd_Frame_triggered()
+void MainWindow::actionAddFrame_triggered()
 {
     this->addFrames(true);
 }
 
-void MainWindow::on_actionReplace_Frame_triggered()
+void MainWindow::actionReplaceFrame_triggered()
 {
     QString filter = imageNameFilter();
     QString imgFilePath = this->fileDialog(FILE_DIALOG_MODE::OPEN, "Replacement Image File", filter.toLatin1().data());
@@ -1095,7 +1095,7 @@ void MainWindow::on_actionReplace_Frame_triggered()
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::on_actionDel_Frame_triggered()
+void MainWindow::actionDelFrame_triggered()
 {
     if (this->celView != nullptr) {
         this->celView->removeCurrentFrame();
@@ -1106,29 +1106,29 @@ void MainWindow::on_actionDel_Frame_triggered()
     this->updateWindow();
 }
 
-void MainWindow::on_actionCreate_Subtile_triggered()
+void MainWindow::actionCreateSubtile_triggered()
 {
     this->levelCelView->createSubtile();
     this->updateWindow();
 }
 
-void MainWindow::on_actionClone_Subtile_triggered()
+void MainWindow::actionCloneSubtile_triggered()
 {
     this->levelCelView->cloneSubtile();
     this->updateWindow();
 }
 
-void MainWindow::on_actionInsert_Subtile_triggered()
+void MainWindow::actionInsertSubtile_triggered()
 {
     this->addSubtiles(false);
 }
 
-void MainWindow::on_actionAdd_Subtile_triggered()
+void MainWindow::actionAddSubtile_triggered()
 {
     this->addSubtiles(true);
 }
 
-void MainWindow::on_actionReplace_Subtile_triggered()
+void MainWindow::actionReplaceSubtile_triggered()
 {
     QString filter = imageNameFilter();
     QString imgFilePath = this->fileDialog(FILE_DIALOG_MODE::OPEN, "Replacement Image File", filter.toLatin1().data());
@@ -1148,35 +1148,35 @@ void MainWindow::on_actionReplace_Subtile_triggered()
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::on_actionDel_Subtile_triggered()
+void MainWindow::actionDelSubtile_triggered()
 {
     this->levelCelView->removeCurrentSubtile();
     this->updateWindow();
 }
 
-void MainWindow::on_actionCreate_Tile_triggered()
+void MainWindow::actionCreateTile_triggered()
 {
     this->levelCelView->createTile();
     this->updateWindow();
 }
 
-void MainWindow::on_actionClone_Tile_triggered()
+void MainWindow::actionCloneTile_triggered()
 {
     this->levelCelView->cloneTile();
     this->updateWindow();
 }
 
-void MainWindow::on_actionInsert_Tile_triggered()
+void MainWindow::actionInsertTile_triggered()
 {
     this->addTiles(false);
 }
 
-void MainWindow::on_actionAdd_Tile_triggered()
+void MainWindow::actionAddTile_triggered()
 {
     this->addTiles(true);
 }
 
-void MainWindow::on_actionReplace_Tile_triggered()
+void MainWindow::actionReplaceTile_triggered()
 {
     QString filter = imageNameFilter();
     QString imgFilePath = this->fileDialog(FILE_DIALOG_MODE::OPEN, "Replacement Image File", filter.toLatin1().data());
@@ -1196,7 +1196,7 @@ void MainWindow::on_actionReplace_Tile_triggered()
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::on_actionDel_Tile_triggered()
+void MainWindow::actionDelTile_triggered()
 {
     this->levelCelView->removeCurrentTile();
     this->updateWindow();
