@@ -82,32 +82,32 @@ private:
     void addTiles(bool append);
 
 public slots:
-    void on_actionInsert_Frame_triggered();
-    void on_actionAdd_Frame_triggered();
-    void on_actionReplace_Frame_triggered();
-    void on_actionDel_Frame_triggered();
+    void actionInsertFrame_triggered();
+    void actionAddFrame_triggered();
+    void actionReplaceFrame_triggered();
+    void actionDelFrame_triggered();
 
-    void on_actionCreate_Subtile_triggered();
-    void on_actionInsert_Subtile_triggered();
-    void on_actionAdd_Subtile_triggered();
-    void on_actionReplace_Subtile_triggered();
-    void on_actionClone_Subtile_triggered();
-    void on_actionDel_Subtile_triggered();
+    void actionCreateSubtile_triggered();
+    void actionInsertSubtile_triggered();
+    void actionAddSubtile_triggered();
+    void actionReplaceSubtile_triggered();
+    void actionCloneSubtile_triggered();
+    void actionDelSubtile_triggered();
 
-    void on_actionCreate_Tile_triggered();
-    void on_actionClone_Tile_triggered();
-    void on_actionInsert_Tile_triggered();
-    void on_actionAdd_Tile_triggered();
-    void on_actionReplace_Tile_triggered();
-    void on_actionDel_Tile_triggered();
+    void actionCreateTile_triggered();
+    void actionCloneTile_triggered();
+    void actionInsertTile_triggered();
+    void actionAddTile_triggered();
+    void actionReplaceTile_triggered();
+    void actionDelTile_triggered();
 
     void buildRecentFilesMenu();
     void addRecentFile(QString filePath);
     void on_actionClear_History_triggered();
 
 private slots:
-    void on_actionNew_Sprite_triggered();
-    void on_actionNew_Tileset_triggered();
+    void actionNewSprite_triggered();
+    void actionNewTileset_triggered();
 
     void on_actionOpen_triggered();
     void on_actionOpenAs_triggered();
