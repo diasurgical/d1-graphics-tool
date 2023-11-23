@@ -6,8 +6,6 @@
 #include <QGraphicsScene>
 #include <QMouseEvent>
 #include <QStyle>
-#include <QUndoCommand>
-#include <QUndoStack>
 #include <QWidget>
 
 #include "celview.h"
@@ -15,6 +13,7 @@
 #include "d1palhits.h"
 #include "d1trn.h"
 #include "levelcelview.h"
+#include "undostack.h"
 
 #define PALETTE_WIDTH 192
 #define PALETTE_COLORS_PER_LINE 16
@@ -36,11 +35,11 @@ class EditColorsCommand;
 class EditTranslationsCommand;
 } // namespace Ui
 
-class EditColorsCommand : public QObject, public QUndoCommand {
+class EditColorsCommand : public QObject, public Command {
     Q_OBJECT
 
 public:
-    explicit EditColorsCommand(D1Pal *, quint8, quint8, QColor, QColor, QUndoCommand *parent = nullptr);
+    explicit EditColorsCommand(D1Pal *, quint8, quint8, QColor, QColor);
     ~EditColorsCommand() = default;
 
     void undo() override;
@@ -58,11 +57,11 @@ private:
     QColor endColor;
 };
 
-class EditTranslationsCommand : public QObject, public QUndoCommand {
+class EditTranslationsCommand : public QObject, public Command {
     Q_OBJECT
 
 public:
-    explicit EditTranslationsCommand(D1Trn *, quint8, quint8, QList<quint8>, QUndoCommand *parent = nullptr);
+    explicit EditTranslationsCommand(D1Trn *, quint8, quint8, QList<quint8>);
     ~EditTranslationsCommand() = default;
 
     void undo() override;
@@ -79,11 +78,11 @@ private:
     QList<quint8> newTranslations;
 };
 
-class ClearTranslationsCommand : public QObject, public QUndoCommand {
+class ClearTranslationsCommand : public QObject, public Command {
     Q_OBJECT
 
 public:
-    explicit ClearTranslationsCommand(D1Trn *, quint8, quint8, QUndoCommand *parent = nullptr);
+    explicit ClearTranslationsCommand(D1Trn *, quint8, quint8);
     ~ClearTranslationsCommand() = default;
 
     void undo() override;
@@ -125,7 +124,7 @@ class PaletteWidget : public QWidget {
     Q_OBJECT
 
 public:
-    explicit PaletteWidget(std::shared_ptr<QUndoStack> undoStack, QString title);
+    explicit PaletteWidget(std::shared_ptr<UndoStack> undoStack, QString title);
     ~PaletteWidget();
 
     void setPal(D1Pal *p);
@@ -216,7 +215,7 @@ private slots:
     void on_monsterTrnPushButton_clicked();
 
 private:
-    std::shared_ptr<QUndoStack> undoStack;
+    std::shared_ptr<UndoStack> undoStack;
     Ui::PaletteWidget *ui;
     bool isTrn;
 

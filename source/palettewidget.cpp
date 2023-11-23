@@ -22,9 +22,8 @@ enum class COLORFILTER_TYPE {
 
 Q_DECLARE_METATYPE(COLORFILTER_TYPE)
 
-EditColorsCommand::EditColorsCommand(D1Pal *p, quint8 sci, quint8 eci, QColor nc, QColor ec, QUndoCommand *parent)
-    : QUndoCommand(parent)
-    , pal(p)
+EditColorsCommand::EditColorsCommand(D1Pal *p, quint8 sci, quint8 eci, QColor nc, QColor ec)
+    : pal(p)
     , startColorIndex(sci)
     , endColorIndex(eci)
     , newColor(nc)
@@ -72,9 +71,8 @@ void EditColorsCommand::redo()
     emit this->modified();
 }
 
-EditTranslationsCommand::EditTranslationsCommand(D1Trn *t, quint8 sci, quint8 eci, QList<quint8> nt, QUndoCommand *parent)
-    : QUndoCommand(parent)
-    , trn(t)
+EditTranslationsCommand::EditTranslationsCommand(D1Trn *t, quint8 sci, quint8 eci, QList<quint8> nt)
+    : trn(t)
     , startColorIndex(sci)
     , endColorIndex(eci)
     , newTranslations(nt)
@@ -110,9 +108,8 @@ void EditTranslationsCommand::redo()
     emit this->modified();
 }
 
-ClearTranslationsCommand::ClearTranslationsCommand(D1Trn *t, quint8 sci, quint8 eci, QUndoCommand *parent)
-    : QUndoCommand(parent)
-    , trn(t)
+ClearTranslationsCommand::ClearTranslationsCommand(D1Trn *t, quint8 sci, quint8 eci)
+    : trn(t)
     , startColorIndex(sci)
     , endColorIndex(eci)
 {
@@ -265,9 +262,9 @@ QPushButton *PaletteWidget::addButton(QStyle::StandardPixmap type, QString toolt
     return button;
 }
 
-PaletteWidget::PaletteWidget(std::shared_ptr<QUndoStack> us, QString title)
+PaletteWidget::PaletteWidget(std::shared_ptr<UndoStack> us, QString title)
     : QWidget(nullptr)
-    , undoStack(us)
+    , undoStack(std::move(us))
     , ui(new Ui::PaletteWidget())
     , scene(new PaletteScene(this))
 {
@@ -449,11 +446,11 @@ void PaletteWidget::checkTranslationsSelection(QList<quint8> indexes)
 
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
-    EditTranslationsCommand *command = new EditTranslationsCommand(
+    std::unique_ptr<EditTranslationsCommand> command = std::make_unique<EditTranslationsCommand>(
         this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, indexes);
-    QObject::connect(command, &EditTranslationsCommand::modified, this, &PaletteWidget::modify);
+    QObject::connect(command.get(), &EditTranslationsCommand::modified, this, &PaletteWidget::modify);
 
-    this->undoStack->push(command);
+    this->undoStack->push(std::move(command));
 
     this->pickingTranslationColor = false;
     this->clearInfo();
@@ -852,11 +849,11 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
 
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
-    EditColorsCommand *command = new EditColorsCommand(
+    std::unique_ptr<EditColorsCommand> command = std::make_unique<EditColorsCommand>(
         this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, color);
-    QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
+    QObject::connect(command.get(), &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
-    this->undoStack->push(command);
+    this->undoStack->push(std::move(command));
 
     // Release focus to allow keyboard shortcuts to work as expected
     this->ui->colorLineEdit->clearFocus();
@@ -874,22 +871,22 @@ void PaletteWidget::on_colorPickPushButton_clicked()
 
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
-    EditColorsCommand *command = new EditColorsCommand(
+    std::unique_ptr<EditColorsCommand> command = std::make_unique<EditColorsCommand>(
         this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, colorEnd);
-    QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
+    QObject::connect(command.get(), &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
-    this->undoStack->push(command);
+    this->undoStack->push(std::move(command));
 }
 
 void PaletteWidget::on_colorClearPushButton_clicked()
 {
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
-    auto *command = new EditColorsCommand(
+    std::unique_ptr<EditColorsCommand> command = std::make_unique<EditColorsCommand>(
         this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, this->paletteDefaultColor, this->paletteDefaultColor);
-    QObject::connect(command, &EditColorsCommand::modified, this, &PaletteWidget::modify);
+    QObject::connect(command.get(), &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
-    this->undoStack->push(command);
+    this->undoStack->push(std::move(command));
 }
 
 void PaletteWidget::on_translationIndexLineEdit_returnPressed()
@@ -903,11 +900,11 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
 
     // Build translation editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
-    EditTranslationsCommand *command = new EditTranslationsCommand(
+    std::unique_ptr<EditTranslationsCommand> command = std::make_unique<EditTranslationsCommand>(
         this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, newTranslations);
-    QObject::connect(command, &EditTranslationsCommand::modified, this, &PaletteWidget::modify);
+    QObject::connect(command.get(), &EditTranslationsCommand::modified, this, &PaletteWidget::modify);
 
-    this->undoStack->push(command);
+    this->undoStack->push(std::move(command));
 
     // Release focus to allow keyboard shortcuts to work as expected
     this->ui->translationIndexLineEdit->clearFocus();
@@ -926,11 +923,11 @@ void PaletteWidget::on_translationClearPushButton_clicked()
 {
     // Build translation clearing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
-    auto *command = new ClearTranslationsCommand(
+    std::unique_ptr<ClearTranslationsCommand> command = std::make_unique<ClearTranslationsCommand>(
         this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex);
-    QObject::connect(command, &ClearTranslationsCommand::modified, this, &PaletteWidget::modify);
+    QObject::connect(command.get(), &ClearTranslationsCommand::modified, this, &PaletteWidget::modify);
 
-    this->undoStack->push(command);
+    this->undoStack->push(std::move(command));
 }
 
 void PaletteWidget::on_monsterTrnPushButton_clicked()

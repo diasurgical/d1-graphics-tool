@@ -70,7 +70,7 @@ void CelScene::contextMenuEvent(QContextMenuEvent *event)
     emit this->showContextMenu(event->globalPos());
 }
 
-CelView::CelView(std::shared_ptr<QUndoStack> us, QWidget *parent)
+CelView::CelView(std::shared_ptr<UndoStack> us, QWidget *parent)
     : QWidget(parent)
     , undoStack(us)
     , ui(new Ui::CelView())
@@ -214,19 +214,19 @@ void CelView::removeFrames(int startingIndex, int endingIndex)
 
 void CelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
 {
-    AddFrameCommand *command;
+    std::unique_ptr<AddFrameCommand> command;
     try {
-        command = new AddFrameCommand(mode, index, imagefilePath);
+        command = std::make_unique<AddFrameCommand>(mode, index, imagefilePath);
     } catch (...) {
         QMessageBox::critical(this, "Error", "Failed to read image file: " + imagefilePath);
         return;
     }
 
     // send a command to undostack, making adding frame undo/redoable
-    QObject::connect(command, &AddFrameCommand::added, this, &CelView::insertFrames);
-    QObject::connect(command, &AddFrameCommand::undoAdded, this, &CelView::removeFrames);
+    QObject::connect(command.get(), &AddFrameCommand::added, this, &CelView::insertFrames);
+    QObject::connect(command.get(), &AddFrameCommand::undoAdded, this, &CelView::removeFrames);
 
-    undoStack->push(command);
+    undoStack->push(std::move(command));
 }
 
 void CelView::replaceCurrentFrame(int frameIdx, const QImage &image)
@@ -247,21 +247,21 @@ void CelView::sendReplaceCurrentFrameCmd(const QString &imagefilePath)
     }
 
     // send a command to undostack, making replacing frame undo/redoable
-    ReplaceFrameCommand *command = new ReplaceFrameCommand(this->currentFrameIndex, image, this->gfx->getFrameImage(this->currentFrameIndex));
-    QObject::connect(command, &ReplaceFrameCommand::replaced, this, &CelView::replaceCurrentFrame);
-    QObject::connect(command, &ReplaceFrameCommand::undoReplaced, this, &CelView::replaceCurrentFrame);
+    std::unique_ptr<ReplaceFrameCommand> command = std::make_unique<ReplaceFrameCommand>(this->currentFrameIndex, image, this->gfx->getFrameImage(this->currentFrameIndex));
+    QObject::connect(command.get(), &ReplaceFrameCommand::replaced, this, &CelView::replaceCurrentFrame);
+    QObject::connect(command.get(), &ReplaceFrameCommand::undoReplaced, this, &CelView::replaceCurrentFrame);
 
-    undoStack->push(command);
+    undoStack->push(std::move(command));
 }
 
 void CelView::sendRemoveFrameCmd()
 {
     // send a command to undostack, making deleting frame undo/redoable
-    RemoveFrameCommand *command = new RemoveFrameCommand(this->currentFrameIndex, this->gfx->getFrameImage(this->currentFrameIndex));
-    QObject::connect(command, &RemoveFrameCommand::removed, this, &CelView::removeCurrentFrame);
-    QObject::connect(command, &RemoveFrameCommand::inserted, this, &CelView::insertImageFile);
+    std::unique_ptr<RemoveFrameCommand> command = std::make_unique<RemoveFrameCommand>(this->currentFrameIndex, this->gfx->getFrameImage(this->currentFrameIndex));
+    QObject::connect(command.get(), &RemoveFrameCommand::removed, this, &CelView::removeCurrentFrame);
+    QObject::connect(command.get(), &RemoveFrameCommand::inserted, this, &CelView::insertImageFile);
 
-    this->undoStack->push(command);
+    this->undoStack->push(std::move(command));
 }
 
 void CelView::removeCurrentFrame(int frameIdx)

@@ -9,7 +9,6 @@
 #include <QImage>
 #include <QPoint>
 #include <QTimer>
-#include <QUndoStack>
 #include <QWidget>
 
 #include <memory>
@@ -26,6 +25,7 @@
 #include "leveltabframewidget.h"
 #include "leveltabsubtilewidget.h"
 #include "leveltabtilewidget.h"
+#include "undostack.h"
 
 namespace Ui {
 class LevelCelView;
@@ -43,7 +43,7 @@ class LevelCelView : public QWidget {
     Q_OBJECT
 
 public:
-    explicit LevelCelView(std::shared_ptr<QUndoStack> us, QWidget *parent = nullptr);
+    explicit LevelCelView(std::shared_ptr<UndoStack> us, QWidget *parent = nullptr);
     ~LevelCelView();
 
     void initialize(D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
@@ -160,7 +160,7 @@ private slots:
     void insertFrame(int index, QImage image);
 
 private:
-    std::shared_ptr<QUndoStack> undoStack;
+    std::shared_ptr<UndoStack> undoStack;
     Ui::LevelCelView *ui;
     CelScene *celScene;
     LevelTabTileWidget *tabTileWidget = new LevelTabTileWidget();

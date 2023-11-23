@@ -9,13 +9,13 @@
 #include <QPoint>
 #include <QStringList>
 #include <QTimer>
-#include <QUndoStack>
 #include <QWidget>
 
 #include <memory>
 #include <stack>
 
 #include "d1gfx.h"
+#include "undostack.h"
 
 #define CEL_SCENE_SPACING 8
 
@@ -50,7 +50,7 @@ class CelView : public QWidget {
     Q_OBJECT
 
 public:
-    explicit CelView(std::shared_ptr<QUndoStack> us, QWidget *parent = nullptr);
+    explicit CelView(std::shared_ptr<UndoStack> us, QWidget *parent = nullptr);
     ~CelView();
 
     void initialize(D1Gfx *gfx);
@@ -111,7 +111,7 @@ private:
     std::stack<int> removedGroupIdxs;      // holds indexes of groups that have been removed, used for undo ops
     std::stack<int> removedFrameGroupIdxs; // holds group indexes of frames that got removed, used for undo ops
 
-    std::shared_ptr<QUndoStack> undoStack;
+    std::shared_ptr<UndoStack> undoStack;
     Ui::CelView *ui;
     CelScene *celScene;
 
