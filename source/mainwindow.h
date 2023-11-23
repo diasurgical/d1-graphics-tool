@@ -5,7 +5,6 @@
 #include <QMimeData>
 #include <QString>
 #include <QStringList>
-#include <QUndoCommand>
 
 #include <memory>
 
@@ -22,6 +21,7 @@
 #include "openasdialog.h"
 #include "palettewidget.h"
 #include "settingsdialog.h"
+#include <undostack.h>
 
 #define D1_GRAPHICS_TOOL_TITLE "Diablo 1 Graphics Tool"
 #define D1_GRAPHICS_TOOL_VERSION "1.0.1"
@@ -84,6 +84,9 @@ private:
     void addTiles(bool append);
 
 public slots:
+    void actionUndo_triggered();
+    void actionRedo_triggered();
+
     void actionInsertFrame_triggered();
     void actionAddFrame_triggered();
     void actionReplaceFrame_triggered();
@@ -166,7 +169,7 @@ private:
     QMenu subtileMenu = QMenu("Tile");
     QMenu tileMenu = QMenu("MegaTile");
 
-    std::shared_ptr<QUndoStack> undoStack;
+    std::shared_ptr<UndoStack> undoStack;
     QAction *undoAction;
     QAction *redoAction;
 

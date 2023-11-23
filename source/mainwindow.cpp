@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 
+#include <QAction>
 #include <QDragEnterEvent>
 #include <QFile>
 #include <QFileDialog>
@@ -18,8 +19,6 @@
 #include <QStringList>
 #include <QTextStream>
 #include <QTime>
-#include <QUndoCommand>
-#include <QUndoStack>
 #include <QtWidgets>
 
 #include "config.h"
@@ -47,11 +46,11 @@ MainWindow::MainWindow()
     this->ui->menuFile->insertMenu(firstFileAction, &this->newMenu);
 
     // Initialize 'Undo/Redo' of 'Edit
-    this->undoStack = std::make_shared<QUndoStack>(this);
-    this->undoAction = undoStack->createUndoAction(this, "Undo");
+    this->undoStack = std::make_shared<UndoStack>();
+    this->undoAction = new QAction("Undo", this);
     this->undoAction->setShortcuts(QKeySequence::Undo);
     this->ui->menuEdit->addAction(this->undoAction);
-    this->redoAction = undoStack->createRedoAction(this, "Redo");
+    this->redoAction = new QAction("Redo", this);
     this->redoAction->setShortcuts(QKeySequence::Redo);
     this->ui->menuEdit->addAction(this->redoAction);
     this->ui->menuEdit->addSeparator();
@@ -59,6 +58,10 @@ MainWindow::MainWindow()
     this->ui->menuEdit->addAction(this->undoAction);
     this->ui->menuEdit->addAction(this->redoAction);
     this->ui->menuEdit->addSeparator();
+
+    // Bind Undo/Redo actions to appropriate slots
+    QObject::connect(this->undoAction, SIGNAL(triggered()), this, SLOT(actionUndo_triggered()));
+    QObject::connect(this->redoAction, SIGNAL(triggered()), this, SLOT(actionRedo_triggered()));
 
     // Initialize 'Frame' submenu of 'Edit'
     this->frameMenu.setToolTipsVisible(true);
@@ -149,6 +152,7 @@ void MainWindow::updateWindow()
     this->palHits->update();
     this->palWidget->refresh();
     this->undoAction->setEnabled(this->undoStack->canUndo());
+    this->redoAction->setEnabled(this->undoStack->canRedo());
 
     // update menu options
     bool hasFrame = this->gfx->getFrameCount() != 0;
@@ -1059,6 +1063,20 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 
     event->accept();
+}
+
+void MainWindow::actionUndo_triggered()
+{
+    this->undoStack->undo();
+    this->undoAction->setEnabled(this->undoStack->canUndo());
+    this->redoAction->setEnabled(this->undoStack->canRedo());
+}
+
+void MainWindow::actionRedo_triggered()
+{
+    this->undoStack->redo();
+    this->undoAction->setEnabled(this->undoStack->canUndo());
+    this->redoAction->setEnabled(this->undoStack->canRedo());
 }
 
 void MainWindow::actionInsertFrame_triggered()

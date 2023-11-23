@@ -5,7 +5,7 @@
 #include "framecmds.h"
 #include "mainwindow.h"
 
-RemoveFrameCommand::RemoveFrameCommand(int currentFrameIndex, const QImage img, QUndoCommand *parent)
+RemoveFrameCommand::RemoveFrameCommand(int currentFrameIndex, const QImage img)
     : frameIndexToRevert(currentFrameIndex)
     , imgToRevert(img)
 {
@@ -22,7 +22,7 @@ void RemoveFrameCommand::redo()
     emit this->removed(frameIndexToRevert);
 }
 
-ReplaceFrameCommand::ReplaceFrameCommand(int currentFrameIndex, const QImage imgToReplace, const QImage imgToRestore, QUndoCommand *parent)
+ReplaceFrameCommand::ReplaceFrameCommand(int currentFrameIndex, const QImage imgToReplace, const QImage imgToRestore)
     : frameIndexToReplace(currentFrameIndex)
     , imgToReplace(imgToReplace)
     , imgToRestore(imgToRestore)
@@ -40,7 +40,7 @@ void ReplaceFrameCommand::redo()
     emit this->replaced(frameIndexToReplace, imgToReplace);
 }
 
-AddFrameCommand::AddFrameCommand(IMAGE_FILE_MODE mode, int index, const QString imagefilePath, QUndoCommand *parent)
+AddFrameCommand::AddFrameCommand(IMAGE_FILE_MODE mode, int index, const QString imagefilePath)
     : startingIndex(index)
     , mode(mode)
 {

@@ -6,7 +6,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
@@ -43,6 +43,10 @@ set(PROJECT_SOURCES
         source/openasdialog.cpp
         source/palettewidget.cpp
         source/settingsdialog.cpp
+        source/undostack.cpp
+        source/undostack.h
+        source/command.cpp
+        source/command.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
