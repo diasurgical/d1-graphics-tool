@@ -394,7 +394,7 @@ void CelView::ShowContextMenu(const QPoint &pos)
     QObject::connect(&action0, SIGNAL(triggered()), mw, SLOT(actionInsertFrame_triggered()));
     contextMenu.addAction(&action0);
 
-    QAction action1("Add Frame", this);
+    QAction action1("Append Frame", this);
     action1.setToolTip("Add new frames at the end");
     QObject::connect(&action1, SIGNAL(triggered()), mw, SLOT(actionAddFrame_triggered()));
     contextMenu.addAction(&action1);
