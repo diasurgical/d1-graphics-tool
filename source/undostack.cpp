@@ -1,5 +1,13 @@
 #include "undostack.h"
 
+/**
+ * @brief Pushes new commands onto the commands stack (Undostack)
+ *
+ * This function pushes new commands onto the undo stack, and redos
+ * the command that got currently pushed, essentially triggering the command.
+ * It also erases any commands that had isObsolete flag set.
+ * Push also removes any commands that were currently undo'd on the stack.
+ */
 void UndoStack::push(std::unique_ptr<Command> cmd)
 {
     try {
@@ -24,6 +32,13 @@ void UndoStack::push(std::unique_ptr<Command> cmd)
     m_undoPos = m_cmds.size() - 1;
 }
 
+/**
+ * @brief Undos command that is currently the first one on the stack
+ *
+ * This function undos the command that is currently on the stack, setting
+ * redo option to be available at the same time. It also pops any commands that
+ * have the isObsolete flag set.
+ */
 void UndoStack::undo()
 {
     // Erase any command that was previously set as obsolete
@@ -38,6 +53,13 @@ void UndoStack::undo()
     m_undoPos--;
 }
 
+/**
+ * @brief Redos command that is currently the first one on the stack
+ *
+ * This function redos the command that is currently on the stack, setting
+ * undo option to be available at the same time. It also pops any commands that
+ * have the isObsolete flag set.
+ */
 void UndoStack::redo()
 {
     // erase any command that was previously set as obsolete
@@ -52,16 +74,29 @@ void UndoStack::redo()
         m_canRedo = false;
 }
 
+/**
+ * @brief Returns if stack can currently redo
+ */
 bool UndoStack::canRedo() const
 {
     return m_canRedo;
 }
 
+/**
+ * @brief Returns if stack can currently undo
+ */
 bool UndoStack::canUndo() const
 {
     return m_canUndo;
 }
 
+/**
+ * @brief Sets undo stack to a starting position
+ *
+ * This function clears undo stack to a starting position. To be
+ * exact it sets it's position to 0, clears any commands and disables
+ * flags that inform if stack can currently undo or redo.
+ */
 void UndoStack::clear()
 {
     m_undoPos = 0;
