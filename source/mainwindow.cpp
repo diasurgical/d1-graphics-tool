@@ -63,7 +63,7 @@ MainWindow::MainWindow()
     // Initialize 'Frame' submenu of 'Edit'
     this->frameMenu.setToolTipsVisible(true);
     this->frameMenu.addAction("Insert", this, SLOT(actionInsertFrame_triggered()))->setToolTip("Add new frames before the current one");
-    this->frameMenu.addAction("Add", this, SLOT(actionAddFrame_triggered()))->setToolTip("Add new frames at the end");
+    this->frameMenu.addAction("Append", this, SLOT(actionAddFrame_triggered()))->setToolTip("Add new frames at the end");
     this->frameMenu.addAction("Replace", this, SLOT(actionReplaceFrame_triggered()))->setToolTip("Replace the current frame");
     this->frameMenu.addAction("Delete", this, SLOT(actionDelFrame_triggered()))->setToolTip("Delete the current frame");
     this->ui->menuEdit->addMenu(&this->frameMenu);
@@ -72,7 +72,7 @@ MainWindow::MainWindow()
     this->subtileMenu.setToolTipsVisible(true);
     this->subtileMenu.addAction("Create", this, SLOT(actionCreateSubtile_triggered()))->setToolTip("Create a new tile");
     this->subtileMenu.addAction("Insert", this, SLOT(actionInsertSubtile_triggered()))->setToolTip("Add new tiles before the current one");
-    this->subtileMenu.addAction("Add", this, SLOT(actionAddSubtile_triggered()))->setToolTip("Add new tiles at the end");
+    this->subtileMenu.addAction("Append", this, SLOT(actionAddSubtile_triggered()))->setToolTip("Add new tiles at the end");
     this->subtileMenu.addAction("Clone", this, SLOT(actionCloneSubtile_triggered()))->setToolTip("Add new tiles at the end based on the current one");
     this->subtileMenu.addAction("Replace", this, SLOT(actionReplaceSubtile_triggered()))->setToolTip("Replace the current tile");
     this->subtileMenu.addAction("Delete", this, SLOT(actionDelSubtile_triggered()))->setToolTip("Delete the current tile");
@@ -82,7 +82,7 @@ MainWindow::MainWindow()
     this->tileMenu.setToolTipsVisible(true);
     this->tileMenu.addAction("Create", this, SLOT(actionCreateTile_triggered()))->setToolTip("Create a new megatile");
     this->tileMenu.addAction("Insert", this, SLOT(actionInsertTile_triggered()))->setToolTip("Add new megatiles before the current one");
-    this->tileMenu.addAction("Add", this, SLOT(actionAddTile_triggered()))->setToolTip("Add new megatiles at the end");
+    this->tileMenu.addAction("Append", this, SLOT(actionAddTile_triggered()))->setToolTip("Add new megatiles at the end");
     this->tileMenu.addAction("Clone", this, SLOT(actionCloneTile_triggered()))->setToolTip("Add new megatile at the end based on the current one");
     this->tileMenu.addAction("Replace", this, SLOT(actionReplaceTile_triggered()))->setToolTip("Replace the current megatile");
     this->tileMenu.addAction("Delete", this, SLOT(actionDelTile_triggered()))->setToolTip("Delete the current megatile");
