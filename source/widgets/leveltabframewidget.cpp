@@ -1,8 +1,8 @@
 #include "leveltabframewidget.h"
 
-#include "d1gfx.h"
-#include "levelcelview.h"
+#include "d1formats/d1gfx.h"
 #include "ui_leveltabframewidget.h"
+#include "views/levelcelview.h"
 
 LevelTabFrameWidget::LevelTabFrameWidget()
     : QWidget(nullptr)

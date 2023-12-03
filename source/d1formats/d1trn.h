@@ -2,7 +2,7 @@
 
 #include <QPointer>
 
-#include "d1pal.h"
+#include "palette/d1pal.h"
 
 #define D1TRN_TRANSLATIONS 256
 

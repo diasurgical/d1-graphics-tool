@@ -4,7 +4,7 @@
 #include <QString>
 
 #include "d1gfx.h"
-#include "d1pal.h"
+#include "palette/d1pal.h"
 
 // alpha value under which the color is considered as transparent
 #define COLOR_ALPHA_LIMIT 128

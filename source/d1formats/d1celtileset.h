@@ -7,7 +7,7 @@
 
 #include "d1celtilesetframe.h"
 #include "d1gfx.h"
-#include "openasdialog.h"
+#include "dialogs/openasdialog.h"
 
 class D1CelTileset {
 public:

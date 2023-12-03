@@ -1,7 +1,7 @@
 #include "leveltabsubtilewidget.h"
 
-#include "levelcelview.h"
 #include "ui_leveltabsubtilewidget.h"
+#include "views/levelcelview.h"
 
 LevelTabSubTileWidget::LevelTabSubTileWidget()
     : QWidget(nullptr)

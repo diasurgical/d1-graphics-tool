@@ -21,10 +21,10 @@
 #include <QTime>
 #include <QtWidgets>
 
-#include "config.h"
-#include "d1cel.h"
-#include "d1celtileset.h"
-#include "d1cl2.h"
+#include "config/config.h"
+#include "d1formats/d1cel.h"
+#include "d1formats/d1celtileset.h"
+#include "d1formats/d1cl2.h"
 #include "ui_mainwindow.h"
 
 MainWindow::MainWindow()

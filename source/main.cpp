@@ -2,7 +2,7 @@
 #include <QDebug>
 #include <QFile>
 
-#include "config.h"
+#include "config/config.h"
 #include "mainwindow.h"
 
 int main(int argc, char *argv[])

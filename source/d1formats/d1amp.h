@@ -3,7 +3,7 @@
 #include <QList>
 #include <QString>
 
-#include "openasdialog.h"
+#include "dialogs/openasdialog.h"
 
 class D1Amp : public QObject {
     Q_OBJECT

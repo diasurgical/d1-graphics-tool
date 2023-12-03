@@ -781,7 +781,7 @@
   <customwidget>
    <class>View</class>
    <extends>QGraphicsView</extends>
-   <header>view.h</header>
+   <header>views/view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

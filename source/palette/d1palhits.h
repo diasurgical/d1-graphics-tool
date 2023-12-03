@@ -2,9 +2,9 @@
 
 #include <QMap>
 
-#include "d1gfx.h"
-#include "d1min.h"
-#include "d1til.h"
+#include "d1formats/d1gfx.h"
+#include "d1formats/d1min.h"
+#include "d1formats/d1til.h"
 
 enum class D1PALHITS_MODE {
     ALL_COLORS,

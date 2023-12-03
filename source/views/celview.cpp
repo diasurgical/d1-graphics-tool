@@ -11,9 +11,9 @@
 #include <QMessageBox>
 #include <QMimeData>
 
-#include "framecmds.h"
 #include "mainwindow.h"
 #include "ui_celview.h"
+#include "undostack/framecmds.h"
 
 CelScene::CelScene(QWidget *v)
     : QGraphicsScene()

@@ -3,10 +3,10 @@
 #include <algorithm>
 #include <set>
 
-#include "d1image.h"
-#include "framecmds.h"
+#include "d1formats/d1image.h"
 #include "mainwindow.h"
 #include "ui_levelcelview.h"
+#include "undostack/framecmds.h"
 
 #include <QAction>
 #include <QDebug>

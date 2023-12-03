@@ -4,7 +4,7 @@
 #include <QString>
 
 #include "d1gfx.h"
-#include "openasdialog.h"
+#include "dialogs/openasdialog.h"
 
 class D1Cl2Frame {
     friend class D1Cl2;
