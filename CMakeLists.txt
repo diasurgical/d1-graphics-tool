@@ -12,41 +12,42 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
-
 include_directories(source/)
+
 set(PROJECT_SOURCES
-        source/celview.cpp
-        source/framecmds.cpp
-        source/config.cpp
-        source/d1amp.cpp
-        source/d1cel.cpp
-        source/d1celframe.cpp
-        source/d1celtileset.cpp
-        source/d1celtilesetframe.cpp
-        source/d1cl2.cpp
-        source/d1gfx.cpp
-        source/d1image.cpp
-        source/d1min.cpp
-        source/d1pal.cpp
-        source/d1palhits.cpp
-        source/d1sol.cpp
-        source/d1til.cpp
-        source/d1trn.cpp
-        source/exportdialog.cpp
-        source/view.cpp
-        source/levelcelview.cpp
-        source/leveltabframewidget.cpp
-        source/leveltabsubtilewidget.cpp
-        source/leveltabtilewidget.cpp
+        source/views/celview.cpp
+        source/config/config.cpp
+        source/d1formats/d1amp.cpp
+        source/d1formats/d1cel.cpp
+        source/d1formats/d1celframe.cpp
+        source/d1formats/d1celtileset.cpp
+        source/d1formats/d1celtilesetframe.cpp
+        source/d1formats/d1cl2.cpp
+        source/d1formats/d1gfx.cpp
+        source/d1formats/d1image.cpp
+        source/d1formats/d1min.cpp
+        source/palette/d1pal.cpp
+        source/palette/d1palhits.cpp
+        source/d1formats/d1sol.cpp
+        source/d1formats/d1til.cpp
+        source/d1formats/d1trn.cpp
+        source/dialogs/exportdialog.cpp
+        source/views/view.cpp
+        source/views/levelcelview.cpp
+        source/widgets/leveltabframewidget.cpp
+        source/widgets/leveltabsubtilewidget.cpp
+        source/widgets/leveltabtilewidget.cpp
         source/main.cpp
         source/mainwindow.cpp
-        source/openasdialog.cpp
-        source/palettewidget.cpp
-        source/settingsdialog.cpp
-        source/undostack.cpp
-        source/undostack.h
-        source/command.cpp
-        source/command.h
+        source/dialogs/openasdialog.cpp
+        source/widgets/palettewidget.cpp
+        source/dialogs/settingsdialog.cpp
+        source/undostack/framecmds.cpp
+        source/undostack/framecmds.h
+        source/undostack/undostack.cpp
+        source/undostack/undostack.h
+        source/undostack/command.cpp
+        source/undostack/command.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

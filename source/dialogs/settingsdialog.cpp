@@ -3,7 +3,7 @@
 #include <QColorDialog>
 #include <QFileDialog>
 
-#include "config.h"
+#include "config/config.h"
 #include "ui_settingsdialog.h"
 
 SettingsDialog::SettingsDialog(QWidget *parent)

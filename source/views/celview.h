@@ -14,8 +14,8 @@
 #include <memory>
 #include <stack>
 
-#include "d1gfx.h"
-#include "undostack.h"
+#include "d1formats/d1gfx.h"
+#include "undostack/undostack.h"
 
 #define CEL_SCENE_SPACING 8
 

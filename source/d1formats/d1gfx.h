@@ -7,7 +7,7 @@
 #include <optional>
 
 #include "d1celtilesetframe.h"
-#include "d1pal.h"
+#include "palette/d1pal.h"
 
 // TODO: move these to some persistency class?
 #define SUB_HEADER_SIZE 0x0A

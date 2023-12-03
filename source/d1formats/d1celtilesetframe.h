@@ -2,7 +2,7 @@
 
 #include <QByteArray>
 
-#include "openasdialog.h"
+#include "dialogs/openasdialog.h"
 
 #define MICRO_WIDTH 32
 #define MICRO_HEIGHT 32

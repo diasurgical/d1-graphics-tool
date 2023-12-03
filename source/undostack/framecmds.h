@@ -1,7 +1,7 @@
 #pragma once
 
-#include "celview.h"
 #include "command.h"
+#include "views/celview.h"
 
 #include <QObject>
 

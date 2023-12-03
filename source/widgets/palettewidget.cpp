@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 
-#include "config.h"
+#include "config/config.h"
 #include "mainwindow.h"
 #include "ui_palettewidget.h"
 

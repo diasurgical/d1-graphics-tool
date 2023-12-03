@@ -1,10 +1,10 @@
 #include "leveltabtilewidget.h"
 
-#include "d1amp.h"
-#include "d1min.h"
-#include "d1til.h"
-#include "levelcelview.h"
+#include "d1formats/d1amp.h"
+#include "d1formats/d1min.h"
+#include "d1formats/d1til.h"
 #include "ui_leveltabtilewidget.h"
+#include "views/levelcelview.h"
 
 LevelTabTileWidget::LevelTabTileWidget()
     : QWidget(nullptr)

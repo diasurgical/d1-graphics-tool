@@ -3,7 +3,7 @@
 #include <QByteArray>
 
 #include "d1gfx.h"
-#include "openasdialog.h"
+#include "dialogs/openasdialog.h"
 
 // Class used only for CEL frame width calculation
 class D1CelPixelGroup {

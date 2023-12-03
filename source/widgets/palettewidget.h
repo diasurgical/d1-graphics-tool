@@ -8,12 +8,12 @@
 #include <QStyle>
 #include <QWidget>
 
-#include "celview.h"
-#include "d1pal.h"
-#include "d1palhits.h"
-#include "d1trn.h"
-#include "levelcelview.h"
-#include "undostack.h"
+#include "d1formats/d1trn.h"
+#include "palette/d1pal.h"
+#include "palette/d1palhits.h"
+#include "undostack/undostack.h"
+#include "views/celview.h"
+#include "views/levelcelview.h"
 
 #define PALETTE_WIDTH 192
 #define PALETTE_COLORS_PER_LINE 16
