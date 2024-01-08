@@ -54,5 +54,5 @@ We're all working on this project in our free time, many of us are frustrated af
 * Try to treat everyone with respect, this way we can develop things with professionalism, and in a faster, straight to the point way
 
 If you see someone breaking the rules, contact one of the following maintainers that take a part in D1GT:
-- [@AJenbo] (https://github.com/AJenbo)
-- [@StephenCWills] (https://github.com/StephenCWills)
+- [@AJenbo](https://github.com/AJenbo)
+- [@StephenCWills](https://github.com/StephenCWills)
