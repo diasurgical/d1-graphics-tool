@@ -48,6 +48,8 @@ set(PROJECT_SOURCES
         source/undostack/undostack.h
         source/undostack/command.cpp
         source/undostack/command.h
+        source/undostack/undomacro.cpp
+        source/undostack/undomacro.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
