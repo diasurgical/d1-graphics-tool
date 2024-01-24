@@ -53,6 +53,13 @@ MainWindow::MainWindow()
     this->redoAction = new QAction("Redo", this);
     this->redoAction->setShortcuts(QKeySequence::Redo);
     this->ui->menuEdit->addAction(this->redoAction);
+
+    // Initialize widgets used for Undo/Redo
+    this->m_progressDialog = std::make_unique<QProgressDialog>(this);
+    this->m_progressDialog->close();
+    this->m_progressDialog->setAutoReset(true);
+    this->m_progressDialog->reset();
+    this->m_progressDialog->setWindowModality(Qt::WindowModal);
     this->ui->menuEdit->addSeparator();
 
     this->ui->menuEdit->addAction(this->undoAction);
@@ -748,7 +755,7 @@ void MainWindow::openPalFiles(QStringList filePaths, PaletteWidget *widget)
             this->palWidget->selectPath(firstFound);
         }
     } else if (widget == this->trnUniqueWidget) {
-        for (QString path : filePaths) {
+        for (const QString &path : filePaths) {
             if (this->loadTrnUnique(path) && firstFound.isEmpty()) {
                 firstFound = path;
             }
@@ -1679,6 +1686,38 @@ void MainWindow::on_actionClose_Translation_triggered()
 
     this->trnWidget->removePath(selectedPath);
     this->trnWidget->selectPath(D1Trn::IDENTITY_PATH);
+}
+
+void MainWindow::setupUndoMacroWidget(std::unique_ptr<UserData> &userData, enum OperationType opType)
+{
+    this->m_currMacroOpType = opType;
+    int prevMaximum = this->m_progressDialog->maximum();
+
+    this->m_progressDialog->reset();
+    this->m_progressDialog->show();
+    this->m_progressDialog->setLabelText(userData->labelText());
+    this->m_progressDialog->setCancelButtonText(userData->cancelButtonText());
+    this->m_progressDialog->setMinimum(userData->min());
+    this->m_progressDialog->setMaximum(userData->max());
+
+    if (opType == OperationType::Undo && prevMaximum == userData->max())
+        this->m_currProgDialogPos = this->m_progressDialog->maximum() - m_currProgDialogPos;
+    else if (this->m_currProgDialogPos == prevMaximum || prevMaximum != userData->max())
+        this->m_currProgDialogPos = 0;
+}
+
+void MainWindow::updateUndoMacroWidget(bool &result)
+{
+    this->m_currProgDialogPos++;
+
+    this->m_progressDialog->setValue(m_currProgDialogPos);
+    if (this->m_progressDialog->wasCanceled()) {
+        this->m_progressDialog->reset();
+        result = true;
+        return;
+    }
+
+    QCoreApplication::processEvents();
 }
 
 #if defined(Q_OS_WIN)

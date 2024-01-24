@@ -40,39 +40,19 @@ void ReplaceFrameCommand::redo()
     emit this->replaced(frameIndexToReplace, imgToReplace);
 }
 
-AddFrameCommand::AddFrameCommand(IMAGE_FILE_MODE mode, int index, const QString imagefilePath)
-    : startingIndex(index)
-    , mode(mode)
+AddFrameCommand::AddFrameCommand(int index, QImage &img, IMAGE_FILE_MODE mode)
+    : m_index(index)
+    , m_image(std::move(img))
+    , m_mode(mode)
 {
-    QImageReader reader = QImageReader(imagefilePath);
-    int numImages = 0;
-
-    // FIXME: this loop should have some sort of a progress bar, we support
-    // status bar, but if user loads a .gif which could contain up to hundreds
-    // of frames, loading might take quite a bit
-    while (true) {
-        QImage image = reader.read();
-        if (image.isNull()) {
-            break;
-        }
-
-        images.emplace_back(image);
-        numImages++;
-    }
-
-    if (mode != IMAGE_FILE_MODE::AUTO && numImages == 0) {
-        throw std::exception();
-    }
-
-    endingIndex = startingIndex + numImages;
 }
 
 void AddFrameCommand::undo()
 {
-    emit this->undoAdded(startingIndex, endingIndex);
+    emit this->undoAdded(m_index);
 }
 
 void AddFrameCommand::redo()
 {
-    emit this->added(startingIndex, images, mode);
+    emit this->added(m_index, m_image, m_mode);
 }

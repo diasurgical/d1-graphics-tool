@@ -56,7 +56,6 @@ public:
     void initialize(D1Gfx *gfx);
     void sendRemoveFrameCmd();
     void sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
-    void updateCurrentFrameIndex(int frameIdx);
     int getCurrentFrameIndex();
     void framePixelClicked(unsigned x, unsigned y);
     void insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
@@ -74,8 +73,8 @@ signals:
 
 private:
     void update();
-    void removeFrames(int startingIndex, int endingIndex);
-    void insertFrames(int startingIndex, const std::vector<QImage> &images);
+    void removeFrames(int index);
+    void insertFrames(int index, const QImage &image);
     void setGroupIndex();
 
 private slots:

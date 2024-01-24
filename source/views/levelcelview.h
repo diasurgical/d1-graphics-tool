@@ -62,7 +62,7 @@ public:
     void replaceCurrentFrame(int frameIdx, const QImage &image);
 
     void sendRemoveFrameCmd();
-    void removeCurrentFrame(int idx);
+    void removeCurrentFrame(int index);
 
     void createSubtile();
     void cloneSubtile();
@@ -91,7 +91,7 @@ private:
     void collectSubtileUsers(int subtileIndex, QList<int> &users) const;
     void insertFrame(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
-    void insertFrames(int startingIndex, const std::vector<QImage> &images, IMAGE_FILE_MODE mode);
+    void insertFrames(int index, const QImage &image, IMAGE_FILE_MODE mode);
     void insertSubtile(int subtileIndex, const QImage &image);
     void insertSubtiles(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertSubtiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
@@ -103,7 +103,6 @@ private:
     void assignFrames(const QImage &image, int subtileIndex, int frameIndex);
     void assignSubtiles(const QImage &image, int tileIndex, int subtileIndex);
     void removeFrame(int frameIndex);
-    void removeFrames(int startingIdx, int endingIndex);
     void removeSubtile(int subtileIndex);
     void removeUnusedFrames(QString &report);
     void removeUnusedSubtiles(QString &report);

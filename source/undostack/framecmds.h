@@ -48,19 +48,18 @@ class AddFrameCommand : public QObject, public Command {
     Q_OBJECT
 
 public:
-    explicit AddFrameCommand(IMAGE_FILE_MODE mode, int index, const QString imagefilePath);
+    explicit AddFrameCommand(int index, QImage &image, IMAGE_FILE_MODE mode);
     ~AddFrameCommand() = default;
 
     void undo() override;
     void redo() override;
 
 signals:
-    void undoAdded(int startingIndex, int endingIndex);
-    void added(int startingIndex, const std::vector<QImage> &images, IMAGE_FILE_MODE mode);
+    void undoAdded(int index);
+    void added(int index, const QImage &image, IMAGE_FILE_MODE mode);
 
 private:
-    std::vector<QImage> images;
-    int startingIndex = 0;
-    int endingIndex = 0;
-    IMAGE_FILE_MODE mode;
+    QImage m_image;
+    int m_index = 0;
+    IMAGE_FILE_MODE m_mode;
 };

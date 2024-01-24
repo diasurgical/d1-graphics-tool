@@ -307,13 +307,11 @@ void LevelCelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QImage &im
     this->assignFrames(image, -1, index);
 }
 
-void LevelCelView::insertFrames(int startingIndex, const std::vector<QImage> &images, IMAGE_FILE_MODE mode)
+void LevelCelView::insertFrames(int index, const QImage &image, IMAGE_FILE_MODE mode)
 {
     int prevFrameCount = this->gfx->getFrameCount();
 
-    for (int idx = 0; idx < images.size(); idx++) {
-        this->insertFrame(mode, startingIndex + idx, images[idx]);
-    }
+    this->insertFrame(mode, index, image);
 
     int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
     if (deltaFrameCount == 0) {
@@ -324,9 +322,9 @@ void LevelCelView::insertFrames(int startingIndex, const std::vector<QImage> &im
     // shift all tiles references higher than inserted frame's index to the right.
     // Otherwise, if we are appending - just update currentFrameIndex to the one first
     // appended frame
-    if (startingIndex + 1 != this->gfx->getFrameCount()) {
+    if (index + 1 != this->gfx->getFrameCount()) {
         // shift references
-        unsigned refIndex = startingIndex + 1;
+        unsigned refIndex = index + 1;
         // shift frame indices of the subtiles
         for (int i = 0; i < this->min->getSubtileCount(); i++) {
             QList<quint16> &frameIndices = this->min->getCelFrameIndices(i);
@@ -343,15 +341,13 @@ void LevelCelView::insertFrames(int startingIndex, const std::vector<QImage> &im
     // If this function is used in undo stack and this operation came after redo,
     // then we have to renew previously used indices of frames
     if (!tilesAndFramesIdxStack.empty()) {
-        for (int idx = 0; idx < images.size(); idx++) {
-            auto &vec = tilesAndFramesIdxStack.top();
-            for (auto &pair : vec) {
-                QList<quint16> &frameIndices = this->min->getCelFrameIndices(pair.first);
-                frameIndices[pair.second] = (startingIndex + idx) + 1;
-            }
-
-            tilesAndFramesIdxStack.pop();
+        auto &vec = tilesAndFramesIdxStack.top();
+        for (auto &pair : vec) {
+            QList<quint16> &frameIndices = this->min->getCelFrameIndices(pair.first);
+            frameIndices[pair.second] = index + 1;
         }
+
+        tilesAndFramesIdxStack.pop();
     }
 
     // update the view
@@ -376,17 +372,55 @@ void LevelCelView::insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefi
 
 void LevelCelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
 {
-    std::unique_ptr<AddFrameCommand> command;
-    try {
-        command = std::make_unique<AddFrameCommand>(mode, index, imagefilePath);
-    } catch (...) {
-        QMessageBox::critical(this, "Error", "Failed to read image file: " + imagefilePath);
+    QImageReader reader = QImageReader(imagefilePath);
+
+    auto readImage = [&](QImage &img) -> bool {
+        if (!reader.read(&img)) {
+            QMessageBox::critical(this, "Error", "Failed to read image file: " + imagefilePath);
+            return false;
+        }
+
+        return true;
+    };
+
+    auto connectCommand = [&](QImage &img) -> std::unique_ptr<AddFrameCommand> {
+        auto command = std::make_unique<AddFrameCommand>(index, img, mode);
+
+        // Connect signals which will be called upon redo/undo operations of the undostack
+        QObject::connect(command.get(), &AddFrameCommand::added, this, static_cast<void (LevelCelView::*)(int index, const QImage &image, IMAGE_FILE_MODE mode)>(&LevelCelView::insertFrames));
+        QObject::connect(command.get(), &AddFrameCommand::undoAdded, this, &LevelCelView::removeCurrentFrame);
+        return command;
+    };
+
+    // If we have more than one image, then we want to use a macro
+    if (reader.imageCount() > 1) {
+        QObject::connect(this->undoStack.get(), &UndoStack::initializeWidget, dynamic_cast<MainWindow *>(this->window()), &MainWindow::setupUndoMacroWidget, Qt::UniqueConnection);
+        QObject::connect(this->undoStack.get(), &UndoStack::updateWidget, dynamic_cast<MainWindow *>(this->window()), &MainWindow::updateUndoMacroWidget, Qt::UniqueConnection);
+
+        UndoMacroFactory macroFactory({ "Inserting frames...", "Abort", { 0, reader.imageCount() } });
+
+        int numImages = 0;
+        while (numImages != reader.imageCount()) {
+            QImage image;
+            if (!readImage(image))
+                return;
+
+            auto command = connectCommand(image);
+
+            macroFactory.add(std::move(command));
+
+            numImages++;
+        }
+
+        undoStack->addMacro(macroFactory);
         return;
     }
 
-    // send a command to undostack, making adding frame undo/redoable
-    QObject::connect(command.get(), &AddFrameCommand::added, this, static_cast<void (LevelCelView::*)(int startingIndex, const std::vector<QImage> &images, IMAGE_FILE_MODE mode)>(&LevelCelView::insertFrames));
-    QObject::connect(command.get(), &AddFrameCommand::undoAdded, this, &LevelCelView::removeFrames);
+    QImage image;
+    if (!readImage(image))
+        return;
+
+    auto command = connectCommand(image);
 
     undoStack->push(std::move(command));
 }
@@ -808,25 +842,15 @@ void LevelCelView::sendRemoveFrameCmd()
     this->undoStack->push(std::move(command));
 }
 
-void LevelCelView::removeCurrentFrame(int frameIdx)
+void LevelCelView::removeCurrentFrame(int index)
 {
-    // remove the current frame
-    this->removeFrame(frameIdx);
+    // remove current frame
+    this->removeFrame(index);
 
     // update the view
     // FIXME: decouple that somehow, why is it taking variables and then assigns it back
     // to the same variables? Probably would be enough to call this->update()
     this->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
-    this->displayFrame();
-}
-
-void LevelCelView::removeFrames(int startingIdx, int endingIndex)
-{
-    for (int idx = startingIdx; idx < endingIndex; idx++) {
-        this->removeCurrentFrame(idx);
-    }
-
-    // update the view
     this->update();
     this->displayFrame();
 }

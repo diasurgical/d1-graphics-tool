@@ -1,8 +1,9 @@
 #include "celview.h"
-
 #include <algorithm>
 
 #include <QAction>
+
+#include "mainwindow.h"
 #include <QDebug>
 #include <QFileInfo>
 #include <QGraphicsPixmapItem>
@@ -11,9 +12,9 @@
 #include <QMessageBox>
 #include <QMimeData>
 
-#include "mainwindow.h"
 #include "ui_celview.h"
 #include "undostack/framecmds.h"
+#include "undostack/undomacro.h"
 
 CelScene::CelScene(QWidget *v)
     : QGraphicsScene()
@@ -182,20 +183,18 @@ void CelView::insertImageFile(int frameIdx, const QImage img)
     this->displayFrame();
 }
 
-void CelView::insertFrames(int startingIndex, const std::vector<QImage> &images)
+void CelView::insertFrames(int index, const QImage &image)
 {
     int prevFrameCount = this->gfx->getFrameCount();
 
-    for (int idx = 0; idx < images.size(); idx++) {
-        this->gfx->insertFrame(startingIndex + idx, images[idx]);
-    }
+    this->gfx->insertFrame(index, image);
 
     int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
     if (deltaFrameCount == 0) {
         return; // no new frame -> done
     }
 
-    this->currentFrameIndex = startingIndex;
+    this->currentFrameIndex = index;
     this->updateGroupIndex();
 
     // update the view
@@ -203,28 +202,62 @@ void CelView::insertFrames(int startingIndex, const std::vector<QImage> &images)
     this->displayFrame();
 }
 
-void CelView::removeFrames(int startingIndex, int endingIndex)
+void CelView::removeFrames(int index)
 {
-    int idx = startingIndex;
-    while (startingIndex != endingIndex) {
-        this->removeCurrentFrame(idx);
-        startingIndex++;
-    }
+    this->removeCurrentFrame(index);
 }
 
 void CelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath)
 {
-    std::unique_ptr<AddFrameCommand> command;
-    try {
-        command = std::make_unique<AddFrameCommand>(mode, index, imagefilePath);
-    } catch (...) {
-        QMessageBox::critical(this, "Error", "Failed to read image file: " + imagefilePath);
+    QImageReader reader = QImageReader(imagefilePath);
+
+    auto readImage = [&](QImage &img) -> bool {
+        if (!reader.read(&img)) {
+            QMessageBox::critical(this, "Error", "Failed to read image file: " + imagefilePath);
+            return false;
+        }
+
+        return true;
+    };
+
+    auto connectCommand = [&](QImage &img) -> std::unique_ptr<AddFrameCommand> {
+        auto command = std::make_unique<AddFrameCommand>(index, img, mode);
+
+        // Connect signals which will be called upon redo/undo operations of the undostack
+        QObject::connect(command.get(), &AddFrameCommand::added, this, &CelView::insertFrames);
+        QObject::connect(command.get(), &AddFrameCommand::undoAdded, this, &CelView::removeFrames);
+        return command;
+    };
+
+    // If we have more than one image, then we want to use a macro
+    if (reader.imageCount() > 1) {
+        QObject::connect(this->undoStack.get(), &UndoStack::initializeWidget, dynamic_cast<MainWindow *>(this->window()), &MainWindow::setupUndoMacroWidget, Qt::UniqueConnection);
+        QObject::connect(this->undoStack.get(), &UndoStack::updateWidget, dynamic_cast<MainWindow *>(this->window()), &MainWindow::updateUndoMacroWidget, Qt::UniqueConnection);
+
+        UndoMacroFactory macroFactory({ "Inserting frames...", "Abort", { 0, reader.imageCount() } });
+
+        int numImages = 0;
+        while (numImages != reader.imageCount()) {
+            QImage image;
+            if (!readImage(image))
+                return;
+
+            auto command = connectCommand(image);
+
+            macroFactory.add(std::move(command));
+
+            numImages++;
+        }
+
+        undoStack->addMacro(macroFactory);
         return;
     }
 
-    // send a command to undostack, making adding frame undo/redoable
-    QObject::connect(command.get(), &AddFrameCommand::added, this, &CelView::insertFrames);
-    QObject::connect(command.get(), &AddFrameCommand::undoAdded, this, &CelView::removeFrames);
+    QImage image;
+    if (!readImage(image))
+        return;
+
+    auto command = connectCommand(image);
 
     undoStack->push(std::move(command));
 }
