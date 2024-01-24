@@ -1,4 +1,5 @@
 #include "undostack.h"
+#include <QDebug>
 
 /**
  * @brief Pushes new commands onto the commands stack (Undostack)
@@ -19,12 +20,7 @@ void UndoStack::push(std::unique_ptr<Command> cmd)
          */
     }
 
-    // Erase any command that was set to obsolete
-    std::erase_if(m_cmds, [](const auto &cmd) { return cmd->isObsolete(); });
-
-    // Drop any command that's after currently undo'd index
-    if (m_cmds.begin() + (m_undoPos + 1) <= m_cmds.end())
-        m_cmds.erase(m_cmds.begin() + (m_undoPos + 1), m_cmds.end());
+    eraseRedundantCmds();
 
     m_cmds.push_back(std::move(cmd));
     m_canUndo = true;
@@ -44,13 +40,31 @@ void UndoStack::undo()
     // Erase any command that was previously set as obsolete
     std::erase_if(m_cmds, [](const auto &cmd) { return cmd->isObsolete(); });
 
-    if (m_undoPos == 0)
+    /* If current processed command has a macroID higher than 0, then it means it's a macro.
+     * So we need to start going through commands backwards in a loop
+     */
+    unsigned int macroID = m_cmds[m_undoPos]->macroID();
+    if (macroID > 0) {
+        emit initializeWidget(m_macros[macroID - 1].userdata(), OperationType::Undo);
+
+        while (m_cmds[m_undoPos]->macroID() > 0) {
+            bool result = false;
+            m_cmds[m_undoPos]->undo();
+            m_undoPos--;
+            emit updateWidget(result);
+            if (result || m_undoPos < 0 || m_cmds[m_undoPos + 1]->macroID() != m_cmds[m_undoPos]->macroID()) {
+                break;
+            }
+        }
+    } else {
+        m_cmds[m_undoPos]->undo();
+        m_undoPos--;
+    }
+
+    if (m_undoPos < 0)
         m_canUndo = false;
 
-    m_cmds[m_undoPos]->undo();
-
     m_canRedo = true;
-    m_undoPos--;
 }
 
 /**
@@ -65,12 +79,27 @@ void UndoStack::redo()
     // erase any command that was previously set as obsolete
     std::erase_if(m_cmds, [](const auto &cmd) { return cmd->isObsolete(); });
 
-    m_cmds[m_undoPos + 1]->redo();
+    unsigned int macroID = m_cmds[m_undoPos + 1]->macroID();
+    if (macroID > 0) {
+        emit initializeWidget(m_macros[macroID - 1].userdata(), OperationType::Redo);
 
-    m_undoPos++;
+        while (m_cmds[m_undoPos + 1]->macroID() > 0) {
+            bool result = false;
+            m_cmds[m_undoPos + 1]->redo();
+            m_undoPos++;
+            emit updateWidget(result);
+            if (result || m_undoPos + 1 >= m_cmds.size() || m_cmds[m_undoPos + 1]->macroID() != m_cmds[m_undoPos]->macroID()) {
+                break;
+            }
+        }
+    } else {
+        m_cmds[m_undoPos + 1]->redo();
+        m_undoPos++;
+    }
+
     m_canUndo = true;
 
-    if (m_undoPos + 1 > m_cmds.size() - 1)
+    if (m_undoPos + 1 >= m_cmds.size())
         m_canRedo = false;
 }
 
@@ -99,7 +128,76 @@ bool UndoStack::canUndo() const
  */
 void UndoStack::clear()
 {
-    m_undoPos = 0;
+    m_undoPos = -1;
     m_canUndo = m_canRedo = false;
     m_cmds.clear();
+    m_macros.clear();
+}
+
+/**
+ * @brief Adds a macro to undo stack
+ *
+ * This function is being called whenever someone wants to insert
+ * a macro in the undo stack. It calls redo() on all commands contained
+ * in the macro, and updates undo stack position accordingly, it also
+ * sets macroIDs depending on the macros' vector size.
+ *
+ */
+void UndoStack::addMacro(UndoMacroFactory &macroFactory)
+{
+    eraseRedundantCmds();
+
+    emit initializeWidget(macroFactory.userdata(), OperationType::Redo);
+    m_macros.emplace_back(std::move(macroFactory.userdata()), std::make_pair<int, int>(m_cmds.size(), (m_cmds.size() + macroFactory.cmds().size()) - 1));
+
+    for (auto &cmd : macroFactory.cmds()) {
+        bool result = false;
+        cmd->redo();
+        m_undoPos++;
+
+        emit updateWidget(result);
+        if (result) {
+            m_canRedo = true;
+            break;
+        }
+    }
+
+    // For each command that will be inserted set a macroID so it is located in the same span
+    std::for_each(macroFactory.cmds().begin(), macroFactory.cmds().end(), [&](const std::unique_ptr<Command> &cmd) {
+        cmd->setMacroID(m_macros.size());
+    });
+
+    m_cmds.insert(m_cmds.end(), std::make_move_iterator(macroFactory.cmds().begin()), std::make_move_iterator(macroFactory.cmds().end()));
+    m_canUndo = true;
+}
+
+/**
+ * @brief Erases redundant commands and macros from the undo stack
+ *
+ * This function erases redundant commands and macros from both vectors
+ * in undostack. Redundant in this case means commands which will no longer
+ * be available, i.e. command being obsolete (having obsolete flag set to true), or
+ * all commands + macros after currently pushed command - upon insertion undo stack removes all
+ * commands + macros that are after current undo stack position (were undo'd) and are possible
+ * to redo.
+ *
+ */
+void UndoStack::eraseRedundantCmds()
+{
+    // Erase any command that was set to obsolete
+    std::erase_if(m_cmds, [](const auto &cmd) { return cmd->isObsolete(); });
+
+    if (m_cmds.begin() + (m_undoPos + 1) < m_cmds.end()) {
+        // Drop any command that's after currently undo'd index
+        m_cmds.erase(m_cmds.begin() + (m_undoPos + 1), m_cmds.end());
+
+        // Drop any macro that's after currently undo'd index
+        std::erase_if(m_macros, [&](const auto &macro) { return macro.beginIndex() > m_undoPos; });
+
+        // If undoPos is currently on a macro, then update it's ending index because we could have removed some of
+        // it's commands
+        unsigned int macroID = m_cmds[m_undoPos]->macroID();
+        if (macroID > 0)
+            m_macros[macroID - 1].setLastIndex(m_undoPos);
+    }
 }

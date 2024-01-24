@@ -20,3 +20,13 @@ bool Command::isObsolete() const
 {
     return m_isObsolete;
 }
+
+void Command::setMacroID(unsigned int macroID)
+{
+    m_macroID = macroID;
+}
+
+unsigned int Command::macroID() const
+{
+    return m_macroID;
+}

@@ -106,6 +106,10 @@ public slots:
     void actionReplaceTile_triggered();
     void actionDelTile_triggered();
 
+    // slots used for UndoMacro signals
+    void setupUndoMacroWidget(std::unique_ptr<UserData> &userData, enum OperationType opType);
+    void updateUndoMacroWidget(bool &result);
+
     void buildRecentFilesMenu();
     void addRecentFile(QString filePath);
     void on_actionClear_History_triggered();
@@ -197,6 +201,11 @@ private:
     QMap<QString, D1Trn *> trns;       // key: path, value: pointer to translation
     QMap<QString, D1Trn *> trnsUnique; // key: path, value: pointer to translation
 
+    std::unique_ptr<QProgressDialog> m_progressDialog;
+
     // Palette hits are instantiated in main window to make them available to the three PaletteWidgets
     QPointer<D1PalHits> palHits;
+
+    int m_currProgDialogPos { 0 };
+    enum OperationType m_currMacroOpType;
 };
