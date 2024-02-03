@@ -48,9 +48,18 @@ public:
 
     void initialize(D1Gfx *gfx, D1Min *min, D1Til *til, D1Sol *sol, D1Amp *amp);
 
-    int getCurrentFrameIndex();
-    int getCurrentSubtileIndex();
-    int getCurrentTileIndex();
+    [[nodiscard]] int getCurrentFrameIndex() const
+    {
+        return this->currentFrameIndex;
+    }
+    [[nodiscard]] int getCurrentSubtileIndex() const
+    {
+        return this->currentSubtileIndex;
+    }
+    [[nodiscard]] int getCurrentTileIndex() const
+    {
+        return this->currentTileIndex;
+    }
 
     void framePixelClicked(unsigned x, unsigned y);
 
@@ -89,9 +98,8 @@ private:
     void update();
     void collectFrameUsers(int frameIndex, QList<int> &users) const;
     void collectSubtileUsers(int subtileIndex, QList<int> &users) const;
-    void insertFrame(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertFrames(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
-    void insertFrames(int index, const QImage &image, IMAGE_FILE_MODE mode);
+    void insertFrames(int index, const QImage &image);
     void insertSubtile(int subtileIndex, const QImage &image);
     void insertSubtiles(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertSubtiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);

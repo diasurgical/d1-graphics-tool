@@ -14,6 +14,7 @@ private:
 
 public:
     UserData(QString labelText, QString cancelButtonText, std::pair<int, int> &&minMax);
+    UserData(QString labelText, QString cancelButtonText);
     ~UserData() = default;
 
     [[nodiscard]] int min() const
@@ -49,7 +50,10 @@ private:
 
 public:
     UndoMacroFactory(UserData &&userData);
+    UndoMacroFactory() = default;
     ~UndoMacroFactory() = default;
+
+    void setUserData(const UserData &&userData);
 
     void add(std::unique_ptr<Command> cmd);
     [[nodiscard]] std::vector<std::unique_ptr<Command>> &cmds()

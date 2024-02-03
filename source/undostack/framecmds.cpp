@@ -40,10 +40,9 @@ void ReplaceFrameCommand::redo()
     emit this->replaced(frameIndexToReplace, imgToReplace);
 }
 
-AddFrameCommand::AddFrameCommand(int index, QImage &img, IMAGE_FILE_MODE mode)
+AddFrameCommand::AddFrameCommand(int index, QImage &img)
     : m_index(index)
     , m_image(std::move(img))
-    , m_mode(mode)
 {
 }
 
@@ -54,5 +53,5 @@ void AddFrameCommand::undo()
 
 void AddFrameCommand::redo()
 {
-    emit this->added(m_index, m_image, m_mode);
+    emit this->added(m_index, m_image);
 }

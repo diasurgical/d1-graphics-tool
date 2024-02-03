@@ -18,6 +18,95 @@
 #include <QMimeData>
 #include <utility>
 
+namespace {
+
+int getClickedSubtile(unsigned x, unsigned y, unsigned width, unsigned height)
+{
+    //   |   |
+    //   |   |
+    //  2| 0 |1
+    //   |   |
+    //   |   |
+
+    // The perspective lets us know the floor heigth based on the width
+    int wallHeight = height - (width / 4 + width / 8);
+
+    if (y < wallHeight) {
+        if (x < width / 4) {
+            return 2;
+        }
+        if (x > width - width / 4) {
+            return 1;
+        }
+        return 0;
+    }
+
+    //    \0/
+    //  2  X  1
+    //    / \
+    //   / 3 \
+    //  /     \
+
+    y -= height - width / 2;
+
+    int y1 = width / 2 * x / width; // y of 1st diagonal at x
+    int y2 = width / 2 - y1;        // y of 2nd diagonal at x
+
+    if (y < y1) {
+        if (y < y2)
+            return 0; // top
+        else
+            return 1; // right
+    } else {
+        if (y < y2)
+            return 2; // left
+        else
+            return 3; // bottom
+    }
+}
+
+/**
+ * @brief Extracts subimages from given image
+ *
+ * This function extracts 32x32 subimages from an image that is
+ * 32x32 divisible and returns them as an input parameter to the std::vector.
+ * This is because LevelCelView supports only 32x32 frames.
+ *
+ * @return Returns QList of frame indices to be replaced if needed
+ */
+QList<quint16> extractSubImages(const QImage &image, std::vector<QImage> &images, int frameIndex)
+{
+    QList<quint16> frameIndicesList;
+
+    // TODO: merge with LevelCelView::insertSubtile ?
+    QImage subImage = QImage(MICRO_WIDTH, MICRO_HEIGHT, QImage::Format_ARGB32);
+    for (int y = 0; y < image.height(); y += MICRO_HEIGHT) {
+        for (int x = 0; x < image.width(); x += MICRO_WIDTH) {
+
+            bool hasColor = false;
+            for (int j = 0; j < MICRO_HEIGHT; j++) {
+                for (int i = 0; i < MICRO_WIDTH; i++) {
+                    const QColor color = image.pixelColor(x + i, y + j);
+                    if (color.alpha() >= COLOR_ALPHA_LIMIT) {
+                        hasColor = true;
+                    }
+                    subImage.setPixelColor(i, j, color);
+                }
+            }
+            frameIndicesList.append(hasColor ? frameIndex + 1 : 0);
+            if (!hasColor) {
+                continue;
+            }
+
+            images.push_back(subImage);
+        }
+    }
+
+    return frameIndicesList;
+}
+
+} // namespace
+
 LevelCelView::LevelCelView(std::shared_ptr<UndoStack> us, QWidget *parent)
     : QWidget(parent)
     , undoStack(std::move(us))
@@ -94,69 +183,6 @@ void LevelCelView::update()
     this->tabSubTileWidget->initialize(this, this->gfx, this->min, this->sol);
     this->tabFrameWidget->initialize(this, this->gfx);
 }
-
-int LevelCelView::getCurrentFrameIndex()
-{
-    return this->currentFrameIndex;
-}
-
-int LevelCelView::getCurrentSubtileIndex()
-{
-    return this->currentSubtileIndex;
-}
-
-int LevelCelView::getCurrentTileIndex()
-{
-    return this->currentTileIndex;
-}
-
-namespace {
-
-int getClickedSubtile(unsigned x, unsigned y, unsigned width, unsigned height)
-{
-    //   |   |
-    //   |   |
-    //  2| 0 |1
-    //   |   |
-    //   |   |
-
-    // The perspective lets us know the floor heigth based on the width
-    int wallHeight = height - (width / 4 + width / 8);
-
-    if (y < wallHeight) {
-        if (x < width / 4) {
-            return 2;
-        }
-        if (x > width - width / 4) {
-            return 1;
-        }
-        return 0;
-    }
-
-    //    \0/
-    //  2  X  1
-    //    / \
-    //   / 3 \
-    //  /     \
-
-    y -= height - width / 2;
-
-    int y1 = width / 2 * x / width; // y of 1st diagonal at x
-    int y2 = width / 2 - y1;        // y of 2nd diagonal at x
-
-    if (y < y1) {
-        if (y < y2)
-            return 0; // top
-        else
-            return 1; // right
-    } else {
-        if (y < y2)
-            return 2; // left
-        else
-            return 3; // bottom
-    }
-}
-} // namespace
 
 void LevelCelView::framePixelClicked(unsigned x, unsigned y)
 {
@@ -241,77 +267,12 @@ void LevelCelView::insertImageFiles(IMAGE_FILE_MODE mode, const QStringList &ima
     }
 }
 
-void LevelCelView::assignFrames(const QImage &image, int subtileIndex, int frameIndex)
-{
-    QList<quint16> frameIndicesList;
-
-    // TODO: merge with LevelCelView::insertSubtile ?
-    QImage subImage = QImage(MICRO_WIDTH, MICRO_HEIGHT, QImage::Format_ARGB32);
-    for (int y = 0; y < image.height(); y += MICRO_HEIGHT) {
-        for (int x = 0; x < image.width(); x += MICRO_WIDTH) {
-            // subImage.fill(Qt::transparent);
-
-            bool hasColor = false;
-            for (int j = 0; j < MICRO_HEIGHT; j++) {
-                for (int i = 0; i < MICRO_WIDTH; i++) {
-                    const QColor color = image.pixelColor(x + i, y + j);
-                    if (color.alpha() >= COLOR_ALPHA_LIMIT) {
-                        hasColor = true;
-                    }
-                    subImage.setPixelColor(i, j, color);
-                }
-            }
-            frameIndicesList.append(hasColor ? frameIndex + 1 : 0);
-            if (!hasColor) {
-                continue;
-            }
-
-            D1GfxFrame *frame = this->gfx->insertFrame(frameIndex, subImage);
-            LevelTabFrameWidget::selectFrameType(frame);
-            frameIndex++;
-        }
-    }
-
-    if (subtileIndex >= 0) {
-        this->min->getCelFrameIndices(subtileIndex).swap(frameIndicesList);
-        // reset subtile flags
-        this->sol->setSubtileProperties(subtileIndex, 0);
-    }
-}
-
-void LevelCelView::insertFrame(IMAGE_FILE_MODE mode, int index, const QImage &image)
-{
-    // FIXME: investigate if adding multiple frames, and having a frame that is not in
-    // proper dimensions will screw up frame list, especially in appending operations
-    if ((image.width() % MICRO_WIDTH) != 0 || (image.height() % MICRO_HEIGHT) != 0) {
-        QMessageBox::critical(this, tr("Error!"), tr("Wrong frame dimensions!\n"
-                                                     "Image should have dimensions %1x%2px (w x h).\n"
-                                                     "Image that you wanted to insert has %3x%4px dimensions.")
-                                                      .arg(MICRO_WIDTH)
-                                                      .arg(MICRO_HEIGHT)
-                                                      .arg(image.width())
-                                                      .arg(image.height()));
-        return;
-    }
-
-    if (mode == IMAGE_FILE_MODE::AUTO) {
-        // check for subtile dimensions to be more lenient than EXPORT_LVLFRAMES_PER_LINE
-        unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
-        unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
-
-        if ((image.width() % subtileWidth) == 0 && (image.height() % subtileHeight) == 0) {
-            return; // this is a subtile or a tile (or subtiles or tiles) -> ignore
-        }
-    }
-
-    this->assignFrames(image, -1, index);
-}
-
-void LevelCelView::insertFrames(int index, const QImage &image, IMAGE_FILE_MODE mode)
+void LevelCelView::insertFrames(int index, const QImage &image)
 {
     int prevFrameCount = this->gfx->getFrameCount();
 
-    this->insertFrame(mode, index, image);
+    D1GfxFrame *frame = this->gfx->insertFrame(index, image);
+    LevelTabFrameWidget::selectFrameType(frame);
 
     int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
     if (deltaFrameCount == 0) {
@@ -380,16 +341,53 @@ void LevelCelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QStrin
             return false;
         }
 
+        // FIXME: investigate if adding multiple frames, and having a frame that is not in
+        // proper dimensions will screw up frame list, especially in appending operations
+        if ((img.width() % MICRO_WIDTH) != 0 || (img.height() % MICRO_HEIGHT) != 0) {
+            QMessageBox::critical(this, tr("Error!"), tr("Wrong frame dimensions!\n"
+                                                         "Image should have dimensions %1x%2px (w x h).\n"
+                                                         "Image that you wanted to insert has %3x%4px dimensions.")
+                                                          .arg(MICRO_WIDTH)
+                                                          .arg(MICRO_HEIGHT)
+                                                          .arg(img.width())
+                                                          .arg(img.height()));
+            return false;
+        }
+
+        if (mode == IMAGE_FILE_MODE::AUTO) {
+            // check for subtile dimensions to be more lenient than EXPORT_LVLFRAMES_PER_LINE
+            unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
+            unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
+
+            if ((img.width() % subtileWidth) == 0 && (img.height() % subtileHeight) == 0) {
+                return false; // this is a subtile or a tile (or subtiles or tiles) -> ignore
+            }
+        }
+
         return true;
     };
 
-    auto connectCommand = [&](QImage &img) -> std::unique_ptr<AddFrameCommand> {
-        auto command = std::make_unique<AddFrameCommand>(index, img, mode);
-
+    auto connectCommand = [&](std::unique_ptr<AddFrameCommand> &command) {
         // Connect signals which will be called upon redo/undo operations of the undostack
-        QObject::connect(command.get(), &AddFrameCommand::added, this, static_cast<void (LevelCelView::*)(int index, const QImage &image, IMAGE_FILE_MODE mode)>(&LevelCelView::insertFrames));
+        QObject::connect(command.get(), &AddFrameCommand::added, this, static_cast<void (LevelCelView::*)(int index, const QImage &image)>(&LevelCelView::insertFrames));
         QObject::connect(command.get(), &AddFrameCommand::undoAdded, this, &LevelCelView::removeCurrentFrame);
-        return command;
+    };
+
+    auto addSubImagesToMacro = [&](QImage &image, UndoMacroFactory &macroFactory) -> int {
+        // Here we are extracting sub-images from the image which are 32x32 divisible
+        std::vector<QImage> subImages;
+        subImages.reserve(image.width() / MICRO_WIDTH * image.height() / MICRO_HEIGHT);
+        extractSubImages(image, subImages, index);
+
+        for (auto &subImage : subImages) {
+            auto command = std::make_unique<AddFrameCommand>(index, subImage);
+            connectCommand(command);
+            macroFactory.add(std::move(command));
+            index++;
+        }
+
+        // Return number of subimages extracted
+        return static_cast<int>(subImages.size());
     };
 
     // If we have more than one image, then we want to use a macro
@@ -397,7 +395,9 @@ void LevelCelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QStrin
         QObject::connect(this->undoStack.get(), &UndoStack::initializeWidget, dynamic_cast<MainWindow *>(this->window()), &MainWindow::setupUndoMacroWidget, Qt::UniqueConnection);
         QObject::connect(this->undoStack.get(), &UndoStack::updateWidget, dynamic_cast<MainWindow *>(this->window()), &MainWindow::updateUndoMacroWidget, Qt::UniqueConnection);
 
-        UndoMacroFactory macroFactory({ "Inserting frames...", "Abort", { 0, reader.imageCount() } });
+        int totalNumSubImages = 0;
+        UserData userData("Inserting frames...", "Abort");
+        UndoMacroFactory macroFactory;
 
         int numImages = 0;
         while (numImages != reader.imageCount()) {
@@ -405,12 +405,15 @@ void LevelCelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QStrin
             if (!readImage(image))
                 return;
 
-            auto command = connectCommand(image);
-
-            macroFactory.add(std::move(command));
+            int numSubImages = addSubImagesToMacro(image, macroFactory);
+            totalNumSubImages += numSubImages;
 
             numImages++;
         }
+
+        // We have to set maximum after, because we don't know how many sub images there will be
+        userData.setMax(totalNumSubImages);
+        macroFactory.setUserData(std::move(userData));
 
         undoStack->addMacro(macroFactory);
         return;
@@ -420,16 +423,32 @@ void LevelCelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QStrin
     if (!readImage(image))
         return;
 
-    auto command = connectCommand(image);
+    // If the image is not exactly 32x32, then we have subimages. So extract them and pass them as a macro
+    // Otherwise insert them as a normal UndoStack command.
+    if (image.width() != MICRO_WIDTH && image.height() != MICRO_HEIGHT) {
+        QObject::connect(this->undoStack.get(), &UndoStack::initializeWidget, dynamic_cast<MainWindow *>(this->window()), &MainWindow::setupUndoMacroWidget, Qt::UniqueConnection);
+        QObject::connect(this->undoStack.get(), &UndoStack::updateWidget, dynamic_cast<MainWindow *>(this->window()), &MainWindow::updateUndoMacroWidget, Qt::UniqueConnection);
 
-    undoStack->push(std::move(command));
+        int numOfSubImages = image.width() / MICRO_WIDTH * image.height() / MICRO_HEIGHT;
+        UndoMacroFactory macroFactory({ "Inserting frames...", "Abort", { 0, numOfSubImages } });
+
+        addSubImagesToMacro(image, macroFactory);
+
+        undoStack->addMacro(macroFactory);
+    } else {
+        auto command = std::make_unique<AddFrameCommand>(index, image);
+        connectCommand(command);
+
+        undoStack->push(std::move(command));
+    }
 }
 
 void LevelCelView::insertFrame(int index, const QImage image)
 {
     int prevFrameCount = this->gfx->getFrameCount();
 
-    this->insertFrame(IMAGE_FILE_MODE::FRAME, index, image);
+    D1GfxFrame *frame = this->gfx->insertFrame(index, image);
+    LevelTabFrameWidget::selectFrameType(frame);
 
     int deltaFrameCount = this->gfx->getFrameCount() - prevFrameCount;
     if (deltaFrameCount == 0) {
@@ -892,7 +911,22 @@ void LevelCelView::replaceCurrentSubtile(const QString &imagefilePath)
     }
 
     int subtileIndex = this->currentSubtileIndex;
-    this->assignFrames(image, subtileIndex, this->gfx->getFrameCount());
+    int frameIndex = this->gfx->getFrameCount();
+
+    // Here we are extracting sub-images from the image which are 32x32 divisible
+    std::vector<QImage> subImages;
+    subImages.reserve(image.width() / MICRO_WIDTH * image.height() / MICRO_HEIGHT);
+    QList<quint16> frameIndicesList = extractSubImages(image, subImages, frameIndex);
+
+    for (auto &subImage : subImages) {
+        D1GfxFrame *frame = this->gfx->insertFrame(frameIndex, subImage);
+        LevelTabFrameWidget::selectFrameType(frame);
+        frameIndex++;
+    }
+
+    this->min->getCelFrameIndices(subtileIndex).swap(frameIndicesList);
+    // reset subtile flags
+    this->sol->setSubtileProperties(subtileIndex, 0);
 
     // update the view
     this->update();
