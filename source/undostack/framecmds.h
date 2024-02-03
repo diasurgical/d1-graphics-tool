@@ -48,7 +48,7 @@ class AddFrameCommand : public QObject, public Command {
     Q_OBJECT
 
 public:
-    explicit AddFrameCommand(int index, QImage &image, IMAGE_FILE_MODE mode);
+    explicit AddFrameCommand(int index, QImage &image);
     ~AddFrameCommand() = default;
 
     void undo() override;
@@ -56,10 +56,9 @@ public:
 
 signals:
     void undoAdded(int index);
-    void added(int index, const QImage &image, IMAGE_FILE_MODE mode);
+    void added(int index, const QImage &image);
 
 private:
     QImage m_image;
     int m_index = 0;
-    IMAGE_FILE_MODE m_mode;
 };

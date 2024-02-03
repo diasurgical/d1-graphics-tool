@@ -221,7 +221,7 @@ void CelView::sendAddFrameCmd(IMAGE_FILE_MODE mode, int index, const QString &im
     };
 
     auto connectCommand = [&](QImage &img) -> std::unique_ptr<AddFrameCommand> {
-        auto command = std::make_unique<AddFrameCommand>(index, img, mode);
+        auto command = std::make_unique<AddFrameCommand>(index, img);
 
         // Connect signals which will be called upon redo/undo operations of the undostack
         QObject::connect(command.get(), &AddFrameCommand::added, this, &CelView::insertFrames);

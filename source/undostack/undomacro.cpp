@@ -9,9 +9,21 @@ UserData::UserData(QString labelText, QString cancelButtonText, std::pair<int, i
 {
 }
 
+UserData::UserData(QString labelText, QString cancelButtonText)
+    : m_labelText(std::move(labelText))
+    , m_cancelButtonText(std::move(cancelButtonText))
+    , m_minMax({ 0, 0 })
+{
+}
+
 UndoMacroFactory::UndoMacroFactory(UserData &&userData)
     : m_userData(std::make_unique<UserData>(userData.labelText(), userData.cancelButtonText(), std::make_pair(userData.min(), userData.max())))
 {
+}
+
+void UndoMacroFactory::setUserData(const UserData &&userData)
+{
+    m_userData = std::make_unique<UserData>(userData.labelText(), userData.cancelButtonText(), std::make_pair(userData.min(), userData.max()));
 }
 
 void UndoMacroFactory::add(std::unique_ptr<Command> cmd)
