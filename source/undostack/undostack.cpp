@@ -184,6 +184,13 @@ void UndoStack::addMacro(UndoMacroFactory &macroFactory)
  */
 void UndoStack::eraseRedundantCmds()
 {
+    // If user has undo'd all the commands, then erase everything
+    if (m_undoPos < 0) {
+        m_cmds.clear();
+        m_macros.clear();
+        return;
+    }
+
     // Erase any command that was set to obsolete
     std::erase_if(m_cmds, [](const auto &cmd) { return cmd->isObsolete(); });
 
