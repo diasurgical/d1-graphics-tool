@@ -39,6 +39,13 @@ enum class TILESET_MODE {
     TILE,    // Edit tile
 };
 
+enum class IMAGE_TYPE {
+    NONE,
+    FRAME,
+    SUBTILE,
+    TILE
+};
+
 class LevelCelView : public QWidget {
     Q_OBJECT
 
@@ -93,6 +100,8 @@ public:
     void sortSubtiles();
 
     void displayFrame();
+
+    IMAGE_TYPE checkImageType(unsigned int x, unsigned int y);
 
 private:
     void update();

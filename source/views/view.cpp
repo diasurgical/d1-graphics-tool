@@ -1,8 +1,10 @@
 #include "view.h"
+#include "mainwindow.h"
 
 View::View(QWidget *parent)
     : QGraphicsView(parent)
 {
+    this->setMouseTracking(true);
 }
 
 void View::mousePressEvent(QMouseEvent *event)
@@ -49,4 +51,9 @@ void View::mouseReleaseEvent(QMouseEvent *event)
         break;
     }
     }
+}
+
+void View::leaveEvent(QEvent *event)
+{
+    dynamic_cast<MainWindow *>(this->window())->updateStatusBar("", "color: rgb(0, 0, 0);");
 }

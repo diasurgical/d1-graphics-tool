@@ -11,6 +11,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
+#include <utility>
 
 #include "ui_celview.h"
 #include "undostack/framecmds.h"
@@ -38,6 +39,25 @@ void CelScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
     qDebug() << "Clicked: " << x << "," << y;
 
     emit this->framePixelClicked(x, y);
+}
+
+void CelScene::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+    bool isInImage = false;
+    auto *levelcelview = dynamic_cast<LevelCelView *>(view);
+    if (levelcelview != nullptr) {
+        if (levelcelview->checkImageType(event->scenePos().x(), event->scenePos().y()) != IMAGE_TYPE::NONE)
+            isInImage = true;
+    } else {
+        isInImage = dynamic_cast<CelView *>(view)->isInImage(event->scenePos().x(), event->scenePos().y());
+    }
+
+    if (isInImage) {
+        dynamic_cast<MainWindow *>(view->window())->updateStatusBar(QString::fromStdString(std::to_string(static_cast<int>(event->scenePos().x())) + ", " + std::to_string(static_cast<int>(event->scenePos().y()))), "color: rgb(0, 0, 0);");
+        return;
+    }
+
+    dynamic_cast<MainWindow *>(view->window())->updateStatusBar(QString::fromStdString(std::to_string(static_cast<int>(event->scenePos().x())) + ", " + std::to_string(static_cast<int>(event->scenePos().y()))), "color: rgb(160, 160, 160);");
 }
 
 void CelScene::dragEnterEvent(QGraphicsSceneDragDropEvent *event)
@@ -73,7 +93,7 @@ void CelScene::contextMenuEvent(QContextMenuEvent *event)
 
 CelView::CelView(std::shared_ptr<UndoStack> us, QWidget *parent)
     : QWidget(parent)
-    , undoStack(us)
+    , undoStack(std::move(us))
     , ui(new Ui::CelView())
     , celScene(new CelScene(this))
 {
@@ -121,18 +141,23 @@ int CelView::getCurrentFrameIndex()
     return this->currentFrameIndex;
 }
 
+bool CelView::isInImage(unsigned int x, unsigned int y) const
+{
+    const int frameIndex = this->currentFrameIndex;
+
+    const int tx = x - CEL_SCENE_SPACING;
+    const int ty = y - CEL_SCENE_SPACING;
+
+    return ((ty > 0 && ty < this->gfx->getFrameHeight(frameIndex)) /* Coordinates are above/below image */
+        && (tx > 0 && tx < this->gfx->getFrameWidth(frameIndex) /* Coordinates are to the left/right of the image */));
+}
+
 void CelView::framePixelClicked(unsigned x, unsigned y)
 {
-    int frameIndex = this->currentFrameIndex;
+    if (!isInImage(x, y))
+        return;
 
-    int tx = x - CEL_SCENE_SPACING;
-    if (tx < 0 || tx >= this->gfx->getFrameWidth(frameIndex))
-        return; // click is left or right from the frame -> ignore
-    int ty = y - CEL_SCENE_SPACING;
-    if (ty < 0 || ty >= this->gfx->getFrameHeight(frameIndex))
-        return; // click is up or down from the frame -> ignore
-
-    int colorIndex = this->gfx->getFrame(frameIndex)->getPixel(tx, ty).getPaletteIndex();
+    int colorIndex = this->gfx->getFrame(this->currentFrameIndex)->getPixel(x - CEL_SCENE_SPACING, y - CEL_SCENE_SPACING).getPaletteIndex();
 
     emit this->colorIndexClicked(colorIndex);
 }

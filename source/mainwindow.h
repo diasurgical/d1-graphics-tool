@@ -63,6 +63,7 @@ public:
 
     void nextPaletteCycle(D1PAL_CYCLE_TYPE type);
     void resetPaletteCycle();
+    void updateStatusBar(const QString &status, const QString &styleSheet);
 
     QString getLastFilePath();
     QString fileDialog(FILE_DIALOG_MODE mode, const char *title, const char *filter);
