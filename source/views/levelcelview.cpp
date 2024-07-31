@@ -184,6 +184,38 @@ void LevelCelView::update()
     this->tabFrameWidget->initialize(this, this->gfx);
 }
 
+IMAGE_TYPE LevelCelView::checkImageType(unsigned x, unsigned y)
+{
+    unsigned celFrameWidth = MICRO_WIDTH; // this->gfx->getFrameWidth(this->currentFrameIndex);
+    unsigned subtileWidth = this->min->getSubtileWidth() * MICRO_WIDTH;
+    unsigned tileWidth = subtileWidth * TILE_WIDTH;
+
+    unsigned celFrameHeight = MICRO_HEIGHT; // this->gfx->getFrameHeight(this->currentFrameIndex);
+    unsigned subtileHeight = this->min->getSubtileHeight() * MICRO_HEIGHT;
+    unsigned subtileShiftY = subtileWidth / 4;
+    unsigned tileHeight = subtileHeight + 2 * subtileShiftY;
+
+    if (x >= CEL_SCENE_SPACING && x < (celFrameWidth + CEL_SCENE_SPACING)
+        && y >= CEL_SCENE_SPACING && y < (celFrameHeight + CEL_SCENE_SPACING)
+        && this->gfx->getFrameCount() != 0) {
+        return IMAGE_TYPE::FRAME;
+    } else if (x >= (celFrameWidth + CEL_SCENE_SPACING * 2)
+        && x < (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 2)
+        && y >= CEL_SCENE_SPACING
+        && y < (subtileHeight + CEL_SCENE_SPACING)
+        && this->min->getSubtileCount() != 0) {
+        return IMAGE_TYPE::SUBTILE;
+    } else if (x >= (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3)
+        && x < (celFrameWidth + subtileWidth + tileWidth + CEL_SCENE_SPACING * 3)
+        && y >= CEL_SCENE_SPACING
+        && y < (tileHeight + CEL_SCENE_SPACING)
+        && this->til->getTileCount() != 0) {
+        return IMAGE_TYPE::TILE;
+    }
+
+    return IMAGE_TYPE::NONE;
+}
+
 void LevelCelView::framePixelClicked(unsigned x, unsigned y)
 {
     quint8 index = 0;
@@ -199,19 +231,16 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
 
     this->mode = TILESET_MODE::FREE;
 
-    if (x >= CEL_SCENE_SPACING && x < (celFrameWidth + CEL_SCENE_SPACING)
-        && y >= CEL_SCENE_SPACING && y < (celFrameHeight + CEL_SCENE_SPACING)
-        && this->gfx->getFrameCount() != 0) {
+    switch (this->checkImageType(x, y)) {
+    case IMAGE_TYPE::FRAME: {
         // If CEL frame color is clicked, select it in the palette widgets
         D1GfxFrame *frame = this->gfx->getFrame(this->currentFrameIndex);
         index = frame->getPixel(x - CEL_SCENE_SPACING, y - CEL_SCENE_SPACING).getPaletteIndex();
 
         emit this->colorIndexClicked(index);
-    } else if (x >= (celFrameWidth + CEL_SCENE_SPACING * 2)
-        && x < (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 2)
-        && y >= CEL_SCENE_SPACING
-        && y < (subtileHeight + CEL_SCENE_SPACING)
-        && this->min->getSubtileCount() != 0) {
+        break;
+    }
+    case IMAGE_TYPE::SUBTILE: {
         this->mode = TILESET_MODE::SUBTILE;
         // When a CEL frame is clicked in the subtile, display the corresponding CEL frame
 
@@ -230,11 +259,9 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
             this->currentFrameIndex = frameIndex - 1;
             this->displayFrame();
         }
-    } else if (x >= (celFrameWidth + subtileWidth + CEL_SCENE_SPACING * 3)
-        && x < (celFrameWidth + subtileWidth + tileWidth + CEL_SCENE_SPACING * 3)
-        && y >= CEL_SCENE_SPACING
-        && y < (tileHeight + CEL_SCENE_SPACING)
-        && this->til->getTileCount() != 0) {
+        break;
+    }
+    case IMAGE_TYPE::TILE: {
         this->mode = TILESET_MODE::TILE;
         // When a subtile is clicked in the tile, display the corresponding subtile
 
@@ -249,6 +276,10 @@ void LevelCelView::framePixelClicked(unsigned x, unsigned y)
             this->currentSubtileIndex = tilSubtiles.at(this->editIndex);
             this->displayFrame();
         }
+        break;
+    }
+    default:
+        break;
     }
 
     this->update();

@@ -13,4 +13,5 @@ public:
 private slots:
     void mouseReleaseEvent(QMouseEvent *event);
     void mousePressEvent(QMouseEvent *event);
+    void leaveEvent(QEvent *event) override;
 };

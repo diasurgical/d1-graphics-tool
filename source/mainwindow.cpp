@@ -625,7 +625,7 @@ void MainWindow::openFile(const OpenAsParam &params)
     QObject::connect(this->trnUniqueWidget, &PaletteWidget::clearRootBorder, this->trnWidget, &PaletteWidget::clearBorder);
 
     if (isTileset) {
-        this->levelCelView = new LevelCelView(this->undoStack);
+        this->levelCelView = new LevelCelView(this->undoStack, this);
         this->levelCelView->initialize(this->gfx, this->min, this->til, this->sol, this->amp);
 
         // Refresh CEL view if a PAL or TRN is modified
@@ -651,7 +651,7 @@ void MainWindow::openFile(const OpenAsParam &params)
     }
     // Otherwise build a CelView
     else {
-        this->celView = new CelView(this->undoStack);
+        this->celView = new CelView(this->undoStack, this);
         this->celView->initialize(this->gfx);
 
         // Refresh CEL view if a PAL or TRN is modified
@@ -776,6 +776,12 @@ void MainWindow::openPalFiles(QStringList filePaths, PaletteWidget *widget)
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::updateStatusBar(const QString &status, const QString &styleSheet)
+{
+    this->ui->statusBar->setStyleSheet(styleSheet);
+    this->ui->statusBar->showMessage(status);
 }
 
 void MainWindow::saveFile(const QString &gfxPath)

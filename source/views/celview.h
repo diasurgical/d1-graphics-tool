@@ -33,6 +33,7 @@ public:
 
 private slots:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
+    void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void dragEnterEvent(QGraphicsSceneDragDropEvent *event);
     void dragMoveEvent(QGraphicsSceneDragDropEvent *event);
     void dropEvent(QGraphicsSceneDragDropEvent *event);
@@ -66,6 +67,7 @@ public:
     void updateGroupIndex();
 
     void displayFrame();
+    [[nodiscard]] bool isInImage(unsigned int x, unsigned int y) const;
 
 signals:
     void frameRefreshed();
