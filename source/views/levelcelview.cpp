@@ -184,6 +184,13 @@ void LevelCelView::update()
     this->tabFrameWidget->initialize(this, this->gfx);
 }
 
+/**
+ * @brief Checks in which image type the coordinates are currently in
+ *
+ * This function accepts coordinates and checks, based on them in which
+ * image type (frame, tile or megatile), the coordinates are currently in.
+ * This is currently useful for knowing where exactly user's cursor is.
+ */
 IMAGE_TYPE LevelCelView::checkImageType(unsigned x, unsigned y)
 {
     unsigned celFrameWidth = MICRO_WIDTH; // this->gfx->getFrameWidth(this->currentFrameIndex);
