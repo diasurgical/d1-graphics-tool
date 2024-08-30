@@ -356,10 +356,8 @@ void CelView::displayFrame()
 
     // Getting the current frame to display
     QImage celFrame = this->gfx->getFrameImage(this->currentFrameIndex);
-
-    // Building a gray background of the width/height of the CEL frame
-    QImage celFrameBackground = QImage(celFrame.width(), celFrame.height(), QImage::Format_ARGB32);
-    celFrameBackground.fill(Qt::gray);
+    int celFrameWidth = this->gfx->getFrameWidth(this->currentFrameIndex);
+    int celFrameHeight = this->gfx->getFrameHeight(this->currentFrameIndex);
 
     // Resize the scene rectangle to include some padding around the CEL frame
     this->celScene->setSceneRect(0, 0,
@@ -368,15 +366,23 @@ void CelView::displayFrame()
     // ui->celGraphicsView->adjustSize();
     // ui->celFrameWidget->adjustSize();
 
-    // Add the backgrond and CEL frame while aligning it in the center
-    this->celScene->addPixmap(QPixmap::fromImage(celFrameBackground))
-        ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
+    if (celFrameWidth > 0 && celFrameHeight > 0) {
+        // Building a gray background of the width/height of the CEL frame
+        QImage celFrameBackground = QImage(celFrame.width(), celFrame.height(), QImage::Format_ARGB32);
+        celFrameBackground.fill(Qt::gray);
+
+        // Add the background behind the CEL frame
+        this->celScene->addPixmap(QPixmap::fromImage(celFrameBackground))
+            ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
+    }
+
+    // Add the CEL frame while aligning it in the center
     this->celScene->addPixmap(QPixmap::fromImage(celFrame))
         ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->celFrameWidthEdit->setText(QString::number(celFrame.width()) + " px");
-    this->ui->celFrameHeightEdit->setText(QString::number(celFrame.height()) + " px");
+    this->ui->celFrameWidthEdit->setText(QString::number(celFrameWidth) + " px");
+    this->ui->celFrameHeightEdit->setText(QString::number(celFrameHeight) + " px");
 
     // Set current group text
     this->ui->groupIndexEdit->setText(

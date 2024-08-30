@@ -1,5 +1,32 @@
 #include "d1gfx.h"
+
+#include <QPainter>
+
 #include "d1image.h"
+
+namespace {
+
+QImage EmptyFramePlaceholder(QString text)
+{
+    QFont font("", 16);
+    QFontMetrics metrics = QFontMetrics(font);
+    QSize size = metrics.size(0, text);
+
+    QImage placeholder = QImage(
+        size.width(),
+        size.height(),
+        QImage::Format_ARGB32);
+
+    placeholder.fill(qRgba(0, 0, 0, 0));
+
+    QPainter painter = QPainter(&placeholder);
+    painter.setPen(Qt::gray);
+    painter.setFont(font);
+    painter.drawText(0, metrics.ascent(), text);
+    return placeholder;
+}
+
+} // namespace
 
 D1GfxPixel D1GfxPixel::transparentPixel()
 {
@@ -63,10 +90,16 @@ void D1GfxFrame::setFrameType(D1CEL_FRAME_TYPE type)
 // builds QImage from a D1CelFrame of given index
 QImage D1Gfx::getFrameImage(quint16 frameIndex)
 {
-    if (this->palette == nullptr || frameIndex >= this->frames.count())
-        return QImage();
+    if (this->palette == nullptr)
+        return EmptyFramePlaceholder("No palette");
+
+    if (frameIndex >= this->frames.count())
+        return EmptyFramePlaceholder("Out of bounds");
 
     D1GfxFrame &frame = this->frames[frameIndex];
+
+    if (frame.getWidth() == 0 || frame.getHeight() == 0)
+        return EmptyFramePlaceholder("No frame data");
 
     QImage image = QImage(
         frame.getWidth(),
