@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include <QByteArray>
 #include <QDataStream>
+#include <QDebug>
 #include <QList>
 #include <QMessageBox>
 
@@ -263,8 +264,8 @@ bool D1Cl2::load(D1Gfx &gfx, QString filePath, bool isClx, const OpenAsParam &pa
 
         D1GfxFrame frame;
         if (!D1Cl2Frame::load(frame, cl2FrameRawData, isClx, params)) {
-            // TODO: log + add placeholder?
-            continue;
+            qDebug() << "Failed to load frame: " << gfx.frames.count();
+            frame = {};
         }
         gfx.frames.append(frame);
     }
