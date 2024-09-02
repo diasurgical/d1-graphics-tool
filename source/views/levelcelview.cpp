@@ -1590,35 +1590,39 @@ void LevelCelView::displayFrame()
     this->tabTileWidget->update();
     this->tabFrameWidget->update();
 
-    // Building a gray background of the width/height of the CEL frame
-    QImage celFrameBackground = QImage(celFrame.width(), celFrame.height(), QImage::Format_ARGB32);
-    celFrameBackground.fill(Qt::gray);
-    // Building a gray background of the width/height of the MIN subtile
-    QImage subtileBackground = QImage(subtile.width(), subtile.height(), QImage::Format_ARGB32);
-    subtileBackground.fill(Qt::gray);
-    // Building a gray background of the width/height of the MIN subtile
-    QImage tileBackground = QImage(tile.width(), tile.height(), QImage::Format_ARGB32);
-    tileBackground.fill(Qt::gray);
-
     // Resize the scene rectangle to include some padding around the CEL frame
     // the MIN subtile and the TIL tile
     this->celScene->setSceneRect(0, 0,
         celFrame.width() + subtile.width() + tile.width() + CEL_SCENE_SPACING * 4,
         tile.height() + CEL_SCENE_SPACING * 2);
 
-    // Add the backgrond and CEL frame while aligning it in the center
-    this->celScene->addPixmap(QPixmap::fromImage(celFrameBackground))
-        ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
+    int celFrameWidth = this->gfx->getFrameWidth(this->currentFrameIndex);
+    int celFrameHeight = this->gfx->getFrameHeight(this->currentFrameIndex);
+    if (celFrameWidth > 0 && celFrameHeight > 0) {
+        // Building a gray background of the width/height of the CEL frame
+        QImage celFrameBackground = QImage(celFrame.width(), celFrame.height(), QImage::Format_ARGB32);
+        celFrameBackground.fill(Qt::gray);
+
+        // Add the background behind the CEL frame
+        this->celScene->addPixmap(QPixmap::fromImage(celFrameBackground))
+            ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
+    }
+
+    // Add the CEL frame while aligning it in the center
     this->celScene->addPixmap(QPixmap::fromImage(celFrame))
         ->setPos(CEL_SCENE_SPACING, CEL_SCENE_SPACING);
 
     // Set current frame width and height
-    this->ui->celFrameWidthEdit->setText(QString::number(celFrame.width()) + " px");
-    this->ui->celFrameHeightEdit->setText(QString::number(celFrame.height()) + " px");
+    this->ui->celFrameWidthEdit->setText(QString::number(celFrameWidth) + " px");
+    this->ui->celFrameHeightEdit->setText(QString::number(celFrameHeight) + " px");
 
     // Set current frame text
     this->ui->frameIndexEdit->setText(
         QString::number(this->gfx->getFrameCount() != 0 ? this->currentFrameIndex + 1 : 0));
+
+    // Building a gray background of the width/height of the MIN subtile
+    QImage subtileBackground = QImage(subtile.width(), subtile.height(), QImage::Format_ARGB32);
+    subtileBackground.fill(Qt::gray);
 
     // MIN
     minPosX = celFrame.width() + CEL_SCENE_SPACING * 2;
@@ -1636,6 +1640,10 @@ void LevelCelView::displayFrame()
     // Set current subtile text
     this->ui->subtileIndexEdit->setText(
         QString::number(this->min->getSubtileCount() != 0 ? this->currentSubtileIndex + 1 : 0));
+
+    // Building a gray background of the width/height of the TIL tile
+    QImage tileBackground = QImage(tile.width(), tile.height(), QImage::Format_ARGB32);
+    tileBackground.fill(Qt::gray);
 
     // TIL
     tilPosX = minPosX + subtile.width() + CEL_SCENE_SPACING;
