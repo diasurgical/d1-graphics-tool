@@ -21,7 +21,7 @@ jobs:
       run: cmake --build build -j $(nproc)
     - name: Upload-Package
       if: ${{ !env.ACT }}
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: D1GraphicsTool-Linux-x64-qt5
         path: build/D1GraphicsTool
