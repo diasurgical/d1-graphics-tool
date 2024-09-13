@@ -32,6 +32,7 @@ set(PROJECT_SOURCES
         source/d1formats/d1til.cpp
         source/d1formats/d1trn.cpp
         source/dialogs/exportdialog.cpp
+        source/dialogs/importdialog.cpp
         source/views/view.cpp
         source/views/levelcelview.cpp
         source/widgets/leveltabframewidget.cpp
