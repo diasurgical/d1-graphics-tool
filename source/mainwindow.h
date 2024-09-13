@@ -14,6 +14,7 @@
 #include "d1formats/d1til.h"
 #include "d1formats/d1trn.h"
 #include "dialogs/exportdialog.h"
+#include "dialogs/importdialog.h"
 #include "dialogs/openasdialog.h"
 #include "dialogs/settingsdialog.h"
 #include "palette/d1pal.h"
@@ -57,6 +58,7 @@ public:
     void openFile(const OpenAsParam &params);
     void openImageFiles(IMAGE_FILE_MODE mode, QStringList filePaths, bool append);
     void openPalFiles(QStringList filePaths, PaletteWidget *widget);
+    void openFontFile(QString filePath, QColor renderColor, int pointSize, uint symbolPrefix);
     void saveFile(const QString &gfxPath);
 
     void paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_TYPE type);
@@ -121,6 +123,7 @@ private slots:
 
     void on_actionOpen_triggered();
     void on_actionOpenAs_triggered();
+    void on_actionImport_triggered();
     void on_actionSave_triggered();
     void on_actionSaveAs_triggered();
     bool isOkToQuit();
@@ -187,6 +190,7 @@ private:
 
     OpenAsDialog openAsDialog = OpenAsDialog(this);
     SettingsDialog settingsDialog = SettingsDialog(this);
+    ImportDialog importDialog = ImportDialog(this);
     ExportDialog exportDialog = ExportDialog(this);
 
     QPointer<D1Pal> pal;

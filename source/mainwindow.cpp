@@ -440,6 +440,12 @@ void MainWindow::on_actionOpen_triggered()
     // QMessageBox::information( this, "time", QString::number(timer.elapsed()) );
 }
 
+void MainWindow::on_actionImport_triggered()
+{
+    this->importDialog.initialize();
+    this->importDialog.show();
+}
+
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     this->dragMoveEvent(event);
@@ -776,6 +782,49 @@ void MainWindow::openPalFiles(QStringList filePaths, PaletteWidget *widget)
 
     // Clear loading message from status bar
     this->ui->statusBar->clearMessage();
+}
+
+void MainWindow::openFontFile(QString filePath, QColor renderColor, int pointSize, uint symbolPrefix)
+{
+    OpenAsParam params;
+    params.isTileset = OPEN_TILESET_TYPE::No;
+    this->openFile(params);
+
+    int fontId = QFontDatabase::addApplicationFont(filePath);
+    if (fontId == -1) {
+        QMessageBox::critical(this, "Error", "Font could not be loaded.");
+        return;
+    }
+
+    QStringList families = QFontDatabase::applicationFontFamilies(fontId);
+    if (families.size() == 0) {
+        QMessageBox::critical(this, "Error", "No font families loaded.");
+        QFontDatabase::removeApplicationFont(fontId);
+        return;
+    }
+
+    QFont font = QFont(families[0], pointSize);
+    QFontMetrics metrics = QFontMetrics(font);
+
+    uint symbolCount = 1 << 8;
+    for (uint i = 0; i < symbolCount; i++) {
+        char32_t codePoint = static_cast<char32_t>(symbolPrefix | i);
+        QString text = QString::fromUcs4(&codePoint, 1);
+        QSize renderSize = metrics.size(0, text);
+        QImage image = QImage(renderSize, QImage::Format_ARGB32);
+        image.fill(Qt::transparent);
+
+        QPainter painter = QPainter(&image);
+        painter.setPen(renderColor);
+        painter.setFont(font);
+        painter.drawText(0, metrics.ascent(), text);
+
+        this->gfx->insertFrame(i, image);
+    }
+
+    this->celView->initialize(this->gfx);
+    this->celView->displayFrame();
+    QFontDatabase::removeApplicationFont(fontId);
 }
 
 void MainWindow::updateStatusBar(const QString &status, const QString &styleSheet)
