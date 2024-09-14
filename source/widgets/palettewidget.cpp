@@ -862,11 +862,16 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
 void PaletteWidget::on_colorPickPushButton_clicked()
 {
     QColor color = QColorDialog::getColor();
+    if (!color.isValid())
+        return;
+
     QColor colorEnd;
     if (this->selectedFirstColorIndex == this->selectedLastColorIndex) {
         colorEnd = color;
     } else {
         colorEnd = QColorDialog::getColor();
+        if (!colorEnd.isValid())
+            return;
     }
 
     // Build color editing command and connect it to the current palette widget
