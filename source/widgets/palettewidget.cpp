@@ -861,7 +861,8 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
 
 void PaletteWidget::on_colorPickPushButton_clicked()
 {
-    QColor color = QColorDialog::getColor();
+    QColor color = this->pal->getColor(this->selectedFirstColorIndex);
+    color = QColorDialog::getColor(color);
     if (!color.isValid())
         return;
 
@@ -869,7 +870,8 @@ void PaletteWidget::on_colorPickPushButton_clicked()
     if (this->selectedFirstColorIndex == this->selectedLastColorIndex) {
         colorEnd = color;
     } else {
-        colorEnd = QColorDialog::getColor();
+        colorEnd = this->pal->getColor(this->selectedLastColorIndex);
+        colorEnd = QColorDialog::getColor(colorEnd);
         if (!colorEnd.isValid())
             return;
     }

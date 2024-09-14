@@ -29,7 +29,8 @@ void SettingsDialog::initialize()
 
 void SettingsDialog::on_defaultPaletteColorPushButton_clicked()
 {
-    QColor color = QColorDialog::getColor();
+    QColor color = QColor(ui->defaultPaletteColorLineEdit->text());
+    color = QColorDialog::getColor(color);
 
     if (color.isValid())
         this->ui->defaultPaletteColorLineEdit->setText(color.name());
@@ -37,7 +38,8 @@ void SettingsDialog::on_defaultPaletteColorPushButton_clicked()
 
 void SettingsDialog::on_paletteSelectionBorderColorPushButton_clicked()
 {
-    QColor color = QColorDialog::getColor();
+    QColor color = QColor(ui->paletteSelectionBorderColorLineEdit->text());
+    color = QColorDialog::getColor(color);
 
     if (color.isValid())
         this->ui->paletteSelectionBorderColorLineEdit->setText(color.name());
