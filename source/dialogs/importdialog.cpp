@@ -84,7 +84,7 @@ void ImportDialog::on_fontSymbolsEdit_textChanged(const QString &text)
 
 void ImportDialog::on_fontColorButton_clicked()
 {
-    QColor color = QColorDialog::getColor();
+    QColor color = QColorDialog::getColor(this->renderColor);
 
     if (color.isValid())
         setRenderColor(color);
