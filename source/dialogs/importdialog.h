@@ -6,12 +6,6 @@ namespace Ui {
 class ImportDialog;
 }
 
-// subtiles per line if the output is groupped, an odd number to ensure it is not recognized as a flat tile
-#define EXPORT_SUBTILES_PER_LINE 15
-
-// frames per line if the output of a tileset-frames is groupped, an odd number to ensure it is not recognized as a flat tile or as subtiles
-#define EXPORT_LVLFRAMES_PER_LINE 31
-
 class ImportDialog : public QDialog {
     Q_OBJECT
 
