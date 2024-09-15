@@ -2,11 +2,7 @@
 
 #include <QColorDialog>
 #include <QFileDialog>
-#include <QFontDatabase>
-#include <QImageWriter>
 #include <QMessageBox>
-#include <QPainter>
-#include <algorithm>
 
 #include "mainwindow.h"
 #include "ui_importdialog.h"

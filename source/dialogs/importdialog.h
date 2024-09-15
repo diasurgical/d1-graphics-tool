@@ -1,13 +1,6 @@
 #pragma once
 
 #include <QDialog>
-#include <QProgressDialog>
-
-#include "d1formats/d1amp.h"
-#include "d1formats/d1gfx.h"
-#include "d1formats/d1min.h"
-#include "d1formats/d1sol.h"
-#include "d1formats/d1til.h"
 
 namespace Ui {
 class ImportDialog;
