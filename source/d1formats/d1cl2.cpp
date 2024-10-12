@@ -392,7 +392,9 @@ static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, bool isClx, int s
                 pBuf = AppendClxTransparentRun(transparentRunWidth, pBuf);
                 transparentRunWidth = 0;
             }
-            pHeader[i / CEL_BLOCK_HEIGHT] = SwapLE16(pBuf - reinterpret_cast<quint8 *>(pHeader)); // buf - SUB_HEADER_SIZE;
+            if (!isClx) {
+                pHeader[i / CEL_BLOCK_HEIGHT] = SwapLE16(pBuf - reinterpret_cast<quint8 *>(pHeader)); // buf - SUB_HEADER_SIZE;
+            }
         }
         int y = frame->getHeight() - i;
         // Process line:
@@ -442,12 +444,15 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const QString 
 
     // calculate sub header size
     int subHeaderSize = SUB_HEADER_SIZE;
-    for (int n = 0; n < numFrames; n++) {
-        D1GfxFrame *frame = gfx.getFrame(n);
-        int hs = (frame->getHeight() - 1) / CEL_BLOCK_HEIGHT;
-        hs = (hs + 1) * sizeof(quint16);
-        subHeaderSize = std::max(subHeaderSize, hs);
+    if (!isClx) {
+        for (int n = 0; n < numFrames; n++) {
+            D1GfxFrame *frame = gfx.getFrame(n);
+            int hs = (frame->getHeight() - 1) / CEL_BLOCK_HEIGHT;
+            hs = (hs + 1) * sizeof(quint16);
+            subHeaderSize = std::max(subHeaderSize, hs);
+        }
     }
+
     // estimate data size
     int maxSize = headerSize;
     for (int n = 0; n < numFrames; n++) {
