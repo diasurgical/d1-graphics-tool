@@ -379,10 +379,12 @@ static quint8 *writeFrameData(D1GfxFrame *frame, quint8 *pBuf, bool isClx, int s
     quint16 *pHeader = reinterpret_cast<quint16 *>(pBuf);
     // add CL2 FRAME HEADER
     pHeader[0] = SwapLE16(subHeaderSize); // SUB_HEADER_SIZE
-    pHeader[1] = 0;                       // row  -32
-    pHeader[2] = 0;                       // row  -64
-    pHeader[3] = 0;                       // row  -96
-    pHeader[4] = 0;                       // row -128
+    if (!isClx) {
+        pHeader[1] = 0; // row  -32
+        pHeader[2] = 0; // row  -64
+        pHeader[3] = 0; // row  -96
+        pHeader[4] = 0; // row -128
+    }
     pBuf += subHeaderSize;
 
     unsigned transparentRunWidth = 0;
@@ -443,7 +445,7 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const QString 
     }
 
     // calculate sub header size
-    int subHeaderSize = SUB_HEADER_SIZE;
+    int subHeaderSize = !isClx ? SUB_HEADER_SIZE : 6;
     if (!isClx) {
         for (int n = 0; n < numFrames; n++) {
             D1GfxFrame *frame = gfx.getFrame(n);
