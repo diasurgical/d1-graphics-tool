@@ -445,7 +445,7 @@ bool D1Cl2::writeFileData(D1Gfx &gfx, QFile &outFile, bool isClx, const QString 
     }
 
     // calculate sub header size
-    int subHeaderSize = isClx ? SUB_HEADER_SIZE : 6;
+    int subHeaderSize = !isClx ? SUB_HEADER_SIZE : 6;
     if (!isClx) {
         for (int n = 0; n < numFrames; n++) {
             D1GfxFrame *frame = gfx.getFrame(n);
