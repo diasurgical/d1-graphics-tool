@@ -25,7 +25,7 @@
 #include "widgets/palettewidget.h"
 
 #define D1_GRAPHICS_TOOL_TITLE "Diablo 1 Graphics Tool"
-#define D1_GRAPHICS_TOOL_VERSION "1.0.1"
+#define D1_GRAPHICS_TOOL_VERSION "1.1.0"
 
 enum class FILE_DIALOG_MODE {
     OPEN,         // open existing
