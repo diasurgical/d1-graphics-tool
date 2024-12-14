@@ -6,6 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## 1.1.0 - 2024-12-14
+### Fixed
+- Incorrect CLX header
+- Crash when trying to fetch invalid offset
+
+### Changed
+- Rename "Add <x>" to "Append <X>"
+- Improve color selector
+
+### Added
+- Support for empty sprite frames
+- Support for importing symbols from fonts as a spritesheet
+- Display mouse cordinates
+- More actions can now be undon/redon
+
 ## 1.0.1 - 2023-11-09
 ### Fixed
 - Windows: No longer requires MSVC installation to run.
