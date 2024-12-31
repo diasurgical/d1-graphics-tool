@@ -120,6 +120,17 @@ private:
     QWidget *view;
 };
 
+using PaletteFileInfo = struct PaletteFileInfo {
+    QString name;   // e.g., "palette" or "translation"
+    QString suffix; // e.g., ".pal" or ".trn"
+};
+
+enum class PaletteType : std::uint8_t {
+    Palette = 0,
+    Translation = 1,
+    UniqTranslation = 2
+};
+
 class PaletteWidget : public QWidget {
     Q_OBJECT
 
@@ -127,15 +138,15 @@ public:
     explicit PaletteWidget(std::shared_ptr<UndoStack> undoStack, QString title);
     ~PaletteWidget();
 
-    void setPal(D1Pal *p);
-    void setTrn(D1Trn *t);
+    void setPal(const QString& path);
+    void setTrn(const QString& path);
     bool isTrnWidget();
 
-    void initialize(D1Pal *p, CelView *c, D1PalHits *ph);
-    void initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph);
+    void initialize(D1Pal *p, CelView *c, D1PalHits *ph, PaletteType palType);
+    void initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph, PaletteType palType);
 
-    void initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph);
-    void initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *ph);
+    void initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph, PaletteType palType);
+    void initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *ph, PaletteType palType);
 
     void initializeUi();
     void initializePathComboBox();
@@ -145,16 +156,31 @@ public:
     void selectColor(quint8);
     void checkTranslationsSelection(QList<quint8>);
 
-    void addPath(QString, QString);
-    void removePath(QString);
-    void selectPath(QString);
-    QString getSelectedPath();
+    void addPath(const QString&, const QString&, D1Pal* pal);
+    void removePath(const QString&);
+    void selectPath(const QString&);
+
+    QString getWidgetsDefaultPath() const;
+    QString getSelectedPath() const;
 
     // color selection handlers
     void startColorSelection(int colorIndex);
     void changeColorSelection(int colorIndex);
     void finishColorSelection();
+    [[nodiscard]] D1Pal* pal() const { return m_pal; };
+    [[nodiscard]] D1Trn* trn() const { return m_trn; };
 
+    void save();
+    void newOrSaveAsFile(PWIDGET_CALLBACK_TYPE action);
+
+    bool loadPalette(const QString& filepath);
+    void openPalette();
+
+    bool isOkToQuit();
+
+    void closePalette();
+
+    void setTrnPalette(D1Pal* pal);
     // Display functions
     bool displayColor(int index);
     void displayColors();
@@ -187,6 +213,8 @@ signals:
     void refreshed();
 
 private:
+    [[nodiscard]] PaletteFileInfo paletteFileInfo() const;
+    void performSave(const QString& palFilePath, const PaletteFileInfo& fileInfo);
     QPushButton *addButton(QStyle::StandardPixmap type, QString tooltip, void (PaletteWidget::*callback)(void));
 
 public slots:
@@ -217,7 +245,6 @@ private slots:
 private:
     std::shared_ptr<UndoStack> undoStack;
     Ui::PaletteWidget *ui;
-    bool isTrn;
 
     CelView *celView;
     LevelCelView *levelCelView;
@@ -233,10 +260,12 @@ private:
     bool pickingTranslationColor = false;
     bool temporarilyDisplayingAllColors = false;
 
-    QPointer<D1Pal> pal;
-    QPointer<D1Trn> trn;
+    D1Pal* m_pal;
+    D1Trn* m_trn;
+
+    PaletteType m_paletteType;
 
     D1PalHits *palHits;
 
-    QMap<QString, QString> paths;
+    std::map<QString, std::pair<QString, D1Pal*>> m_palettes_map;
 };

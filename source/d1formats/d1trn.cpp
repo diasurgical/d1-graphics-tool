@@ -1,13 +1,13 @@
 #include "d1trn.h"
 
 D1Trn::D1Trn(D1Pal *pal)
-    : palette(QPointer<D1Pal>(pal))
+    : palette(pal)
 {
 }
 
 bool D1Trn::load(QString filePath)
 {
-    if (this->palette.isNull())
+    if (this->palette == nullptr)
         return false;
 
     QFile file = QFile(filePath);
@@ -71,6 +71,16 @@ QColor D1Trn::getResultingColor(quint8 index)
 QString D1Trn::getFilePath()
 {
     return this->trnFilePath;
+}
+
+QString D1Trn::getDefaultPath() const
+{
+    return IDENTITY_PATH;
+}
+
+QString D1Trn::getDefaultName() const
+{
+    return IDENTITY_NAME;
 }
 
 quint8 D1Trn::getTranslation(quint8 index)
