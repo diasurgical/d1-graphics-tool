@@ -39,6 +39,6 @@ private:
     QString trnFilePath;
     bool modified;
     quint8 translations[D1TRN_TRANSLATIONS];
-    D1Pal* palette = nullptr;
+    D1Pal *palette = nullptr;
     D1Pal resultingPalette;
 };

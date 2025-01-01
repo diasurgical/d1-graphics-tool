@@ -294,21 +294,21 @@ PaletteWidget::~PaletteWidget()
     delete ui;
     delete scene;
 
-    for (auto& pair : m_palettes_map) {
+    for (auto &pair : m_palettes_map) {
         delete pair.second.second;
     }
 }
 
-void PaletteWidget::setPal(const QString& path)
+void PaletteWidget::setPal(const QString &path)
 {
     m_pal = m_palettes_map[path].second;
 
     emit this->modified();
 }
 
-void PaletteWidget::setTrn(const QString& path)
+void PaletteWidget::setTrn(const QString &path)
 {
-    this->m_trn = dynamic_cast<D1Trn*>(m_palettes_map[path].second);
+    this->m_trn = dynamic_cast<D1Trn *>(m_palettes_map[path].second);
 
     emit this->modified();
 }
@@ -368,8 +368,7 @@ void PaletteWidget::initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *
 
 void PaletteWidget::initializeUi()
 {
-    bool trnMode = this->m_paletteType == PaletteType::Translation ||
-        this->m_paletteType == PaletteType::UniqTranslation;
+    bool trnMode = this->m_paletteType == PaletteType::Translation || this->m_paletteType == PaletteType::UniqTranslation;
 
     this->ui->monsterTrnPushButton->setVisible(trnMode);
     this->ui->translationClearPushButton->setVisible(trnMode);
@@ -466,18 +465,18 @@ void PaletteWidget::checkTranslationsSelection(QList<quint8> indexes)
     emit this->clearRootBorder();
 }
 
-void PaletteWidget::addPath(const QString& path, const QString& name, D1Pal *pal)
+void PaletteWidget::addPath(const QString &path, const QString &name, D1Pal *pal)
 {
     this->m_palettes_map[path] = std::make_pair(name, pal);
 }
 
-void PaletteWidget::removePath(const QString& path)
+void PaletteWidget::removePath(const QString &path)
 {
     if (this->m_palettes_map.contains(path))
         this->m_palettes_map.erase(path);
 }
 
-void PaletteWidget::selectPath(const QString& path)
+void PaletteWidget::selectPath(const QString &path)
 {
     this->ui->pathComboBox->setCurrentIndex(this->ui->pathComboBox->findData(path));
     this->ui->pathComboBox->setToolTip(path);
@@ -498,7 +497,7 @@ QString PaletteWidget::getWidgetsDefaultPath() const
 QString PaletteWidget::getSelectedPath() const
 {
     QString path = this->ui->pathComboBox->currentText();
-    for (const auto& [key, valuePair] : m_palettes_map) {
+    for (const auto &[key, valuePair] : m_palettes_map) {
         if (valuePair.first == this->ui->pathComboBox->currentText())
             return key;
     }
@@ -577,7 +576,7 @@ void PaletteWidget::finishColorSelection()
     this->refresh();
 }
 
-void PaletteWidget::setTrnPalette(D1Pal* pal)
+void PaletteWidget::setTrnPalette(D1Pal *pal)
 {
     this->m_trn->setPalette(pal);
     refresh();
@@ -606,13 +605,12 @@ PaletteFileInfo PaletteWidget::paletteFileInfo() const
     return { "palette", "pal" };
 }
 
-void PaletteWidget::performSave(const QString& palFilePath, const PaletteFileInfo& fileInfo)
+void PaletteWidget::performSave(const QString &palFilePath, const PaletteFileInfo &fileInfo)
 {
     bool opResult = false;
     if (m_paletteType == PaletteType::Palette) {
         opResult = this->m_pal->save(palFilePath);
-    }
-    else {
+    } else {
         opResult = this->m_trn->save(palFilePath);
     }
 
@@ -628,13 +626,11 @@ void PaletteWidget::newOrSaveAsFile(const PWIDGET_CALLBACK_TYPE action)
     QString actionStr;
     if (action == PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVEAS) {
         actionStr = QString("Save %1 File as...").arg(fileInfo.name);
-    }
-    else {
+    } else {
         actionStr = QString("New %1 File").arg(fileInfo.name);
     }
 
-
-    auto *mw = dynamic_cast<MainWindow*>(this->window());
+    auto *mw = dynamic_cast<MainWindow *>(this->window());
     QString palFilePath = mw->fileDialog(FILE_DIALOG_MODE::SAVE_CONF,
         actionStr.toStdString().c_str(),
         (QString("%2 Files (*.%1 *.%2)").arg(fileInfo.suffix, fileInfo.suffix.toUpper())).toStdString().c_str());
@@ -678,8 +674,7 @@ void PaletteWidget::newOrSaveAsFile(const PWIDGET_CALLBACK_TYPE action)
     QString loadedFilePath;
     if (action == PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_NEW) {
         loadedFilePath = newPal->getDefaultPath();
-    }
-    else {
+    } else {
         loadedFilePath = path;
     }
 
@@ -701,11 +696,11 @@ void PaletteWidget::newOrSaveAsFile(const PWIDGET_CALLBACK_TYPE action)
     selectPath(path);
 }
 
-bool PaletteWidget::loadPalette(const QString& filepath)
+bool PaletteWidget::loadPalette(const QString &filepath)
 {
     PaletteFileInfo fileInfo = paletteFileInfo();
 
-    auto *mw = dynamic_cast<MainWindow*>(this->window());
+    auto *mw = dynamic_cast<MainWindow *>(this->window());
     QFileInfo palFileInfo(filepath);
     // QString path = trnFileInfo.absoluteFilePath();
     const QString &path = filepath;
@@ -740,10 +735,10 @@ void PaletteWidget::openPalette()
 {
     PaletteFileInfo fileInfo = paletteFileInfo();
 
-    auto *mw = dynamic_cast<MainWindow*>(this->window());
+    auto *mw = dynamic_cast<MainWindow *>(this->window());
     QString paletteFilePath = mw->fileDialog(FILE_DIALOG_MODE::OPEN,
         QString("Load %1 File").arg(fileInfo.name).toStdString().c_str(),
-            QString("%2 Files (*.%1 *.%2)").arg(fileInfo.suffix, fileInfo.suffix.toUpper()).toStdString().c_str());
+        QString("%2 Files (*.%1 *.%2)").arg(fileInfo.suffix, fileInfo.suffix.toUpper()).toStdString().c_str());
 
     if (!paletteFilePath.isEmpty() && loadPalette(paletteFilePath)) {
         selectPath(paletteFilePath);
@@ -752,8 +747,8 @@ void PaletteWidget::openPalette()
 
 bool PaletteWidget::isOkToQuit()
 {
-    for (const auto& pair : m_palettes_map) {
-        D1Pal* pal = pair.second.second;
+    for (const auto &pair : m_palettes_map) {
+        D1Pal *pal = pair.second.second;
         if (!mw::QuestionDiscardChanges(pal->isModified(), pal->getFilePath())) {
             return false;
         }

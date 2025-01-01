@@ -117,14 +117,14 @@ MainWindow::~MainWindow()
     delete this->redoAction;
 }
 
-void MainWindow::setPal(const QString& path)
+void MainWindow::setPal(const QString &path)
 {
     this->m_palWidget->setPal(path);
     this->m_trnUniqueWidget->setTrnPalette(m_palWidget->pal());
     this->m_trnWidget->refresh();
 }
 
-void MainWindow::setTrnUnique(const QString& path)
+void MainWindow::setTrnUnique(const QString &path)
 {
     this->m_trnUniqueWidget->setTrn(path);
     this->m_trnUniqueWidget->setTrnPalette(m_palWidget->pal());
@@ -132,7 +132,7 @@ void MainWindow::setTrnUnique(const QString& path)
     this->m_trnWidget->refresh();
 }
 
-void MainWindow::setTrn(const QString& path)
+void MainWindow::setTrn(const QString &path)
 {
     this->m_trnWidget->setTrn(path);
     this->m_trnWidget->setTrnPalette(this->m_trnUniqueWidget->trn()->getResultingPalette());
@@ -192,13 +192,13 @@ void MainWindow::paletteWidget_callback(PaletteWidget *widget, PWIDGET_CALLBACK_
 
 void MainWindow::resetPaletteCycle()
 {
-    //this->pal->resetColors();
+    // this->pal->resetColors();
     this->m_palWidget->modify();
 }
 
 void MainWindow::nextPaletteCycle(D1PAL_CYCLE_TYPE type)
 {
-    //this->pal->cycleColors(type);
+    // this->pal->cycleColors(type);
     this->m_palWidget->modify();
 }
 
@@ -631,14 +631,14 @@ void MainWindow::openImageFiles(IMAGE_FILE_MODE mode, QStringList filePaths, boo
     this->ui->statusBar->clearMessage();
 }
 
-void MainWindow::openPalFiles(const QStringList& filePaths, PaletteWidget *widget) const
+void MainWindow::openPalFiles(const QStringList &filePaths, PaletteWidget *widget) const
 {
     QString firstFound;
 
     this->ui->statusBar->showMessage("Reading...");
     this->ui->statusBar->repaint();
 
-    for (const QString& path : filePaths) {
+    for (const QString &path : filePaths) {
         if (widget->loadPalette(path) && firstFound.isEmpty()) {
             firstFound = path;
         }
@@ -933,7 +933,7 @@ void MainWindow::closeAllElements()
     this->m_trnWidget = nullptr;
 
     delete this->gfx;
-    
+
     delete this->min;
     delete this->til;
     delete this->sol;

@@ -138,8 +138,8 @@ public:
     explicit PaletteWidget(std::shared_ptr<UndoStack> undoStack, QString title);
     ~PaletteWidget();
 
-    void setPal(const QString& path);
-    void setTrn(const QString& path);
+    void setPal(const QString &path);
+    void setTrn(const QString &path);
     bool isTrnWidget();
 
     void initialize(D1Pal *p, CelView *c, D1PalHits *ph, PaletteType palType);
@@ -156,9 +156,9 @@ public:
     void selectColor(quint8);
     void checkTranslationsSelection(QList<quint8>);
 
-    void addPath(const QString&, const QString&, D1Pal* pal);
-    void removePath(const QString&);
-    void selectPath(const QString&);
+    void addPath(const QString &, const QString &, D1Pal *pal);
+    void removePath(const QString &);
+    void selectPath(const QString &);
 
     QString getWidgetsDefaultPath() const;
     QString getSelectedPath() const;
@@ -167,20 +167,26 @@ public:
     void startColorSelection(int colorIndex);
     void changeColorSelection(int colorIndex);
     void finishColorSelection();
-    [[nodiscard]] D1Pal* pal() const { return m_pal; };
-    [[nodiscard]] D1Trn* trn() const { return m_trn; };
+    [[nodiscard]] D1Pal *pal() const
+    {
+        return m_pal;
+    };
+    [[nodiscard]] D1Trn *trn() const
+    {
+        return m_trn;
+    };
 
     void save();
     void newOrSaveAsFile(PWIDGET_CALLBACK_TYPE action);
 
-    bool loadPalette(const QString& filepath);
+    bool loadPalette(const QString &filepath);
     void openPalette();
 
     bool isOkToQuit();
 
     void closePalette();
 
-    void setTrnPalette(D1Pal* pal);
+    void setTrnPalette(D1Pal *pal);
     // Display functions
     bool displayColor(int index);
     void displayColors();
@@ -214,7 +220,7 @@ signals:
 
 private:
     [[nodiscard]] PaletteFileInfo paletteFileInfo() const;
-    void performSave(const QString& palFilePath, const PaletteFileInfo& fileInfo);
+    void performSave(const QString &palFilePath, const PaletteFileInfo &fileInfo);
     QPushButton *addButton(QStyle::StandardPixmap type, QString tooltip, void (PaletteWidget::*callback)(void));
 
 public slots:
@@ -260,12 +266,12 @@ private:
     bool pickingTranslationColor = false;
     bool temporarilyDisplayingAllColors = false;
 
-    D1Pal* m_pal;
-    D1Trn* m_trn;
+    D1Pal *m_pal;
+    D1Trn *m_trn;
 
     PaletteType m_paletteType;
 
     D1PalHits *palHits;
 
-    std::map<QString, std::pair<QString, D1Pal*>> m_palettes_map;
+    std::map<QString, std::pair<QString, D1Pal *>> m_palettes_map;
 };

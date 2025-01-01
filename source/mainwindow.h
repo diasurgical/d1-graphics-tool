@@ -45,7 +45,7 @@ class MainWindow;
 }
 
 namespace mw {
-    bool QuestionDiscardChanges(bool isModified, QString filePath);
+bool QuestionDiscardChanges(bool isModified, QString filePath);
 } // namespace mw
 
 class MainWindow : public QMainWindow {
@@ -55,13 +55,13 @@ public:
     explicit MainWindow();
     ~MainWindow();
 
-    void setPal(const QString&);
-    void setTrn(const QString&);
-    void setTrnUnique(const QString&);
+    void setPal(const QString &);
+    void setTrn(const QString &);
+    void setTrnUnique(const QString &);
 
     void openFile(const OpenAsParam &params);
     void openImageFiles(IMAGE_FILE_MODE mode, QStringList filePaths, bool append);
-    void openPalFiles(const QStringList& filePaths, PaletteWidget *widget) const;
+    void openPalFiles(const QStringList &filePaths, PaletteWidget *widget) const;
     void openFontFile(QString filePath, QColor renderColor, int pointSize, uint symbolPrefix);
     void saveFile(const QString &gfxPath);
 
@@ -74,9 +74,18 @@ public:
     QString getLastFilePath();
     QString fileDialog(FILE_DIALOG_MODE mode, const char *title, const char *filter);
     QStringList filesDialog(const char *title, const char *filter);
-    PaletteWidget *trnWidget() { return m_trnWidget; }
-    PaletteWidget *uniqTrnWidget() { return m_trnUniqueWidget; }
-    PaletteWidget *paletteWidget() { return m_palWidget; }
+    PaletteWidget *trnWidget()
+    {
+        return m_trnWidget;
+    }
+    PaletteWidget *uniqTrnWidget()
+    {
+        return m_trnUniqueWidget;
+    }
+    PaletteWidget *paletteWidget()
+    {
+        return m_palWidget;
+    }
 
     static bool hasImageUrl(const QMimeData *mimeData);
 
@@ -170,9 +179,9 @@ private:
     QPointer<CelView> celView;
     QPointer<LevelCelView> levelCelView;
 
-    PaletteWidget* m_palWidget = nullptr;
-    PaletteWidget* m_trnWidget = nullptr;
-    PaletteWidget* m_trnUniqueWidget = nullptr;
+    PaletteWidget *m_palWidget = nullptr;
+    PaletteWidget *m_trnWidget = nullptr;
+    PaletteWidget *m_trnUniqueWidget = nullptr;
 
     OpenAsDialog openAsDialog = OpenAsDialog(this);
     SettingsDialog settingsDialog = SettingsDialog(this);
