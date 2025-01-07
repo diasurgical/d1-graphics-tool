@@ -15,6 +15,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 include_directories(source/)
 
 set(PROJECT_SOURCES
+        source/d1formats/pcx.cpp
+        source/d1formats/pcx.h
         source/views/celview.cpp
         source/config/config.cpp
         source/d1formats/d1amp.cpp

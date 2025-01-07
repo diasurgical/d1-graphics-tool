@@ -37,6 +37,7 @@ private:
 
 class D1GfxFrame {
     friend class D1Cel;
+    friend class Pcx;
     friend class D1CelFrame;
     friend class D1Cl2;
     friend class D1Cl2Frame;
@@ -67,6 +68,7 @@ class D1Gfx : public QObject {
 
     friend class D1Cel;
     friend class D1Cl2;
+    friend class Pcx;
     friend class D1CelTileset;
 
 public:
