@@ -26,6 +26,8 @@
 #include "d1formats/d1celtileset.h"
 #include "d1formats/d1cl2.h"
 #include "ui_mainwindow.h"
+#include "widgets/palettewidget.h"
+#include "d1formats/pcx.h"
 
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
@@ -424,7 +426,7 @@ void MainWindow::on_actionRegroupFrames_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString openFilePath = this->fileDialog(FILE_DIALOG_MODE::OPEN, "Open Graphics", "CEL/CL2/CLX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX)");
+    QString openFilePath = this->fileDialog(FILE_DIALOG_MODE::OPEN, "Open Graphics", "CEL/CL2/CLX/PCX Files (*.cel *.CEL *.cl2 *.CL2 *.clx *.CLX *.pcx *.PCX)");
 
     if (!openFilePath.isEmpty()) {
         OpenAsParam params;
@@ -481,7 +483,8 @@ void MainWindow::openFile(const OpenAsParam &params)
     if (!openFilePath.isEmpty()
         && !openFilePath.toLower().endsWith(".cel")
         && !openFilePath.toLower().endsWith(".cl2")
-        && !openFilePath.endsWith(".clx")) {
+        && !openFilePath.endsWith(".clx")
+        && !openFilePath.endsWith(".pcx")) {
         return;
     }
 
@@ -588,6 +591,12 @@ void MainWindow::openFile(const OpenAsParam &params)
     } else if (openFilePath.toLower().endsWith(".clx")) {
         if (!D1Cl2::load(*this->gfx, openFilePath, true, params)) {
             QMessageBox::critical(this, "Error", "Failed loading CLX file: " + openFilePath);
+            return;
+        }
+    }
+    else if (openFilePath.toLower().endsWith(".pcx")) {
+        if (!Pcx::load(*this->gfx, openFilePath, params)) {
+            QMessageBox::critical(this, "Error", "Failed loading PCX file: " + openFilePath);
             return;
         }
     }
