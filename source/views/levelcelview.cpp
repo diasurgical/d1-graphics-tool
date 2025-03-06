@@ -98,6 +98,7 @@ QList<quint16> extractSubImages(const QImage &image, std::vector<QImage> &images
                 continue;
             }
 
+            frameIndex++;
             images.push_back(subImage);
         }
     }

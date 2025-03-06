@@ -117,7 +117,6 @@ private:
     void insertTiles(IMAGE_FILE_MODE mode, int index, const QImage &image);
     void insertTiles(IMAGE_FILE_MODE mode, int index, const QString &imagefilePath);
     void insertTiles(IMAGE_FILE_MODE mode, const QStringList &imagefilePaths, bool append);
-    void assignFrames(const QImage &image, int subtileIndex, int frameIndex);
     void assignSubtiles(const QImage &image, int tileIndex, int subtileIndex);
     void removeFrame(int frameIndex);
     void removeSubtile(int subtileIndex);
