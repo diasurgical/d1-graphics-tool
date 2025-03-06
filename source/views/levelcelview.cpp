@@ -964,8 +964,6 @@ void LevelCelView::replaceCurrentSubtile(const QString &imagefilePath)
     }
 
     this->min->getCelFrameIndices(subtileIndex).swap(frameIndicesList);
-    // reset subtile flags
-    this->sol->setSubtileProperties(subtileIndex, 0);
 
     // update the view
     this->update();
