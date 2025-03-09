@@ -293,32 +293,36 @@ PaletteWidget::~PaletteWidget()
 {
     delete ui;
     delete scene;
+
+    for (auto &pair : m_palettes_map) {
+        delete pair.second.second;
+    }
 }
 
-void PaletteWidget::setPal(D1Pal *p)
+void PaletteWidget::setPal(const QString &path)
 {
-    this->pal = p;
+    m_pal = m_palettes_map[path].second;
 
     emit this->modified();
 }
 
-void PaletteWidget::setTrn(D1Trn *t)
+void PaletteWidget::setTrn(const QString &path)
 {
-    this->trn = t;
+    this->m_trn = dynamic_cast<D1Trn *>(m_palettes_map[path].second);
 
     emit this->modified();
 }
 
 bool PaletteWidget::isTrnWidget()
 {
-    return this->isTrn;
+    return (m_paletteType == PaletteType::Translation || m_paletteType == PaletteType::UniqTranslation);
 }
 
-void PaletteWidget::initialize(D1Pal *p, CelView *c, D1PalHits *ph)
+void PaletteWidget::initialize(D1Pal *p, CelView *c, D1PalHits *ph, PaletteType palType)
 {
-    this->isTrn = false;
-    this->pal = p;
-    this->trn = nullptr;
+    this->m_paletteType = palType;
+    this->m_pal = p;
+    this->m_trn = nullptr;
     this->celView = c;
     this->levelCelView = nullptr;
     this->palHits = ph;
@@ -326,11 +330,11 @@ void PaletteWidget::initialize(D1Pal *p, CelView *c, D1PalHits *ph)
     this->initializeUi();
 }
 
-void PaletteWidget::initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph)
+void PaletteWidget::initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph, PaletteType palType)
 {
-    this->isTrn = false;
-    this->pal = p;
-    this->trn = nullptr;
+    this->m_paletteType = palType;
+    this->m_pal = p;
+    this->m_trn = nullptr;
     this->celView = nullptr;
     this->levelCelView = lc;
     this->palHits = ph;
@@ -338,11 +342,11 @@ void PaletteWidget::initialize(D1Pal *p, LevelCelView *lc, D1PalHits *ph)
     this->initializeUi();
 }
 
-void PaletteWidget::initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph)
+void PaletteWidget::initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph, PaletteType palType)
 {
-    this->isTrn = true;
-    this->pal = p;
-    this->trn = t;
+    this->m_paletteType = palType;
+    this->m_pal = p;
+    this->m_trn = t;
     this->celView = c;
     this->levelCelView = nullptr;
     this->palHits = ph;
@@ -350,11 +354,11 @@ void PaletteWidget::initialize(D1Pal *p, D1Trn *t, CelView *c, D1PalHits *ph)
     this->initializeUi();
 }
 
-void PaletteWidget::initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *ph)
+void PaletteWidget::initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *ph, PaletteType palType)
 {
-    this->isTrn = true;
-    this->pal = p;
-    this->trn = t;
+    this->m_paletteType = palType;
+    this->m_pal = p;
+    this->m_trn = t;
     this->celView = nullptr;
     this->levelCelView = lc;
     this->palHits = ph;
@@ -364,7 +368,7 @@ void PaletteWidget::initialize(D1Pal *p, D1Trn *t, LevelCelView *lc, D1PalHits *
 
 void PaletteWidget::initializeUi()
 {
-    bool trnMode = this->isTrn;
+    bool trnMode = this->m_paletteType == PaletteType::Translation || this->m_paletteType == PaletteType::UniqTranslation;
 
     this->ui->monsterTrnPushButton->setVisible(trnMode);
     this->ui->translationClearPushButton->setVisible(trnMode);
@@ -389,10 +393,12 @@ void PaletteWidget::initializeUi()
 
 void PaletteWidget::initializePathComboBox()
 {
-    if (!this->isTrn) {
-        this->paths[D1Pal::DEFAULT_PATH] = D1Pal::DEFAULT_NAME;
+    if (m_paletteType == PaletteType::Palette) {
+        this->m_palettes_map[D1Pal::DEFAULT_PATH].first = D1Pal::DEFAULT_NAME;
+        this->m_palettes_map[D1Pal::DEFAULT_PATH].second = m_pal;
     } else {
-        this->paths[D1Trn::IDENTITY_PATH] = D1Trn::IDENTITY_NAME;
+        this->m_palettes_map[D1Trn::IDENTITY_PATH].first = D1Trn::IDENTITY_NAME;
+        this->m_palettes_map[D1Trn::IDENTITY_PATH].second = m_trn;
     }
 
     this->refreshPathComboBox();
@@ -402,7 +408,7 @@ void PaletteWidget::initializeDisplayComboBox()
 {
     ui->displayComboBox->addItem("Show all colors", QVariant((int)COLORFILTER_TYPE::NONE));
 
-    if (!this->isTrn) {
+    if (m_paletteType == PaletteType::Palette) {
         ui->displayComboBox->addItem("Show all frames hits", QVariant((int)COLORFILTER_TYPE::USED));
         if (this->levelCelView != nullptr) {
             ui->displayComboBox->addItem("Show current tile hits", QVariant((int)COLORFILTER_TYPE::TILE));
@@ -447,7 +453,7 @@ void PaletteWidget::checkTranslationsSelection(QList<quint8> indexes)
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     std::unique_ptr<EditTranslationsCommand> command = std::make_unique<EditTranslationsCommand>(
-        this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, indexes);
+        this->m_trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, indexes);
     QObject::connect(command.get(), &EditTranslationsCommand::modified, this, &PaletteWidget::modify);
 
     this->undoStack->push(std::move(command));
@@ -459,18 +465,18 @@ void PaletteWidget::checkTranslationsSelection(QList<quint8> indexes)
     emit this->clearRootBorder();
 }
 
-void PaletteWidget::addPath(QString path, QString name)
+void PaletteWidget::addPath(const QString &path, const QString &name, D1Pal *pal)
 {
-    this->paths[path] = name;
+    this->m_palettes_map[path] = std::make_pair(name, pal);
 }
 
-void PaletteWidget::removePath(QString path)
+void PaletteWidget::removePath(const QString &path)
 {
-    if (this->paths.contains(path))
-        this->paths.remove(path);
+    if (this->m_palettes_map.contains(path))
+        this->m_palettes_map.erase(path);
 }
 
-void PaletteWidget::selectPath(QString path)
+void PaletteWidget::selectPath(const QString &path)
 {
     this->ui->pathComboBox->setCurrentIndex(this->ui->pathComboBox->findData(path));
     this->ui->pathComboBox->setToolTip(path);
@@ -479,9 +485,22 @@ void PaletteWidget::selectPath(QString path)
     emit this->modified();
 }
 
-QString PaletteWidget::getSelectedPath()
+QString PaletteWidget::getWidgetsDefaultPath() const
 {
-    return this->paths.key(this->ui->pathComboBox->currentText());
+    if (m_paletteType == PaletteType::Palette) {
+        return D1Pal::DEFAULT_PATH;
+    }
+
+    return D1Trn::IDENTITY_PATH;
+}
+
+QString PaletteWidget::getSelectedPath() const
+{
+    QString path = this->ui->pathComboBox->currentText();
+    for (const auto &[key, valuePair] : m_palettes_map) {
+        if (valuePair.first == this->ui->pathComboBox->currentText())
+            return key;
+    }
 }
 
 static QRectF getColorCoordinates(quint8 index)
@@ -537,19 +556,17 @@ void PaletteWidget::finishColorSelection()
         std::swap(this->selectedFirstColorIndex, this->selectedLastColorIndex);
     }
 
-    if (this->isTrn) {
-        if (this->pickingTranslationColor) {
-            this->clearInfo();
-            emit this->clearRootInformation();
-            emit this->clearRootBorder();
-            this->pickingTranslationColor = false;
-        }
+    if (m_paletteType != PaletteType::Palette && this->pickingTranslationColor) {
+        this->clearInfo();
+        emit this->clearRootInformation();
+        emit this->clearRootBorder();
+        this->pickingTranslationColor = false;
     }
 
     this->temporarilyDisplayingAllColors = false;
 
     // emit selected colors
-    // if ((!this->isTrn && !this->pal.isNull()) || (this->isTrn && !this->trn.isNull())) {
+    // if ((!this->isTrn && !this->pal.isNull()) || (this->isTrn && !this->m_trn.isNull())) {
     QList<quint8> indexes;
     for (int i = this->selectedFirstColorIndex; i <= this->selectedLastColorIndex; i++)
         indexes.append(i);
@@ -557,6 +574,202 @@ void PaletteWidget::finishColorSelection()
     // }
 
     this->refresh();
+}
+
+void PaletteWidget::setTrnPalette(D1Pal *pal)
+{
+    this->m_trn->setPalette(pal);
+    refresh();
+}
+
+void PaletteWidget::save()
+{
+    PaletteFileInfo fileInfo = paletteFileInfo();
+
+    QString selectedPath = getSelectedPath();
+    if (selectedPath == getWidgetsDefaultPath()) {
+        newOrSaveAsFile(PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVEAS);
+    } else {
+        if (!(m_paletteType != PaletteType::Palette ? m_trn->save(selectedPath) : m_pal->save(selectedPath))) {
+            QMessageBox::critical(this, "Error", QString("Could not save %1 file.").arg(fileInfo.suffix.toUpper()));
+        }
+    }
+}
+
+PaletteFileInfo PaletteWidget::paletteFileInfo() const
+{
+    if (m_paletteType != PaletteType::Palette) {
+        return { "translation", "trn" };
+    }
+
+    return { "palette", "pal" };
+}
+
+void PaletteWidget::performSave(const QString &palFilePath, const PaletteFileInfo &fileInfo)
+{
+    bool opResult = false;
+    if (m_paletteType == PaletteType::Palette) {
+        opResult = this->m_pal->save(palFilePath);
+    } else {
+        opResult = this->m_trn->save(palFilePath);
+    }
+
+    if (!opResult) {
+        QMessageBox::critical(this, "Error", QString("Could not save %1 file.").arg(fileInfo.suffix.toUpper()));
+    }
+}
+
+void PaletteWidget::newOrSaveAsFile(const PWIDGET_CALLBACK_TYPE action)
+{
+    PaletteFileInfo fileInfo = paletteFileInfo();
+
+    QString actionStr;
+    if (action == PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVEAS) {
+        actionStr = QString("Save %1 File as...").arg(fileInfo.name);
+    } else {
+        actionStr = QString("New %1 File").arg(fileInfo.name);
+    }
+
+    auto *mw = dynamic_cast<MainWindow *>(this->window());
+    QString palFilePath = mw->fileDialog(FILE_DIALOG_MODE::SAVE_CONF,
+        actionStr.toStdString().c_str(),
+        (QString("%2 Files (*.%1 *.%2)").arg(fileInfo.suffix, fileInfo.suffix.toUpper())).toStdString().c_str());
+
+    if (palFilePath.isEmpty()) {
+        return;
+    }
+
+    QFileInfo palFileInfo(palFilePath);
+    QString path = palFileInfo.absoluteFilePath();
+    QString name = palFileInfo.fileName();
+
+    if (palFileInfo.suffix().isEmpty()) {
+        path += "." + fileInfo.suffix;
+        name += "." + fileInfo.suffix;
+    } else if (palFileInfo.suffix() != fileInfo.suffix) {
+        QMessageBox::critical(nullptr, "Error", QString("Only %1 is supported for %2").arg(fileInfo.suffix, fileInfo.name));
+        return;
+    }
+
+    // For save operation we need to save first and then load, but for new file op
+    // we need to propagate `newPal` with default information first by loading and
+    // then save
+    if (action == PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_SAVEAS) {
+        performSave(palFilePath, fileInfo);
+    }
+
+    D1Pal *newPal;
+    switch (m_paletteType) {
+    case PaletteType::Palette:
+        newPal = new D1Pal();
+        break;
+    case PaletteType::Translation:
+        newPal = new D1Trn(mw->uniqTrnWidget()->trn()->getResultingPalette());
+        break;
+    case PaletteType::UniqTranslation:
+        newPal = new D1Trn(mw->paletteWidget()->pal());
+        break;
+    }
+
+    QString loadedFilePath;
+    if (action == PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_NEW) {
+        loadedFilePath = newPal->getDefaultPath();
+    } else {
+        loadedFilePath = path;
+    }
+
+    if (!newPal->load(loadedFilePath)) {
+        delete newPal;
+        QMessageBox::critical(this, "Error", QString("Could not load %1 file.").arg(fileInfo.suffix.toUpper()));
+        return;
+    }
+
+    // For new operation we need to load first and then save, as the file has to be
+    // propagated with default information first
+    if (action == PWIDGET_CALLBACK_TYPE::PWIDGET_CALLBACK_NEW) {
+        performSave(path, fileInfo);
+    }
+
+    if (this->m_palettes_map.contains(name))
+        delete this->m_palettes_map[name].second;
+    addPath(path, name, newPal);
+    selectPath(path);
+}
+
+bool PaletteWidget::loadPalette(const QString &filepath)
+{
+    PaletteFileInfo fileInfo = paletteFileInfo();
+
+    auto *mw = dynamic_cast<MainWindow *>(this->window());
+    QFileInfo palFileInfo(filepath);
+    // QString path = trnFileInfo.absoluteFilePath();
+    const QString &path = filepath;
+    QString name = palFileInfo.fileName();
+
+    D1Pal *newPal;
+    switch (m_paletteType) {
+    case PaletteType::Palette:
+        newPal = new D1Pal();
+        break;
+    case PaletteType::Translation:
+        newPal = new D1Trn(mw->uniqTrnWidget()->trn()->getResultingPalette());
+        break;
+    case PaletteType::UniqTranslation:
+        newPal = new D1Trn(mw->paletteWidget()->pal());
+        break;
+    }
+
+    if (!newPal->load(path)) {
+        delete newPal;
+        QMessageBox::critical(this, "Error", QString("Could not load %1 file.").arg(fileInfo.suffix.toUpper()));
+        return false;
+    }
+
+    if (this->m_palettes_map.contains(name))
+        delete this->m_palettes_map[name].second;
+    addPath(path, name, newPal);
+    return true;
+}
+
+void PaletteWidget::openPalette()
+{
+    PaletteFileInfo fileInfo = paletteFileInfo();
+
+    auto *mw = dynamic_cast<MainWindow *>(this->window());
+    QString paletteFilePath = mw->fileDialog(FILE_DIALOG_MODE::OPEN,
+        QString("Load %1 File").arg(fileInfo.name).toStdString().c_str(),
+        QString("%2 Files (*.%1 *.%2)").arg(fileInfo.suffix, fileInfo.suffix.toUpper()).toStdString().c_str());
+
+    if (!paletteFilePath.isEmpty() && loadPalette(paletteFilePath)) {
+        selectPath(paletteFilePath);
+    }
+}
+
+bool PaletteWidget::isOkToQuit()
+{
+    for (const auto &pair : m_palettes_map) {
+        D1Pal *pal = pair.second.second;
+        if (!mw::QuestionDiscardChanges(pal->isModified(), pal->getFilePath())) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void PaletteWidget::closePalette()
+{
+    QString selectedPath = getSelectedPath();
+    if (selectedPath == getWidgetsDefaultPath())
+        return;
+
+    if (this->m_palettes_map.contains(selectedPath)) {
+        delete this->m_palettes_map[selectedPath].second;
+        this->m_palettes_map.erase(selectedPath);
+    }
+
+    removePath(selectedPath);
+    selectPath(getWidgetsDefaultPath());
 }
 
 bool PaletteWidget::displayColor(int colorIndex)
@@ -604,14 +817,14 @@ void PaletteWidget::displayColors()
             continue;
 
         // Check translation display filter
-        if (this->isTrn && ui->displayComboBox->currentData().value<COLORFILTER_TYPE>() == COLORFILTER_TYPE::TRANSLATED // "Show translated colors"
-            && this->trn->getTranslation(i) == i)
+        if (m_paletteType != PaletteType::Palette && ui->displayComboBox->currentData().value<COLORFILTER_TYPE>() == COLORFILTER_TYPE::TRANSLATED // "Show translated colors"
+            && this->m_trn->getTranslation(i) == i)
             continue;
 
         int x = i % PALETTE_COLORS_PER_LINE;
         int y = i / PALETTE_COLORS_PER_LINE;
 
-        QBrush brush = QBrush(this->isTrn ? this->trn->getResultingPalette()->getColor(i) : this->pal->getColor(i));
+        QBrush brush = QBrush(m_paletteType != PaletteType::Palette ? this->m_trn->getResultingPalette()->getColor(i) : this->m_pal->getColor(i));
         this->scene->addRect(x * dx + bsw, y * dy + bsw, w, w, pen, brush);
     }
 }
@@ -700,15 +913,15 @@ void PaletteWidget::refreshPathComboBox()
     this->ui->pathComboBox->clear();
 
     // Go through the hits of the CEL frame and add them to the subtile hits
-    for (auto iter = this->paths.cbegin(); iter != this->paths.cend(); iter++) {
-        this->ui->pathComboBox->addItem(iter.value(), iter.key());
+    for (const auto &[key, pair] : m_palettes_map) {
+        this->ui->pathComboBox->addItem(pair.first, key);
     }
 
     QString selectedPath;
-    if (!this->isTrn) {
-        selectedPath = this->pal->getFilePath();
+    if (m_paletteType == PaletteType::Palette) {
+        selectedPath = this->m_pal->getFilePath();
     } else {
-        selectedPath = this->trn->getFilePath();
+        selectedPath = this->m_trn->getFilePath();
     }
     this->ui->pathComboBox->setCurrentIndex(this->ui->pathComboBox->findData(selectedPath));
     this->ui->pathComboBox->setToolTip(selectedPath);
@@ -717,7 +930,7 @@ void PaletteWidget::refreshPathComboBox()
 void PaletteWidget::refreshColorLineEdit()
 {
     if (this->selectedFirstColorIndex == this->selectedLastColorIndex) {
-        QColor selectedColor = this->pal->getColor(this->selectedFirstColorIndex);
+        QColor selectedColor = this->m_pal->getColor(this->selectedFirstColorIndex);
         this->ui->colorLineEdit->setText(selectedColor.name());
     } else {
         this->ui->colorLineEdit->setText("*");
@@ -741,12 +954,12 @@ void PaletteWidget::refreshIndexLineEdit()
 
 void PaletteWidget::refreshTranslationIndexLineEdit()
 {
-    if (this->trn.isNull())
+    if (this->m_trn == nullptr)
         return;
 
     if (this->selectedFirstColorIndex == this->selectedLastColorIndex) {
         this->ui->translationIndexLineEdit->setText(
-            QString::number(this->trn->getTranslation(this->selectedFirstColorIndex)));
+            QString::number(this->m_trn->getTranslation(this->selectedFirstColorIndex)));
     } else {
         this->ui->translationIndexLineEdit->setText("*");
     }
@@ -759,15 +972,15 @@ void PaletteWidget::modify()
 
 void PaletteWidget::refresh()
 {
-    if (this->isTrn)
-        this->trn->refreshResultingPalette();
+    if (m_paletteType != PaletteType::Palette)
+        this->m_trn->refreshResultingPalette();
 
     this->displayColors();
     this->displaySelection();
     this->refreshPathComboBox();
     this->refreshColorLineEdit();
     this->refreshIndexLineEdit();
-    if (this->isTrn)
+    if (m_paletteType != PaletteType::Palette)
         this->refreshTranslationIndexLineEdit();
 
     emit refreshed();
@@ -818,7 +1031,7 @@ void PaletteWidget::on_pathComboBox_activated(int index)
 
 void PaletteWidget::on_displayComboBox_activated(int index)
 {
-    if (!this->isTrn) {
+    if (m_paletteType == PaletteType::Palette) {
         D1PALHITS_MODE mode = D1PALHITS_MODE::ALL_COLORS;
         switch (this->ui->displayComboBox->currentData().value<COLORFILTER_TYPE>()) {
         case COLORFILTER_TYPE::NONE:
@@ -850,7 +1063,7 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     std::unique_ptr<EditColorsCommand> command = std::make_unique<EditColorsCommand>(
-        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, color);
+        this->m_pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, color);
     QObject::connect(command.get(), &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
     this->undoStack->push(std::move(command));
@@ -861,7 +1074,7 @@ void PaletteWidget::on_colorLineEdit_returnPressed()
 
 void PaletteWidget::on_colorPickPushButton_clicked()
 {
-    QColor color = this->pal->getColor(this->selectedFirstColorIndex);
+    QColor color = this->m_pal->getColor(this->selectedFirstColorIndex);
     color = QColorDialog::getColor(color);
     if (!color.isValid())
         return;
@@ -870,7 +1083,7 @@ void PaletteWidget::on_colorPickPushButton_clicked()
     if (this->selectedFirstColorIndex == this->selectedLastColorIndex) {
         colorEnd = color;
     } else {
-        colorEnd = this->pal->getColor(this->selectedLastColorIndex);
+        colorEnd = this->m_pal->getColor(this->selectedLastColorIndex);
         colorEnd = QColorDialog::getColor(colorEnd);
         if (!colorEnd.isValid())
             return;
@@ -879,7 +1092,7 @@ void PaletteWidget::on_colorPickPushButton_clicked()
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     std::unique_ptr<EditColorsCommand> command = std::make_unique<EditColorsCommand>(
-        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, colorEnd);
+        this->m_pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, color, colorEnd);
     QObject::connect(command.get(), &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
     this->undoStack->push(std::move(command));
@@ -890,7 +1103,7 @@ void PaletteWidget::on_colorClearPushButton_clicked()
     // Build color editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     std::unique_ptr<EditColorsCommand> command = std::make_unique<EditColorsCommand>(
-        this->pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, this->paletteDefaultColor, this->paletteDefaultColor);
+        this->m_pal, this->selectedFirstColorIndex, this->selectedLastColorIndex, this->paletteDefaultColor, this->paletteDefaultColor);
     QObject::connect(command.get(), &EditColorsCommand::modified, this, &PaletteWidget::modify);
 
     this->undoStack->push(std::move(command));
@@ -908,7 +1121,7 @@ void PaletteWidget::on_translationIndexLineEdit_returnPressed()
     // Build translation editing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     std::unique_ptr<EditTranslationsCommand> command = std::make_unique<EditTranslationsCommand>(
-        this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, newTranslations);
+        this->m_trn, this->selectedFirstColorIndex, this->selectedLastColorIndex, newTranslations);
     QObject::connect(command.get(), &EditTranslationsCommand::modified, this, &PaletteWidget::modify);
 
     this->undoStack->push(std::move(command));
@@ -931,7 +1144,7 @@ void PaletteWidget::on_translationClearPushButton_clicked()
     // Build translation clearing command and connect it to the current palette widget
     // to update the PAL/TRN and CEL views when undo/redo is performed
     std::unique_ptr<ClearTranslationsCommand> command = std::make_unique<ClearTranslationsCommand>(
-        this->trn, this->selectedFirstColorIndex, this->selectedLastColorIndex);
+        this->m_trn, this->selectedFirstColorIndex, this->selectedLastColorIndex);
     QObject::connect(command.get(), &ClearTranslationsCommand::modified, this, &PaletteWidget::modify);
 
     this->undoStack->push(std::move(command));
@@ -942,8 +1155,8 @@ void PaletteWidget::on_monsterTrnPushButton_clicked()
     bool trnModified = false;
 
     for (int i = 0; i < D1PAL_COLORS; i++) {
-        if (this->trn->getTranslation(i) == 0xFF) {
-            this->trn->setTranslation(i, 0);
+        if (this->m_trn->getTranslation(i) == 0xFF) {
+            this->m_trn->setTranslation(i, 0);
             trnModified = true;
         }
     }

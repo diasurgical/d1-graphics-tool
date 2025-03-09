@@ -44,6 +44,10 @@ namespace Ui {
 class MainWindow;
 }
 
+namespace mw {
+bool QuestionDiscardChanges(bool isModified, QString filePath);
+} // namespace mw
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -51,13 +55,13 @@ public:
     explicit MainWindow();
     ~MainWindow();
 
-    void setPal(QString);
-    void setTrn(QString);
-    void setTrnUnique(QString);
+    void setPal(const QString &);
+    void setTrn(const QString &);
+    void setTrnUnique(const QString &);
 
     void openFile(const OpenAsParam &params);
     void openImageFiles(IMAGE_FILE_MODE mode, QStringList filePaths, bool append);
-    void openPalFiles(QStringList filePaths, PaletteWidget *widget);
+    void openPalFiles(const QStringList &filePaths, PaletteWidget *widget) const;
     void openFontFile(QString filePath, QColor renderColor, int pointSize, uint symbolPrefix);
     void saveFile(const QString &gfxPath);
 
@@ -70,6 +74,18 @@ public:
     QString getLastFilePath();
     QString fileDialog(FILE_DIALOG_MODE mode, const char *title, const char *filter);
     QStringList filesDialog(const char *title, const char *filter);
+    PaletteWidget *trnWidget()
+    {
+        return m_trnWidget;
+    }
+    PaletteWidget *uniqTrnWidget()
+    {
+        return m_trnUniqueWidget;
+    }
+    PaletteWidget *paletteWidget()
+    {
+        return m_palWidget;
+    }
 
     static bool hasImageUrl(const QMimeData *mimeData);
 
@@ -78,9 +94,6 @@ protected:
 
 private:
     void updateWindow();
-    bool loadPal(QString palFilePath);
-    bool loadTrn(QString trnfilePath);
-    bool loadTrnUnique(QString trnfilePath);
 
     void addFrames(bool append);
     void addSubtiles(bool append);
@@ -143,24 +156,6 @@ private slots:
     void on_actionSortFrames_Tileset_triggered();
     void on_actionSortSubtiles_Tileset_triggered();
 
-    void on_actionNew_PAL_triggered();
-    void on_actionOpen_PAL_triggered();
-    void on_actionSave_PAL_triggered();
-    void on_actionSave_PAL_as_triggered();
-    void on_actionClose_PAL_triggered();
-
-    void on_actionNew_Unique_Translation_triggered();
-    void on_actionOpen_Unique_Translation_triggered();
-    void on_actionSave_Unique_Translation_triggered();
-    void on_actionSave_Unique_Translation_as_triggered();
-    void on_actionClose_Unique_Translation_triggered();
-
-    void on_actionNew_Translation_triggered();
-    void on_actionOpen_Translation_triggered();
-    void on_actionSave_Translation_triggered();
-    void on_actionSave_Translation_as_triggered();
-    void on_actionClose_Translation_triggered();
-
     void on_actionAbout_triggered();
     void on_actionAbout_Qt_triggered();
 
@@ -184,27 +179,20 @@ private:
     QPointer<CelView> celView;
     QPointer<LevelCelView> levelCelView;
 
-    QPointer<PaletteWidget> palWidget;
-    QPointer<PaletteWidget> trnWidget;
-    QPointer<PaletteWidget> trnUniqueWidget;
+    PaletteWidget *m_palWidget = nullptr;
+    PaletteWidget *m_trnWidget = nullptr;
+    PaletteWidget *m_trnUniqueWidget = nullptr;
 
     OpenAsDialog openAsDialog = OpenAsDialog(this);
     SettingsDialog settingsDialog = SettingsDialog(this);
     ImportDialog importDialog = ImportDialog(this);
     ExportDialog exportDialog = ExportDialog(this);
 
-    QPointer<D1Pal> pal;
-    QPointer<D1Trn> trn;
-    QPointer<D1Trn> trnUnique;
     QPointer<D1Gfx> gfx;
     QPointer<D1Min> min;
     QPointer<D1Til> til;
     QPointer<D1Sol> sol;
     QPointer<D1Amp> amp;
-
-    QMap<QString, D1Pal *> pals;       // key: path, value: pointer to palette
-    QMap<QString, D1Trn *> trns;       // key: path, value: pointer to translation
-    QMap<QString, D1Trn *> trnsUnique; // key: path, value: pointer to translation
 
     std::unique_ptr<QProgressDialog> m_progressDialog;
 

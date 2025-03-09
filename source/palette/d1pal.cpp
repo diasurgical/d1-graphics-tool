@@ -120,6 +120,16 @@ QString D1Pal::getFilePath()
     return this->palFilePath;
 }
 
+QString D1Pal::getDefaultPath() const
+{
+    return DEFAULT_PATH;
+}
+
+QString D1Pal::getDefaultName() const
+{
+    return DEFAULT_NAME;
+}
+
 QColor D1Pal::getColor(quint8 index)
 {
     return this->colors[index];

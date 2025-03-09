@@ -29,14 +29,17 @@ public:
     static constexpr const char *DEFAULT_NAME = "_default.pal";
 
     D1Pal() = default;
-    ~D1Pal() = default;
+    ~D1Pal() override = default;
 
-    bool load(QString);
-    bool save(QString);
+    virtual bool load(QString);
+    virtual bool save(QString);
 
-    bool isModified() const;
+    [[nodiscard]] virtual bool isModified() const;
 
-    QString getFilePath();
+    virtual QString getFilePath();
+
+    [[nodiscard]] virtual QString getDefaultPath() const;
+    [[nodiscard]] virtual QString getDefaultName() const;
 
     QColor getColor(quint8);
     void setColor(quint8, QColor);

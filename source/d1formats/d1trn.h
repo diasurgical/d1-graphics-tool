@@ -6,7 +6,7 @@
 
 #define D1TRN_TRANSLATIONS 256
 
-class D1Trn : public QObject {
+class D1Trn final : public D1Pal {
     Q_OBJECT
 
 public:
@@ -17,15 +17,19 @@ public:
     D1Trn(D1Pal *pal);
     ~D1Trn() = default;
 
-    bool load(QString);
-    bool save(QString);
+    bool load(QString filepath) override;
+    bool save(QString filepath) override;
 
-    bool isModified() const;
+    [[nodiscard]] bool isModified() const override;
 
     void refreshResultingPalette();
     QColor getResultingColor(quint8);
 
-    QString getFilePath();
+    QString getFilePath() override;
+
+    [[nodiscard]] QString getDefaultPath() const override;
+    [[nodiscard]] QString getDefaultName() const override;
+
     quint8 getTranslation(quint8);
     void setTranslation(quint8, quint8);
     void setPalette(D1Pal *pal);
@@ -35,6 +39,6 @@ private:
     QString trnFilePath;
     bool modified;
     quint8 translations[D1TRN_TRANSLATIONS];
-    QPointer<D1Pal> palette;
+    D1Pal *palette = nullptr;
     D1Pal resultingPalette;
 };
